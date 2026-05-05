@@ -31,7 +31,7 @@ jobs:
         run: mkdocs build --clean
 
       - name: Add Helm index to site
-        run: cp docs/_helm_chart/index/index.yaml site/index.yaml
+        run: cp docs/index.yaml site/index.yaml
 
       - name: Deploy to GitHub Pages
         run: |
