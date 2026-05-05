@@ -14,6 +14,7 @@ jobs:
     # see: https://docs.github.com/en/actions/security-guides/automatic-token-authentication#modifying-the-permissions-for-the-github_token
     permissions:
       contents: write
+      actions: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -48,6 +49,17 @@ jobs:
           skip_existing: true
           mark_as_latest: false
           pages_branch: master
-          pages_index_path: docs/index.yaml
+          pages_index_path: docs/_helm_chart/index/index.yaml
         env:
           CR_TOKEN: "${{secrets.GITHUB_TOKEN}}"
+
+      - name: Trigger docs deployment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'docs.yaml',
+              ref: 'master'
+            })
