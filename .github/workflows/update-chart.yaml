@@ -49,7 +49,7 @@ jobs:
           skip_existing: true
           mark_as_latest: false
           pages_branch: master
-          pages_index_path: docs/index.yaml
+          pages_index_path: docs/_helm_chart/index/index.yaml
         env:
           CR_TOKEN: "${{secrets.GITHUB_TOKEN}}"
 
