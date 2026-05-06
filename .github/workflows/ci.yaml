@@ -2,9 +2,9 @@ name: Continuous Integration
 on:
   push:
     branches:
-      - master
+      - dev
   pull_request:
-    branches: [ master, develop ]
+    branches: [ dev ]
 jobs:
   deploy:
     runs-on: ubuntu-22.04
