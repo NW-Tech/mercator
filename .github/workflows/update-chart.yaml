@@ -7,6 +7,7 @@ on:
     paths:
       - 'version.txt'
   workflow_dispatch:
+  # This workflow is triggered by the chart-releaser workflow when a new chart version is released, to update the index.yaml file with the new chart version and trigger the docs deployment workflow
 
 jobs:
   update-chart:
