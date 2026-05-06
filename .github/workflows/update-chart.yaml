@@ -3,7 +3,7 @@ name: Update Chart appVersion
 on:
   push:
     branches:
-      - master
+      - dev
     paths:
       - 'version.txt'
   workflow_dispatch:
@@ -49,7 +49,7 @@ jobs:
           charts_dir: docs/_helm_chart
           skip_existing: true
           mark_as_latest: false
-          pages_branch: master
+          pages_branch: dev
           pages_index_path: docs/_helm_chart/index/index.yaml
           release_name_template: "{{ .Version }}"
         env:
@@ -63,5 +63,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'docs.yaml',
-              ref: 'master'
+              ref: 'dev'
             })
