@@ -1,10 +1,11 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
+use Gate;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
@@ -12,12 +13,13 @@ use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use Symfony\Component\HttpFoundation\Response;
 
 class CVEController extends Controller
 {
     public function search(string $cpe)
     {
-        $provider = config('mercator-config.cve.provider');
+        $provider = config('mercator.cve.provider');
         if (empty($provider)) {
             return back()->withErrors('CVE provider is not set.');
         }
@@ -33,15 +35,18 @@ class CVEController extends Controller
 
     public function list()
     {
+        abort_if(Gate::denies('reports_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         Log::debug('CVEReport - Start');
 
-        $provider = config('mercator-config.cve.provider');
+        $provider = config('mercator.cve.provider');
         if (empty($provider)) {
             return back()->withErrors('CVE provider is not set.');
         }
 
         $applications = DB::table('m_applications')
             ->select('name', 'vendor', 'product', 'version')
+            ->whereNull('deleted_at')
             ->orderBy('name')
             ->get();
 
@@ -59,7 +64,7 @@ class CVEController extends Controller
             'CVE Published',
         ];
 
-        $spreadsheet = new Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->fromArray([$header], null, 'A1');
 
@@ -181,6 +186,7 @@ class CVEController extends Controller
      * @return array<int,object> // liste d'objets CVE normalisés
      *
      * @throws \RuntimeException // en cas d'erreur
+     * @throws ConnectionException
      */
     protected function getCVEs(string $provider, string $cpe): array
     {
@@ -192,8 +198,12 @@ class CVEController extends Controller
 
         // Appel HTTP avec timeouts et gestion d’erreurs
         $resp = Http::timeout(10)
+            ->retry(3, 1000) // 3 tentatives, backoff 1s
             ->acceptJson()
-            ->withHeaders(['User-Agent' => "Mercator/{$appVersion}"])
+            ->withHeaders([
+                'User-Agent' => "Mercator/{$appVersion}",
+                'Accept' => 'application/json',
+                ])
             ->get($url);
 
         if ($resp->failed()) {

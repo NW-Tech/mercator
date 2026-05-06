@@ -1,5 +1,9 @@
 @extends('layouts.admin')
 
+@section('title')
+    {{ trans('cruds.configuration.import.title') }}
+@endsection
+
 @section('content')
     <div class="row">
         <div class="col-lg-12">
@@ -137,6 +141,7 @@
                 ['id' => 'LogicalFlow',             'label' => trans('cruds.logicalFlow.title')],
                 ['id' => 'Vlan',                    'label' => trans('cruds.vlan.title')],
                 ['id' => 'Certificate',             'label' => trans('cruds.certificate.title')],
+                ['id' => 'BackupList',                  'label' => trans('cruds.backup.title')],
             ],
             6 => [ // Infrastructure physique
                 ['id' => 'Site',                   'label' => trans('cruds.site.title')],

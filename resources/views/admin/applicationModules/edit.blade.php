@@ -1,43 +1,97 @@
 @extends('layouts.admin')
-@section('content')
-<form method="POST" action="{{ route("admin.application-modules.update", [$applicationModule->id]) }}" enctype="multipart/form-data">
-    @method('PUT')
-    @csrf
-    <div class="card">
-        <div class="card-header">
-            {{ trans('global.edit') }} {{ trans('cruds.applicationModule.title_singular') }}
-        </div>
 
-        <div class="card-body">
-            <div class="form-group">
-                <label class="required" for="name">{{ trans('cruds.applicationModule.fields.name') }}</label>
-                <input class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" type="text" name="name" id="name" value="{{ old('name', $applicationModule->name) }}" required autofocus/>
-                @if($errors->has('name'))
-                    <div class="invalid-feedback">
-                        {{ $errors->first('name') }}
-                    </div>
-                @endif
-                <span class="help-block">{{ trans('cruds.applicationModule.fields.name_helper') }}</span>
-            </div>
-            <div class="form-group">
-                <label for="description">{{ trans('cruds.applicationModule.fields.description') }}</label>
-                <textarea class="form-control ckeditor {{ $errors->has('description') ? 'is-invalid' : '' }}" name="description" id="description">{!! old('description', $applicationModule->description) !!}</textarea>
-                @if($errors->has('description'))
-                    <div class="invalid-feedback">
-                        {{ $errors->first('description') }}
-                    </div>
-                @endif
-                <span class="help-block">{{ trans('cruds.applicationModule.fields.description_helper') }}</span>
-            </div>
-        </div>
-    </div>
-    <div class="form-group">
-        <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.application-modules.index') }}">
-            {{ trans('global.back_to_list') }}
-        </a>
-        <button id="btn-save" class="btn btn-danger" type="submit">
-            {{ trans('global.save') }}
-        </button>
-    </div>
-</form>
+@section('title')
+    {{ trans('global.edit') }} {{ $applicationModule->name }}
 @endsection
+
+@section('content')
+    <form method="POST" action="{{ route("admin.application-modules.update", [$applicationModule->id]) }}"
+          enctype="multipart/form-data">
+        @method('PUT')
+        @csrf
+        <div class="card">
+            <div class="card-header">
+                {{ trans('global.edit') }} {{ trans('cruds.applicationModule.title_singular') }}
+            </div>
+
+            <div class="card-body">
+                <div class="form-group">
+                    <label class="label-required" for="name">{{ trans('cruds.applicationModule.fields.name') }}</label>
+                    <input class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" type="text" name="name"
+                           id="name" value="{{ old('name', $applicationModule->name) }}" maxlength="64" required
+                           autofocus/>
+                    @if($errors->has('name'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('name') }}
+                        </div>
+                    @endif
+                    <span class="help-block">{{ trans('cruds.applicationModule.fields.name_helper') }}</span>
+                </div>
+                <div class="form-group">
+                    <label class="label-maturity-2"
+                           for="description">{{ trans('cruds.applicationModule.fields.description') }}</label>
+                    <textarea class="form-control ckeditor {{ $errors->has('description') ? 'is-invalid' : '' }}"
+                              name="description"
+                              id="description">{!! old('description', $applicationModule->description) !!}</textarea>
+                    @if($errors->has('description'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('description') }}
+                        </div>
+                    @endif
+                    <span class="help-block">{{ trans('cruds.applicationModule.fields.description_helper') }}</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="entities">{{ trans('cruds.applicationModule.fields.entities') }}</label>
+                    <select class="form-control select2 {{ $errors->has('entities') ? 'is-invalid' : '' }}"
+                            name="entities[]" id="entities" multiple>
+                        @foreach($entities as $id => $name)
+                            <option value="{{ $id }}" {{ (in_array($id, old('entities', [])) || $applicationModule->entities->contains($id)) ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                    </select>
+                    @if($errors->has('entities'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('entities') }}
+                        </div>
+                    @endif
+                    <span class="help-block">{{ trans('cruds.applicationModule.fields.entities_helper') }}</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="services">{{ trans('cruds.applicationModule.fields.services') }}</label>
+                    <select class="form-control select2 {{ $errors->has('services') ? 'is-invalid' : '' }}"
+                            name="services[]" id="services" multiple>
+                        @foreach($services as $id => $name)
+                            <option value="{{ $id }}" {{ (in_array($id, old('services', [])) || $applicationModule->applicationServices->contains($id)) ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                    </select>
+                    @if($errors->has('services'))
+                        <div class="invalid-feedback">
+                            {{ $errors->first('services') }}
+                        </div>
+                    @endif
+                    <span class="help-block">{{ trans('cruds.applicationModule.fields.services_helper') }}</span>
+                </div>
+            </div>
+            <!------------------------------------------------------------------------------------------------------------->
+            {{-- Common Platform Enumeration --}}
+            <!------------------------------------------------------------------------------------------------------------->
+            @include('partials.cpe-selector', [
+                'part'    => 'a',
+                'vendor'  => $applicationModule->vendor,
+                'product' => $applicationModule->product,
+                'version' => $applicationModule->version,
+            ])
+            <!---------------------------------------------------------------------------------------------------->
+        </div>
+        <div class="form-group">
+            <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.application-modules.index') }}">
+                {{ trans('global.back_to_list') }}
+            </a>
+            <button id="btn-save" class="btn btn-success" type="submit">
+                {{ trans('global.save') }}
+            </button>
+        </div>
+    </form>
+@endsection
+

@@ -5,52 +5,76 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\MApplication;
 use App\Models\MApplicationEvent;
-use App\Models\User;
+use Gate;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class MApplicationEventController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Retourne les événements d'une application.
+     *
+     * @param  \Illuminate\Http\Request  $request  Doit contenir :
+     *                                             - `id` (int): ID de l'application.
      */
-    public function index(Request $request): \Illuminate\Http\Response
+    public function index(Request $request): JsonResponse
     {
-        $id = $request->query('id');
+        abort_if(Gate::denies('m_application_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $request->validate([
+            'id' => ['required', 'integer', 'exists:m_applications,id'],
+        ]);
+
+        $this->authorize('m_application_show', MApplicationEvent::class);
 
         $events = MApplicationEvent::with('user')
-            ->where('m_application_id', $id)
+            ->where('m_application_id', $request->integer('id'))
             ->orderBy('created_at', 'desc')
             ->get();
 
         return response()->json($events);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): \Illuminate\Http\JsonResponse
+
+    public function store(Request $request): JsonResponse
     {
-        $application = MApplication::findOrFail($request->get('m_application_id'));
-        $user = User::findOrFail($request->get('user_id'));
+        abort_if(Gate::denies('m_application_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $request->validate([
+            'm_application_id' => ['required', 'integer', 'exists:m_applications,id'],
+            'message'          => ['required', 'string', 'max:2000'],
+        ]);
+
+        $application = MApplication::findOrFail($request->integer('m_application_id'));
+
         $event = new MApplicationEvent();
         $event->application()->associate($application);
-        $event->user()->associate($user);
-        $event->message = $request->get('message');
+        $event->user()->associate($request->user());
+        $event->message = $request->string('message');
         $event->saveOrFail();
 
-        return response()->json(['events' => $application->events]);
+        return response()->json([
+            'events' => $application->events()->with('user')->orderBy('created_at', 'desc')->get(),
+        ], 201);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id  Id de l'évènement
-     */
-    public function destroy(Request $request, int $id): \Illuminate\Http\JsonResponse
+    public function destroy(Request $request, int $id): JsonResponse
     {
-        $application = MApplication::findOrFail($request->get('m_application_id'));
-        MApplicationEvent::findOrFail($id)->delete();
+        abort_if(Gate::denies('m_application_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return response()->json(['events' => $application->events]);
+        $request->validate([
+            'm_application_id' => ['required', 'integer', 'exists:m_applications,id'],
+        ]);
+
+        $application = MApplication::findOrFail($request->integer('m_application_id'));
+
+        $event = $application->events()->findOrFail($id);
+
+        $event->delete();
+
+        return response()->json([
+            'events' => $application->events()->with('user')->orderBy('created_at', 'desc')->get(),
+        ]);
     }
 }

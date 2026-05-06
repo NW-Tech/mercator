@@ -1,9 +1,12 @@
 <?php
 
-
 use App\Http\Controllers;
 use App\Http\Controllers\Admin;
+use App\Http\Controllers\Admin\ModuleController;
+use App\Http\Controllers\BPMNController;
+use App\Http\Controllers\QueryController;
 use App\Http\Controllers\Report;
+use App\Http\Controllers\Report\AuditController;
 
 Route::redirect('/', '/login');
 
@@ -36,10 +39,19 @@ Route::post('reset-password', [App\Http\Controllers\Auth\ForgotPasswordControlle
 
 // keycloak
 Route::get('login/keycloak', [App\Http\Controllers\Auth\SsoController::class, 'redirectToKeycloak'])->name('login.keycloak');
-Route::get('login/keycloak/callback', [App\Http\Controllers\Auth\SsoController::class, 'handleKeycloakCallback']);
+Route::get('login/keycloak/callback', [App\Http\Controllers\Auth\SsoController::class, 'handleKeycloakCallback'])->name('keycloak.callback');
+
+// CSP
+Route::post('/csp-report', function (Request $request) {
+    Log::channel('security')->warning('CSP Violation', [
+        'report' => $request->getContent(),
+        'ip'     => $request->ip(),
+    ]);
+    return response()->noContent();
+})->withoutMiddleware([\App\Http\Middleware\VerifyCsrfToken::class]);
 
 // Admin
-Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], function (): void {
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.protected']], function (): void {
     // Dashboard
     Route::get('/', [Admin\HomeController::class, 'index'])->name('home');
 
@@ -105,7 +117,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Applications
     Route::resource('applications', Admin\MApplicationController::class);
-    Route::get('application-icon/{id}', [Admin\MApplicationController::class, 'icon'])->name('application-icon');
+    Route::get('applications-clone/{id}', [Admin\MApplicationController::class, 'clone'])->name('applications.clone');
     Route::delete('applications-destroy', [Admin\MApplicationController::class, 'massDestroy'])->name('applications.massDestroy');
 
     // Application Services
@@ -203,17 +215,17 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Sites
     Route::resource('sites', Admin\SiteController::class);
-    Route::get('sites-clone/{id}', [Admin\SiteController::class, 'clone'])->name('sites.clone');
+    Route::get('sites/{site}/clone', [Admin\SiteController::class, 'clone'])->name('sites.clone');
     Route::delete('sites-destroy', [Admin\SiteController::class, 'massDestroy'])->name('sites.massDestroy');
 
     // Buildings
     Route::resource('buildings', Admin\BuildingController::class);
-    Route::get('buildings-clone/{id}', [Admin\BuildingController::class, 'clone'])->name('buildings.clone');
+    Route::get('buildings/{building}/clone', [Admin\BuildingController::class, 'clone'])->name('buildings.clone');
     Route::delete('buildings-destroy', [Admin\BuildingController::class, 'massDestroy'])->name('buildings.massDestroy');
 
     // Bays
     Route::resource('bays', Admin\BayController::class);
-    Route::get('bays-clone/{id}', [Admin\BayController::class, 'clone'])->name('bays.clone');
+    Route::get('bays/{bay}/clone', [Admin\BayController::class, 'clone'])->name('bays.clone');
     Route::delete('bays-destroy', [Admin\BayController::class, 'massDestroy'])->name('bays.massDestroy');
 
     // Physical Servers
@@ -300,13 +312,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     // Route::put('cve', [Admin\CVEController::class, 'show'])->name('cve.show');
     Route::post('cve/search/{cpe}', [Admin\CVEController::class, 'search'])->name('cve.search');
 
-    // CVE Configuration page
-    Route::get('config/cve', [Admin\ConfigurationController::class, 'getCVEConfig'])->name('config.cve');
-    Route::put('config/cve/save', [Admin\ConfigurationController::class, 'saveCVEConfig'])->name('config.cve.save');
-
-    // Parameters
-    Route::get('config/parameters', [Admin\ConfigurationController::class, 'getParameters'])->name('config.parameters');
-    Route::put('config/parameters/save', [Admin\ConfigurationController::class, 'saveParameters'])->name('config.parameters.save');
+    // Configuration
+    Route::get('config/parameters', [Admin\ConfigurationController::class, 'getParameters'])
+        ->name('config.parameters');
+    Route::put('config/parameters', [Admin\ConfigurationController::class, 'saveConfig']);
 
     // Views
     Route::get('report/gdpr', [Report\GDPRView::class, 'generate'])->name('report.gdpr');
@@ -330,14 +339,22 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
 
     // Graphs
     Route::resource('graphs', Admin\GraphController::class);
-    Route::put('graph/save', [Admin\GraphController::class, 'save']);
     Route::delete('graphs-destroy', [Admin\GraphController::class, 'massDestroy'])->name('graphs.massDestroy');
     Route::get('graphs/clone/{id}', [Admin\GraphController::class, 'clone'])->name('graphs.clone');
     // Graphs test
     Route::view('graph/test', 'admin.graphs.test')->name('graphs.test');
-
+    
     // Explorer
     Route::get('report/explore', [Admin\ExplorerController::class, 'explore'])->name('report.explore');
+
+    Route::get('/reports/explore/data', [Admin\ExplorerController::class, 'getGraphData'])
+        ->name('reports.explore.data');
+    Route::get('/reports/explore/attributes', [Admin\ExplorerController::class, 'getAttributes'])
+        ->name('reports.explore.attributes');
+
+    // Dependency
+    Route::get('report/dependency', [Admin\DependencyController::class, 'index'])
+        ->name('report.dependency');
 
     // Maturity levels
     Route::get('report/maturity1', [Admin\HomeController::class, 'maturity1'])->name('report.maturity1');
@@ -350,6 +367,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generateExcel'])->name('report.applicationsByBlocks');
     Route::get('report/directory', [Report\Directory::class, 'generateDocx'])->name('report.directory');
     Route::get('report/logicalServers', [Report\LogicalServers::class, 'generateExcel'])->name('report.logicalServers');
+    Route::get('report/backups', [Report\BackupList::class, 'generateExcel'])->name('report.backups');
     Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generateExcel'])->name('report.securityNeeds');
     Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generateExcel'])->name('report.logicalServerConfigs');
     Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generateExcel'])->name('report.externalAccess');
@@ -377,8 +395,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/patching/dashboard', [Admin\PatchingController::class, 'dashboard'])->name('patching.dashboard');
 
     // Auditing
-    Route::get('audit/maturity', [Admin\AuditController::class, 'maturity'])->name('audit.maturity');
-    Route::get('audit/changes', [Admin\AuditController::class, 'changes'])->name('audit.changes');
+    Route::get('audit/maturity', [AuditController::class, 'maturity'])->name('audit.maturity');
+    Route::get('audit/changes', [AuditController::class, 'changes'])->name('audit.changes');
 
     // Documents
     Route::post('/documents/store', [Admin\DocumentController::class, 'store'])->name('documents.store');
@@ -388,8 +406,8 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     Route::get('/config/documents/check', [Admin\DocumentController::class, 'check'])->name('config.documents.check');
 
     // Audit Logs
+    Route::get('audit-logs/history/{type}/{id}', [Admin\AuditLogsController::class, 'history'])->name('audit-logs.history');
     Route::resource('audit-logs', Admin\AuditLogsController::class, ['except' => ['create', 'store', 'update', 'destroy']]);
-    Route::get('history/{type}/{id}', [Admin\AuditLogsController::class, 'history'])->name('history');
 
     // Monarc
     Route::get('monarc', [Admin\MonarcController::class, 'index'])->name('monarc');
@@ -402,26 +420,61 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['auth']], 
     // Doc
     Route::get('doc/schema', function () {
         return view('doc/schema');
-    });
+    })->name('doc.schema');
+
     Route::get('doc/guide', function () {
         return view('doc/guide');
-    });
+    })->name('doc.guide');
 
     Route::get('doc/about', function () {
         return view('doc/about');
-    });
+    })->name('doc.about');
 
     // Import
-    Route::get('config/import', function () {
-        return view('admin/import');
-    })->name('config.import');
-    Route::post('config/export', [Admin\ImportController::class, 'export'])->name('config.export');
-    Route::post('config/import', [Admin\ImportController::class, 'import'])->name('config.import');
+    Route::get('config/import', [Admin\ImportController::class, 'show'])
+        ->name('config.import.form');
+    Route::post('config/import', [Admin\ImportController::class, 'import'])
+        ->name('config.import');
+
+    // Export
+    Route::post('config/export', [Admin\ImportController::class, 'export'])
+        ->name('config.export');
 
     // Configuration page
     Route::get('config', function () {
-        return view('config');
+        return null;
+        // return view('config');
     });
+
+    // BPMN routes
+    Route::get('bpmn', [BPMNController::class, 'index'])->name('bpmn.index');
+    Route::get('bpmn/create', [BPMNController::class, 'create'])->name('bpmn.create');
+    Route::get('bpmn/raw/{id}', [BPMNController::class, 'raw'])->name('bpmn.raw');
+    Route::get('bpmn/edit/{id}', [BPMNController::class, 'edit'])->name('bpmn.edit');
+    Route::get('bpmn/{id}/data', [BPMNController::class, 'data'])->name('bpmn.data');
+
+    // API
+    Route::get('bpmn/objects',[BPMNController::class, 'objects'])->name('bpmn.objects');
+    Route::get('bpmn/information',[BPMNController::class, 'information'])->name('bpmn.information');
+    Route::get('bpmn/actors',[BPMNController::class, 'actors'])->name('bpmn.actors');
+    Route::get('bpmn/process',[BPMNController::class, 'process'])->name('bpmn.process');
+
+    // Show and update a graph
+    Route::put('bpmn/{id}', [BPMNController::class, 'update'])->name('bpmn.update');
+    Route::get('bpmn/{id}', [BPMNController::class, 'show'])->name('bpmn.show');
+    Route::delete('bpmn/destroy/{id}', [BPMNController::class, 'destroy'])->name('bpmn.destroy');
+
+    // Clone a graph
+    Route::get('bpmn/clone/{id}', [BPMNController::class, 'clone'])->name('bpmn.clone');
+
+    // Queries
+    Route::post('/queries/{query}/duplicate', [QueryController::class, 'duplicate'])->name('queries.duplicate');
+    Route::post('/queries/execute', [QueryController::class, 'execute'])->name('queries.execute');
+    Route::get('/queries/schema',   [QueryController::class, 'schema'])->name('queries.schema');
+    Route::get('/queries/schema/{model}', [QueryController::class, 'schemaModel'])->name('queries.schema.model');
+    Route::resource('/queries', QueryController::class);
+    Route::delete('queries-modules-destroy', [QueryController::class, 'massDestroy'])->name('queries.massDestroy');
+
 });
 
 // Profile

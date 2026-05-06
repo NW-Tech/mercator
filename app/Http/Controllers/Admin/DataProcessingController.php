@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -20,7 +19,10 @@ class DataProcessingController extends Controller
     {
         abort_if(Gate::denies('data_processing_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $processingRegister = DataProcessing::orderBy('name')->get();
+        $processingRegister = DataProcessing::query()
+            ->with('processes', 'informations', 'applications')
+            ->orderBy('name')
+            ->get();
 
         return view('admin.dataProcessing.index', compact('processingRegister'));
     }
@@ -29,12 +31,13 @@ class DataProcessingController extends Controller
     {
         abort_if(Gate::denies('data_processing_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $processes = Process::orderBy('name')->get()->pluck('name', 'id');
-        $informations = Information::orderBy('name')->get()->pluck('name', 'id');
-        $applications = MApplication::orderBy('name')->get()->pluck('name', 'id');
+        $processes = Process::query()->orderBy('name')->pluck('name', 'id');
+        $informations = Information::query()->orderBy('name')->pluck('name', 'id');
+        $applications = MApplication::query()->orderBy('name')->pluck('name', 'id');
 
         // Get Legal Basis
-        $legal_basis_list = DataProcessing::select('legal_basis')
+        $legal_basis_list = DataProcessing::query()
+            ->select('legal_basis')
             ->whereNotNull('legal_basis')
             ->distinct()
             ->orderBy('legal_basis')

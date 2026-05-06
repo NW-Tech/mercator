@@ -1,4 +1,4 @@
-## API
+# API
 
 La cartographie peut être modifiée ou mise à jour via une REST API.
 
@@ -6,7 +6,7 @@ Une API REST ([Representational State Transfer](https://fr.wikipedia.org/wiki/Re
 est une interface de programmation d'application qui respecte les contraintes du style d'architecture REST
 et permet d'interagir avec les services web RESTful.
 
-### Installer l'API sur Mercator
+## Installer l'API sur Mercator
 
 pour installer l'API dans Mercator, il est nécessaire d'installer Passport en lançant cette commande :
 
@@ -14,113 +14,173 @@ pour installer l'API dans Mercator, il est nécessaire d'installer Passport en l
 php artisan passport:install
 ```
 
-- l'environnement Docker prend en charge cette fonctionnalité nativement, via le l'entrypoint.
+- l'environnement Docker prend en charge cette fonctionnalité nativement, via l'entrypoint.
 
-### Les APIs
+## Les APIs
 
 Pour chaque objet du modèle de données de la cartographie, il existe une API.
 La liste des API se trouve dans le fichier /route/api.php
 
-__Vue du RGPD__
+*Note:* Pour visualiser le datamodel d'une API, cliquer sur son nom.
 
-- /api/data-processings
-- /api/security-controls
+## Les points de terminaison du RGPD
 
-__Vues de l'écosystème__
+- [/api/data-processings](./model.fr.md#registre)
+- [/api/security-controls](./model.fr.md#mesures-de-securite)
 
-- /api/entities
-- /api/relations
+## Les points de terminaison de l'écosystème
 
-__Vue métier du système d'information__
+- [/api/entities](./model.fr.md#entites)
+- [/api/relations](./model.fr.md#relations)
 
-- /api/macro-processuses
-- /api/processes
-- /api/activities
-- /api/operations
-- /api/tasks
-- /api/actors
-- /api/information
+## Les points de terminaison du métier du système d'information
 
-__Vue des applications__
+- [/api/macro-processuses](./model.fr.md#macro-processus)
+- [/api/processes](./model.fr.md#processus)
+- [/api/activities](./model.fr.md#activites)
+- [/api/operations](./model.fr.md#operations)
+- [/api/tasks](./model.fr.md#taches)
+- [/api/actors](./model.fr.md#acteurs)
+- [/api/information](./model.fr.md#information)
 
-- /api/application-blocks
-- /api/applications
-- /api/application-services
-- /api/application-modules
-- /api/databases
-- /api/fluxes
+## Les points de terminaison des applications
 
-__Vue de l'administration__
+- [/api/application-blocks](./model.fr.md#blocs-applicatif)
+- [/api/applications](./model.fr.md#applications)
+- [/api/application-services](./model.fr.md#services-applicatif)
+- [/api/application-modules](./model.fr.md#modules-applicatif)
+- [/api/databases](./model.fr.md#bases-de-donnees)
+- [/api/fluxes](./model.fr.md#flux)
 
-- /api/zone-admins
-- /api/annuaires
-- /api/forest-ads
-- /api/domaine-ads
-- /api/admin-users
+## Les points de terminaison de l'administration
 
-__Vue de l'infrastructure logique__
+- [/api/zone-admins](./model.fr.md#zones-dadministration)
+- [/api/annuaires](./model.fr.md#services-dannuaire-dadministration)
+- [/api/forest-ads](./model.fr.md#forets-active-directory-arborescence-ldap)
+- [/api/domaine-ads](./model.fr.md#domaines-active-directory-ldap)
+- [/api/admin-users](./model.fr.md#utilisateurs)
 
-- /api/networks
-- /api/subnetworks
-- /api/gateways
-- /api/external-connected-entities
-- /api/network-switches
-- /api/routers
-- /api/security-devices
-- /api/dhcp-servers
-- /api/dnsservers
-- /api/clusters
-- /api/logical-servers
-- /api/logical-flows
-- /api/certificates
-- /api/vlans
+## Les points de terminaison de l'infrastructure logique
 
-__Vue de l'infrastructure physique__
+- [/api/networks](./model.fr.md#reseaux)
+- [/api/subnetworks](./model.fr.md#sous-reseaux)
+- [/api/gateways](./model.fr.md#passerelles-dentrees-depuis-lexterieur)
+- [/api/external-connected-entities](./model.fr.md#entites-exterieures-connectees)
+- [/api/network-switches](./model.fr.md#commutateurs-reseau)
+- [/api/routers](./model.fr.md#routeurs-logiques)
+- [/api/security-devices](./model.fr.md#equipements-de-securite)
+- [/api/dhcp-servers *(usage non recommandé)*](./model.fr.md#serveurs-dhcp)
+- [/api/dnsservers *(usage non recommandé)*](./model.fr.md#serveurs-dns)
+- [/api/clusters](./model.fr.md#clusters)
+- [/api/logical-servers](./model.fr.md#serveurs-logiques)
+- [/api/backups](./model.fr.md#plans-de-sauvegarde) ==> lié à logical-servers et storage-devices
+- [/api/logical-flows](./model.fr.md#flux-logiques)
+- [/api/containers](./model.fr.md#conteneurs)
+- [/api/certificates](./model.fr.md#certificats)
+- [/api/vlans](./model.fr.md#vlans)
 
-- /api/sites
-- /api/buildings
-- /api/bays
-- /api/physical-servers
-- /api/workstations
-- /api/storage-devices
-- /api/peripherals
-- /api/phones
-- /api/physical-switches
-- /api/physical-routers
-- /api/wifi-terminals
-- /api/physical-security-devices
-- /api/wans
-- /api/mans
-- /api/lans
-- /api/physical-links
-- /api/fluxes
+## Les points de terminaison de l'infrastructure physique
 
-### Actions gérées par le contrôleur de ressources
+- [/api/sites](./model.fr.md#sites)
+- [/api/buildings](./model.fr.md#batiments-salles)
+- [/api/bays](./model.fr.md#baies)
+- [/api/physical-servers](./model.fr.md#serveurs-physiques)
+- [/api/workstations](./model.fr.md#postes-de-travail)
+- [/api/storage-devices](./model.fr.md#infrastructures-de-stockage) (recommandé pour backups)
+- [/api/peripherals](./model.fr.md#peripheriques)
+- [/api/phones](./model.fr.md#telephones)
+- [/api/physical-switches](./model.fr.md#commutateurs-physiques)
+- [/api/physical-routers](./model.fr.md#routeurs-physiques)
+- [/api/wifi-terminals](./model.fr.md#bornes-wifi)
+- [/api/physical-security-devices](./model.fr.md#equipements-de-securite-physique)
+- [/api/physical-links](./model.fr.md#liens-physiques)
+- [/api/wans](./model.fr.md#wans)
+- [/api/mans](./model.fr.md#mans)
+- [/api/lans](./model.fr.md#lans)
+
+## Les points de terminaison de la Configuration
+
+- [/api/users](./model.md#utilisateurs)
+- [/api/roles](./model.md#roles)
+- [/api/permissions](./model.md#permissions) *access impossible pour le moment*
+- [/api/documents](./model.md#documents)
+
+La particularité du point de terminaison **documents** est qu'il permet d'ajouter ou de télécharger un document.
+La syntaxe est la suivante:
+## Exemple d'ajout d'un document dans mercator:
+```bash
+RESPONSE=$(http_call -X POST "$API/api/documents" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Accept: application/json" \
+    -F "file=@./rapport.pdf")
+
+# Affichage JSON propre (jq décode, mais n'est plus dans $() )
+echo "$RESPONSE" | jq .
+
+DOC_ID=$(echo "$RESPONSE" | jq -r '.id // empty' 2>/dev/null)
+```
+
+## Exemple de téléchargement d'un document de mercator:
+```bash
+ OUTFILE="./downloaded_${DOC_ID}.pdf"
+    curl -s -X GET "$API/api/documents/$DOC_ID/download" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "Accept: application/octet-stream" \
+        -o "$OUTFILE" \
+        -w "HTTP %{http_code}\n"
+```
+#### Les requêtes
+- /api/queries
+
+## Les rapports
+- /api/report/cartography
+- /api/report/entities
+- /api/report/applicationsByBlocks
+- /api/report/directory
+- /api/report/logicalServers
+- /api/report/securityNeeds
+- /api/report/logicalServerConfigs
+- /api/report/externalAccess
+- /api/report/physicalInventory
+- /api/report/vlans
+- /api/report/workstations
+- /api/report/cve
+- /api/report/activityList
+- /api/report/activityReport
+- /api/report/impacts
+- /api/report/rto
+
+## Actions gérées par le contrôleur de ressources
 
 Les requêtes et URI de chaque api est représentée dans le tableau ci-dessous.
 
-| Requête   | URI              | Action 	                    
-|-----------|------------------|-----------------------------|      
-| GET       | /api/objets      | renvoie la liste des objets |
-| GET       | /api/objets/{id} | renvoie l'objet {id}        |
-| POST 	    | /api/objets 	    | sauve un nouvel objet       |
-| PUT/PATCH | /api/objets/{id} | met à jour l'objet {id}     |
-| DELETE 	  | /api/objets/{id} | supprime l'objet {id}       |
+| Requête   | URI                      | Action 	                              |
+|-----------|--------------------------|---------------------------------------|
+| GET       | /api/objets              | renvoie la liste des objets           |
+| GET       | /api/objets/{id}         | renvoie l'objet {id}                  |
+| POST 	    | /api/objets              | sauve un nouvel objet                 |
+| PUT/PATCH | /api/objets/{id}         | met à jour l'objet {id}               |
+| DELETE 	  | /api/objets/{id}         | supprime l'objet {id}                 |
+| POST      | /api/objets/mass-store   | crée plusieurs objets en une requête  |
+| PUT/PATCH | /api/objets/mass-update  | met à jour plusieurs objets à la fois |
+| DELETE    | /api/objets/mass-destroy | supprime plusieurs objets à la fois   |
 
-Les champs à fournir sont ceux décrits dans le [modèle de données](/mercator/model/).
+Les champs à fournir sont ceux décrits dans le [modèle de données](model.fr.md).
 
-### Droits d'accès
+Pour voir les fonctions avancées de filtres : voir la page [API avancée (filtres)](apifilters.fr.md)
 
-Il faut s'identifier avec un utilisateur de l'application Mercator pour pouvoir accèder aux API.
+## Droits d'accès
+
+Il faut s'identifier avec un utilisateur de l'application Mercator pour pouvoir accéder aux API.
 Cet utilisateur doit disposer d'un rôle dans Mercator qui lui permet d'accéder / modifier les objets
 accédés par l'API.
 
 Lorsque l'authentification réussit, l'API envoie un "access_token" qui doit être passé dans
 l'entête "Authorization" de la requête de l'API.
 
-### Liaison entre les objets
+## Liaison entre les objets
 
-Les objets de la cartographie peuvent faire référence à d'autres objets. Par exemple, nous pouvons lier une processus à
+Les objets de la cartographie peuvent faire référence à d'autres objets. Par exemple, nous pouvons lier un processus à
 une application. Supposons que nous ayons un "processus" qui utilise deux applications "app1" et "app2". Pour ce faire,
 nous suivons ces étapes :
 
@@ -153,11 +213,13 @@ nous suivons ces étapes :
 Les noms de tous les champs supplémentaires
 sont : ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domaineAds', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'physicalRouters', 'networkSwitches', 'routers', 'physicalSwitches' ].
 
-### Exemples
+## Exemples
 
-Voici quelques exemples d'utilisation de l'API avec PHP :
+Voici quelques exemples d'utilisation de l'API avec différents langages :
 
-#### Authentification
+## PHP
+
+## Authentification
 
 ```php
 <?php
@@ -202,7 +264,7 @@ Voici quelques exemples d'utilisation de l'API avec PHP :
     var_dump($response);
 ```
 
-#### Liste des utilisateurs
+## Liste des utilisateurs
 
 ```php
 <?php
@@ -233,7 +295,7 @@ Voici quelques exemples d'utilisation de l'API avec PHP :
 
 ```
 
-#### Récupérer un utilisateur
+## Récupérer un utilisateur
 
 ```php
 <?php
@@ -262,7 +324,7 @@ Voici quelques exemples d'utilisation de l'API avec PHP :
     var_dump($response);
 ```
 
-#### Mettre à jour un utilisateur
+## Mettre à jour un utilisateur
 
 ```php
 <?php
@@ -274,7 +336,6 @@ Voici quelques exemples d'utilisation de l'API avec PHP :
         CURLOPT_MAXREDIRS => 10,
         CURLOPT_TIMEOUT => 30,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_POST => true,
         CURLOPT_CUSTOMREQUEST => "PUT",
         CURLOPT_POSTFIELDS => http_build_query(
             array(
@@ -289,6 +350,7 @@ Voici quelques exemples d'utilisation de l'API avec PHP :
             "accept: application/json",
             "Authorization: " . "Bearer" . " " . $access_token . "",
             "cache-control: no-cache",
+            "content-type: application/x-www-form-urlencoded",
         ),
     ));
 
@@ -299,7 +361,7 @@ Voici quelques exemples d'utilisation de l'API avec PHP :
     var_dump($response);
 ```
 
-### Python
+## Python
 
 Voici un exemple d'utilisation de l'API en Python
 
@@ -329,7 +391,7 @@ print(response.status_code)
 
 ```
 
-### bash
+## bash
 
 Voici un exemple d'utilisation de l'API en ligne de commande avec [CURL](https://curl.se/docs/manpage.html)
 et [JQ](https://stedolan.github.io/jq/)
@@ -379,12 +441,12 @@ echo "Objet mis à jour: ${UPDATED_OBJECT}"
 
 ```
 
-### Powershell
+## Powershell
 
 Le script PowerShell ci-dessous montre comment s’authentifier auprès de l’API et récupérer la liste des serveurs
 logiques.
 
-#### Étape 1 — Authentification et obtention du jeton d’accès
+## Étape 1 — Authentification et obtention du jeton d’accès
 
 ```powershell
 # Définir l’URL d’authentification et les identifiants
@@ -405,7 +467,7 @@ try {
 }
 ```
 
-#### Étape 2 — Utilisation du jeton pour interroger les serveurs logiques
+## Étape 2 — Utilisation du jeton pour interroger les serveurs logiques
 
 ```powershell
 # Définir l’endpoint et les en-têtes d’autorisation

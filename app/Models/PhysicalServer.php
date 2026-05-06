@@ -1,9 +1,14 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasIconContract;
+use App\Contracts\HasPrefix;
+use App\Factories\PhysicalServerFactory;
 use App\Traits\Auditable;
+use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,25 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\PhysicalServer
  */
-class PhysicalServer extends Model
+class PhysicalServer extends Model implements HasIconContract, HasPrefix
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'physical_servers';
 
-    public static array $searchable = [
-        'name',
-        'type',
-        'description',
-        'configuration',
-        'responsible',
-    ];
+    public static string $prefix = 'PSERVER_';
 
-    protected array $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
-    ];
+    public static string $icon = '/images/server.png';
 
     protected $fillable = [
         'name',
@@ -50,38 +45,63 @@ class PhysicalServer extends Model
         'site_id',
         'building_id',
         'bay_id',
-        'cluster_id',
         'responsible',
         'created_at',
         'updated_at',
         'deleted_at',
     ];
 
+    protected array $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    public static array $searchable = [
+        'name',
+        'type',
+        'description',
+        'configuration',
+        'responsible',
+        'address_ip',
+    ];
+
+    protected static function newFactory(): Factory
+    {
+        return PhysicalServerFactory::new();
+    }
+
+    /** @return BelongsToMany<MApplication, $this> */
     public function applications(): BelongsToMany
     {
         return $this->belongsToMany(MApplication::class)->orderBy('name');
     }
 
+    /** @return BelongsToMany<Cluster, $this> */
     public function clusters(): BelongsToMany
     {
         return $this->BelongsToMany(Cluster::class)->orderBy('name');
     }
 
+    /** @return BelongsToMany<LogicalServer, $this> */
     public function logicalServers(): BelongsToMany
     {
         return $this->belongsToMany(LogicalServer::class)->orderBy('name');
     }
 
+    /** @return BelongsTo<Site, $this> */
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class, 'site_id');
     }
 
+    /** @return BelongsTo<Building, $this> */
     public function building(): BelongsTo
     {
         return $this->belongsTo(Building::class, 'building_id');
     }
 
+    /** @return BelongsTo<Bay, $this> */
     public function bay(): BelongsTo
     {
         return $this->belongsTo(Bay::class, 'bay_id');

@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -10,24 +9,11 @@ use App\Http\Requests\UpdateApplicationServiceRequest;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
 use App\Models\MApplication;
-use App\Services\CartographerService;
 use Gate;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApplicationServiceController extends Controller
 {
-    protected CartographerService $cartographerService;
-
-    /**
-     * Automatic Injection for Service
-     *
-     * @return void
-     */
-    public function __construct(CartographerService $cartographerService)
-    {
-        $this->cartographerService = $cartographerService;
-    }
-
     public function index()
     {
         abort_if(Gate::denies('application_service_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
@@ -41,9 +27,10 @@ class ApplicationServiceController extends Controller
     {
         abort_if(Gate::denies('application_service_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $applications = MApplication::with('cartographers')->get();
-        // Filtre sur les cartographes si nécessaire
-        $applications = $this->cartographerService->filterOnCartographers($applications);
+        $applications = MApplication::query()
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->pluck('name', 'id');
 
         $modules = ApplicationModule::all()->sortBy('name')->pluck('name', 'id');
         $exposition_list = ApplicationService::select('exposition')->where('exposition', '<>', null)->distinct()->orderBy('exposition')->pluck('exposition');
@@ -67,9 +54,11 @@ class ApplicationServiceController extends Controller
     {
         abort_if(Gate::denies('application_service_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $applications = MApplication::with('cartographers')->get();
-        // Filtre sur les cartographes
-        $applications = $this->cartographerService->filterOnCartographers($applications);
+        $applications = MApplication::query()
+            ->select('id', 'name')
+            ->orderBy('name')
+            ->pluck('name', 'id');
+
         $modules = ApplicationModule::all()->sortBy('name')->pluck('name', 'id');
         $exposition_list = ApplicationService::select('exposition')->where('exposition', '<>', null)->distinct()->orderBy('exposition')->pluck('exposition');
 

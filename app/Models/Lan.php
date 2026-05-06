@@ -1,9 +1,14 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasIconContract;
+use App\Contracts\HasPrefix;
+use App\Factories\LanFactory;
 use App\Traits\Auditable;
+use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,11 +17,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\Lan
  */
-class Lan extends Model
+class Lan extends Model implements HasPrefix, HasIconContract
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'lans';
+
+    public static string $prefix = 'LAN_';
+
+    public static string $icon = '/images/lan.png';
 
     public static array $searchable = [
         'name',
@@ -37,11 +46,18 @@ class Lan extends Model
         'deleted_at',
     ];
 
+    protected static function newFactory(): Factory
+    {
+        return LanFactory::new();
+    }
+
+    /** @return BelongsToMany<Man, $this> */
     public function Mans(): BelongsToMany
     {
         return $this->belongsToMany(Man::class)->orderBy('name');
     }
 
+    /** @return BelongsToMany<Wan, $this> */
     public function Wans(): BelongsToMany
     {
         return $this->belongsToMany(Wan::class)->orderBy('name');

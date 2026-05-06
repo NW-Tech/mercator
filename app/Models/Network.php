@@ -1,9 +1,14 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasIconContract;
+use App\Contracts\HasPrefix;
+use App\Factories\NetworkFactory;
 use App\Traits\Auditable;
+use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,11 +17,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\Network
  */
-class Network extends Model
+class Network extends Model implements HasPrefix, HasIconContract
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'networks';
+
+    public static string $prefix = 'NETWORK_';
+
+    public static string $icon = '/images/cloud.png';
 
     public static array $searchable = [
         'name',
@@ -48,11 +57,18 @@ class Network extends Model
         'deleted_at',
     ];
 
+    protected static function newFactory(): Factory
+    {
+        return NetworkFactory::new();
+    }
+
+    /** @return HasMany<ExternalConnectedEntity, $this> */
     public function externalConnectedEntities(): HasMany
     {
         return $this->hasMany(ExternalConnectedEntity::class, 'network_id', 'id')->orderBy('name');
     }
 
+    /** @return HasMany<Subnetwork, $this> */
     public function subnetworks(): HasMany
     {
         return $this->hasMany(Subnetwork::class, 'network_id', 'id')->orderBy('name');

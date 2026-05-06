@@ -1,11 +1,13 @@
 <?php
 
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Factories\ActivityImpactFactory;
+use App\Factories\UserFactory;
 
 /**
  * App\Activity
@@ -13,9 +15,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class ActivityImpact extends Model
 {
     use HasFactory;
-
-    public static array $searchable = [
-    ];
 
     public $table = 'activity_impact';
 
@@ -28,6 +27,16 @@ class ActivityImpact extends Model
     protected $fillable = [
     ];
 
+    public static array $searchable = [
+    ];
+
+
+    protected static function newFactory(): Factory
+    {
+        return ActivityImpactFactory::new();
+    }
+
+    /** @return BelongsTo<Activity, $this> */
     public function activity(): BelongsTo
     {
         return $this->belongsTo(Activity::class);

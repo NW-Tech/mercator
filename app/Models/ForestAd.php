@@ -1,9 +1,14 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasIconContract;
+use App\Contracts\HasPrefix;
+use App\Factories\ForestAdFactory;
 use App\Traits\Auditable;
+use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,11 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\ForestAd
  */
-class ForestAd extends Model
+class ForestAd extends Model implements HasPrefix, HasIconContract
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'forest_ads';
+
+    public static string $prefix = 'FOREST_';
+
+    public static string $icon = '/images/ldap.png';
 
     public static array $searchable = [
         'name',
@@ -39,11 +48,18 @@ class ForestAd extends Model
         'deleted_at',
     ];
 
+    protected static function newFactory(): Factory
+    {
+        return ForestAdFactory::new();
+    }
+
+    /** @return BelongsTo<ZoneAdmin, $this> */
     public function zone_admin(): BelongsTo
     {
         return $this->belongsTo(ZoneAdmin::class, 'zone_admin_id');
     }
 
+    /** @return BelongsToMany<DomaineAd, $this> */
     public function domaines(): BelongsToMany
     {
         return $this->belongsToMany(DomaineAd::class)->orderBy('name');

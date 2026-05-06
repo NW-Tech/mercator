@@ -1,21 +1,23 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasPrefix;
+use App\Factories\GraphFactory;
 use App\Traits\Auditable;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-/**
- * App\Graph
- */
-class Graph extends Model
+class Graph extends Model implements HasPrefix
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'graphs';
+
+    public static string $prefix = 'GRAPH_';
 
     public static array $searchable = [
         'name',
@@ -30,7 +32,14 @@ class Graph extends Model
 
     protected $fillable = [
         'name',
+        'class',
         'type',
         'content',
     ];
+
+    protected static function newFactory(): Factory
+    {
+        return GraphFactory::new();
+    }
+
 }

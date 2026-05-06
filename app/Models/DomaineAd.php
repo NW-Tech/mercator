@@ -1,9 +1,14 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasIconContract;
+use App\Contracts\HasPrefix;
+use App\Factories\DomaineAdFactory;
 use App\Traits\Auditable;
+use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,11 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\DomaineAd
  */
-class DomaineAd extends Model
+class DomaineAd extends Model implements HasPrefix, HasIconContract
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'domaine_ads';
+
+    public static string $prefix = 'DOMAIN_';
+
+    public static string $icon = '/images/domain.png';
 
     public static array $searchable = [
         'name',
@@ -42,11 +51,18 @@ class DomaineAd extends Model
         'deleted_at',
     ];
 
+    protected static function newFactory(): Factory
+    {
+        return DomaineAdFactory::new();
+    }
+
+    /** @return BelongsToMany<ForestAd, $this> */
     public function forestAds(): BelongsToMany
     {
         return $this->belongsToMany(ForestAd::class)->orderBy('name');
     }
 
+    /** @return HasMany<LogicalServer, $this> */
     public function logicalServers(): HasMany
     {
         return $this->hasMany(LogicalServer::class, 'domain_id');

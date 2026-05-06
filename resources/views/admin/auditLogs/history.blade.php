@@ -1,4 +1,9 @@
 @extends('layouts.admin')
+
+@section('title')
+    {{ trans('global.show') }} {{ trans('cruds.auditLog.title') }}
+@endsection
+
 @section('content')
     <div class="form-group">
         <a class="btn btn-default" href="{{ route('admin.audit-logs.index') }}">
@@ -19,9 +24,13 @@
                         {{ trans('cruds.auditLog.fields.subject_id') }}
                     </th>
                     <td>
-                        <a href="{{ \App\Models\AuditLog::subjectURL($auditLogs->first()->subject_type) }}/{{ $auditLogs->first()->subject_id }}">
+                    @if ($auditLogs->first()->subject_id !== null)
+                        <a href="{{ \App\Models\AuditLog::URL($auditLogs->first()->subject_type, $auditLogs->first()->subject_id) }}">
                             {{ $auditLogs->first()->subject_id }}
                         </a>
+                    @else
+                        NULL
+                    @endif
                     </td>
                 </tr>
                 <tr>

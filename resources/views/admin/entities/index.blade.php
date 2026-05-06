@@ -1,4 +1,9 @@
 @extends('layouts.admin')
+
+@section('title')
+    {{ trans('cruds.entity.title_singular') }} {{ trans('global.list') }}
+@endsection
+
 @section('content')
 @can('entity_create')
     <div style="margin-bottom: 10px;" class="row">
@@ -117,7 +122,8 @@
     'id' => '#dataTable',
     'title' => trans("cruds.entity.title_singular"),
     'URL' => route('admin.entities.massDestroy'),
-    'canDelete' => auth()->user()->can('entity_delete') ? true : false
-));
+    'canDelete' => auth()->user()->can('entity_delete')
+    )
+);
 </script>
 @endsection

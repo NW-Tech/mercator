@@ -1,4 +1,9 @@
 @extends('layouts.admin')
+
+@section('title')
+    {{ trans('global.create') }} {{ trans('cruds.wifiTerminal.title_singular') }}
+@endsection
+
 @section('content')
 
     <form method="POST" action="{{ route("admin.wifi-terminals.store") }}" enctype="multipart/form-data">
@@ -11,7 +16,7 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="form-group">
-                            <label class="required" for="name">{{ trans('cruds.wifiTerminal.fields.name') }}</label>
+                            <label class="label-required" for="name">{{ trans('cruds.wifiTerminal.fields.name') }}</label>
                             <input class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" type="text"
                                    name="name" id="name" value="{{ old('name', '') }}" required autofocus/>
                             @if($errors->has('name'))
@@ -24,11 +29,11 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="type">{{ trans('cruds.wifiTerminal.fields.type') }}</label>
+                            <label class="label-maturity-1" for="type">{{ trans('cruds.wifiTerminal.fields.type') }}</label>
                             <select class="form-control select2-free {{ $errors->has('type') ? 'is-invalid' : '' }}"
                                     name="type" id="type">
                                 @if (!$type_list->contains(old('type')))
-                                    <option> {{ old('type') }}</option>'
+                                    <option> {{ old('type') }}</option>
                                 @endif
                                 @foreach($type_list as $t)
                                     <option {{ old('type') == $t ? 'selected' : '' }}>{{$t}}</option>
@@ -44,7 +49,8 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="description">{{ trans('cruds.wifiTerminal.fields.description') }}</label>
+                    <label class="label-maturity-1"
+                           for="description">{{ trans('cruds.wifiTerminal.fields.description') }}</label>
                     <textarea class="form-control ckeditor {{ $errors->has('description') ? 'is-invalid' : '' }}"
                               name="description" id="description">{!! old('description') !!}</textarea>
                     @if($errors->has('description'))
@@ -76,66 +82,14 @@
                 </div>
             </div>
             <!------------------------------------------------------------------------------------------------------------->
-            <div class="card-header">
-                Common Platform Enumeration (CPE)
-            </div>
+            {{-- Common Platform Enumeration --}}
             <!------------------------------------------------------------------------------------------------------------->
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label class="recommended"
-                                   for="vendor">{{ trans('cruds.application.fields.vendor') }}</label>
-                            <select id="vendor-selector" class="form-control vendor-selector" name="vendor">
-                                <option>{{ old('vendor', '') }}</option>
-                            </select>
-                            <span class="help-block">{{ trans('cruds.application.fields.vendor_helper') }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-4">
-                        <div class="form-group">
-                            <label class="recommended"
-                                   for="product">{{ trans('cruds.application.fields.product') }}</label>
-                            <select id="product-selector" class="form-control" name="product">
-                                <option>{{ old('product', '') }}</option>
-                            </select>
-                            @if($errors->has('product'))
-                                <div class="invalid-feedback">
-                                    {{ $errors->first('product') }}
-                                </div>
-                            @endif
-                            <span class="help-block">{{ trans('cruds.application.fields.product_helper') }}</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="form-group">
-                            <label class="recommended"
-                                   for="version">{{ trans('cruds.application.fields.version') }}</label>
-                            <select id="version-selector" class="form-control" name="version">
-                                <option>{{ old('version', '') }}</option>
-                            </select>
-                            @if($errors->has('version'))
-                                <div class="invalid-feedback">
-                                    {{ $errors->first('version') }}
-                                </div>
-                            @endif
-                            <span class="help-block">{{ trans('cruds.application.fields.version_helper') }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-md-1">
-                        <div class="form-group">
-                            <br>
-                            <button type="button" class="btn btn-info" id="guess"
-                                    alt="Guess vendor and product base on application name">Guess
-                            </button>
-                            <span class="help-block"></span>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
+            @include('partials.cpe-selector', [
+                'part'    => 'h',
+                'vendor'  => '',
+                'product' => '',
+                'version' => '',
+            ])
             <!---------------------------------------------------------------------------------------------------->
             <div class="card-header">
                 {{ trans("cruds.menu.physical_infrastructure.title_short") }}
@@ -145,7 +99,8 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="site_id">{{ trans('cruds.wifiTerminal.fields.site') }}</label>
+                            <label class="label-maturity-1"
+                                   for="site_id">{{ trans('cruds.wifiTerminal.fields.site') }}</label>
                             <select class="form-control select2 {{ $errors->has('site') ? 'is-invalid' : '' }}"
                                     name="site_id" id="site_id">
                                 @foreach($sites as $id => $site)
@@ -162,7 +117,8 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-group">
-                            <label for="building_id">{{ trans('cruds.wifiTerminal.fields.building') }}</label>
+                            <label class="label-maturity-1"
+                                   for="building_id">{{ trans('cruds.wifiTerminal.fields.building') }}</label>
                             <select class="form-control select2 {{ $errors->has('building') ? 'is-invalid' : '' }}"
                                     name="building_id" id="building_id">
                                 @foreach($buildings as $id => $building)
@@ -184,19 +140,9 @@
             <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.wifi-terminals.index') }}">
                 {{ trans('global.back_to_list') }}
             </a>
-            <button id="btn-save" class="btn btn-danger" type="submit">
+            <button id="btn-save" class="btn btn-success" type="submit">
                 {{ trans('global.save') }}
             </button>
         </div>
     </form>
-@endsection
-@section('scripts')
-    @vite(['resources/js/cpe.js'])
-    <script>
-
-        /*****************************************/
-        /* CPE Search
-        */
-        window.cpePart = 'h';
-    </script>
 @endsection

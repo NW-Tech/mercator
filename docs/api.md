@@ -1,4 +1,4 @@
-## API
+# API
 
 Cartography can be modified or updated via a REST API.
 
@@ -21,93 +21,155 @@ php artisan passport:install
 For each object in the cartography data model, there is an API.
 The list of APIs can be found in /route/api.php
 
-_GDPR view_
+#### Endpoints for GDPR
 
-- /api/data-processings
-- /api/security-controls
+- [/api/data-processings](./model.md#register)
+- [/api/security-controls](./model.md#security-measures)
 
-_Ecosystem view_
+#### Endpoints for Ecosystem
 
-- /api/entities
-- /api/relations
+- [/api/entities](./model.md#entities)
+- [/api/relations](./model.md#relationships)
 
-_Information system business view_
+#### Endpoints for Information system business
 
-- /api/macro-processuses
-- /api/processes
-- /api/activities
-- /api/operations
-- /api/tasks
-- /api/actors
-- /api/information
+- [/api/macro-processuses](./model.md#macro-processes)
+- [/api/processes](./model.md#processes)
+- [/api/activities](./model.md#activities)
+- [/api/operations](./model.md#operations)
+- [/api/tasks](./model.md#tasks)
+- [/api/actors](./model.md#actors)
+- [/api/information](./model.md#information)
 
-_Application view_
+#### Endpoints for Application
 
-- /api/application-blocks
-- /api/applications
-- /api/application-services
-- /api/application-modules
-- /api/databases
-- /api/fluxes
+- [/api/application-blocks](./model.md#applications-blocks)
+- [/api/applications](./model.md#applications)
+- [/api/application-services](./model.md#applications-services)
+- [/api/application-modules](./model.md#application-modules)
+- [/api/databases](./model.md#databases)
+- [/api/fluxes](./model.md#flows)
 
-_Administration view_
+#### Endpoints for Administration view
 
-- /api/zone-admins
-- /api/annuaires
-- /api/forest-ads
-- /api/domaine-ads
-- /api/admin-users
+- [/api/zone-admins](./model.md#administration-areas)
+- [/api/annuaires](./model.md#administration-directory-services)
+- [/api/forest-ads](./model.md#active-directory-forests-ldap-tree-structure)
+- [/api/domaine-ads](./model.md#active-directory-domains-ldap)
+- [/api/admin-users](./model.md#users)
 
-_Logical infrastructure view_
+#### Endpoints for Logical infrastructure
 
-- /api/networks
-- /api/subnetworks
-- /api/gateways
-- /api/external-connected-entities
-- /api/network-switches
-- /api/routers
-- /api/security-devices
-- /api/dhcp-servers
-- /api/dnsservers
-- /api/clusters
-- /api/logical-servers
-- /api/logical-flows
-- /api/certificates
-- /api/vlans
+- [/api/networks](./model.md#networks)
+- [/api/subnetworks](./model.md#subnetworks)
+- [/api/gateways](./model.md#external-input-gateways)
+- [/api/external-connected-entities](./model.md#connected-external-entities)
+- [/api/network-switches](./model.md#network-switches)
+- [/api/routers](./model.md#logical-routers)
+- [/api/security-devices](model.md#security-devices)
+- [/api/dhcp-servers *(usage not recommended)*](./model.md#dhcp-servers)
+- [/api/dnsservers *(usage not recommended)*](./model.md#dns-servers)
+- [/api/clusters](./model.md#clusters)
+- [/api/logical-servers](./model.md#logical-servers)
+- [/api/backups](./model.md#backup-plans) ==> linked to logical-servers and storage-devices
+- [/api/containers](./model.md#containers)
+- [/api/logical-flows](./model.md#logical-flows)
+- [/api/certificates](./model.md#certificates)
+- [/api/vlans](./model.md#vlans)
 
-_Physical infrastructure view_
+#### Endpoints for Physical infrastructure
 
-- /api/sites
-- /api/buildings
-- /api/bays
-- /api/physical-servers
-- /api/workstations
-- /api/storage-devices
-- /api/peripherals
-- /api/phones
-- /api/physical-switches
-- /api/physical-routers
-- /api/wifi-terminals
-- /api/physical-security-devices
-- /api/wans
-- /api/mans
-- /api/lans
-- /api/physical-links
-- /api/fluxes
+- [/api/sites](./model.md#sites)
+- [/api/buildings](./model.md#buildings-rooms)
+- [/api/bays](./model.md#racks)
+- [/api/physical-servers](./model.md#physical-servers)
+- [/api/workstations](./model.md#workstations)
+- [/api/storage-devices](./model.md#storage-infrastructures) (recommended for backups)
+- [/api/peripherals](./model.md#peripherals)
+- [/api/phones](./model.md#phones)
+- [/api/physical-switches](./model.md#physical-switches)
+- [/api/physical-routers](./model.md#physical-routers)
+- [/api/wifi-terminals](./model.md#wifi-terminals)
+- [/api/physical-security-devices](./model.md#physical-security-devices)
+- [/api/wans](./model.md#wans)
+- [/api/mans](./model.md#mans)
+- [/api/lans](./model.md#lans)
+- [/api/physical-links](./model.md#physical-links)
+
+#### Endpoints for Configuration
+
+- [/api/users](./model.md#users)
+- [/api/roles](./model.md#roles)
+- [/api/permissions](./model.md#permissions) *access not allowed yet*
+- [/api/documents](./model.md#documents)
+
+The unique feature of the endpoint **documents** is that it allows you to either upload or download a document.
+The syntax is as follows:
+##### Example of adding a document in Mercator:
+```bash
+RESPONSE=$(http_call -X POST "$API/api/documents" \
+    -H "Authorization: Bearer $TOKEN" \
+    -H "Accept: application/json" \
+    -F "file=@./rapport.pdf")
+
+# Display clean JSON (jq uncode, but isn't yet in $() )
+echo "$RESPONSE" | jq .
+
+DOC_ID=$(echo "$RESPONSE" | jq -r '.id // empty' 2>/dev/null)
+```
+
+##### Exemple of downloading a document from mercator:
+```bash
+ OUTFILE="./downloaded_${DOC_ID}.pdf"
+    curl -s -X GET "$API/api/documents/$DOC_ID/download" \
+        -H "Authorization: Bearer $TOKEN" \
+        -H "Accept: application/octet-stream" \
+        -o "$OUTFILE" \
+        -w "HTTP %{http_code}\n"
+```
+
+#### Endpoint for queries
+
+- /api/queries
+
+#### Endpoints for Reports
+
+- /api/report/cartography
+- /api/report/entities
+- /api/report/applicationsByBlocks
+- /api/report/directory
+- /api/report/logicalServers
+- /api/report/securityNeeds
+- /api/report/logicalServerConfigs
+- /api/report/externalAccess
+- /api/report/physicalInventory
+- /api/report/vlans
+- /api/report/workstations
+- /api/report/cve
+- /api/report/activityList
+- /api/report/activityReport
+- /api/report/impacts
+- /api/report/rto
 
 ### Actions managed by the resource controller
 
 Requests and URIs for each api are shown in the table below.
 
-| Request              | URI                 | Action                      
-|----------------------|---------------------|-----------------------------|      
-| GET                  | /api/objects        | returns the list of objects |
-| GET /api/objets/{id} | returns object {id} |
-| POST                 | /api/objects        | save new object             |
-| PUT/PATCH            | /api/objets/{id}    | update object {id}          |
-| DELETE               | /api/objets/{id}    | delete object {id}          |
+| Request   | URI                       | Action                                       |
+| --------- | ------------------------- | -------------------------------------------- |
+| GET       | /api/objects              | returns the list of objects                  |
+| GET       | /api/objects/{id}         | returns the object with ID `{id}`            |
+| POST      | /api/objects              | creates a new object                         |
+| PUT/PATCH | /api/objects/{id}         | updates the object with ID `{id}`            |
+| DELETE    | /api/objects/{id}         | deletes the object with ID `{id}`            |
+| POST      | /api/objects/mass-store   | creates multiple objects in a single request |
+| PUT/PATCH | /api/objects/mass-update  | updates multiple objects at once             |
+| DELETE    | /api/objects/mass-destroy | deletes multiple objects at once             |
 
-The fields to be supplied are those described in the [data model](/mercator/model/).
+
+The fields to be supplied are those described in the [data model](model.md).
+
+To get access to advanced filters, feel free to check the related page: [API Advanced (filters)](./apifilters.md)
 
 ### Access rights
 
@@ -151,8 +213,12 @@ Mapping objects can refer to other objects. For example, we can link a process t
 The names of all extra fields
 are: ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domaineAds', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'networkSwitches', 'physicalSwitches', 'physicalRouters']
 
-### PHP
 
+### Examples
+
+Please find below few examples with differents languages
+
+#### PHP
 Here are a few examples of how to use the API with PHP:
 
 ##### Authentification
@@ -297,7 +363,7 @@ Here are a few examples of how to use the API with PHP:
     var_dump($response);
 ```
 
-### Python
+#### Python
 
 Here's an example of how to use the API in Python :
 
@@ -326,7 +392,7 @@ print(response.status_code)
 
 ```
 
-### Bash
+#### Bash
 
 Here's an example of using the API on the command line with [CURL](https://curl.se/docs/manpage.html)
 and [JQ](https://stedolan.github.io/jq/)
@@ -390,12 +456,12 @@ UPDATED_OBJECT=$(curl -s -X GET "${API_URL}/logical-servers/${OBJECT_ID}" \
 echo "Objet mis à jour: ${UPDATED_OBJECT}"
 ```
 
-### PowerShell
+#### PowerShell
 
 The following **PowerShell** script demonstrates how to authenticate with the API and retrieve the list of logical
 servers.
 
-#### Step 1 — Authenticate and obtain an access token
+##### Step 1 — Authenticate and obtain an access token
 
 ```powershell
 # Define the login endpoint and credentials
@@ -416,7 +482,7 @@ try {
 }
 ```
 
-#### Step 2 — Use the token to query logical servers
+##### Step 2 — Use the token to query logical servers
 
 ```powershell
 # Define the endpoint and authorization headers

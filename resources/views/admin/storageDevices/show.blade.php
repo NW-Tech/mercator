@@ -1,11 +1,16 @@
 @extends('layouts.admin')
+
+@section('title')
+    {{ $storageDevice->name }}
+@endsection
+
 @section('content')
 <div class="form-group">
     <a class="btn btn-default" href="{{ route('admin.storage-devices.index') }}">
         {{ trans('global.back_to_list') }}
     </a>
 
-    <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node=STORAGE_{{$storageDevice->id}}">
+    <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$storageDevice->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
@@ -27,75 +32,51 @@
     <div class="card-header">
         {{ trans('global.show') }} {{ trans('cruds.storageDevice.title') }}
     </div>
-
     <div class="card-body">
-            <table class="table table-bordered table-striped">
-                <tbody>
-                    <tr>
-                        <th width="10%">
-                            {{ trans('cruds.storageDevice.fields.name') }}
-                        </th>
-                        <td width="40%" colspan="2">
-                            {{ $storageDevice->name }}
-                        </td>
-                        <th width="10%">
-                            {{ trans('cruds.storageDevice.fields.type') }}
-                        </th>
-                        <td width="40%" colspan="2">
-                            {{ $storageDevice->type }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            {{ trans('cruds.storageDevice.fields.description') }}
-                        </th>
-                        <td colspan='5'>
-                            {!! $storageDevice->description !!}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>
-                            {{ trans('cruds.storageDevice.fields.address_ip') }}
-                        </th>
-                        <td colspan="5">
-                            {{ $storageDevice->address_ip }}
-                        </td>
-                    </tr>
-                <tr>
-                    <th width="10%">
-                        {{ trans('cruds.storageDevice.fields.site') }}
-                    </th>
-                    <td width="22%">
-                        @if ($storageDevice->site!=null)
-                            <a href="{{ route('admin.sites.show', $storageDevice->site->id) }}">
-                            {{ $storageDevice->site->name ?? '' }}
-                            </a>
-                        @endif
-                    </td>
-                    <th width="10%">
-                        {{ trans('cruds.storageDevice.fields.building') }}
-                    </th>
-                    <td width="22%">
-                        @if ($storageDevice->building!=null)
-                            <a href="{{ route('admin.buildings.show', $storageDevice->building->id) }}">
-                            {{ $storageDevice->building->name ?? '' }}
-                            </a>
-                        @endif
-                    </td>
-                    <th width="10%">
-                        {{ trans('cruds.storageDevice.fields.bay') }}
-                    </th>
-                    <td width="22%">
-                        @if ($storageDevice->bay!=null)
-                            <a href="{{ route('admin.bays.show', $storageDevice->bay->id) }}">
-                            {{ $storageDevice->bay->name ?? '' }}
-                            </a>
-                        @endif
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+        @include('admin.storageDevices._details', [
+            'storageDevice' => $storageDevice,
+            'withLink' => false,
+        ])
     </div>
+        @can('backup_show')
+        <!---------------------------------------------------------------------------------------------------->
+        <div class="card-header">
+            {{ trans("cruds.backup.title") }}
+        </div>
+        <!---------------------------------------------------------------------------------------------------->
+        <div class="card-body">
+            @if ($storageDevice->backups->count()>0)
+            <div class="row">
+                <div class="col-8">
+                    <table class="table table-bordered table-striped">
+                        <tbody>
+                            <tr>
+                                <th width="30%">{{ trans('cruds.logicalServer.title') }}</th>
+                                <th width="20%">{{ trans('cruds.backup.frequency') }}</th>
+                                <th width="30%">{{ trans('cruds.backup.cycle') }}</th>
+                                <th width="20%">{{ trans('cruds.backup.retention') }}</th>
+                            </tr>
+                            @foreach($storageDevice->backups as $backup)
+                            <tr>
+                                <td>
+                                @if ($backup->logical_server_id!==null)
+                                    <a href="{{ route('admin.logical-servers.show', $backup->logical_server_id) }}">
+                                        {{ $backup->logicalServer->name }}
+                                    </a>
+                                @endif
+                                </td>
+                                <td>{{ $backup->backup_frequency ? trans("cruds.backup.frequencies.{$backup->backup_frequency}") : '' }}</td>
+                                <td>{{ $backup->backup_cycle ? trans("cruds.backup.cycles.{$backup->backup_cycle}") : '' }}</td>
+                                <td>{{ $backup->backup_retention ? $backup->backup_retention . ' ' . trans("cruds.backup.retention_unit") : '' }}</td>
+                             </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            @endif
+        </div>
+        @endcan
     <div class="card-footer">
         {{ trans('global.created_at') }} {{ $storageDevice->created_at ? $storageDevice->created_at->format(trans('global.timestamp')) : '' }} |
         {{ trans('global.updated_at') }} {{ $storageDevice->updated_at ? $storageDevice->updated_at->format(trans('global.timestamp')) : '' }}

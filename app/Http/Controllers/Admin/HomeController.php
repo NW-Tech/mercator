@@ -1,10 +1,10 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 // GDPR
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 use App\Models\Activity;
 use App\Models\Actor;
 use App\Models\Annuaire;
@@ -55,7 +55,6 @@ use App\Models\Wan;
 use App\Models\WifiTerminal;
 use App\Models\Workstation;
 use App\Models\ZoneAdmin;
-use Illuminate\Support\Facades\DB;
 
 // ecosystem
 // information system

@@ -1,9 +1,14 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasIconContract;
+use App\Contracts\HasPrefix;
+use App\Factories\SubnetworkFactory;
 use App\Traits\Auditable;
+use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,23 +18,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\Subnetwork
  */
-class Subnetwork extends Model
+class Subnetwork extends Model implements HasIconContract, HasPrefix
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'subnetworks';
 
-    public static array $searchable = [
-        'name',
-        'description',
-        'responsible_exp',
-    ];
+    public static string $prefix = 'SUBNETWORK_';
 
-    protected array $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
-    ];
+    public static string $icon = '/images/network.png';
 
     protected $fillable = [
         'name',
@@ -44,37 +41,101 @@ class Subnetwork extends Model
         'responsible_exp',
         'gateway_id',
         'network_id',
+        'subnetwork_id',
         'created_at',
         'updated_at',
         'deleted_at',
     ];
 
+    public static array $searchable = [
+        'name',
+        'description',
+        'responsible_exp',
+        'address',
+    ];
+
+    protected array $dates = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+
+    protected static function newFactory(): Factory
+    {
+        return SubnetworkFactory::new();
+    }
+
+    /** @return HasMany<Network, $this> */
+    public function connectedSubnetsNetworks(): HasMany
+    {
+        return $this->hasMany(Network::class, 'connected_subnets_id', 'id')->orderBy('name');
+    }
+
+    /** @return HasMany<Subnetwork, $this> */
     public function connectedSubnetsSubnetworks(): HasMany
     {
         return $this->hasMany(Subnetwork::class, 'connected_subnets_id', 'id')->orderBy('name');
     }
 
+    /** @return BelongsTo<Network, $this> */
     public function network(): BelongsTo
     {
         return $this->belongsTo(Network::class, 'network_id');
     }
 
+    /** @return BelongsTo<Subnetwork, $this> */
     public function connected_subnets(): BelongsTo
     {
         return $this->belongsTo(Subnetwork::class, 'connected_subnets_id');
     }
 
+    /** @return BelongsTo<Gateway, $this> */
     public function gateway(): BelongsTo
     {
         return $this->belongsTo(Gateway::class, 'gateway_id');
     }
 
+    /**
+     * Get the Vlan that this subnetwork is associated with.
+     *
+     * @return BelongsTo<Vlan, $this> Relationship to the Vlan model.
+     */
     public function vlan(): BelongsTo
     {
         return $this->belongsTo(Vlan::class, 'vlan_id');
     }
 
-    public function ipRange()
+    /**
+     * Get the parent subnetwork that this subnetwork belongs to.
+     *
+     * @return BelongsTo<Subnetwork, $this> Relation to the parent Subnetwork model.
+     */
+    public function subnetwork(): BelongsTo
+    {
+        return $this->belongsTo(Subnetwork::class, 'subnetwork_id');
+    }
+
+    /**
+     * Get the child subnetworks that this subnetwork belongs to.
+     *
+     * @return HasMany<Subnetwork, $this> Relation to the parent Subnetwork model.
+     */
+    public function subnetworks(): HasMany
+    {
+        return $this->hasMany(Subnetwork::class, 'subnetwork_id', 'id');
+    }
+
+    /**
+     * Produce a human-readable IP range for this subnetwork's CIDR address.
+     *
+     * Returns the inclusive range represented by the model's `address` property:
+     * - For IPv4 CIDRs returns "start - end".
+     * - For IPv6 CIDRs returns "first -> last".
+     * - Returns `null` when `address` is null and "N/A" when `address` is missing a prefix or not a valid IP/CIDR.
+     *
+     * @return string|null The IP range string, `null` if no address is set, or `"N/A"` for invalid/unparsable addresses.
+     */
+    public function ipRange(): ?string
     {
         // no address
         if ($this->address === null) {
@@ -95,7 +156,7 @@ class Subnetwork extends Model
             }
 
             $ip = ip2long($subnetParts[0]);
-            $mask = ~1 << 32 - $subnetParts[1] - 1;
+            $mask = ~1 << 32 - intval($subnetParts[1]) - 1;
             $start = long2ip($ip & $mask);
             $end = long2ip($ip | ~$mask);
 
@@ -117,7 +178,7 @@ class Subnetwork extends Model
             $addr_given_str = inet_ntop($addr_given_bin);
 
             // Calculate the number of 'flexible' bits
-            $flexbits = 128 - $prefixlen;
+            $flexbits = 128 - intval($prefixlen);
 
             // Build the hexadecimal strings of the first and last addresses
             $addr_hex_first = $addr_given_hex;
@@ -175,9 +236,12 @@ class Subnetwork extends Model
     /**
      * Does the given IP match the CIDR prefix
      */
-    public function contains(string $ip): bool
+    public function contains(?string $ip): bool
     {
-        // TODO : place me in a tools lobrary (see Subnetwork)
+        if ($ip === null) {
+            return false;
+        }
+
         $cidr = $this->address;
 
         if ((str_contains($ip, '.') && str_contains($cidr, '.')) ||
@@ -196,11 +260,11 @@ class Subnetwork extends Model
             }
 
             // Build mask
-            $solid = floor($maskBits / 8);
+            $solid = intdiv(intval($maskBits), 8);
             $solidBits = $solid * 8;
             $mask = str_repeat(chr(255), $solid);
             for ($i = $solidBits; $i < $maskBits; $i += 8) {
-                $bits = max(0, min(8, $maskBits - $i));
+                $bits = max(0, min(8, intval($maskBits) - $i));
                 $mask .= chr(pow(2, $bits) - 1 << 8 - $bits);
             }
             $mask = str_pad($mask, $size, chr(0));
@@ -210,5 +274,29 @@ class Subnetwork extends Model
         }
 
         return false;
+    }
+
+    /**
+     * Get the mask length (prefix length) from the CIDR address.
+     *
+     * @return int The mask length (e.g., 24 for "192.168.1.0/24"), or 0 if invalid/missing.
+     */
+    public function getMaskLength(): int
+    {
+        // No address defined
+        if ($this->address === null) {
+            return 0;
+        }
+
+        // Split CIDR notation
+        $parts = explode('/', $this->address);
+
+        // Invalid format (no prefix length)
+        if (count($parts) < 2) {
+            return 0;
+        }
+
+        // Return the mask length as integer
+        return (int) $parts[1];
     }
 }

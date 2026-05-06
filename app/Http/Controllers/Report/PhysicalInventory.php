@@ -1,6 +1,5 @@
 <?php
 
-
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
@@ -60,7 +59,7 @@ class PhysicalInventory extends Controller
             'Description',
         ];
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->fromArray([$header], null, 'A1');
 
@@ -77,7 +76,7 @@ class PhysicalInventory extends Controller
         $sheet->getColumnDimension('G')->setAutoSize(true);
 
         // converter
-        $html = new \PhpOffice\PhpSpreadsheet\Helper\Html();
+        $html = new \PhpOffice\PhpSpreadsheet\Helper\Html;
 
         // Populate the Timesheet
         $row = 2;
@@ -109,11 +108,11 @@ class PhysicalInventory extends Controller
     private function addToInventory(array &$inventory, Site $site, ?Building $building = null, ?Bay $bay = null): void
     {
         // PhysicalServer
-        if ($bay !== null) {
+        if ($bay != null) {
             $physicalServers = PhysicalServer::query()->where('bay_id', '=', $bay->id)->orderBy('name')->get();
-        } elseif ($building !== null) {
+        } elseif ($building != null) {
             $physicalServers = PhysicalServer::query()->where('bay_id', '=', null)->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $physicalServers = PhysicalServer::query()->where('bay_id', '=', null)->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $physicalServers = PhysicalServer::query()->orderBy('name')->get();
@@ -132,9 +131,9 @@ class PhysicalInventory extends Controller
         }
 
         // Workstation;
-        if ($building !== null) {
+        if ($building != null) {
             $workstations = Workstation::query()->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $workstations = Workstation::query()->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $workstations = Workstation::query()->orderBy('name')->get();
@@ -155,9 +154,9 @@ class PhysicalInventory extends Controller
         // StorageDevice;
         if ($bay !== null) {
             $storageDevices = StorageDevice::query()->where('bay_id', '=', $bay->id)->orderBy('name')->get();
-        } elseif ($building !== null) {
+        } elseif ($building != null) {
             $storageDevices = StorageDevice::query()->where('bay_id', '=', null)->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $storageDevices = StorageDevice::query()->where('bay_id', '=', null)->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $storageDevices = StorageDevice::query()->orderBy('name')->get();
@@ -176,12 +175,12 @@ class PhysicalInventory extends Controller
         }
 
         // Peripheral
-        if ($bay !== null) {
+        if ($bay != null) {
             $peripherals = Peripheral::query()
                 ->where('bay_id', '=', $bay->id)->orderBy('name')->get();
-        } elseif ($building !== null) {
+        } elseif ($building != null) {
             $peripherals = Peripheral::query()->where('bay_id', '=', null)->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $peripherals = Peripheral::query()->where('bay_id', '=', null)->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $peripherals = Peripheral::query()->orderBy('name')->get();
@@ -200,9 +199,9 @@ class PhysicalInventory extends Controller
         }
 
         // Phone
-        if ($building !== null) {
+        if ($building != null) {
             $phones = Phone::query()->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $phones = Phone::query()->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $phones = Phone::query()->orderBy('name')->get();
@@ -221,11 +220,11 @@ class PhysicalInventory extends Controller
         }
 
         // PhysicalSwitch
-        if ($bay !== null) {
+        if ($bay != null) {
             $physicalSwitches = PhysicalSwitch::query()->where('bay_id', '=', $bay->id)->orderBy('name')->get();
-        } elseif ($building !== null) {
+        } elseif ($building != null) {
             $physicalSwitches = PhysicalSwitch::query()->where('bay_id', '=', null)->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $physicalSwitches = PhysicalSwitch::query()->where('bay_id', '=', null)->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $physicalSwitches = PhysicalSwitch::query()->orderBy('name')->get();
@@ -244,11 +243,11 @@ class PhysicalInventory extends Controller
         }
 
         // PhysicalRouter
-        if ($bay !== null) {
+        if ($bay != null) {
             $physicalRouters = PhysicalRouter::query()->where('bay_id', '=', $bay->id)->orderBy('name')->get();
-        } elseif ($building !== null) {
+        } elseif ($building != null) {
             $physicalRouters = PhysicalRouter::query()->where('bay_id', '=', null)->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $physicalRouters = PhysicalRouter::query()->where('bay_id', '=', null)->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $physicalRouters = PhysicalRouter::query()->orderBy('name')->get();
@@ -267,9 +266,9 @@ class PhysicalInventory extends Controller
         }
 
         // WifiTerminal
-        if ($building !== null) {
+        if ($building != null) {
             $wifiTerminals = WifiTerminal::where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $wifiTerminals = WifiTerminal::where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $wifiTerminals = WifiTerminal::orderBy('name')->get();
@@ -288,11 +287,11 @@ class PhysicalInventory extends Controller
         }
 
         // Physical Security Devices
-        if ($bay !== null) {
+        if ($bay != null) {
             $physicalSecurityDevices = PhysicalSecurityDevice::query()->where('bay_id', '=', $bay->id)->orderBy('name')->get();
-        } elseif ($building !== null) {
+        } elseif ($building != null) {
             $physicalSecurityDevices = PhysicalSecurityDevice::query()->where('bay_id', '=', null)->where('building_id', '=', $building->id)->orderBy('name')->get();
-        } elseif ($site !== null) {
+        } elseif ($site != null) {
             $physicalSecurityDevices = PhysicalSecurityDevice::query()->where('bay_id', '=', null)->where('building_id', '=', null)->where('site_id', '=', $site->id)->orderBy('name')->get();
         } else {
             $physicalSecurityDevices = PhysicalSecurityDevice::query()->orderBy('name')->get();

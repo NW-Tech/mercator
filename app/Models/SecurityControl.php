@@ -1,9 +1,10 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Factories\SecurityControlFactory;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -32,4 +33,10 @@ class SecurityControl extends Model
         'name',
         'description',
     ];
+
+    protected static function newFactory(): Factory
+    {
+        return SecurityControlFactory::new();
+    }
+
 }

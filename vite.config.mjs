@@ -1,18 +1,26 @@
+// vite.config.js
 import {defineConfig} from 'vite';
+import path from 'path';
 import laravel from 'laravel-vite-plugin';
+import {viteStaticCopy} from 'vite-plugin-static-copy';
 import fs from 'fs';
 
-// Lire le fichier version.json
 const version = fs.readFileSync('version.txt', 'utf-8').trim();
 
 export default defineConfig({
     define: {
         'process.env.APP_VERSION': JSON.stringify(version),
     },
+
+    server: {
+        host: 'localhost',
+        port: 5173,
+    },
+
     plugins: [
         laravel({
             input: [
-                // All common resources
+                // Core
                 'resources/js/app.js',
                 'resources/css/app.css',
                 // Charts
@@ -20,25 +28,42 @@ export default defineConfig({
                 'resources/js/chart-maturity.js',
                 'resources/js/chart-relation.js',
                 'resources/js/chart-patching.js',
-                // CPE
-                'resources/js/cpe.js',
-                // Mapping TypeScript and styles
-                'resources/js/chart-relation.js',
+                // Mapping
+                'resources/css/mapping.css',
+                // D3 / Viz
+                'resources/js/graphviz.js',
+                'resources/js/vis-network.js',
+                // Maps
                 'resources/js/map.show.ts',
                 'resources/js/map.edit.ts',
-                'resources/css/mapping.css',
-                'resources/js/d3-viz.js',
-                'resources/js/vis-network.js'
+                // BPMN (ex-package autonome)
+                'resources/ts/bpmn.ts',
+                'resources/ts/bpmn-show.ts',
+                // Parser
+                'resources/js/sql-parser.js',
             ],
             refresh: true,
         }),
+        viteStaticCopy({
+            targets: [
+                {
+                    src: 'resources/fonts/bpmn.ttf',
+                    dest: 'fonts',
+                },
+            ],
+        }),
     ],
+
     resolve: {
         alias: {
             '@': '/resources/js',
+            '@ts': path.resolve(__dirname, 'resources/ts'), // imports BPMN
         },
     },
+
     build: {
-        chunkSizeWarningLimit: 5000, // Augmente la limite à 5000 KB (5 MB)
-    }
+        sourcemap: true,
+        target: 'esnext',
+        chunkSizeWarningLimit: 5000,
+    },
 });

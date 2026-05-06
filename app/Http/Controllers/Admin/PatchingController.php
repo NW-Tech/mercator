@@ -1,15 +1,14 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\LogicalServer;
-use App\Models\MApplication;
 use Carbon\Carbon;
 use Gate;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\HttpFoundation\Request;
+use App\Models\LogicalServer;
+use App\Models\MApplication;
 use Symfony\Component\HttpFoundation\Response;
 
 class PatchingController extends Controller
@@ -68,18 +67,14 @@ class PatchingController extends Controller
         );
 
         // Filter on attributes
-        if ($attributes_filter !== null) {
-            foreach ($attributes_filter as $a) {
-                if (str_starts_with($a, '-')) {
-                    $servers->where('attributes', 'not like', '%'.substr($a, 1).'%');
-                    $applications->where('attributes', 'not like', '%'.substr($a, 1).'%');
-                } else {
-                    $servers->where('attributes', 'like', '%'.$a.'%');
-                    $applications->where('attributes', 'like', '%'.$a.'%');
-                }
+        foreach ($attributes_filter as $a) {
+            if (str_starts_with($a, '-')) {
+                $servers->where('attributes', 'not like', '%'.substr($a, 1).'%');
+                $applications->where('attributes', 'not like', '%'.substr($a, 1).'%');
+            } else {
+                $servers->where('attributes', 'like', '%'.$a.'%');
+                $applications->where('attributes', 'like', '%'.$a.'%');
             }
-        } else {
-            $attributes_filter = [];
         }
         // Union
         $patches = $servers->union($applications)->orderBy('name')->get();
@@ -91,7 +86,7 @@ class PatchingController extends Controller
     {
         abort_if(Gate::denies('patching_make'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $server = LogicalServer::find($request->id);
+        $server = LogicalServer::find($request['id']);
 
         // Lists
         $attributes_list = $this->getAttributes();
@@ -101,7 +96,7 @@ class PatchingController extends Controller
         // Documents
         $documents = [];
         foreach ($server->documents as $doc) {
-            array_push($documents, $doc->id);
+            $documents[] = $doc->id;
         }
         session()->put('documents', $documents);
 
@@ -120,7 +115,7 @@ class PatchingController extends Controller
     {
         abort_if(Gate::denies('patching_make'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $application = MApplication::find($request->id);
+        $application = MApplication::find($request['id']);
 
         // Lists
         $attributes_list = $this->getAttributes();
@@ -133,7 +128,7 @@ class PatchingController extends Controller
 
     public function updateServer(Request $request)
     {
-        $logicalServer = LogicalServer::find($request->id);
+        $logicalServer = LogicalServer::find($request['id']);
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
         $logicalServer->update($request->all());
         $logicalServer->documents()->sync(session()->get('documents'));
@@ -141,11 +136,12 @@ class PatchingController extends Controller
 
         // Update frequency
         if ($request->get('global_periodicity') !== null) {
-            $lservers = LogicalServer::where('attributes', '=', $logicalServer->attributes)->get();
+            $lservers = LogicalServer::query()->where('attributes', '=', $logicalServer->attributes)->get();
             foreach ($lservers as $s) {
                 $s->patching_frequency = $logicalServer->patching_frequency;
                 if ($s->update_date !== null) {
-                    $s->next_update = Carbon::createFromFormat(config('panel.date_format'), $s->update_date)->addMonths($logicalServer->patching_frequency)->format(config('panel.date_format'));
+                    $s->next_update = Carbon::parse($s->update_date)
+                        ->addMonths($logicalServer->patching_frequency);
                 }
                 $s->save();
             }
@@ -156,7 +152,7 @@ class PatchingController extends Controller
 
     public function updateApplication(Request $request)
     {
-        $application = MApplication::find($request->id);
+        $application = MApplication::find($request['id']);
 
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
         $application->update($request->all());
@@ -231,15 +227,13 @@ class PatchingController extends Controller
         );
 
         // Filter on attributes
-        if ($attributes_filter !== null) {
-            foreach ($attributes_filter as $a) {
-                if (str_starts_with($a, '-')) {
-                    $servers->where('attributes', 'not like', '%'.substr($a, 1).'%');
-                    $applications->where('attributes', 'not like', '%'.substr($a, 1).'%');
-                } else {
-                    $servers->where('attributes', 'like', '%'.$a.'%');
-                    $applications->where('attributes', 'like', '%'.$a.'%');
-                }
+        foreach ($attributes_filter as $a) {
+            if (str_starts_with($a, '-')) {
+                $servers->where('attributes', 'not like', '%'.substr($a, 1).'%');
+                $applications->where('attributes', 'not like', '%'.substr($a, 1).'%');
+            } else {
+                $servers->where('attributes', 'like', '%'.$a.'%');
+                $applications->where('attributes', 'like', '%'.$a.'%');
             }
         }
 

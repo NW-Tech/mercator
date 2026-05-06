@@ -1,7 +1,9 @@
 .env
 .env.backup
 .phpunit.result.cache
+.phpunit.cache
 .editorconfig
+site
 *~
 node_modules
 Homestead.json
@@ -20,7 +22,7 @@ config/flare.php
 config/ide-helper.php
 config/ignition.php
 config/insights.php
-config/mercator-config.php
+config/mercator.php
 config/passport.php
 config/tinker.php
 config/trustedproxy.php
@@ -46,3 +48,5 @@ tests/Browser/console/*.log
 docker-compose/PV/mercator/db.sqlite
 _helm_chart/chart/charts
 _helm_chart/chart/Chart.lock
+auth.json
+

@@ -1,10 +1,13 @@
 <?php
 
-
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Factories\ActivityImpactFactory;
+use App\Factories\RelationValueFactory;
 
 /**
  * App\RelationValue
@@ -19,18 +22,23 @@ class RelationValue extends Model
 
     public $table = 'relation_values';
 
-    public static $searchable = [
+    public static array $searchable = [
     ];
 
     // For PostgreSQL
     protected $primaryKey = null;
 
-    protected $dates = [
+    protected array $dates = [
         'date_price',
     ];
 
     protected $fillable = [
     ];
+
+    protected static function newFactory(): Factory
+    {
+        return RelationValueFactory::new();
+    }
 
     public function getDatePriceAttribute($value)
     {
@@ -42,7 +50,8 @@ class RelationValue extends Model
         $this->attributes['date_price'] = $value;
     }
 
-    public function relation()
+    /** @return BelongsTo<Relation, $this> */
+    public function relation(): BelongsTo
     {
         return $this->belongsTo(Relation::class, 'relation_id');
     }

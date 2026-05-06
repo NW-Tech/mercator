@@ -1,14 +1,15 @@
 <?php
 
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyApplicationModuleRequest;
 use App\Http\Requests\StoreApplicationModuleRequest;
 use App\Http\Requests\UpdateApplicationModuleRequest;
-use App\Models\ApplicationModule;
 use Gate;
+use App\Models\ApplicationModule;
+use App\Models\ApplicationService;
+use App\Models\Entity;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApplicationModuleController extends Controller
@@ -17,7 +18,10 @@ class ApplicationModuleController extends Controller
     {
         abort_if(Gate::denies('application_module_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $applicationModules = ApplicationModule::all()->sortBy('name');
+        $applicationModules = ApplicationModule::query()
+            ->orderBy('name')
+            ->get()
+            ->load('entities', 'applicationServices');
 
         return view('admin.applicationModules.index', compact('applicationModules'));
     }
@@ -26,12 +30,19 @@ class ApplicationModuleController extends Controller
     {
         abort_if(Gate::denies('application_module_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return view('admin.applicationModules.create');
+        $services = ApplicationService::query()->pluck('name', 'id');
+        $entities = Entity::query()->pluck('name', 'id');
+
+        return view('admin.applicationModules.create',
+            compact('services', 'entities'));
     }
 
     public function store(StoreApplicationModuleRequest $request)
     {
-        ApplicationModule::create($request->all());
+        $applicationModule = ApplicationModule::query()->create($request->all());
+
+        $applicationModule->applicationServices()->sync($request->input('services', []));
+        $applicationModule->entities()->sync($request->input('entities', []));
 
         return redirect()->route('admin.application-modules.index');
     }
@@ -40,12 +51,19 @@ class ApplicationModuleController extends Controller
     {
         abort_if(Gate::denies('application_module_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return view('admin.applicationModules.edit', compact('applicationModule'));
+        $services = ApplicationService::query()->pluck('name', 'id');
+        $entities = Entity::query()->pluck('name', 'id');
+
+        return view('admin.applicationModules.edit',
+            compact('applicationModule', 'services', 'entities'));
     }
 
     public function update(UpdateApplicationModuleRequest $request, ApplicationModule $applicationModule)
     {
         $applicationModule->update($request->all());
+
+        $applicationModule->applicationServices()->sync($request->input('services', []));
+        $applicationModule->entities()->sync($request->input('entities', []));
 
         return redirect()->route('admin.application-modules.index');
     }
@@ -54,7 +72,7 @@ class ApplicationModuleController extends Controller
     {
         abort_if(Gate::denies('application_module_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $applicationModule->load('moduleSourceFluxes', 'moduleDestFluxes', 'applicationServices');
+        $applicationModule->load('moduleSourceFluxes', 'moduleDestFluxes', 'applicationServices', 'entities');
 
         return view('admin.applicationModules.show', compact('applicationModule'));
     }

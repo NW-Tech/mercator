@@ -8,6 +8,7 @@ use App\Http\Requests\StoreActivityRequest;
 use App\Http\Requests\UpdateActivityRequest;
 use App\Models\Activity;
 use App\Models\ActivityImpact;
+use App\Models\Graph;
 use App\Models\MApplication;
 use App\Models\Operation;
 use App\Models\Process;
@@ -69,7 +70,7 @@ class ActivityController extends Controller
 
         if ($impact_types !== null) {
             for ($i = 0; $i < count($impact_types); $i++) {
-                $activityImpact = new ActivityImpact();
+                $activityImpact = new ActivityImpact;
                 $activityImpact->activity_id = $activity->id;
                 $activityImpact->impact_type = $impact_types[$i];
                 $activityImpact->severity = $severities[$i];
@@ -95,23 +96,6 @@ class ActivityController extends Controller
             ->pluck('impact_type');
 
         $activity->load('operations', 'processes', 'applications', 'impacts');
-
-        // rto-rpo...
-        $activity->recovery_time_objective_days = intdiv($activity->recovery_time_objective, 60 * 24);
-        $activity->recovery_time_objective_hours = intdiv($activity->recovery_time_objective, 60) % 24;
-        $activity->recovery_time_objective_minutes = $activity->recovery_time_objective % 60;
-
-        $activity->recovery_point_objective_days = intdiv($activity->recovery_point_objective, 60 * 24);
-        $activity->recovery_point_objective_hours = intdiv($activity->recovery_point_objective, 60) % 24;
-        $activity->recovery_point_objective_minutes = $activity->recovery_point_objective % 60;
-
-        $activity->maximum_tolerable_downtime_days = intdiv($activity->maximum_tolerable_downtime, 60 * 24);
-        $activity->maximum_tolerable_downtime_hours = intdiv($activity->maximum_tolerable_downtime, 60) % 24;
-        $activity->maximum_tolerable_downtime_minutes = $activity->maximum_tolerable_downtime % 60;
-
-        $activity->maximum_tolerable_data_loss_days = intdiv($activity->maximum_tolerable_data_loss, 60 * 24);
-        $activity->maximum_tolerable_data_loss_hours = intdiv($activity->maximum_tolerable_data_loss, 60) % 24;
-        $activity->maximum_tolerable_data_loss_minutes = $activity->maximum_tolerable_data_loss % 60;
 
         return view(
             'admin.activities.edit',
@@ -142,7 +126,7 @@ class ActivityController extends Controller
 
         if ($impact_types !== null) {
             for ($i = 0; $i < count($impact_types); $i++) {
-                $activityImpact = new ActivityImpact();
+                $activityImpact = new ActivityImpact;
                 $activityImpact->activity_id = $activity->id;
                 $activityImpact->impact_type = $impact_types[$i];
                 $activityImpact->severity = $severities[$i];
@@ -153,15 +137,23 @@ class ActivityController extends Controller
         return redirect()->route('admin.activities.index');
     }
 
+
     public function show(Activity $activity)
     {
         abort_if(Gate::denies('activity_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $activity->load('operations', 'processes');
 
-        return view('admin.activities.show', compact('activity'));
-    }
+        // Select BPMN graphs
+        $BPMNGraphs = Graph::query()
+            ->select("id", "name")
+            ->where("class", "=", 2)
+            ->whereLike('content', '%"#' . $activity->getUID() . '"%')
+            ->get();
 
+        return view('admin.activities.show',
+            compact('activity', 'BPMNGraphs'));
+    }
     public function destroy(Activity $activity)
     {
         abort_if(Gate::denies('activity_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
@@ -173,7 +165,7 @@ class ActivityController extends Controller
 
     public function massDestroy(MassDestroyActivityRequest $request)
     {
-        Activity::whereIn('id', request('ids'))->delete();
+        Activity::query()->whereIn('id', request('ids'))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
     }

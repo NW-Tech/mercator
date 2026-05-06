@@ -1,9 +1,10 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Factories\DocumentFactory;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -25,19 +26,30 @@ class Document extends Model
     ];
 
     protected $fillable = [
+        'filename',
+        'mimetype',
+        'size',
+        'hash'
     ];
 
+    protected static function newFactory(): Factory
+    {
+        return DocumentFactory::new();
+    }
+
+    /** @return BelongsToMany<Activity, $this> */
     public function activities(): BelongsToMany
     {
         return $this->belongsToMany(Activity::class);
     }
 
+    /** @return BelongsToMany<Entity, $this> */
     public function entities(): BelongsToMany
     {
         return $this->belongsToMany(Entity::class);
     }
 
-    public function humanSize()
+    public function humanSize(): string
     {
         return \Illuminate\Support\Number::fileSize($this->size);
         /*

@@ -1,11 +1,12 @@
 <?php
 
-
 namespace App\Models;
 
-use DateTimeInterface;
+use App\Factories\AuditLogFactory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
 
 /**
@@ -30,21 +31,28 @@ class AuditLog extends Model
         'properties' => 'collection',
     ];
 
-    public function user()
+    protected static function newFactory(): Factory
+    {
+        return AuditLogFactory::new();
+    }
+
+    /** @return BelongsTo<User, $this> */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    public static function subjectURL(string $subject_type)
+    public function subjectURL(): string
     {
+        return AuditLog::url($this->subject_type, (string)$this->subject_id);
+    }
+
+    public static function URL(string $subject_type, string $subject_id): string {
         return '/admin/'.
             ($subject_type === 'App\\Models\\MApplication' ?
                 'applications' :
-                Str::plural(Str::snake(substr($subject_type, 4), '-')));
+                Str::plural(Str::snake(Str::afterLast($subject_type, '\\'), '-'))).
+            '/' . $subject_id;
     }
 
-    protected function serializeDate(DateTimeInterface $date)
-    {
-        return $date->format('Y-m-d H:i:s');
-    }
 }

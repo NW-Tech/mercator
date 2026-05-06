@@ -1,4 +1,9 @@
 @extends('layouts.admin')
+
+@section('title')
+    {{ trans('cruds.certificate.title_singular') }} {{ trans('global.list') }}
+@endsection
+
 @section('content')
 @can('certificate_create')
     <div style="margin-bottom: 10px;" class="row">
@@ -53,7 +58,7 @@
                             ($certificate->start_validity==null)||
                             ($certificate->end_validity==null)||
                             (
-                            ($certificate->logical_servers->count()==0)&&($certificate->applications->count()==0)
+                            ($certificate->logicalServers->count()==0)&&($certificate->applications->count()==0)
                             ))
                                 class="table-warning"
                         @endif

@@ -1,4 +1,9 @@
 @extends('layouts.admin')
+
+@section('title')
+    {{ trans('global.create') }} {{ trans('cruds.logicalServer.title_singular') }}
+@endsection
+
 @section('content')
     <form method="POST" action="{{ route("admin.logical-servers.store") }}" enctype="multipart/form-data">
         @csrf
@@ -13,7 +18,7 @@
                 <div class="row">
                     <div class="col-sm-3">
                         <div class="form-group">
-                            <label class="required" for="name">{{ trans('cruds.logicalServer.fields.name') }}</label>
+                            <label class="label-required" for="name">{{ trans('cruds.logicalServer.fields.name') }}</label>
                             <input class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}" type="text"
                                    name="name" id="name" value="{{ old('name', '') }}" required maxlength="64"
                                    autofocus/>
@@ -31,7 +36,7 @@
                             <select class="form-control select2-free {{ $errors->has('type') ? 'is-invalid' : '' }}"
                                     name="type" id="type">
                                 @if (!$type_list->contains(old('type')))
-                                    <option> {{ old('type') }}</option>'
+                                    <option> {{ old('type') }}</option>
                                 @endif
                                 @foreach($type_list as $type)
                                     <option {{ old('type') == $type ? 'selected' : '' }}>{{ $type }}</option>
@@ -45,11 +50,11 @@
                             <span class="help-block">{{ trans('cruds.logicalServer.fields.type_helper') }}</span>
                         </div>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-5">
                         <div class="form-group">
                             <label for="attributes">{{ trans('cruds.logicalServer.fields.attributes') }}</label>
-                            <select class="form-control select2-free {{ $errors->has('attributes') ? 'is-invalid' : '' }}"
-                                    name="attributes[]" id="attributes[]" multiple>
+                            <select class="form-control select2-free-tags {{ $errors->has('attributes') ? 'is-invalid' : '' }}"
+                                    name="attributes[]" id="attributes" multiple>
                                 @foreach($attributes_list as $a)
                                     <option {{ str_contains(old('attributes'), $a) ? 'selected' : '' }}>{{$a}}</option>
                                 @endforeach
@@ -60,16 +65,6 @@
                                 </div>
                             @endif
                             <span class="help-block">{{ trans('cruds.logicalServer.fields.attributes_helper') }}</span>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-1">
-                        <div class="form-check">
-                            <label for="active">{{ trans('cruds.logicalServer.fields.active') }}</label>
-                            <div class="form-switch">
-                                <input class="form-check-input" type="checkbox" id="active"
-                                       name="active" {{ old('active', $active) ? "checked" : "" }}/>
-                            </div>
                         </div>
                     </div>
 
@@ -121,7 +116,7 @@
                             <select class="form-control select2-free {{ $errors->has('operating_system') ? 'is-invalid' : '' }}"
                                     name="operating_system" id="operating_system">
                                 @if (!$operating_system_list->contains(old('operating_system')))
-                                    <option> {{ old('operating_system') }}</option>'
+                                    <option> {{ old('operating_system') }}</option>
                                 @endif
                                 @foreach($operating_system_list as $t)
                                     <option {{ old('operating_system') == $t ? 'selected' : '' }}>{{$t}}</option>
@@ -156,7 +151,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <div class="form-group">
-                                <label class="recommended"
+                                <label class="label-maturity-1"
                                        for="applications">{{ trans('cruds.logicalServer.fields.clusters') }}</label>
                                 <select class="form-control select2 {{ $errors->has('applications') ? 'is-invalid' : '' }}"
                                         name="clusters[]" id="clusters" multiple>
@@ -171,30 +166,29 @@
                                 @endif
                                 <span class="help-block">{{ trans('cruds.logicalServer.fields.clusters_helper') }}</span>
                             </div>
-
-
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="environment">{{ trans('cruds.logicalServer.fields.environment') }}</label>
-                                <select class="form-control select2-free {{ $errors->has('environment') ? 'is-invalid' : '' }}"
-                                        name="environment" id="environment">
-                                    @if (!$environment_list->contains(old('environment')))
-                                        <option> {{ old('environment') }}</option>'
-                                    @endif
-                                    @foreach($environment_list as $t)
-                                        <option {{ old('environment') == $t ? 'selected' : '' }}>{{$t}}</option>
-                                    @endforeach
-                                </select>
-                                @if($errors->has('environment'))
-                                    <div class="invalid-feedback">
-                                        {{ $errors->first('environment') }}
-                                    </div>
-                                @endif
-                                <span class="help-block">{{ trans('cruds.logicalServer.fields.environment_helper') }}</span>
-                            </div>
                         </div>
                     </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="environment">{{ trans('cruds.logicalServer.fields.environment') }}</label>
+                            <select class="form-control select2-free {{ $errors->has('environment') ? 'is-invalid' : '' }}"
+                                    name="environment" id="environment">
+                                @if (!$environment_list->contains(old('environment')))
+                                    <option> {{ old('environment') }}</option>
+                                @endif
+                                @foreach($environment_list as $t)
+                                    <option {{ old('environment') == $t ? 'selected' : '' }}>{{$t}}</option>
+                                @endforeach
+                            </select>
+                            @if($errors->has('environment'))
+                                <div class="invalid-feedback">
+                                    {{ $errors->first('environment') }}
+                                </div>
+                            @endif
+                            <span class="help-block">{{ trans('cruds.logicalServer.fields.environment_helper') }}</span>
+                        </div>
+                    </div>
+                </div>
                     <div class="row">
                         <div class="col-md-8">
                             <div class="form-group">
@@ -229,7 +223,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!---------------------------------------------------------------------------------------------------->
                 <div class="card-header">
                     {{ trans("cruds.logicalServer.fields.configuration") }}
@@ -316,7 +309,7 @@
                     <div class="row">
                         <div class="col-sm">
                             <div class="form-group">
-                                <label class="recommended"
+                                <label class="label-maturity-1"
                                        for="applications">{{ trans('cruds.logicalServer.fields.applications') }}</label>
                                 <select class="form-control select2 {{ $errors->has('applications') ? 'is-invalid' : '' }}"
                                         name="applications[]" id="applications" multiple>
@@ -361,7 +354,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label class="recommended"
+                                <label class="label-maturity-1"
                                        for="domain">{{ trans('cruds.logicalServer.fields.domain') }}</label>
                                 <select class="form-control select2 {{ $errors->has('domains') ? 'is-invalid' : '' }}"
                                         name="domain_id" id="domain_id">
@@ -412,14 +405,167 @@
                         </div>
                     </div>
                 </div>
+                @can('backup_create')
+                <!---------------------------------------------------------------------------------------------------->
+                <div class="card-header">
+                    {{ trans("cruds.backup.title") }}
+                </div>
+                <!---------------------------------------------------------------------------------------------------->
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-10">
+                            <table class="table" id="dynamicAddRemove">
+                                <tr>
+                                    <th width="30%">{{ trans('cruds.storageDevice.title') }}</th>
+                                    <th width="20%">{{ trans('cruds.backup.frequency') }}</th>
+                                    <th width="30%">{{ trans('cruds.backup.cycle') }}</th>
+                                    <th width="20%">{{ trans('cruds.backup.retention') }}</th>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <div class="col">
+                                            <select class="form-control select2" name="storage_server_id" id="storage_server_id">
+                                                <option></option>
+                                                @foreach($storageDevices as $id => $name)
+                                                    <option value="{{ $id }}">{{ $name }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <select class="form-control select2" name="backup_frequency" id="backup_frequency">
+                                            <option></option>
+                                            <option value="1">{{ trans("cruds.backup.frequencies.1") }}</option>
+                                            <option value="2">{{ trans("cruds.backup.frequencies.2") }}</option>
+                                            <option value="3">{{ trans("cruds.backup.frequencies.3") }}</option>
+                                            <option value="4">{{ trans("cruds.backup.frequencies.4") }}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <select class="form-control select2" name="backup_cycle" id="backup_cycle">
+                                            <option></option>
+                                            <option value="1">{{ trans("cruds.backup.cycles.1") }}</option>
+                                            <option value="2">{{ trans("cruds.backup.cycles.2") }}</option>
+                                            <option value="3">{{ trans("cruds.backup.cycles.3") }}</option>
+                                            <option value="4">{{ trans("cruds.backup.cycles.4") }}</option>
+                                            <option value="5">{{ trans("cruds.backup.cycles.5") }}</option>
+                                            <option value="6">{{ trans("cruds.backup.cycles.6") }}</option>
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <input class="form-control" type="number" name="backup_retention" id="backup_retention" min="1" max="36500"/>
+                                    </td>
+                                    <td>
+                                        <button type="button" id="dynamic-ar" class="btn btn-outline-primary">{{ trans("global.add") }}</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                @endcan
             </div>
+            <!---------------------------------------------------------------------------------------------------->
             <div class="form-group">
                 <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.logical-servers.index') }}">
                     {{ trans('global.back_to_list') }}
                 </a>
-                <button id="btn-save" class="btn btn-danger" type="submit">
+                <button id="btn-save" class="btn btn-success" type="submit">
                     {{ trans('global.save') }}
                 </button>
             </div>
     </form>
+@endsection
+
+@section('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        // Options générées côté serveur pour réutilisation dans les lignes dynamiques
+        const storageOptions = `
+            <option value=""></option>
+            @foreach($storageDevices as $id => $name)
+                <option value="{{ $id }}">{{ $name }}</option>
+            @endforeach
+        `;
+
+        const frequencyOptions = `
+            <option value=""></option>
+            <option value="1">{{ trans("cruds.backup.frequencies.1") }}</option>
+            <option value="2">{{ trans("cruds.backup.frequencies.2") }}</option>
+            <option value="3">{{ trans("cruds.backup.frequencies.3") }}</option>
+            <option value="4">{{ trans("cruds.backup.frequencies.4") }}</option>
+        `;
+
+        const cycleOptions = `
+            <option value=""></option>
+            <option value="1">{{ trans("cruds.backup.cycles.1") }}</option>
+            <option value="2">{{ trans("cruds.backup.cycles.2") }}</option>
+            <option value="3">{{ trans("cruds.backup.cycles.3") }}</option>
+            <option value="4">{{ trans("cruds.backup.cycles.4") }}</option>
+            <option value="5">{{ trans("cruds.backup.cycles.5") }}</option>
+            <option value="6">{{ trans("cruds.backup.cycles.6") }}</option>
+        `;
+
+        $("#dynamic-ar").click(function () {
+            const storageId  = $("#storage_server_id").val();
+            const freqId     = $("#backup_frequency").val();
+            const cycleId    = $("#backup_cycle").val();
+            const retention  = $("#backup_retention").val();
+
+            if (!storageId) return;
+
+            const $row = $(`
+                <tr>
+                    <td>
+                        <select class="form-control select2" name="storage_device_id[]">
+                            ${storageOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control select2" name="backup_frequency[]">
+                            ${frequencyOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <select class="form-control select2" name="backup_cycle[]">
+                            ${cycleOptions}
+                        </select>
+                    </td>
+                    <td>
+                        <input type="number" class="form-control"
+                               name="backup_retention[]"
+                               min="1" max="36500"
+                               value="${retention}" />
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-outline-danger remove-input-field">
+                            {{ trans('global.delete') }}
+                        </button>
+                    </td>
+                </tr>`
+            );
+
+            // Pré-sélectionner les valeurs choisies dans la ligne de saisie
+            $row.find('[name="storage_device_id[]"]').val(storageId);
+            $row.find('[name="backup_frequency[]"]').val(freqId);
+            $row.find('[name="backup_cycle[]"]').val(cycleId);
+
+            // Initialiser Select2 sur les selects de la nouvelle ligne
+            $row.find('select').select2({ width: '100%' });
+
+            $("#dynamicAddRemove tbody").append($row);
+
+            // Reset des champs de saisie
+            $("#storage_server_id").val('').trigger('change');
+            $("#backup_frequency").val('').trigger('change');
+            $("#backup_cycle").val('').trigger('change');
+            $("#backup_retention").val('');
+        });
+
+        $(document).on('click', '.remove-input-field', function () {
+            $(this).closest('tr').remove();
+        });
+    });
+</script>
 @endsection

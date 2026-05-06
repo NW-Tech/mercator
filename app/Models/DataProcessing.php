@@ -1,9 +1,14 @@
 <?php
 
-
 namespace App\Models;
 
+use App\Contracts\HasIconContract;
+use App\Contracts\HasPrefix;
+use App\Factories\DataProcessingFactory;
 use App\Traits\Auditable;
+use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
+use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -12,11 +17,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * App\Actor
  */
-class DataProcessing extends Model
+class DataProcessing extends Model implements HasPrefix, HasIconContract
 {
-    use Auditable, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     public $table = 'data_processing';
+
+    public static string $prefix = 'DATAPROC_';
+
+    public static string $icon = '/images/dataprocessing.png';
 
     public static array $searchable = [
         'name',
@@ -30,12 +39,14 @@ class DataProcessing extends Model
         'retention',
         'controls',
         'lawfulness',
+        'data_source',
+        'data_collection_obligation',
+        'data_subject_rights',
+        'automated_decision_making',
     ];
 
-    protected array $dates = [
-        'created_at',
-        'updated_at',
-        'deleted_at',
+    protected $casts = [
+        'update_date' => 'date:Y-m-d',
     ];
 
     protected $fillable = [
@@ -56,23 +67,37 @@ class DataProcessing extends Model
         'lawfulness_legal_obligation',
         'lawfulness_contract',
         'lawfulness_consent',
+        'data_source',
+        'data_collection_obligation',
+        'data_subject_rights',
+        'automated_decision_making',
+        'update_date'
     ];
 
+    protected static function newFactory(): Factory
+    {
+        return DataProcessingFactory::new();
+    }
+
+    /** @return BelongsToMany<Process, $this> */
     public function processes(): BelongsToMany
     {
         return $this->belongsToMany(Process::class)->orderBy('name');
     }
 
+    /** @return BelongsToMany<MApplication, $this> */
     public function applications(): BelongsToMany
     {
         return $this->belongsToMany(MApplication::class)->orderBy('name');
     }
 
+    /** @return BelongsToMany<Information, $this> */
     public function informations(): BelongsToMany
     {
         return $this->belongsToMany(Information::class)->orderBy('name');
     }
 
+    /** @return BelongsToMany<Document, $this> */
     public function documents(): BelongsToMany
     {
         return $this->belongsToMany(Document::class);

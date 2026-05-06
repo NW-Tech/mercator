@@ -1,4 +1,9 @@
 @extends('layouts.admin')
+
+@section('title')
+    {{ trans('cruds.logicalServer.title_singular') }} {{ trans('global.list') }}
+@endsection
+
 @section('content')
     @can('logical_server_create')
         <div style="margin-bottom: 10px;" class="row">
@@ -52,9 +57,7 @@
                     <tbody>
                     @foreach($logicalServers as $key => $logicalServer)
                         <tr data-entry-id="{{ $logicalServer->id }}"
-                            @if ($logicalServer->active!=1)
-                                class="table-secondary"
-                            @elseif (
+                            @if (
                             ($logicalServer->description==null)||
                             ($logicalServer->operating_system==null)||
                             ($logicalServer->environment==null)||

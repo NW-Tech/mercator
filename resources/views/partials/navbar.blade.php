@@ -9,6 +9,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ms-3">
+                @can('explore_access')
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="menu1" role="button" data-bs-toggle="dropdown"
                        aria-expanded="false">{{ trans('panel.menu.views') }}</a>
@@ -64,6 +65,7 @@
                         @endcan
                     </ul>
                 </li>
+                @endcan
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="menu2" role="button" data-bs-toggle="dropdown"
                        aria-expanded="false">{{ trans('panel.menu.preferences') }}</a>
@@ -83,6 +85,11 @@
                         <a class="nav-link dropdown-toggle" href="#" id="menu3" role="button" data-bs-toggle="dropdown"
                            aria-expanded="false">{{ trans('panel.menu.tools') }}</a>
                         <ul class="dropdown-menu" aria-labelledby="menu3">
+
+                            <li><a class="dropdown-item" href="/admin/bpmn">
+                                <i class="bi bi-briefcase-fill"></i>BPMN</a>
+                            </li>
+
                             @can('graph_access')
                                 <li><a class="dropdown-item" href="/admin/graphs">
                                         <i class="bi bi-map-fill"></i>{{ trans('cruds.graph.title') }}</a>
@@ -92,10 +99,13 @@
                                 <li><a class="dropdown-item" href="/admin/report/explore">
                                         <i class="bi bi-globe2"></i>{{ trans('panel.menu.explore') }}</a>
                                 </li>
+                                <li><a class="dropdown-item" href="/admin/report/dependency">
+                                    <i class="bi bi-diagram-2"></i>{{ trans('panel.menu.dependency') }}</a>
+                                </li>
                             @endcan
-                            @can('patching_access')
-                                <li><a class="dropdown-item" href="/admin/patching/index">
-                                        <i class="bi bi-tools"></i>{{ trans('panel.menu.patching') }}</a>
+                            @can('query_access')
+                                <li><a class="dropdown-item" href="/admin/queries">
+                                    <i class="bi bi-binoculars-fill"></i>{{ trans('cruds.tools.query.title_short') }}</a>
                                 </li>
                             @endcan
                             @can('reports_access')
@@ -110,12 +120,22 @@
                     <a class="nav-link dropdown-toggle" href="#" id="menu4" role="button" data-bs-toggle="dropdown"
                        aria-expanded="false">{{ trans('panel.menu.help') }}</a>
                     <ul class="dropdown-menu" aria-labelledby="menu4">
+
                         <li><a class="dropdown-item" href="/admin/doc/schema">
                                 <i class="bi bi-database-fill"></i>{{ trans('panel.menu.schema') }}</a>
                         </li>
                         <li><a class="dropdown-item" href="/admin/doc/guide">
                                 <i class="bi bi-book-fill"></i>{{ trans('panel.menu.guide') }}</a>
                         </li>
+                        @if (Auth::user()->language==='fr')
+                        <li><a class="dropdown-item" target="_blank" href="https://dbarzin.github.io/mercator/fr/">
+                                <i class="bi bi-book-fill"></i>{{ trans('panel.menu.doc') }}</a>
+                        </li>
+                        @else
+                        <li><a class="dropdown-item" target="_blank" href="https://dbarzin.github.io/mercator/">
+                                <i class="bi bi-book-fill"></i>{{ trans('panel.menu.doc') }}</a>
+                        </li>
+                        @endif
                         <li><a class="dropdown-item" href="/admin/doc/about">
                                 <i class="bi bi-info-circle-fill"></i>{{ trans('panel.menu.about') }}</a>
                         </li>
