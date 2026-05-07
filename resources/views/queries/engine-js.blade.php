@@ -69,7 +69,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // ── Mode sortie ──────────────────────────────────────────────
     document.querySelectorAll('input[name="output"]').forEach(r => {
-        r.addEventListener('change', () => runQuery());
+        r.addEventListener('change', () => {
+            try {
+                const dsl = parseSql(editor.value.trim());
+                dsl.output = r.value;
+                editor.value = dslToSql(dsl);
+                clearParseError();
+            } catch (e) {
+                // éditeur vide ou syntaxe invalide → on laisse runQuery gérer l'erreur
+            }
+            runQuery();
+        });
     });
 
     // ── Toggle éditeur ───────────────────────────────────────────
