@@ -82,46 +82,46 @@
                     @endforeach
                 </td>
                 <td>
-                    @if ($flow->application_source!=null)
-                        <a href="{{ route('admin.applications.show',$flow->application_source->id) }}">
-                            {{ $flow->application_source->name }}
+                    @if ($flow->applicationSource!=null)
+                        <a href="{{ route('admin.applications.show',$flow->applicationSource->id) }}">
+                            {{ $flow->applicationSource->name }}
                         </a>
                     @endif
-                    @if($flow->service_source!=null)
-                        <a href="{{ route('admin.application-services.show', $flow->service_source->id) }}">
-                            {{ $flow->service_source->name }}
+                    @if($flow->serviceSource!=null)
+                        <a href="{{ route('admin.application-services.show', $flow->serviceSource->id) }}">
+                            {{ $flow->serviceSource->name }}
                         </a>
                     @endif
-                    @if ($flow->module_source!=null)
-                        <a href="{{ route('admin.application-modules.show', $flow->module_source->id) }}">
-                            {{ $flow->module_source->name }}
+                    @if ($flow->moduleSource!=null)
+                        <a href="{{ route('admin.application-modules.show', $flow->moduleSource->id) }}">
+                            {{ $flow->moduleSource->name }}
                         </a>
                     @endif
-                    @if ($flow->database_source!=null)
-                        <a href="{{ route('admin.databases.show',$flow->database_source->id) }}">
-                            {{ $flow->database_source->name }}
+                    @if ($flow->databaseSource!=null)
+                        <a href="{{ route('admin.databases.show',$flow->databaseSource->id) }}">
+                            {{ $flow->databaseSource->name }}
                         </a>
                     @endif
                 </td>
                 <td>
-                    @if ($flow->application_dest!=null)
-                        <a href="{{ route('admin.applications.show',$flow->application_dest->id) }}">
-                            {{ $flow->application_dest->name }}
+                    @if ($flow->applicationDest!=null)
+                        <a href="{{ route('admin.applications.show',$flow->applicationDest->id) }}">
+                            {{ $flow->applicationDest->name }}
                         </a>
                     @endif
-                    @if ($flow->service_dest!=null)
-                        <a href="{{ route('admin.application-services.show', $flow->service_dest->id) }}">
-                            {{ $flow->service_dest->name }}
+                    @if ($flow->serviceDest!=null)
+                        <a href="{{ route('admin.application-services.show', $flow->serviceDest->id) }}">
+                            {{ $flow->serviceDest->name }}
                         </a>
                     @endif
-                    @if ($flow->module_dest!=null)
-                        <a href="{{ route('admin.application-modules.show', $flow->module_dest->id) }}">
-                            {{ $flow->module_dest->name }}
+                    @if ($flow->moduleDest!=null)
+                        <a href="{{ route('admin.application-modules.show', $flow->moduleDest->id) }}">
+                            {{ $flow->moduleDest->name }}
                         </a>
                     @endif
-                    @if ($flow->database_dest!=null)
-                        <a href="{{ route('admin.databases.show',$flow->database_dest->id) }}">
-                            {{ $flow->database_dest->name }}
+                    @if ($flow->databaseDest!=null)
+                        <a href="{{ route('admin.databases.show',$flow->databaseDest->id) }}">
+                            {{ $flow->databaseDest->name }}
                         </a>
                     @endif
                 </td>

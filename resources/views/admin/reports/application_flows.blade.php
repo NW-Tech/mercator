@@ -132,74 +132,74 @@
                                         <th width="30%">{{ trans('cruds.flux.fields.description') }}</th>
                                         <td>{!! $flow->description !!}</td>
                                     </tr>
-                                    @if ($flow->application_source!=null)
+                                    @if ($flow->applicationSource!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.application_source') }}</th>
                                             <td>
-                                                <a href="#APPLICATION{{$flow->application_source->id}}">{{$flow->application_source->name}}</a>
+                                                <a href="#APPLICATION{{$flow->applicationSource->id}}">{{$flow->applicationSource->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
 
-                                    @if ($flow->service_source!=null)
+                                    @if ($flow->serviceSource!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.service_source') }}</th>
                                             <td>
-                                                <a href="#SERVICE{{$flow->service_source->id}}">{{$flow->service_source->name}}</a>
+                                                <a href="#SERVICE{{$flow->serviceSource->id}}">{{$flow->serviceSource->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
 
-                                    @if ($flow->module_source!=null)
+                                    @if ($flow->moduleSource!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.module_source') }}</th>
                                             <td>
-                                                <a href="#MODULE{{$flow->module_source->id}}">{{$flow->module_source->name}}</a>
+                                                <a href="#MODULE{{$flow->moduleSource->id}}">{{$flow->moduleSource->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
 
-                                    @if ($flow->database_source!=null)
+                                    @if ($flow->databaseSource!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.database_source') }}</th>
                                             <td>
-                                                <a href="#DATABASE{{$flow->database_source->id}}">{{$flow->database_source->name}}</a>
+                                                <a href="#DATABASE{{$flow->databaseSource->id}}">{{$flow->databaseSource->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
 
-                                    @if ($flow->application_dest!=null)
+                                    @if ($flow->applicationDest!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.application_dest') }}</th>
                                             <td>
-                                                <a href="#APPLICATION{{$flow->application_dest->id}}">{{$flow->application_dest->name}}</a>
+                                                <a href="#APPLICATION{{$flow->applicationDest->id}}">{{$flow->applicationDest->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
 
-                                    @if ($flow->service_dest!=null)
+                                    @if ($flow->serviceDest!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.service_dest') }}</th>
                                             <td>
-                                                <a href="#SERVICE{{$flow->service_dest->id}}">{{$flow->service_dest->name}}</a>
+                                                <a href="#SERVICE{{$flow->serviceDest->id}}">{{$flow->serviceDest->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
 
-                                    @if ($flow->module_dest!=null)
+                                    @if ($flow->moduleDest!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.module_dest') }}</th>
                                             <td>
-                                                <a href="#MODULE{{$flow->module_dest->id}}">{{$flow->module_dest->name}}</a>
+                                                <a href="#MODULE{{$flow->moduleDest->id}}">{{$flow->moduleDest->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
 
-                                    @if ($flow->database_dest!=null)
+                                    @if ($flow->databaseDest!=null)
                                         <tr>
                                             <th>{{ trans('cruds.flux.fields.database_dest') }}</th>
                                             <td>
-                                                <a href="#DATABASE{{$flow->database_dest->id}}">{{$flow->database_dest->name}}</a>
+                                                <a href="#DATABASE{{$flow->databaseDest->id}}">{{$flow->databaseDest->name}}</a>
                                             </td>
                                         </tr>
                                     @endif
@@ -540,8 +540,8 @@
                                     <tr>
                                         <th>{{ trans('cruds.database.fields.entity_resp') }}</th>
                                         <td>
-                                            @if ($database->entity_resp!=null)
-                                                <a href="/admin/report/ecosystem#ENTITY{{ $database->entity_resp->id }}">{{ $database->entity_resp->name }}</a>
+                                            @if ($database->entityResp!=null)
+                                                <a href="/admin/report/ecosystem#ENTITY{{ $database->entityResp->id }}">{{ $database->entityResp->name }}</a>
                                             @endif
                                         </td>
                                     </tr>

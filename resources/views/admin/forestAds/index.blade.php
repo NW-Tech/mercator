@@ -66,9 +66,9 @@
                                 {!! $forestAd->description ?? '' !!}
                             </td>
                             <td>
-                                @if ($forestAd->zone_admin!=null)
-                                    <a href="{{ route('admin.zone-admins.show', $forestAd->zone_admin->id) }}">
-                                        {{ $forestAd->zone_admin->name ?? '' }}
+                                @if ($forestAd->zoneAdmin!=null)
+                                    <a href="{{ route('admin.zone-admins.show', $forestAd->zoneAdmin->id) }}">
+                                        {{ $forestAd->zoneAdmin->name ?? '' }}
                                     </a>
                                 @endif
                             </td>

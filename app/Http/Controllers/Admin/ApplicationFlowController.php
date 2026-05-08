@@ -232,15 +232,7 @@ class ApplicationFlowController extends Controller
     {
         abort_if(Gate::denies('flux_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $flow->load(
-            'application_source',
-            'service_source',
-            'module_source',
-            'database_source',
-            'application_dest',
-            'service_dest',
-            'module_dest',
-            'database_dest'
+        $flow->load('applicationSource', 'serviceSource', 'moduleSource', 'databaseSource', 'applicationDest', 'serviceDest', 'moduleDest', 'databaseDest'
         );
 
         return view('admin.application-flows.show', compact('flow'));

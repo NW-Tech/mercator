@@ -50,7 +50,7 @@ class ForestAdController extends Controller
 
         $domaines = DomaineAd::all()->sortBy('name')->pluck('name', 'id');
 
-        $forestAd->load('zone_admin', 'domaines');
+        $forestAd->load('zoneAdmin', 'domaines');
 
         return view('admin.forestAds.edit', compact('zone_admins', 'domaines', 'forestAd'));
     }
@@ -67,7 +67,7 @@ class ForestAdController extends Controller
     {
         abort_if(Gate::denies('forest_ad_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $forestAd->load('zone_admin', 'domaines');
+        $forestAd->load('zoneAdmin', 'domaines');
 
         return view('admin.forestAds.show', compact('forestAd'));
     }

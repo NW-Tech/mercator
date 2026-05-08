@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             $this->call(DemoBuildingsTableSeeder::class);
             $this->call(DemoBaysTableSeeder::class);
             $this->call(DemoDhcpServersTableSeeder::class);
-            $this->call(DemoFluxesTableSeeder::class);
+            $this->call(DemoApplicationFlowsTableSeeder::class);
             $this->call(DemoForestAdsTableSeeder::class);
             $this->call(DemoLansTableSeeder::class);
             $this->call(DemoGatewaysTableSeeder::class);
@@ -91,7 +91,7 @@ class DatabaseSeeder extends Seeder
             $this->call(DemoLogicalServerApplicationTableSeeder::class);
             $this->call(DemoCertificateApplicationTableSeeder::class);
             $this->call(DemoCertificateLogicalServerTableSeeder::class);
-            $this->call(DemoMApplicationEventsTableSeeder::class);
+            $this->call(DemoApplicationEventsTableSeeder::class);
             $this->call(DemoApplicationWorkstationTableSeeder::class);
             $this->call(DemoDatabaseLogicalServerTableSeeder::class);
             $this->call(DemoActivityProcessTableSeeder::class);

@@ -90,7 +90,7 @@ class Database extends Model implements HasIconContract, HasPrefix
     }
 
     /** @return BelongsTo<Entity, $this> */
-    public function entity_resp(): BelongsTo
+    public function entityResp(): BelongsTo
     {
         return $this->belongsTo(Entity::class, 'entity_resp_id');
     }

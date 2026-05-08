@@ -122,7 +122,7 @@
                             <select class="form-control select2 {{ $errors->has('entity_resp') ? 'is-invalid' : '' }}"
                                     name="entity_resp_id" id="entity_resp_id">
                                 @foreach($entity_resps as $id => $name)
-                                    <option value="{{ $id }}" {{ ($database->entity_resp ? $database->entity_resp->id : old('entity_resp_id')) == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                    <option value="{{ $id }}" {{ ($database->entityResp ? $database->entityResp->id : old('entity_resp_id')) == $id ? 'selected' : '' }}>{{ $name }}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('entity_resp'))

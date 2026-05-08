@@ -15,6 +15,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * Flux Applicatif
+ *
+ * @property int $id
+ * @property string $name
+ * @property string|null $nature
+ * @property string|null $description
+ * @property string|null $attributes
+ * @property int|null $application_source_id
+ * @property int|null $service_source_id
+ * @property int|null $module_source_id
+ * @property int|null $database_source_id
+ * @property int|null $application_dest_id
+ * @property int|null $service_dest_id
+ * @property int|null $module_dest_id
+ * @property int|null $database_dest_id
+ * @property bool $crypted
+ * @property bool $bidirectional
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  */
 class ApplicationFlow extends Model implements HasPrefix
 {
@@ -56,20 +75,20 @@ class ApplicationFlow extends Model implements HasPrefix
      * Mapping des champs ID vers les noms de relations pour les sources
      */
     private const SOURCE_RELATIONS = [
-        'application_source_id' => 'application_source',
-        'service_source_id' => 'service_source',
-        'module_source_id' => 'module_source',
-        'database_source_id' => 'database_source',
+        'application_source_id' => 'applicationSource',
+        'service_source_id' => 'serviceSource',
+        'module_source_id' => 'moduleSource',
+        'database_source_id' => 'databaseSource',
     ];
 
     /**
      * Mapping des champs ID vers les noms de relations pour les destinations
      */
     private const DEST_RELATIONS = [
-        'application_dest_id' => 'application_dest',
-        'service_dest_id' => 'service_dest',
-        'module_dest_id' => 'module_dest',
-        'database_dest_id' => 'database_dest',
+        'application_dest_id' => 'applicationDest',
+        'service_dest_id' => 'serviceDest',
+        'module_dest_id' => 'moduleDest',
+        'database_dest_id' => 'databaseDest',
     ];
 
     protected static function newFactory(): Factory
@@ -106,49 +125,49 @@ class ApplicationFlow extends Model implements HasPrefix
     /* '*~-.,¸¸.-~·*'¨¯'*~-.,¸¸.-~·*'¨¯ Relations ¯¨'*·~-.¸¸,.-~*''*~-.,¸¸.-~·*'¨¯ */
 
     /** @return BelongsTo<Application, $this> */
-    public function application_source(): BelongsTo
+    public function applicationSource(): BelongsTo
     {
         return $this->belongsTo(Application::class, 'application_source_id');
     }
 
     /** @return BelongsTo<ApplicationService, $this> */
-    public function service_source(): BelongsTo
+    public function serviceSource(): BelongsTo
     {
         return $this->belongsTo(ApplicationService::class, 'service_source_id');
     }
 
     /** @return BelongsTo<ApplicationModule, $this> */
-    public function module_source(): BelongsTo
+    public function moduleSource(): BelongsTo
     {
         return $this->belongsTo(ApplicationModule::class, 'module_source_id');
     }
 
     /** @return BelongsTo<Database, $this> */
-    public function database_source(): BelongsTo
+    public function databaseSource(): BelongsTo
     {
         return $this->belongsTo(Database::class, 'database_source_id');
     }
 
     /** @return BelongsTo<Application, $this> */
-    public function application_dest(): BelongsTo
+    public function applicationDest(): BelongsTo
     {
         return $this->belongsTo(Application::class, 'application_dest_id');
     }
 
     /** @return BelongsTo<ApplicationService, $this> */
-    public function service_dest(): BelongsTo
+    public function serviceDest(): BelongsTo
     {
         return $this->belongsTo(ApplicationService::class, 'service_dest_id');
     }
 
     /** @return BelongsTo<ApplicationModule, $this> */
-    public function module_dest(): BelongsTo
+    public function moduleDest(): BelongsTo
     {
         return $this->belongsTo(ApplicationModule::class, 'module_dest_id');
     }
 
     /** @return BelongsTo<Database, $this> */
-    public function database_dest(): BelongsTo
+    public function databaseDest(): BelongsTo
     {
         return $this->belongsTo(Database::class, 'database_dest_id');
     }
