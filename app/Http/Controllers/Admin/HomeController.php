@@ -21,7 +21,7 @@ use App\Models\Database;
 use App\Models\DataProcessing;
 use App\Models\DhcpServer;
 use App\Models\Dnsserver;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
 use App\Models\ForestAd;
@@ -436,8 +436,8 @@ class HomeController extends Controller
                 ->where('zone_admin_id', '<>', null)
                 ->count(),
 
-            'domaines' => DomaineAd::count(),
-            'domaines_lvl1' => DomaineAd::where('description', '<>', null)
+            'domains' => Domain::count(),
+            'domaines_lvl1' => Domain::where('description', '<>', null)
                 ->where('domain_ctrl_cnt', '<>', null)
                 ->where('user_count', '<>', null)
                 ->where('machine_count', '<>', null)
@@ -678,7 +678,7 @@ class HomeController extends Controller
             $levels['entities'] + $levels['relations'] +
             $levels['processes'] + $levels['operations'] + $levels['informations'] +
             $levels['applications'] + $levels['databases'] + $levels['flows'] +
-            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domaines'] +
+            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domains'] +
             $levels['networks'] + $levels['subnetworks'] + $levels['gateways'] + $levels['switches'] + $levels['routers'] + $levels['securityDevices'] + $levels['clusters'] + $levels['logicalServers'] + $levels['containers'] +
             $levels['sites'] + $levels['buildings'] + $levels['bays'] + $levels['physicalServers'] + $levels['physicalRouters'] + $levels['physicalSwitchs'] + $levels['physicalSecurityDevices'] +
             $levels['wans'] + $levels['mans'] + $levels['lans'] + $levels['vlans'];
@@ -701,7 +701,7 @@ class HomeController extends Controller
             $levels['entities'] + $levels['relations'] +
             $levels['macroProcessuses'] + $levels['processes'] + $levels['activities'] + $levels['operations'] + $levels['actors'] + $levels['informations'] +
             $levels['applicationBlocks'] + $levels['applications'] + $levels['applicationServices'] + $levels['applicationModules'] + $levels['databases'] + $levels['flows'] +
-            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domaines'] +
+            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domains'] +
             $levels['networks'] + $levels['subnetworks'] + $levels['gateways'] + $levels['externalConnectedEntities'] + $levels['switches'] + $levels['routers'] + $levels['securityDevices'] + $levels['DHCPServers'] + $levels['DNSServers'] + $levels['clusters'] + $levels['logicalServers'] + $levels['certificates'] + $levels['containers'] +
             $levels['sites'] + $levels['buildings'] + $levels['bays'] + $levels['physicalServers'] + $levels['physicalRouters'] + $levels['physicalSwitchs'] + $levels['physicalSecurityDevices'] +
             $levels['wans'] + $levels['mans'] + $levels['lans'] + $levels['vlans'];
@@ -724,7 +724,7 @@ class HomeController extends Controller
             $levels['entities'] + $levels['relations'] +
             $levels['macroProcessuses'] + $levels['processes'] + $levels['activities'] + $levels['tasks'] + $levels['operations'] + $levels['actors'] + $levels['informations'] +
             $levels['applicationBlocks'] + $levels['applications'] + $levels['applicationServices'] + $levels['applicationModules'] + $levels['databases'] + $levels['flows'] +
-            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domaines'] +
+            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domains'] +
             $levels['networks'] + $levels['subnetworks'] + $levels['gateways'] + $levels['externalConnectedEntities'] + $levels['switches'] + $levels['routers'] + $levels['securityDevices'] + $levels['DHCPServers'] + $levels['DNSServers'] + $levels['clusters'] + $levels['logicalServers'] + $levels['containers'] + $levels['certificates'] +
             $levels['sites'] + $levels['buildings'] + $levels['bays'] + $levels['physicalServers'] + $levels['physicalRouters'] + $levels['physicalSwitchs'] + $levels['physicalSecurityDevices']
             + $levels['wans'] + $levels['mans'] + $levels['lans'] + $levels['vlans'];

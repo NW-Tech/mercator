@@ -61,10 +61,10 @@ class AdminUser extends Model implements HasPrefix, HasIconContract
         return AdminUserFactory::new();
     }
 
-    /** @return BelongsTo<DomaineAd, $this> */
+    /** @return BelongsTo<Domain, $this> */
     public function domain(): BelongsTo
     {
-        return $this->belongsTo(DomaineAd::class, 'domain_id');
+        return $this->belongsTo(Domain::class, 'domain_id');
     }
 
     /** @return BelongsToMany<Application, $this> */

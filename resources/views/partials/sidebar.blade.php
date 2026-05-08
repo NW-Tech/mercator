@@ -188,7 +188,7 @@
             request()->is('admin/zone-admins*')||
             request()->is('admin/annuaires*')||
             request()->is('admin/forest-ads*')||
-            request()->is('admin/domaine-ads*')||
+            request()->is('admin/domains*')||
             request()->is('admin/admin-users*')
             ) ? 'show' : '' }}">
                 @can('zone_admin_access')
@@ -213,10 +213,10 @@
                     </a>
                 @endcan
                 @can('domaine_ad_access')
-                    <a href="{{ route('admin.domaine-ads.index') }}"
-                       class="ps-4 {{ request()->is('admin/domaine-ads*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.domains.index') }}"
+                       class="ps-4 {{ request()->is('admin/domains*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span
-                                class="menu-text">{{ trans('cruds.domaineAd.title') }}</span>
+                                class="menu-text">{{ trans('cruds.domaine.title') }}</span>
                     </a>
                 @endcan
                 @can('admin_user_access')

@@ -25,7 +25,7 @@ class GlobalSearchController extends Controller
         'ZoneAdmin' => 'cruds.zoneAdmin.title',
         'Annuaire' => 'cruds.annuaire.title',
         'ForestAd' => 'cruds.forestAd.title',
-        'DomaineAd' => 'cruds.domaineAd.title',
+        'Domain' => 'cruds.domaine.title',
         'Network' => 'cruds.network.title',
         'Subnetwork' => 'cruds.subnetwork.title',
         'Gateway' => 'cruds.gateway.title',

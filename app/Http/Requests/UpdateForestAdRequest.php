@@ -28,10 +28,10 @@ class UpdateForestAdRequest extends BaseFormRequest
                     ->ignore($this->route('forest_ad')->id ?? $this->id)
                     ->whereNull('deleted_at'),
             ],
-            'domaines.*' => [
+            'domains.*' => [
                 'integer',
             ],
-            'domaines' => [
+            'domains' => [
                 'array',
             ],
         ];

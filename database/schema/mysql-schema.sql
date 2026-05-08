@@ -147,7 +147,7 @@ CREATE TABLE `admin_users` (
   KEY `domain_id_fk_69385935` (`domain_id`),
   KEY `document_id_fk_129487` (`icon_id`),
   CONSTRAINT `document_id_fk_129487` FOREIGN KEY (`icon_id`) REFERENCES `documents` (`id`) ON UPDATE NO ACTION,
-  CONSTRAINT `domain_id_fk_69385935` FOREIGN KEY (`domain_id`) REFERENCES `domaine_ads` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+  CONSTRAINT `domain_id_fk_69385935` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `annuaires`;
@@ -932,22 +932,22 @@ CREATE TABLE `documents` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `domaine_ad_forest_ad`;
+DROP TABLE IF EXISTS `domain_forest_ad`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `domaine_ad_forest_ad` (
+CREATE TABLE `domain_forest_ad` (
   `forest_ad_id` int(10) unsigned NOT NULL,
-  `domaine_ad_id` int(10) unsigned NOT NULL,
+  `domain_id` int(10) unsigned NOT NULL,
   KEY `forest_ad_id_fk_1492084` (`forest_ad_id`),
-  KEY `domaine_ad_id_fk_1492084` (`domaine_ad_id`),
-  CONSTRAINT `domaine_ad_id_fk_1492084` FOREIGN KEY (`domaine_ad_id`) REFERENCES `domaine_ads` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  KEY `domain_id_fk_1492084` (`domain_id`),
+  CONSTRAINT `domain_id_fk_1492084` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `forest_ad_id_fk_1492084` FOREIGN KEY (`forest_ad_id`) REFERENCES `forest_ads` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `domaine_ads`;
+DROP TABLE IF EXISTS `domains`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `domaine_ads` (
+CREATE TABLE `domains` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `description` longtext DEFAULT NULL,
@@ -1365,7 +1365,7 @@ CREATE TABLE `logical_servers` (
   KEY `logical_servers_active` (`active`),
   KEY `document_id_fk_51303394` (`icon_id`),
   CONSTRAINT `document_id_fk_51303394` FOREIGN KEY (`icon_id`) REFERENCES `documents` (`id`),
-  CONSTRAINT `domain_id_fk_493844` FOREIGN KEY (`domain_id`) REFERENCES `domaine_ads` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
+  CONSTRAINT `domain_id_fk_493844` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `macro_processuses`;
@@ -2372,7 +2372,7 @@ CREATE TABLE `workstations` (
   CONSTRAINT `document_id_fk_129483` FOREIGN KEY (`icon_id`) REFERENCES `documents` (`id`) ON UPDATE NO ACTION,
   CONSTRAINT `physical_switch_fk_0938434` FOREIGN KEY (`physical_switch_id`) REFERENCES `physical_switches` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `site_fk_1485332` FOREIGN KEY (`site_id`) REFERENCES `sites` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `workstations_domain_id_foreign` FOREIGN KEY (`domain_id`) REFERENCES `domaine_ads` (`id`),
+  CONSTRAINT `workstations_domain_id_foreign` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`),
   CONSTRAINT `workstations_entity_id_foreign` FOREIGN KEY (`entity_id`) REFERENCES `entities` (`id`),
   CONSTRAINT `workstations_network_id_foreign` FOREIGN KEY (`network_id`) REFERENCES `networks` (`id`),
   CONSTRAINT `workstations_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `admin_users` (`id`)
@@ -2656,3 +2656,5 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (327,'2026_05_03_18
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (328,'2026_05_03_192017_rename_m_application_id_in_application_events',27);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (329,'2026_05_03_193002_rename_m_application_permissions',28);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (330,'2026_05_03_230714_consolidate_application_permissions',29);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (331,'2026_05_08_182110_rename_domaine_ads_to_domaines',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (332,'2026_05_08_200000_rename_domaines_to_domains',30);

@@ -133,15 +133,15 @@
         @if ($domains->count()>0)
             <div class="card">
                 <div class="card-header">
-                    {{ trans('cruds.domaineAd.title') }}
+                    {{ trans('cruds.domaine.title') }}
                 </div>
                 <div class="card-body">
-                    <p>{{ trans('cruds.domaineAd.description') }}</p>
-                        @foreach($domains as $domaineAd)
+                    <p>{{ trans('cruds.domaine.description') }}</p>
+                        @foreach($domains as $domain)
                             <div class="row">
                                 <div class="col">
-                                    @include('admin.domaineAds._details', [
-                                        'domaineAd' => $domaineAd,
+                                    @include('admin.domains._details', [
+                                        'domain' => $domain,
                                         'withLink' => true,
                                     ])
                                 </div>
@@ -196,7 +196,7 @@ A{{ $annuaire->id }} [label="{{ $annuaire->name }}" shape=none labelloc="b"  wid
 @endforEach
 @foreach($forests as $forest)
 F{{ $forest->id }} [label="{{ $forest->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/ldap.png" href="#{{$forest->getUID()}}"]
-@foreach($forest->domaines as $domain)
+@foreach($forest->domains as $domain)
 F{{ $forest->id }} -> D{{ $domain->id }}
 @endforeach
 @endforeach

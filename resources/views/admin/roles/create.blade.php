@@ -634,7 +634,7 @@
 
                 <div class="col-md-2">
                     <div class="form-check">
-                        <label>{{ trans('cruds.domaineAd.title') }}</label>
+                        <label>{{ trans('cruds.domaine.title') }}</label>
                         @php($permission = $permissions_sorted['domaine_ad'])
                         <div class="form-switch form-switch-lg">
                             <input class="form-check-input" type="checkbox" name="permissions[]" data-check="{{ str_replace(' ', '_', $permission['name']) }}" id="perm_{{ $permission['actions'][4][0] }}" value="{{ $permission['actions'][4][0] }}" {{ in_array($permission['actions'][4][0], old('permissions', [])) ? 'checked' : '' }}>

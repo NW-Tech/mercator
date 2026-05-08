@@ -59,9 +59,9 @@ class ForestAd extends Model implements HasPrefix, HasIconContract
         return $this->belongsTo(ZoneAdmin::class, 'zone_admin_id');
     }
 
-    /** @return BelongsToMany<DomaineAd, $this> */
-    public function domaines(): BelongsToMany
+    /** @return BelongsToMany<Domain, $this> */
+    public function domains(): BelongsToMany
     {
-        return $this->belongsToMany(DomaineAd::class)->orderBy('name');
+        return $this->belongsToMany(Domain::class)->orderBy('name');
     }
 }

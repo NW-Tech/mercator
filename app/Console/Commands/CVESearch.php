@@ -210,7 +210,7 @@ class CVESearch extends Command
             $url = Str::replaceFirst('https//', 'https://', $url);
         }
 
-        // Migration des anciens domaines -> nouveau
+        // Migration des anciens domains -> nouveau
         $legacy = [
             'https://cvepremium.circl.lu',
             'https://cve.circl.lu',

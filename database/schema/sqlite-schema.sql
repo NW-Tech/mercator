@@ -126,7 +126,7 @@ CREATE TABLE IF NOT EXISTS "dnsservers"(
   "deleted_at" datetime,
   "address_ip" varchar
 );
-CREATE TABLE IF NOT EXISTS "domaine_ads"(
+CREATE TABLE IF NOT EXISTS "domains"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
   "description" text,
@@ -426,16 +426,16 @@ CREATE TABLE IF NOT EXISTS "databases"(
   foreign key("entity_resp_id") references "entities"("id") on delete NO ACTION on update NO ACTION
 );
 CREATE INDEX "entity_resp_fk_1485569" on "databases"("entity_resp_id");
-CREATE TABLE IF NOT EXISTS "domaine_ad_forest_ad"(
+CREATE TABLE IF NOT EXISTS "domain_forest_ad"(
   "forest_ad_id" integer not null,
-  "domaine_ad_id" integer not null,
-  foreign key("domaine_ad_id") references "domaine_ads"("id") on delete CASCADE on update NO ACTION,
+  "domain_id" integer not null,
+  foreign key("domain_id") references "domains"("id") on delete CASCADE on update NO ACTION,
   foreign key("forest_ad_id") references "forest_ads"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "domaine_ad_id_fk_1492084" on "domaine_ad_forest_ad"(
-  "domaine_ad_id"
+CREATE INDEX "domain_id_fk_1492084" on "domain_forest_ad"(
+  "domain_id"
 );
-CREATE INDEX "forest_ad_id_fk_1492084" on "domaine_ad_forest_ad"(
+CREATE INDEX "forest_ad_id_fk_1492084" on "domain_forest_ad"(
   "forest_ad_id"
 );
 CREATE TABLE IF NOT EXISTS "entity_m_application"(
@@ -1296,7 +1296,7 @@ CREATE TABLE IF NOT EXISTS "admin_users"(
   "deleted_at" datetime,
   "icon_id" integer,
   "attributes" varchar,
-  foreign key("domain_id") references domaine_ads("id") on delete cascade on update no action,
+  foreign key("domain_id") references domains("id") on delete cascade on update no action,
   foreign key("icon_id") references "documents"("id") on update NO ACTION
 );
 CREATE INDEX "domain_id_fk_69385935" on "admin_users"("domain_id");
@@ -1517,7 +1517,7 @@ CREATE TABLE IF NOT EXISTS "workstations"(
   foreign key("site_id") references sites("id") on delete no action on update no action,
   foreign key("entity_id") references "entities"("id"),
   foreign key("user_id") references "admin_users"("id"),
-  foreign key("domain_id") references "domaine_ads"("id"),
+  foreign key("domain_id") references "domains"("id"),
   foreign key("network_id") references "networks"("id")
 );
 CREATE INDEX "building_fk_1485333" on "workstations"("building_id");
@@ -1836,7 +1836,7 @@ CREATE TABLE IF NOT EXISTS "logical_servers"(
   "type" varchar,
   "active" tinyint(1),
   "icon_id" integer,
-  foreign key("domain_id") references domaine_ads("id") on delete set null on update no action,
+  foreign key("domain_id") references domains("id") on delete set null on update no action,
   foreign key("icon_id") references documents("id") on delete no action on update no action
 );
 CREATE INDEX "cluster_id_fk_5435359" on "logical_servers"("cluster_id");
@@ -2073,3 +2073,5 @@ INSERT INTO migrations VALUES(226,'2025_10_27_095802_add_link_applications_secur
 INSERT INTO migrations VALUES(227,'2025_10_27_104704_add_fields_security_device',1);
 INSERT INTO migrations VALUES(228,'2025_10_30_081134_change_active_nullable_on_lservers',1);
 INSERT INTO migrations VALUES(229,'2025_11_01_123622_drop_unique_graphs_name_unique_on_graphs_table',1);
+INSERT INTO migrations VALUES(230,'2026_05_08_182110_rename_domaine_ads_to_domaines',2);
+INSERT INTO migrations VALUES(231,'2026_05_08_200000_rename_domaines_to_domains',2);

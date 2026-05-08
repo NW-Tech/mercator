@@ -1139,20 +1139,20 @@ ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 
 
 --
--- Name: domaine_ad_forest_ad; Type: TABLE; Schema: public; Owner: -
+-- Name: domaine_forest_ad; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.domaine_ad_forest_ad (
+CREATE TABLE public.domaine_forest_ad (
     forest_ad_id integer NOT NULL,
-    domaine_ad_id integer NOT NULL
+    domaine_id integer NOT NULL
 );
 
 
 --
--- Name: domaine_ads; Type: TABLE; Schema: public; Owner: -
+-- Name: domains; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.domaine_ads (
+CREATE TABLE public.domains (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     description text,
@@ -1167,10 +1167,10 @@ CREATE TABLE public.domaine_ads (
 
 
 --
--- Name: domaine_ads_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: domaines_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.domaine_ads_id_seq
+CREATE SEQUENCE public.domaines_id_seq
     AS integer
     START WITH 1
     INCREMENT BY 1
@@ -1180,10 +1180,10 @@ CREATE SEQUENCE public.domaine_ads_id_seq
 
 
 --
--- Name: domaine_ads_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: domaines_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.domaine_ads_id_seq OWNED BY public.domaine_ads.id;
+ALTER SEQUENCE public.domaines_id_seq OWNED BY public.domains.id;
 
 
 --
@@ -3518,10 +3518,10 @@ ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.do
 
 
 --
--- Name: domaine_ads id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: domains id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.domaine_ads ALTER COLUMN id SET DEFAULT nextval('public.domaine_ads_id_seq'::regclass);
+ALTER TABLE ONLY public.domains ALTER COLUMN id SET DEFAULT nextval('public.domaines_id_seq'::regclass);
 
 
 --
@@ -4112,11 +4112,11 @@ ALTER TABLE ONLY public.admin_users
 
 
 --
--- Name: domaine_ads domaine_ads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: domains domaines_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.domaine_ads
-    ADD CONSTRAINT domaine_ads_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.domains
+    ADD CONSTRAINT domaines_pkey PRIMARY KEY (id);
 
 
 --
@@ -4989,10 +4989,10 @@ CREATE INDEX domain_id_fk_69385935 ON public.admin_users USING btree (domain_id)
 
 
 --
--- Name: domaine_ad_id_fk_1492084; Type: INDEX; Schema: public; Owner: -
+-- Name: domain_id_fk_1492084; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX domaine_ad_id_fk_1492084 ON public.domaine_ad_forest_ad USING btree (domaine_ad_id);
+CREATE INDEX domain_id_fk_1492084 ON public.domaine_forest_ad USING btree (domaine_id);
 
 
 --
@@ -5069,7 +5069,7 @@ CREATE INDEX external_connected_entity_idx_59458458 ON public.external_connected
 -- Name: forest_ad_id_fk_1492084; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX forest_ad_id_fk_1492084 ON public.domaine_ad_forest_ad USING btree (forest_ad_id);
+CREATE INDEX forest_ad_id_fk_1492084 ON public.domaine_forest_ad USING btree (forest_ad_id);
 
 
 --
@@ -6642,7 +6642,7 @@ ALTER TABLE ONLY public.processes
 --
 
 ALTER TABLE ONLY public.logical_servers
-    ADD CONSTRAINT domain_id_fk_493844 FOREIGN KEY (domain_id) REFERENCES public.domaine_ads(id) ON DELETE SET NULL;
+    ADD CONSTRAINT domain_id_fk_493844 FOREIGN KEY (domain_id) REFERENCES public.domains(id) ON DELETE SET NULL;
 
 
 --
@@ -6650,15 +6650,15 @@ ALTER TABLE ONLY public.logical_servers
 --
 
 ALTER TABLE ONLY public.admin_users
-    ADD CONSTRAINT domain_id_fk_69385935 FOREIGN KEY (domain_id) REFERENCES public.domaine_ads(id) ON DELETE CASCADE;
+    ADD CONSTRAINT domain_id_fk_69385935 FOREIGN KEY (domain_id) REFERENCES public.domains(id) ON DELETE CASCADE;
 
 
 --
--- Name: domaine_ad_forest_ad domaine_ad_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: domaine_forest_ad domain_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.domaine_ad_forest_ad
-    ADD CONSTRAINT domaine_ad_id_fk_1492084 FOREIGN KEY (domaine_ad_id) REFERENCES public.domaine_ads(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.domaine_forest_ad
+    ADD CONSTRAINT domain_id_fk_1492084 FOREIGN KEY (domaine_id) REFERENCES public.domains(id) ON DELETE CASCADE;
 
 
 --
@@ -6750,10 +6750,10 @@ ALTER TABLE ONLY public.document_external_connected_entity
 
 
 --
--- Name: domaine_ad_forest_ad forest_ad_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: domaine_forest_ad forest_ad_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.domaine_ad_forest_ad
+ALTER TABLE ONLY public.domaine_forest_ad
     ADD CONSTRAINT forest_ad_id_fk_1492084 FOREIGN KEY (forest_ad_id) REFERENCES public.forest_ads(id) ON DELETE CASCADE;
 
 
@@ -7762,7 +7762,7 @@ ALTER TABLE ONLY public.physical_links
 --
 
 ALTER TABLE ONLY public.workstations
-    ADD CONSTRAINT workstations_domain_id_foreign FOREIGN KEY (domain_id) REFERENCES public.domaine_ads(id);
+    ADD CONSTRAINT workstations_domain_id_foreign FOREIGN KEY (domain_id) REFERENCES public.domains(id);
 
 
 --
@@ -7853,8 +7853,8 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 19	2021_05_08_191249_create_databases_table	1
 20	2021_05_08_191249_create_dhcp_servers_table	1
 21	2021_05_08_191249_create_dnsservers_table	1
-22	2021_05_08_191249_create_domaine_ad_forest_ad_table	1
-23	2021_05_08_191249_create_domaine_ads_table	1
+22	2021_05_08_191249_create_domaine_forest_ad_table	1
+23	2021_05_08_191249_create_domaines_table	1
 24	2021_05_08_191249_create_entities_table	1
 25	2021_05_08_191249_create_entity_m_application_table	1
 26	2021_05_08_191249_create_entity_process_table	1
@@ -7921,7 +7921,7 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 87	2021_05_08_191251_add_foreign_keys_to_database_information_table	1
 88	2021_05_08_191251_add_foreign_keys_to_database_m_application_table	1
 89	2021_05_08_191251_add_foreign_keys_to_databases_table	1
-90	2021_05_08_191251_add_foreign_keys_to_domaine_ad_forest_ad_table	1
+90	2021_05_08_191251_add_foreign_keys_to_domaine_forest_ad_table	1
 91	2021_05_08_191251_add_foreign_keys_to_entity_m_application_table	1
 92	2021_05_08_191251_add_foreign_keys_to_entity_process_table	1
 93	2021_05_08_191251_add_foreign_keys_to_external_connected_entity_network_table	1

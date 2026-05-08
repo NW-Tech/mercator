@@ -45,7 +45,7 @@
             </th>
             <td>
                 @if ($adminUser->domain_id !== null)
-                    <a href="{{ route('admin.domaine-ads.show', $adminUser->domain_id) }}">
+                    <a href="{{ route('admin.domains.show', $adminUser->domain_id) }}">
                         {{ $adminUser->domain->name }}
                     </a>
                 @endif

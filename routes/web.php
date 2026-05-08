@@ -147,9 +147,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::resource('forest-ads', Admin\ForestAdController::class);
     Route::delete('forest-ads-destroy', [Admin\ForestAdController::class, 'massDestroy'])->name('forest-ads.massDestroy');
 
-    // Domaine Ads
-    Route::resource('domaine-ads', Admin\DomaineAdController::class);
-    Route::delete('domaine-ads-destroy', [Admin\DomaineAdController::class, 'massDestroy'])->name('domaine-ads.massDestroy');
+    // Domain Ads
+    Route::resource('domains', Admin\DomainController::class);
+    Route::delete('domains-destroy', [Admin\DomainController::class, 'massDestroy'])->name('domains.massDestroy');
 
     // Admin User
     Route::resource('admin-users', Admin\AdminUserController::class);

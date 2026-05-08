@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyForestAdRequest;
 use App\Http\Requests\StoreForestAdRequest;
 use App\Http\Requests\UpdateForestAdRequest;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\ForestAd;
 use App\Models\ZoneAdmin;
 use Gate;
@@ -29,15 +29,15 @@ class ForestAdController extends Controller
 
         $zone_admins = ZoneAdmin::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $domaines = DomaineAd::all()->sortBy('name')->pluck('name', 'id');
+        $domains = Domain::all()->sortBy('name')->pluck('name', 'id');
 
-        return view('admin.forestAds.create', compact('zone_admins', 'domaines'));
+        return view('admin.forestAds.create', compact('zone_admins', 'domains'));
     }
 
     public function store(StoreForestAdRequest $request)
     {
         $forestAd = ForestAd::create($request->all());
-        $forestAd->domaines()->sync($request->input('domaines', []));
+        $forestAd->domains()->sync($request->input('domains', []));
 
         return redirect()->route('admin.forest-ads.index');
     }
@@ -48,17 +48,17 @@ class ForestAdController extends Controller
 
         $zone_admins = ZoneAdmin::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $domaines = DomaineAd::all()->sortBy('name')->pluck('name', 'id');
+        $domains = Domain::all()->sortBy('name')->pluck('name', 'id');
 
-        $forestAd->load('zoneAdmin', 'domaines');
+        $forestAd->load('zoneAdmin', 'domains');
 
-        return view('admin.forestAds.edit', compact('zone_admins', 'domaines', 'forestAd'));
+        return view('admin.forestAds.edit', compact('zone_admins', 'domains', 'forestAd'));
     }
 
     public function update(UpdateForestAdRequest $request, ForestAd $forestAd)
     {
         $forestAd->update($request->all());
-        $forestAd->domaines()->sync($request->input('domaines', []));
+        $forestAd->domains()->sync($request->input('domains', []));
 
         return redirect()->route('admin.forest-ads.index');
     }
@@ -67,7 +67,7 @@ class ForestAdController extends Controller
     {
         abort_if(Gate::denies('forest_ad_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $forestAd->load('zoneAdmin', 'domaines');
+        $forestAd->load('zoneAdmin', 'domains');
 
         return view('admin.forestAds.show', compact('forestAd'));
     }

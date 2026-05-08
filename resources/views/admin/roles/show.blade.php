@@ -957,7 +957,7 @@
 
                 <div class="col-md-2">
                     <div class="form-group">
-                        <label>{{ trans('cruds.domaineAd.title') }}</label>
+                        <label>{{ trans('cruds.domaine.title') }}</label>
                         @php($permission = $permissions_sorted['domaine_ad'])
                         <div class="form-switch">
                             <input class="form-check-input" type="checkbox" disabled name="permissions[]"

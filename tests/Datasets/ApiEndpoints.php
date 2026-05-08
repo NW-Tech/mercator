@@ -15,7 +15,7 @@ use App\Models\Container;
 use App\Models\Database;
 use App\Models\DataProcessing;
 use App\Models\Document;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
 use App\Models\ApplicationFlow;
@@ -174,10 +174,10 @@ dataset('api_endpoints', [
             'model' => ForestAd::class,
         ]
     ],
-    'domaine-ads' => [
+    'domains' => [
         [
-            'route' => 'domaine-ads',
-            'model' => DomaineAd::class,
+            'route' => 'domains',
+            'model' => Domain::class,
         ]
     ],
     'admin-users' => [

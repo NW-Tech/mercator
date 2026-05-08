@@ -20,7 +20,7 @@ use App\Models\Container;
 use App\Models\Database;
 use App\Models\DhcpServer;
 use App\Models\Dnsserver;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
 use App\Models\ApplicationFlow;
@@ -1134,7 +1134,7 @@ class CartographyController extends Controller
             $zones = ZoneAdmin::All();
             $annuaires = Annuaire::All();
             $forests = ForestAd::All();
-            $domains = DomaineAd::All();
+            $domains = Domain::All();
 
             // Generate Graph
             if ($request->has('graph')) {
@@ -1153,7 +1153,7 @@ class CartographyController extends Controller
                 }
                 foreach ($forests as $forest) {
                     $graph .= ' F'.$forest->id.$this->dotImage('/images/ldap.png', $forest->name);
-                    foreach ($forest->domaines as $domain) {
+                    foreach ($forest->domains as $domain) {
                         $graph .= ' F'.$forest->id.'->D'.$domain->id;
                     }
                 }
@@ -1241,10 +1241,10 @@ class CartographyController extends Controller
                     }
 
                     // Domaines
-                    $textRun = $this->addTextRunRow($table, trans('cruds.forestAd.fields.domaines'));
-                    foreach ($forest->domaines as $domain) {
+                    $textRun = $this->addTextRunRow($table, trans('cruds.forestAd.fields.domains'));
+                    foreach ($forest->domains as $domain) {
                         $textRun->addLink('DOMAIN'.$domain->id, $domain->name, CartographyController::FANCY_LINK_STYLE, null, true);
-                        if ($forest->domaines->last() !== $domain) {
+                        if ($forest->domains->last() !== $domain) {
                             $textRun->addText(', ');
                         }
                     }
@@ -1254,22 +1254,22 @@ class CartographyController extends Controller
 
             // =====================================
             if (Auth::user()->can('domain_show') && ($domains->count() > 0)) {
-                $section->addTitle(trans('cruds.domaineAd.title'), 2);
-                $section->addText(trans('cruds.domaineAd.description'));
+                $section->addTitle(trans('cruds.domaine.title'), 2);
+                $section->addText(trans('cruds.domaine.description'));
                 $section->addTextBreak(1);
 
                 foreach ($domains as $domain) {
                     $section->addBookmark('DOMAIN'.$domain->id);
                     $table = $this->addTable($section, $domain->name);
-                    $this->addHTMLRow($table, trans('cruds.domaineAd.fields.description'), $domain->description);
+                    $this->addHTMLRow($table, trans('cruds.domaine.fields.description'), $domain->description);
 
-                    $this->addTextRow($table, trans('cruds.domaineAd.fields.domain_ctrl_cnt'), strval($domain->domain_ctrl_cnt));
-                    $this->addTextRow($table, trans('cruds.domaineAd.fields.user_count'), strval($domain->user_count));
-                    $this->addTextRow($table, trans('cruds.domaineAd.fields.machine_count'), strval($domain->machine_count));
-                    $this->addTextRow($table, trans('cruds.domaineAd.fields.relation_inter_domaine'), $domain->relation_inter_domaine);
+                    $this->addTextRow($table, trans('cruds.domaine.fields.domain_ctrl_cnt'), strval($domain->domain_ctrl_cnt));
+                    $this->addTextRow($table, trans('cruds.domaine.fields.user_count'), strval($domain->user_count));
+                    $this->addTextRow($table, trans('cruds.domaine.fields.machine_count'), strval($domain->machine_count));
+                    $this->addTextRow($table, trans('cruds.domaine.fields.relation_inter_domaine'), $domain->relation_inter_domaine);
 
                     // FOREST
-                    $textRun = $this->addTextRunRow($table, trans('cruds.domaineAd.fields.forestAds'));
+                    $textRun = $this->addTextRunRow($table, trans('cruds.domaine.fields.forestAds'));
                     foreach ($domain->forestAds as $forest) {
                         $textRun->addLink('FOREST'.$forest->id, $forest->name, CartographyController::FANCY_LINK_STYLE, null, true);
                         if ($domain->forestAds->last() !== $forest) {

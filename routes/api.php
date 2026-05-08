@@ -138,11 +138,11 @@ Route::middleware(['api.protected'])->group(function () {
     Route::delete('forest-ads/mass-destroy', [API\ForestAdController::class, 'massDestroy'])->name('forest-ads.mass-destroy');
     Route::resource('forest-ads', API\ForestAdController::class);
 
-    // Domaine Ads
-    Route::post('domaine-ads/mass-store', [API\DomaineAdController::class, 'massStore'])->name('domaine-ads.mass-store');
-    Route::put('domaine-ads/mass-update', [API\DomaineAdController::class, 'massUpdate'])->name('domaine-ads.mass-update');
-    Route::delete('domaine-ads/mass-destroy', [API\DomaineAdController::class, 'massDestroy'])->name('domaine-ads.mass-destroy');
-    Route::resource('domaine-ads', API\DomaineAdController::class);
+    // Domain Ads
+    Route::post('domains/mass-store', [API\DomainController::class, 'massStore'])->name('domains.mass-store');
+    Route::put('domains/mass-update', [API\DomainController::class, 'massUpdate'])->name('domains.mass-update');
+    Route::delete('domains/mass-destroy', [API\DomainController::class, 'massDestroy'])->name('domains.mass-destroy');
+    Route::resource('domains', API\DomainController::class);
 
     // Admin User
     Route::post('admin-users/mass-store', [API\AdminUserController::class, 'massStore'])->name('admin-users.mass-store');

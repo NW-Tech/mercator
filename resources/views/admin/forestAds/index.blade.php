@@ -37,7 +37,7 @@
                             {{ trans('cruds.forestAd.fields.zone_admin') }}
                         </th>
                         <th>
-                            {{ trans('cruds.forestAd.fields.domaines') }}
+                            {{ trans('cruds.forestAd.fields.domains') }}
                         </th>
                         <th>
                             &nbsp;
@@ -73,11 +73,11 @@
                                 @endif
                             </td>
                             <td>
-                                @foreach($forestAd->domaines as $domain)
-                                    <a href="{{ route('admin.domaine-ads.show', $domain->id) }}">
+                                @foreach($forestAd->domains as $domain)
+                                    <a href="{{ route('admin.domains.show', $domain->id) }}">
                                         {{ $domain->name }}
                                     </a>
-                                    @if ($forestAd->domaines->last()!=$domain)
+                                    @if ($forestAd->domains->last()!=$domain)
                                         ,
                                     @endif
                                 @endforeach

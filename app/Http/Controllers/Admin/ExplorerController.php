@@ -17,7 +17,7 @@ use App\Models\Certificate;
 use App\Models\Cluster;
 use App\Models\Container;
 use App\Models\Database;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
 use App\Models\ForestAd;
@@ -932,7 +932,7 @@ class ExplorerController extends Controller
             if ($server->domain_id !== null) {
                 $this->addLinkEdge(
                     $this->formatId(LogicalServer::$prefix, $server->id),
-                    $this->formatId(DomaineAd::$prefix, $server->domain_id)
+                    $this->formatId(Domain::$prefix, $server->domain_id)
                 );
             }
         }
@@ -1366,7 +1366,7 @@ class ExplorerController extends Controller
 
     private function buildDomains(): void
     {
-        $domains = DB::table('domaine_ads')
+        $domains = DB::table('domains')
             ->select('id', 'name')
             ->whereNull('deleted_at')
             ->get();
@@ -1374,16 +1374,16 @@ class ExplorerController extends Controller
         foreach ($domains as $domain) {
             $this->addNode(
                 4,
-                $this->formatId(DomaineAd::$prefix, $domain->id),
+                $this->formatId(Domain::$prefix, $domain->id),
                 $domain->name,
                 '/images/domain.png',
-                'domaine-ads', 460
+                'domains', 460
             );
         }
 
-        $this->linkJoinTable('domaine_ad_forest_ad',
-            DomaineAd::$prefix, ForestAd::$prefix,
-            'domaine_ad_id', 'forest_ad_id');
+        $this->linkJoinTable('domain_forest_ad',
+            Domain::$prefix, ForestAd::$prefix,
+            'domain_id', 'forest_ad_id');
     }
 
     private function buildAdminUsers(): void
@@ -1404,7 +1404,7 @@ class ExplorerController extends Controller
             if ($adminUser->domain_id !== null) {
                 $this->addLinkEdge(
                     $this->formatId(AdminUser::$prefix, $adminUser->id),
-                    $this->formatId(DomaineAd::$prefix, $adminUser->domain_id)
+                    $this->formatId(Domain::$prefix, $adminUser->domain_id)
                 );
             }
 

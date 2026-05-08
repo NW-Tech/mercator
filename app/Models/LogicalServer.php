@@ -117,10 +117,10 @@ class LogicalServer extends Model implements HasIconContract, HasPrefix
         return $this->belongsToMany(Cluster::class);
     }
 
-    /** @return BelongsTo<DomaineAd, $this> */
+    /** @return BelongsTo<Domain, $this> */
     public function domain(): BelongsTo
     {
-        return $this->belongsTo(DomaineAd::class, 'domain_id');
+        return $this->belongsTo(Domain::class, 'domain_id');
     }
 
     /** @return BelongsToMany<Certificate, $this> */

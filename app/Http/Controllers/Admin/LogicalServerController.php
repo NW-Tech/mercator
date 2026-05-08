@@ -10,7 +10,7 @@ use App\Models\Application;
 use App\Models\Backup;
 use App\Models\Cluster;
 use App\Models\Database;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\LogicalServer;
 use App\Models\PhysicalServer;
 use App\Models\StorageDevice;
@@ -172,7 +172,7 @@ class LogicalServerController extends Controller
         $databases = Database::query()->orderBy('name')->pluck('name', 'id');
         $applications = Application::query()->orderBy('name')->pluck('name', 'id');
         $clusters = Cluster::query()->orderBy('name')->pluck('name', 'id');
-        $domains = DomaineAd::query()->orderBy('name')->pluck('name', 'id');
+        $domains = Domain::query()->orderBy('name')->pluck('name', 'id');
         $icons = LogicalServer::query()->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
         $storageDevices = StorageDevice::query()->orderBy('name')->pluck('name', 'id');
 
@@ -254,7 +254,7 @@ class LogicalServerController extends Controller
         $databases = Database::query()->orderBy('name')->pluck('name', 'id');
         $applications = Application::query()->orderBy('name')->pluck('name', 'id');
         $clusters = Cluster::query()->orderBy('name')->pluck('name', 'id');
-        $domains = DomaineAd::query()->orderBy('name')->pluck('name', 'id');
+        $domains = Domain::query()->orderBy('name')->pluck('name', 'id');
         $icons = LogicalServer::query()->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
         $storageDevices = StorageDevice::query()->orderBy('name')->pluck('name', 'id');
 

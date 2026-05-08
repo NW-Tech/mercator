@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use App\Models\AdminUser;
 use App\Models\Annuaire;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\ForestAd;
 use App\Models\ZoneAdmin;
 use Symfony\Component\HttpFoundation\Response;
@@ -23,7 +23,7 @@ class AdministrationView extends Controller
      *                               - 'zones' => collection of ZoneAdmin
      *                               - 'annuaires' => collection of Annuaire
      *                               - 'forests' => collection of ForestAd
-     *                               - 'domains' => collection of DomaineAd
+     *                               - 'domains' => collection of Domain
      *                               - 'adminUsers' => collection of AdminUser
      */
     public function generate(): View
@@ -33,7 +33,7 @@ class AdministrationView extends Controller
         $zones = ZoneAdmin::All();
         $annuaires = Annuaire::All();
         $forests = ForestAd::All();
-        $domains = DomaineAd::All();
+        $domains = Domain::All();
         $adminUsers = AdminUser::All();
 
         return view('admin/reports/administration')

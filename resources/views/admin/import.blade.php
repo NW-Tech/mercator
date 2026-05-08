@@ -122,7 +122,7 @@
                 ['id' => 'ZoneAdmin',  'label' => trans('cruds.zoneAdmin.title')],
                 ['id' => 'Annuaire',   'label' => trans('cruds.annuaire.title')],
                 ['id' => 'ForestAd',   'label' => trans('cruds.forestAd.title')],
-                ['id' => 'DomaineAd',  'label' => trans('cruds.domaineAd.title')],
+                ['id' => 'Domain',  'label' => trans('cruds.domaine.title')],
                 ['id' => 'AdminUser',  'label' => trans('cruds.adminUser.title')],
             ],
             5 => [ // Infrastructure Logique
