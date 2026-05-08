@@ -125,15 +125,15 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::delete('application-services-destroy', [Admin\ApplicationServiceController::class, 'massDestroy'])->name('application-services.massDestroy');
 
     // Application Events
-    Route::resource('application-events', Admin\MApplicationEventController::class);
+    Route::resource('application-events', Admin\ApplicationEventController::class);
 
     // Databases
     Route::resource('databases', Admin\DatabaseController::class);
     Route::delete('databases-destroy', [Admin\DatabaseController::class, 'massDestroy'])->name('databases.massDestroy');
 
-    // Fluxes
-    Route::resource('fluxes', Admin\FluxController::class);
-    Route::delete('fluxes-destroy', [Admin\FluxController::class, 'massDestroy'])->name('fluxes.massDestroy');
+    // Application Flows
+    Route::resource('application-flows', Admin\ApplicationFlowController::class)->parameters(['application-flows' => 'flux']);
+    Route::delete('application-flows-destroy', [Admin\ApplicationFlowController::class, 'massDestroy'])->name('application-flows.massDestroy');
 
     // Zone Admins
     Route::resource('zone-admins', Admin\ZoneAdminController::class);

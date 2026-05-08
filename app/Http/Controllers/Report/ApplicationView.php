@@ -10,7 +10,7 @@ use App\Models\ApplicationBlock;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
 use App\Models\Database;
-use App\Models\Flux;
+use App\Models\ApplicationFlow;
 use App\Models\Application;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -126,7 +126,7 @@ class ApplicationView extends Controller
                 });
 
             // TODO : improve me
-            $fluxes = Flux::All()->sortBy('name')
+            $fluxes = ApplicationFlow::All()->sortBy('name')
                 ->filter(function ($item) use ($applications, $applicationModules, $databases) {
                     foreach ($applications as $application) {
                         if ($item->application_source_id === $application->id) {
@@ -161,7 +161,7 @@ class ApplicationView extends Controller
             $applicationServices = ApplicationService::All()->sortBy('name');
             $applicationModules = ApplicationModule::All()->sortBy('name');
             $databases = Database::All()->sortBy('name');
-            $fluxes = Flux::All()->sortBy('name');
+            $fluxes = ApplicationFlow::All()->sortBy('name');
             $all_applications = null;
         }
 

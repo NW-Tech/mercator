@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\HasPrefix;
-use App\Factories\FluxFactory;
+use App\Factories\ApplicationFlowFactory;
 use App\Traits\Auditable;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -16,11 +16,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Flux Applicatif
  */
-class Flux extends Model implements HasPrefix
+class ApplicationFlow extends Model implements HasPrefix
 {
     use Auditable, HasFactory, HasUniqueIdentifier, SoftDeletes;
 
-    public $table = 'fluxes';
+    public $table = 'application_flows';
 
     public static string $prefix = 'FLOW_';
 
@@ -74,7 +74,7 @@ class Flux extends Model implements HasPrefix
 
     protected static function newFactory(): Factory
     {
-        return FluxFactory::new();
+        return ApplicationFlowFactory::new();
     }
 
     /* '*~-.,¸¸.-~·*'¨¯'*~-.,¸¸.-~·*'¨¯ UIDs ¯¨'*·~-.¸¸,.-~*''*~-.,¸¸.-~·*'¨¯ */
@@ -100,7 +100,7 @@ class Flux extends Model implements HasPrefix
     /** @return BelongsToMany<Information, $this> */
     public function informations(): BelongsToMany
     {
-        return $this->belongsToMany(Information::class, 'flux_information');
+        return $this->belongsToMany(Information::class, 'application_flow_information', 'flux_id', 'information_id');
     }
 
     /* '*~-.,¸¸.-~·*'¨¯'*~-.,¸¸.-~·*'¨¯ Relations ¯¨'*·~-.¸¸,.-~*''*~-.,¸¸.-~·*'¨¯ */

@@ -118,16 +118,16 @@ class Application extends Model implements HasIconContract, HasPrefix
         return implode(' ', $parts);
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function applicationSourceFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'application_source_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'application_source_id', 'id')->orderBy('name');
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function applicationDestFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'application_dest_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'application_dest_id', 'id')->orderBy('name');
     }
 
     /** @return BelongsToMany<Entity, $this> */
@@ -202,10 +202,10 @@ class Application extends Model implements HasIconContract, HasPrefix
         return $this->belongsToMany(AdminUser::class);
     }
 
-    /** @return HasMany<MApplicationEvent, $this> */
+    /** @return HasMany<ApplicationEvent, $this> */
     public function events(): HasMany
     {
-        return $this->hasMany(MApplicationEvent::class, 'application_id', 'id')->with('user');
+        return $this->hasMany(ApplicationEvent::class, 'application_id', 'id')->with('user');
     }
 
     /** @return BelongsToMany<SecurityControl, $this> */

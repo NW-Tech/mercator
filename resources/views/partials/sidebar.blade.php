@@ -172,7 +172,7 @@
                     </a>
                 @endcan
                 @can('flux_access')
-                    <a href="{{ route('admin.fluxes.index') }}"
+                    <a href="{{ route('admin.application-flows.index') }}"
                        class="ps-4 {{ request()->is('admin/fluxes*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span class="menu-text">{{ trans('cruds.flux.title') }}</span>
                     </a>

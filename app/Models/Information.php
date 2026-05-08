@@ -76,10 +76,10 @@ class Information extends Model implements HasPrefix, HasIconContract
         return $this->belongsToMany(Process::class)->orderBy('name');
     }
 
-    /** @return BelongsToMany<Flux, $this> */
+    /** @return BelongsToMany<ApplicationFlow, $this> */
     public function fluxes(): BelongsToMany
     {
-        return $this->belongsToMany(Flux::class, 'flux_information');
+        return $this->belongsToMany(ApplicationFlow::class, 'application_flow_information', 'information_id', 'flux_id');
     }
 
 

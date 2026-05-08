@@ -1,7 +1,7 @@
 <?php
 
 use App\Models\Application;
-use App\Models\MApplicationEvent;
+use App\Models\ApplicationEvent;
 use App\Models\User;
 use Database\Seeders\PermissionRoleTableSeeder;
 use Database\Seeders\PermissionsTableSeeder;
@@ -25,18 +25,18 @@ beforeEach(function () {
     $this->actingAs($this->user);
 });
 
-describe('MApplicationEventController', function () {
+describe('ApplicationEventController', function () {
 
     test('index returns events for given application id', function () {
         $app = Application::factory()->create();
 
         // Create a couple of events attached to the application
-        $e1 = MApplicationEvent::factory()
+        $e1 = ApplicationEvent::factory()
             ->for($app, 'application')
             ->for($this->user)
             ->create(['message' => 'First event']);
 
-        $e2 = MApplicationEvent::factory()
+        $e2 = ApplicationEvent::factory()
             ->for($app, 'application')
             ->for($this->user)
             ->create(['message' => 'Second event']);
@@ -72,12 +72,12 @@ describe('MApplicationEventController', function () {
 
     test('destroy removes an event and returns remaining list', function () {
         $app = Application::factory()->create();
-        $eventToDelete = MApplicationEvent::factory()
+        $eventToDelete = ApplicationEvent::factory()
             ->for($app, 'application')
             ->for($this->user)
             ->create(['message' => 'To be deleted']);
 
-        $eventToKeep = MApplicationEvent::factory()
+        $eventToKeep = ApplicationEvent::factory()
             ->for($app, 'application')
             ->for($this->user)
             ->create(['message' => 'To keep']);

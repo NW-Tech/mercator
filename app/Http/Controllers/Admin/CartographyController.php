@@ -23,7 +23,7 @@ use App\Models\Dnsserver;
 use App\Models\DomaineAd;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
-use App\Models\Flux;
+use App\Models\ApplicationFlow;
 use App\Models\ForestAd;
 use App\Models\Gateway;
 use App\Models\Information;
@@ -644,7 +644,7 @@ class CartographyController extends Controller
             $applicationServices = ApplicationService::orderBy('name')->get();
             $applicationModules = ApplicationModule::orderBy('name')->get();
             $databases = Database::orderBy('name')->get();
-            $fluxes = Flux::orderBy('name')->get();
+            $fluxes = ApplicationFlow::orderBy('name')->get();
 
             // Generate Graph
             if ($request->has('graph')) {

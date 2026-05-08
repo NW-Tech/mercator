@@ -55,16 +55,16 @@ class ApplicationService extends Model implements HasPrefix, HasIconContract
         return ApplicationServiceFactory::new();
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function serviceSourceFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'service_source_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'service_source_id', 'id')->orderBy('name');
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function serviceDestFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'service_dest_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'service_dest_id', 'id')->orderBy('name');
     }
 
     /** @return BelongsToMany<Application, $this> */

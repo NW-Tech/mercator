@@ -48,7 +48,7 @@ The list of APIs can be found in /route/api.php
 - [/api/application-services](./model.md#applications-services)
 - [/api/application-modules](./model.md#application-modules)
 - [/api/databases](./model.md#databases)
-- [/api/fluxes](./model.md#flows)
+- [/api/application-flows](./model.md#flows)
 
 #### Endpoints for Administration view
 

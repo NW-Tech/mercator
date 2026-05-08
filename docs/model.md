@@ -717,9 +717,9 @@ important to avoid representing all firewall filtering rules in terms of flows.
 
 For example, DNS or NTP requests should not be represented as flows.
 
-| Table                                      | api           |
-|:-------------------------------------------|:--------------|
-| <span style="color: blue;">*fluxes*</span> | `/api/fluxes` |
+| Table                                                 | api                      |
+|:------------------------------------------------------|:-------------------------|
+| <span style="color: blue;">*application_flows*</span> | `/api/application-flows` |
 
 | Champ                  | Type         | Description                             |
 |:-----------------------|:-------------|:----------------------------------------|

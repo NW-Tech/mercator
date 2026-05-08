@@ -18,7 +18,7 @@ use App\Models\Document;
 use App\Models\DomaineAd;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
-use App\Models\Flux;
+use App\Models\ApplicationFlow;
 use App\Models\ForestAd;
 use App\Models\Gateway;
 use App\Models\Information;
@@ -150,10 +150,10 @@ dataset('api_endpoints', [
             'model' => Database::class,
         ]
     ],
-    'fluxes' => [
+    'application-flows' => [
         [
-            'route' => 'fluxes',
-            'model' => Flux::class,
+            'route' => 'application-flows',
+            'model' => ApplicationFlow::class,
         ]
     ],
     'zone-admins' => [

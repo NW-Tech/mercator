@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Factories\ActivityImpactFactory;
-use App\Factories\MApplicationEventFactory;
+use App\Factories\ApplicationEventFactory;
 
-class MApplicationEvent extends Model
+class ApplicationEvent extends Model
 {
     use HasFactory;
 
@@ -30,7 +30,7 @@ class MApplicationEvent extends Model
 
     protected static function newFactory(): Factory
     {
-        return MApplicationEventFactory::new();
+        return ApplicationEventFactory::new();
     }
 
     /** @return BelongsTo<Application, $this> */

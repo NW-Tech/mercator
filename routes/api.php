@@ -114,11 +114,11 @@ Route::middleware(['api.protected'])->group(function () {
     Route::delete('databases/mass-destroy', [API\DatabaseController::class, 'massDestroy'])->name('databases.mass-destroy');
     Route::resource('databases', API\DatabaseController::class);
 
-    // Fluxes
-    Route::post('fluxes/mass-store', [API\FluxController::class, 'massStore'])->name('fluxes.mass-store');
-    Route::put('fluxes/mass-update', [API\FluxController::class, 'massUpdate'])->name('fluxes.mass-update');
-    Route::delete('fluxes/mass-destroy', [API\FluxController::class, 'massDestroy'])->name('fluxes.mass-destroy');
-    Route::resource('fluxes', API\FluxController::class);
+    // Application Flows
+    Route::post('application-flows/mass-store', [API\ApplicationFlowController::class, 'massStore'])->name('fluxes.mass-store');
+    Route::put('application-flows/mass-update', [API\ApplicationFlowController::class, 'massUpdate'])->name('fluxes.mass-update');
+    Route::delete('application-flows/mass-destroy', [API\ApplicationFlowController::class, 'massDestroy'])->name('fluxes.mass-destroy');
+    Route::resource('application-flows', API\ApplicationFlowController::class);
 
     // Zone Admins
     Route::post('zone-admins/mass-store', [API\ZoneAdminController::class, 'massStore'])->name('zone-admins.mass-store');

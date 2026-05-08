@@ -50,7 +50,7 @@ La liste des API se trouve dans le fichier /route/api.php
 - [/api/application-services](./model.fr.md#services-applicatif)
 - [/api/application-modules](./model.fr.md#modules-applicatif)
 - [/api/databases](./model.fr.md#bases-de-donnees)
-- [/api/fluxes](./model.fr.md#flux)
+- [/api/application-flows](./model.fr.md#flux)
 
 ## Les points de terminaison de l'administration
 

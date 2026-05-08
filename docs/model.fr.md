@@ -703,7 +703,7 @@ Dans l'application, une application peut être rattachée à une base de donnée
 Dans l'application, un serveur logique peut être rattaché à une base de données depuis ces deux objets.  
 Dans l'application, un conteneur peut être rattaché à une base de données depuis ces deux objets.
 
-### Flux
+### Flux applicatifs
 
 Un flux est un échange d’informations entre un émetteur ou un récepteur (application, service applicatif, module
 applicatif ou base de données).
@@ -713,9 +713,9 @@ en termes de flux l’ensemble des règles de filtrage du firewall.
 
 Par exemple, les requêtes DNS ou NTP ne devraient pas être représentées comme des flux.
 
-| Table                                      | api           |
-|:-------------------------------------------|:--------------|
-| <span style="color: blue;">*fluxes*</span> | `/api/fluxes` |
+| Table                                                 | api                      |
+|:------------------------------------------------------|:-------------------------|
+| <span style="color: blue;">*application_flows*</span> | `/api/application-flows` |
 
 | Champ                                             | Type         | Description                               |
 |:--------------------------------------------------|:-------------|:------------------------------------------|

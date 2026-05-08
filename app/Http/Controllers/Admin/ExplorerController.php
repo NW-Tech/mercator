@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Gate;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Models\Activity;
 use App\Models\Actor;
 use App\Models\AdminUser;
 use App\Models\Annuaire;
+use App\Models\Application;
 use App\Models\ApplicationBlock;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
@@ -31,7 +28,6 @@ use App\Models\LogicalFlow;
 use App\Models\LogicalServer;
 use App\Models\MacroProcessus;
 use App\Models\Man;
-use App\Models\Application;
 use App\Models\Network;
 use App\Models\NetworkSwitch;
 use App\Models\Operation;
@@ -55,6 +51,10 @@ use App\Models\Wan;
 use App\Models\WifiTerminal;
 use App\Models\Workstation;
 use App\Models\ZoneAdmin;
+use Gate;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -98,7 +98,7 @@ class ExplorerController extends Controller
 
         $tables = [
             'applications', 'logical_servers', 'clusters', 'entities',
-            'buildings', 'physical_security_devices', 'relations', 'security_devices', 'fluxes',
+            'buildings', 'physical_security_devices', 'relations', 'security_devices', 'application_flows',
         ];
         $allAttributes = collect();
         foreach ($tables as $table) {
@@ -1126,33 +1126,33 @@ class ExplorerController extends Controller
 
     private function buildApplicationFlows() : void {
         // Fluxes
-        $fluxes = DB::table('fluxes')->whereNull('deleted_at')->get();
-        foreach ($fluxes as $flux) {
-            if ($flux->application_source_id !== null) {
-                $src_id = $this->formatId(Application::$prefix, $flux->application_source_id);
-            } elseif ($flux->service_source_id !== null) {
-                $src_id = $this->formatId(ApplicationService::$prefix, $flux->service_source_id);
-            } elseif ($flux->module_source_id !== null) {
-                $src_id = $this->formatId(ApplicationModule::$prefix, $flux->module_source_id);
-            } elseif ($flux->database_source_id !== null) {
-                $src_id = $this->formatId(Database::$prefix, $flux->database_source_id);
+        $flows = DB::table('application_flows')->whereNull('deleted_at')->get();
+        foreach ($flows as $flow) {
+            if ($flow->application_source_id !== null) {
+                $src_id = $this->formatId(Application::$prefix, $flow->application_source_id);
+            } elseif ($flow->service_source_id !== null) {
+                $src_id = $this->formatId(ApplicationService::$prefix, $flow->service_source_id);
+            } elseif ($flow->module_source_id !== null) {
+                $src_id = $this->formatId(ApplicationModule::$prefix, $flow->module_source_id);
+            } elseif ($flow->database_source_id !== null) {
+                $src_id = $this->formatId(Database::$prefix, $flow->database_source_id);
             } else {
                 continue;
             }
 
-            if ($flux->application_dest_id !== null) {
-                $dest_id = $this->formatId(Application::$prefix, $flux->application_dest_id);
-            } elseif ($flux->service_dest_id !== null) {
-                $dest_id = $this->formatId(ApplicationService::$prefix, $flux->service_dest_id);
-            } elseif ($flux->module_dest_id !== null) {
-                $dest_id = $this->formatId(ApplicationModule::$prefix, $flux->module_dest_id);
-            } elseif ($flux->database_dest_id !== null) {
-                $dest_id = $this->formatId(Database::$prefix, $flux->database_dest_id);
+            if ($flow->application_dest_id !== null) {
+                $dest_id = $this->formatId(Application::$prefix, $flow->application_dest_id);
+            } elseif ($flow->service_dest_id !== null) {
+                $dest_id = $this->formatId(ApplicationService::$prefix, $flow->service_dest_id);
+            } elseif ($flow->module_dest_id !== null) {
+                $dest_id = $this->formatId(ApplicationModule::$prefix, $flow->module_dest_id);
+            } elseif ($flow->database_dest_id !== null) {
+                $dest_id = $this->formatId(Database::$prefix, $flow->database_dest_id);
             } else {
                 continue;
             }
 
-            $this->addFluxEdge($flux->nature, $flux->bidirectional ?? false, $src_id, $dest_id);
+            $this->addFluxEdge($flow->nature, $flow->bidirectional ?? false, $src_id, $dest_id);
         }
     }
 

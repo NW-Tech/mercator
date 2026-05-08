@@ -71,7 +71,7 @@
             @foreach($database->databaseSourceFluxes->union($database->databaseDestFluxes) as $flux)
             <tr>
                 <td>
-                    <a href="{{ route('admin.fluxes.show', $flux->id) }}">{{ $flux->name }}</a>
+                    <a href="{{ route('admin.application-flows.show', $flux->id) }}">{{ $flux->name }}</a>
                 </td>
                 <td>
                    {{ $flux->nature }}

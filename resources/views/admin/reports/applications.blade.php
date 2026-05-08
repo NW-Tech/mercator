@@ -223,7 +223,7 @@
                     <div class="row">
                         <div class="col">
 
-                            @include('admin.fluxes._details', [
+                            @include('admin.application-flows._details', [
                                 'flux' => $flux,
                                 'withLink' => true,
                             ])

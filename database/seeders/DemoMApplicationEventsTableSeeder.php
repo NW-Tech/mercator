@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 
-class DemoMApplicationEventsTableSeeder extends Seeder
+class DemoApplicationEventsTableSeeder extends Seeder
 {
     /**
      * Auto generated seed file

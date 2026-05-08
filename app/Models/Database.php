@@ -65,16 +65,16 @@ class Database extends Model implements HasIconContract, HasPrefix
         return DatabaseFactory::new();
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function databaseSourceFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'database_source_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'database_source_id', 'id')->orderBy('name');
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function databaseDestFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'database_dest_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'database_dest_id', 'id')->orderBy('name');
     }
 
     /** @return BelongsToMany<Application, $this> */

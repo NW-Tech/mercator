@@ -10,7 +10,7 @@ use App\Models\ApplicationBlock;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
 use App\Models\Database;
-use App\Models\Flux;
+use App\Models\ApplicationFlow;
 use App\Models\Application;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -84,7 +84,7 @@ class ApplicationFlowView extends Controller
         $database_ids = collect($databases);
 
         // get all flows
-        $flows = Flux::All()->sortBy('name');
+        $flows = ApplicationFlow::All()->sortBy('name');
 
         // Filter Flows
         $flows = $flows

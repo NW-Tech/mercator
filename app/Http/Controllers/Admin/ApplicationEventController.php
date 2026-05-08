@@ -4,13 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
-use App\Models\MApplicationEvent;
+use App\Models\ApplicationEvent;
 use Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class MApplicationEventController extends Controller
+class ApplicationEventController extends Controller
 {
     /**
      * Retourne les événements d'une application.
@@ -26,9 +26,9 @@ class MApplicationEventController extends Controller
             'id' => ['required', 'integer', 'exists:applications,id'],
         ]);
 
-        $this->authorize('application_show', MApplicationEvent::class);
+        $this->authorize('application_show', ApplicationEvent::class);
 
-        $events = MApplicationEvent::with('user')
+        $events = ApplicationEvent::with('user')
             ->where('application_id', $request->integer('id'))
             ->orderBy('created_at', 'desc')
             ->get();
@@ -48,7 +48,7 @@ class MApplicationEventController extends Controller
 
         $application = Application::findOrFail($request->integer('application_id'));
 
-        $event = new MApplicationEvent();
+        $event = new ApplicationEvent();
         $event->application()->associate($application);
         $event->user()->associate($request->user());
         $event->message = $request->string('message');

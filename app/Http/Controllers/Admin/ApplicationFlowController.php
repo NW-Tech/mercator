@@ -3,28 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\MassDestroyFluxRequest;
-use App\Http\Requests\StoreFluxRequest;
-use App\Http\Requests\UpdateFluxRequest;
+use App\Http\Requests\MassDestroyApplicationFlowRequest;
+use App\Http\Requests\StoreApplicationFlowRequest;
+use App\Http\Requests\UpdateApplicationFlowRequest;
 use App\Models\Application;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
 use App\Models\Database;
-use App\Models\Flux;
+use App\Models\ApplicationFlow;
 use App\Models\Information;
 use Gate;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\Response;
 
-class FluxController extends Controller
+class ApplicationFlowController extends Controller
 {
     public function index()
     {
         abort_if(Gate::denies('flux_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $fluxes = Flux::all()->sortBy('name');
+        $fluxes = ApplicationFlow::all()->sortBy('name');
 
-        return view('admin.fluxes.index', compact('fluxes'));
+        return view('admin.application-flows.index', compact('fluxes'));
     }
 
     public function create()
@@ -38,7 +38,7 @@ class FluxController extends Controller
         $informations = Information::query()->orderBy('name')->pluck('name', 'id');
 
         // List
-        $nature_list = Flux::select('nature')->where('nature', '<>', null)->distinct()->orderBy('nature')->pluck('nature');
+        $nature_list = ApplicationFlow::select('nature')->where('nature', '<>', null)->distinct()->orderBy('nature')->pluck('nature');
         $attributes_list = $this->getAttributes();
 
         $items = Collection::make();
@@ -56,14 +56,14 @@ class FluxController extends Controller
         }
 
         return view(
-            'admin.fluxes.create',
+            'admin.application-flows.create',
             compact('items', 'nature_list', 'informations', 'attributes_list')
         );
     }
 
-    public function store(StoreFluxRequest $request)
+    public function store(StoreApplicationFlowRequest $request)
     {
-        $flux = new Flux;
+        $flux = new ApplicationFlow;
         $flux->name = $request->name;
         $flux->nature = $request->nature;
         $flux->description = $request->description;
@@ -125,10 +125,10 @@ class FluxController extends Controller
 
         $flux->informations()->sync($request->get('informations'));
 
-        return redirect()->route('admin.fluxes.index');
+        return redirect()->route('admin.application-flows.index');
     }
 
-    public function edit(Flux $flux)
+    public function edit(ApplicationFlow $flux)
     {
         abort_if(Gate::denies('flux_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
@@ -139,7 +139,7 @@ class FluxController extends Controller
         $informations = Information::query()->orderBy('name')->pluck('name', 'id');
 
         // List
-        $nature_list = Flux::select('nature')->where('nature', '<>', null)->distinct()->orderBy('nature')->pluck('nature');
+        $nature_list = ApplicationFlow::select('nature')->where('nature', '<>', null)->distinct()->orderBy('nature')->pluck('nature');
         $attributes_list = $this->getAttributes();
 
         $items = Collection::make();
@@ -157,12 +157,12 @@ class FluxController extends Controller
         }
 
         return view(
-            'admin.fluxes.edit',
+            'admin.application-flows.edit',
             compact('items', 'nature_list', 'informations', 'attributes_list', 'flux')
         );
     }
 
-    public function update(UpdateFluxRequest $request, Flux $flux)
+    public function update(UpdateApplicationFlowRequest $request, ApplicationFlow $flux)
     {
         $flux->name = $request->get('name');
         $flux->nature = $request->nature;
@@ -225,10 +225,10 @@ class FluxController extends Controller
 
         $flux->informations()->sync($request->get('informations'));
 
-        return redirect()->route('admin.fluxes.index');
+        return redirect()->route('admin.application-flows.index');
     }
 
-    public function show(Flux $flux)
+    public function show(ApplicationFlow $flux)
     {
         abort_if(Gate::denies('flux_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
@@ -243,28 +243,28 @@ class FluxController extends Controller
             'database_dest'
         );
 
-        return view('admin.fluxes.show', compact('flux'));
+        return view('admin.application-flows.show', compact('flux'));
     }
 
-    public function destroy(Flux $flux)
+    public function destroy(ApplicationFlow $flux)
     {
         abort_if(Gate::denies('flux_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $flux->delete();
 
-        return redirect()->route('admin.fluxes.index');
+        return redirect()->route('admin.application-flows.index');
     }
 
-    public function massDestroy(MassDestroyFluxRequest $request)
+    public function massDestroy(MassDestroyApplicationFlowRequest $request)
     {
-        Flux::whereIn('id', request('ids'))->delete();
+        ApplicationFlow::whereIn('id', request('ids'))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
     }
 
     private function getAttributes()
     {
-        $attributes_list = Flux::query()->select('attributes')
+        $attributes_list = ApplicationFlow::query()->select('attributes')
             ->where('attributes', '<>', null)
             ->distinct()
             ->pluck('attributes');
