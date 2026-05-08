@@ -22,9 +22,9 @@ class ApplicationFlowController extends Controller
     {
         abort_if(Gate::denies('flux_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $fluxes = ApplicationFlow::all()->sortBy('name');
+        $flows = ApplicationFlow::all()->sortBy('name');
 
-        return view('admin.application-flows.index', compact('fluxes'));
+        return view('admin.application-flows.index', compact('flows'));
     }
 
     public function create()
@@ -63,72 +63,72 @@ class ApplicationFlowController extends Controller
 
     public function store(StoreApplicationFlowRequest $request)
     {
-        $flux = new ApplicationFlow;
-        $flux->name = $request->name;
-        $flux->nature = $request->nature;
-        $flux->description = $request->description;
-        $flux->attributes = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
+        $flow = new ApplicationFlow;
+        $flow->name = $request->name;
+        $flow->nature = $request->nature;
+        $flow->description = $request->description;
+        $flow->attributes = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
 
         // Source item
         if (str_starts_with($request->src_id, Application::$prefix)) {
-            $flux->application_source_id = intval(substr($request->src_id, strlen(Application::$prefix)));
+            $flow->application_source_id = intval(substr($request->src_id, strlen(Application::$prefix)));
         } else {
-            $flux->application_source_id = null;
+            $flow->application_source_id = null;
         }
 
         if (str_starts_with($request->src_id, ApplicationService::$prefix)) {
-            $flux->service_source_id = intval(substr($request->src_id, strlen(ApplicationService::$prefix)));
+            $flow->service_source_id = intval(substr($request->src_id, strlen(ApplicationService::$prefix)));
         } else {
-            $flux->service_source_id = null;
+            $flow->service_source_id = null;
         }
 
         if (str_starts_with($request->src_id, ApplicationModule::$prefix)) {
-            $flux->module_source_id = intval(substr($request->src_id, strlen(ApplicationModule::$prefix)));
+            $flow->module_source_id = intval(substr($request->src_id, strlen(ApplicationModule::$prefix)));
         } else {
-            $flux->module_source_id = null;
+            $flow->module_source_id = null;
         }
 
         if (str_starts_with($request->src_id, Database::$prefix)) {
-            $flux->database_source_id = intval(substr($request->src_id, strlen(Database::$prefix)));
+            $flow->database_source_id = intval(substr($request->src_id, strlen(Database::$prefix)));
         } else {
-            $flux->database_source_id = null;
+            $flow->database_source_id = null;
         }
 
         // Dest item
         if (str_starts_with($request->dest_id, Application::$prefix)) {
-            $flux->application_dest_id = intval(substr($request->dest_id, strlen(Application::$prefix)));
+            $flow->application_dest_id = intval(substr($request->dest_id, strlen(Application::$prefix)));
         } else {
-            $flux->application_dest_id = null;
+            $flow->application_dest_id = null;
         }
 
         if (str_starts_with($request->dest_id, ApplicationService::$prefix)) {
-            $flux->service_dest_id = intval(substr($request->dest_id, strlen(ApplicationService::$prefix)));
+            $flow->service_dest_id = intval(substr($request->dest_id, strlen(ApplicationService::$prefix)));
         } else {
-            $flux->service_dest_id = null;
+            $flow->service_dest_id = null;
         }
 
         if (str_starts_with($request->dest_id, ApplicationModule::$prefix)) {
-            $flux->module_dest_id = intval(substr($request->dest_id, strlen(ApplicationModule::$prefix)));
+            $flow->module_dest_id = intval(substr($request->dest_id, strlen(ApplicationModule::$prefix)));
         } else {
-            $flux->module_dest_id = null;
+            $flow->module_dest_id = null;
         }
 
         if (str_starts_with($request->dest_id, Database::$prefix)) {
-            $flux->database_dest_id = intval(substr($request->dest_id, strlen(Database::$prefix)));
+            $flow->database_dest_id = intval(substr($request->dest_id, strlen(Database::$prefix)));
         } else {
-            $flux->database_dest_id = null;
+            $flow->database_dest_id = null;
         }
 
-        $flux->crypted = $request->has('crypted');
-        $flux->bidirectional = $request->has('bidirectional');
-        $flux->save();
+        $flow->crypted = $request->has('crypted');
+        $flow->bidirectional = $request->has('bidirectional');
+        $flow->save();
 
-        $flux->informations()->sync($request->get('informations'));
+        $flow->informations()->sync($request->get('informations'));
 
         return redirect()->route('admin.application-flows.index');
     }
 
-    public function edit(ApplicationFlow $flux)
+    public function edit(ApplicationFlow $flow)
     {
         abort_if(Gate::denies('flux_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
@@ -158,81 +158,81 @@ class ApplicationFlowController extends Controller
 
         return view(
             'admin.application-flows.edit',
-            compact('items', 'nature_list', 'informations', 'attributes_list', 'flux')
+            compact('items', 'nature_list', 'informations', 'attributes_list', 'flow')
         );
     }
 
-    public function update(UpdateApplicationFlowRequest $request, ApplicationFlow $flux)
+    public function update(UpdateApplicationFlowRequest $request, ApplicationFlow $flow)
     {
-        $flux->name = $request->get('name');
-        $flux->nature = $request->nature;
-        $flux->description = $request->get('description');
-        $flux->attributes = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
+        $flow->name = $request->get('name');
+        $flow->nature = $request->nature;
+        $flow->description = $request->get('description');
+        $flow->attributes = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
 
         // Source item
         if (str_starts_with($request->src_id, Application::$prefix)) {
-            $flux->application_source_id = intval(substr($request->src_id, strlen(Application::$prefix)));
+            $flow->application_source_id = intval(substr($request->src_id, strlen(Application::$prefix)));
         } else {
-            $flux->application_source_id = null;
+            $flow->application_source_id = null;
         }
 
         if (str_starts_with($request->src_id, ApplicationService::$prefix)) {
-            $flux->service_source_id = intval(substr($request->src_id, strlen(ApplicationService::$prefix)));
+            $flow->service_source_id = intval(substr($request->src_id, strlen(ApplicationService::$prefix)));
         } else {
-            $flux->service_source_id = null;
+            $flow->service_source_id = null;
         }
 
         if (str_starts_with($request->src_id, ApplicationModule::$prefix)) {
-            $flux->module_source_id = intval(substr($request->src_id, strlen(ApplicationModule::$prefix)));
+            $flow->module_source_id = intval(substr($request->src_id, strlen(ApplicationModule::$prefix)));
         } else {
-            $flux->module_source_id = null;
+            $flow->module_source_id = null;
         }
 
         if (str_starts_with($request->src_id, Database::$prefix)) {
-            $flux->database_source_id = intval(substr($request->src_id, strlen(Database::$prefix)));
+            $flow->database_source_id = intval(substr($request->src_id, strlen(Database::$prefix)));
         } else {
-            $flux->database_source_id = null;
+            $flow->database_source_id = null;
         }
 
         // Dest item
         if (str_starts_with($request->dest_id, Application::$prefix)) {
-            $flux->application_dest_id = intval(substr($request->dest_id, strlen(Application::$prefix)));
+            $flow->application_dest_id = intval(substr($request->dest_id, strlen(Application::$prefix)));
         } else {
-            $flux->application_dest_id = null;
+            $flow->application_dest_id = null;
         }
 
         if (str_starts_with($request->dest_id, ApplicationService::$prefix)) {
-            $flux->service_dest_id = intval(substr($request->dest_id, strlen(ApplicationService::$prefix)));
+            $flow->service_dest_id = intval(substr($request->dest_id, strlen(ApplicationService::$prefix)));
         } else {
-            $flux->service_dest_id = null;
+            $flow->service_dest_id = null;
         }
 
         if (str_starts_with($request->dest_id, ApplicationModule::$prefix)) {
-            $flux->module_dest_id = intval(substr($request->dest_id, strlen(ApplicationModule::$prefix)));
+            $flow->module_dest_id = intval(substr($request->dest_id, strlen(ApplicationModule::$prefix)));
         } else {
-            $flux->module_dest_id = null;
+            $flow->module_dest_id = null;
         }
 
         if (str_starts_with($request->dest_id, Database::$prefix)) {
-            $flux->database_dest_id = intval(substr($request->dest_id, strlen(Database::$prefix)));
+            $flow->database_dest_id = intval(substr($request->dest_id, strlen(Database::$prefix)));
         } else {
-            $flux->database_dest_id = null;
+            $flow->database_dest_id = null;
         }
         
-        $flux->crypted = $request->has('crypted');
-        $flux->bidirectional = $request->has('bidirectional');
-        $flux->update();
+        $flow->crypted = $request->has('crypted');
+        $flow->bidirectional = $request->has('bidirectional');
+        $flow->update();
 
-        $flux->informations()->sync($request->get('informations'));
+        $flow->informations()->sync($request->get('informations'));
 
         return redirect()->route('admin.application-flows.index');
     }
 
-    public function show(ApplicationFlow $flux)
+    public function show(ApplicationFlow $flow)
     {
         abort_if(Gate::denies('flux_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $flux->load(
+        $flow->load(
             'application_source',
             'service_source',
             'module_source',
@@ -243,14 +243,14 @@ class ApplicationFlowController extends Controller
             'database_dest'
         );
 
-        return view('admin.application-flows.show', compact('flux'));
+        return view('admin.application-flows.show', compact('flow'));
     }
 
-    public function destroy(ApplicationFlow $flux)
+    public function destroy(ApplicationFlow $flow)
     {
         abort_if(Gate::denies('flux_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $flux->delete();
+        $flow->delete();
 
         return redirect()->route('admin.application-flows.index');
     }

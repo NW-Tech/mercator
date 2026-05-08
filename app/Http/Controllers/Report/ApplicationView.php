@@ -126,7 +126,7 @@ class ApplicationView extends Controller
                 });
 
             // TODO : improve me
-            $fluxes = ApplicationFlow::All()->sortBy('name')
+            $flows = ApplicationFlow::All()->sortBy('name')
                 ->filter(function ($item) use ($applications, $applicationModules, $databases) {
                     foreach ($applications as $application) {
                         if ($item->application_source_id === $application->id) {
@@ -161,7 +161,7 @@ class ApplicationView extends Controller
             $applicationServices = ApplicationService::All()->sortBy('name');
             $applicationModules = ApplicationModule::All()->sortBy('name');
             $databases = Database::All()->sortBy('name');
-            $fluxes = ApplicationFlow::All()->sortBy('name');
+            $flows = ApplicationFlow::All()->sortBy('name');
             $all_applications = null;
         }
 
@@ -173,6 +173,6 @@ class ApplicationView extends Controller
             ->with('applicationServices', $applicationServices)
             ->with('applicationModules', $applicationModules)
             ->with('databases', $databases)
-            ->with('fluxes', $fluxes);
+            ->with('flows', $flows);
     }
 }

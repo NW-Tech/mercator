@@ -213,9 +213,9 @@ barChart: {
   @can('flux_access')
   {
     label: "{!! trans('cruds.flux.title') !!}",
-    data: [ 0, 0, 0, {!! $fluxes !!}, 0, 0, 0],
-    value: {!! $fluxes !!},
-    url: "/admin/fluxes",
+    data: [ 0, 0, 0, {!! $flows !!}, 0, 0, 0],
+    value: {!! $flows !!},
+    url: "/admin/application-flows",
   },
   @endcan
   @can('zone_admin_access')
@@ -537,7 +537,7 @@ var topTags = [
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.applicationService.title_short') !!}" , num:{!! $applicationServices !!}, url: "/admin/application-services" },
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.applicationModule.title_short') !!}" , num:{!! $applicationModules !!}, url: "/admin/application-modules" },
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.database.title') !!}" , num:{!! $databases !!}, url: "/admin/databases" },
-    {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.flux.title') !!}" , num:{!! $fluxes !!}, url: "/admin/fluxes" },
+    {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.flux.title') !!}" , num:{!! $flows !!}, url: "/admin/application-flows" },
     @endcan
     @can("administration_access")
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.zoneAdmin.title_short') !!}" , num:{!!$zones!!}, url: "/admin/zone-admins" },

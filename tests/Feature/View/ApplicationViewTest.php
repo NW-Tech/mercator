@@ -39,7 +39,7 @@ describe('Applications View', function () {
             'applicationServices',
             'applicationModules',
             'databases',
-            'fluxes',
+            'flows',
         ]);
     });
 
