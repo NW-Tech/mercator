@@ -57,7 +57,7 @@ La liste des API se trouve dans le fichier /route/api.php
 - [/api/zone-admins](./model.fr.md#zones-dadministration)
 - [/api/annuaires](./model.fr.md#services-dannuaire-dadministration)
 - [/api/forest-ads](./model.fr.md#forets-active-directory-arborescence-ldap)
-- [/api/domaine-ads](./model.fr.md#domaines-active-directory-ldap)
+- [/api/domains](./model.fr.md#domaines-active-directory-ldap)
 - [/api/admin-users](./model.fr.md#utilisateurs)
 
 ## Les points de terminaison de l'infrastructure logique
@@ -211,7 +211,7 @@ nous suivons ces étapes :
 ```
 
 Les noms de tous les champs supplémentaires
-sont : ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domaineAds', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'physicalRouters', 'networkSwitches', 'routers', 'physicalSwitches' ].
+sont : ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domains', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'physicalRouters', 'networkSwitches', 'routers', 'physicalSwitches' ].
 
 ## Exemples
 

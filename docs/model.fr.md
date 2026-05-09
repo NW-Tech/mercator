@@ -813,7 +813,7 @@ Ces objets représentent un regroupement organisé de domaines Active Directory 
 | name          | varchar(255) | Nom de la forêt Active Directory ou de l'arborescence LDAP         |
 | description   | longtext     | Description de la forêt Active Directory ou de l'arborescence LDAP |
 | zone_admin_id | int unsigned | Référence vers la zone d'administration                            |
-| domaines      | List int [,] | Liens vers les IDs des domaines active directory                   |
+| domains       | List int [,] | Liens vers les IDs des domaines active directory                   |
 | created_at    | timestamp    | Date de création                                                   |
 | updated_at    | timestamp    | Date de mise à jour                                                |
 | deleted_at    | timestamp    | Date de suppression                                                |
@@ -829,20 +829,20 @@ GPO, par exemple) ainsi que les droits des objets.
 
 | Table                                           | api                |
 |:------------------------------------------------|:-------------------|
-| <span style="color: blue;">*domaine_ads*</span> | `/api/domaine-ads` |
+| <span style="color: blue;">*domains*</span> | `/api/domains` |
 
-| Champ                  | Type         | Description                              |
-|:-----------------------|:-------------|:-----------------------------------------|
-| id                     | int unsigned | auto_increment                           |
-| name                   | varchar(255) | Nom du domaine AD / LDAP                 |
-| description            | longtext     | Description du domaine                   |
-| domain_ctrl_cnt        | int signed   | Nombre de contrôleurs de domaine         |
-| user_count             | int signed   | Nombre d'utilisateurs du domaine         |
-| machine_count          | int signed   | Nombre de machines du domaine            |
-| relation_inter_domaine | varchar(255) | Description des relations inter-domaines |
-| created_at             | timestamp    | Date de création                         |
-| updated_at             | timestamp    | Date de mise à jour                      |
-| deleted_at             | timestamp    | Date de suppression                      |
+| Champ                 | Type         | Description                              |
+|:----------------------|:-------------|:-----------------------------------------|
+| id                    | int unsigned | auto_increment                           |
+| name                  | varchar(255) | Nom du domaine AD / LDAP                 |
+| description           | longtext     | Description du domaine                   |
+| domain_ctrl_cnt       | int signed   | Nombre de contrôleurs de domaine         |
+| user_count            | int signed   | Nombre d'utilisateurs du domaine         |
+| machine_count         | int signed   | Nombre de machines du domaine            |
+| relation_inter_domain | varchar(255) | Description des relations inter-domaines |
+| created_at            | timestamp    | Date de création                         |
+| updated_at            | timestamp    | Date de mise à jour                      |
+| deleted_at            | timestamp    | Date de suppression                      |
 
 L'export du modèle de données référence les forêts AD / arborescence LDAP rattachées à un domaine AD / LDAP.  
 Dans l'application, une forêt AD / arborescence LDAP peut être rattachée à un domaine AD / LDAP depuis ces deux

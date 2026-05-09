@@ -55,7 +55,7 @@ The list of APIs can be found in /route/api.php
 - [/api/zone-admins](./model.md#administration-areas)
 - [/api/annuaires](./model.md#administration-directory-services)
 - [/api/forest-ads](./model.md#active-directory-forests-ldap-tree-structure)
-- [/api/domaine-ads](./model.md#active-directory-domains-ldap)
+- [/api/domains](./model.md#active-directory-domains-ldap)
 - [/api/admin-users](./model.md#users)
 
 #### Endpoints for Logical infrastructure
@@ -211,7 +211,7 @@ Mapping objects can refer to other objects. For example, we can link a process t
 ```
 
 The names of all extra fields
-are: ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domaineAds', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'networkSwitches', 'physicalSwitches', 'physicalRouters']
+are: ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domaines', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'networkSwitches', 'physicalSwitches', 'physicalRouters']
 
 
 ### Examples

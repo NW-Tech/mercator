@@ -809,7 +809,7 @@ These objects represent an organized grouping of Active Directory domains or LDA
 | name          | varchar(255) | Name of Active Directory or LDAP forests        |
 | description   | longtext     | Description of Active Directory or LDAP forests |
 | zone_admin_id | int unsigned | Reference to Administration zone                |
-| domaines      | List int [,] | IDs list of related active directory domaines   |
+| domains       | List int [,] | IDs list of related active directory domains    |
 | created_at    | timestamp    | Date of creation                                |
 | updated_at    | timestamp    | Date of update                                  |
 | deleted_at    | timestamp    | Date of deletion                                |
@@ -821,20 +821,20 @@ objects rights, and a part of IT policies (e.g. Group Policy Object - GPO).
 
 | Table                                           | api                |
 |:------------------------------------------------|:-------------------|
-| <span style="color: blue;">*domaine_ads*</span> | `/api/domaine-ads` |
+| <span style="color: blue;">*domains*</span> | `/api/domains` |
 
-| Champ                  | Type         | Description                             |
-|:-----------------------|:-------------|:----------------------------------------|
-| id                     | int unsigned | auto_increment                          |
-| name                   | varchar(255) | AD Domain / LDAP name                   |
-| description            | longtext     | Domain description                      |
-| domain_ctrl_cnt        | int signed   | Number of domain controllers            |
-| user_count             | int signed   | Number of domain users                  |
-| machine_count          | int signed   | Number of domain computers              |
-| relation_inter_domaine | varchar(255) | Cross domains relationships description |
-| created_at             | timestamp    | Date of creation                        |
-| updated_at             | timestamp    | Date of update                          |
-| deleted_at             | timestamp    | Date of deletion                        |
+| Champ                 | Type         | Description                             |
+|:----------------------|:-------------|:----------------------------------------|
+| id                    | int unsigned | auto_increment                          |
+| name                  | varchar(255) | AD Domain / LDAP name                   |
+| description           | longtext     | Domain description                      |
+| domain_ctrl_cnt       | int signed   | Number of domain controllers            |
+| user_count            | int signed   | Number of domain users                  |
+| machine_count         | int signed   | Number of domain computers              |
+| relation_inter_domain | varchar(255) | Cross domains relationships description |
+| created_at            | timestamp    | Date of creation                        |
+| updated_at            | timestamp    | Date of update                          |
+| deleted_at            | timestamp    | Date of deletion                        |
 
 The data model esport lists AD forests / LDAP trees linked with an AD domain / LDAP.
 
