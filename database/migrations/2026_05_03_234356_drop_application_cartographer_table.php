@@ -9,10 +9,14 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('application_cartographer', function (Blueprint $table): void {
-            $table->dropForeign('application_cartographer_application_id_foreign');
-            $table->dropForeign('cartographer_m_application_user_id_foreign');
-        });
+        $isSqlite = DB::connection()->getDriverName() === 'sqlite';
+
+        if (! $isSqlite) {
+            Schema::table('application_cartographer', function (Blueprint $table): void {
+                $table->dropForeign('application_cartographer_application_id_foreign');
+                $table->dropForeign('cartographer_m_application_user_id_foreign');
+            });
+        }
 
         Schema::dropIfExists('application_cartographer');
     }
