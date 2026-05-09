@@ -3,7 +3,7 @@ entries:
   mercator:
   - apiVersion: v2
     appVersion: 2026.05.09
-    created: "2026-05-09T21:10:02.07837098+02:00"
+    created: "2026-05-09T21:21:48.951654058+02:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -16,7 +16,7 @@ entries:
     description: Mercator is a powerful and versatile open-source web application
       designed to facilitate the mapping of information systems, as outlined in the
       Mapping The Information System Guide by ANSSI.
-    digest: c1199b5c3eb84c89ade23bbba9683d708616b82d8b1a1fae76e8c49bd741f5c4
+    digest: c4de1a8560c1ba6e091a160922130cdeeb9947ff9c09b6ff542112f107d8e2b9
     home: https://github.com/dbarzin/mercator
     icon: https://raw.githubusercontent.com/dbarzin/mercator/refs/heads/master/public/images/mercator.png
     maintainers:
@@ -29,7 +29,7 @@ entries:
     version: 2026.05.09
   - apiVersion: v2
     appVersion: 2026.04.27
-    created: "2026-05-09T21:10:02.066277344+02:00"
+    created: "2026-05-09T21:21:48.939870944+02:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -55,7 +55,7 @@ entries:
     version: 2026.04.27
   - apiVersion: v2
     appVersion: 2026.04.23
-    created: "2026-05-09T21:10:02.054262186+02:00"
+    created: "2026-05-09T21:21:48.927697642+02:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -81,7 +81,7 @@ entries:
     version: 2026.04.23
   - apiVersion: v2
     appVersion: 2026.04.23
-    created: "2026-05-09T21:10:02.040956202+02:00"
+    created: "2026-05-09T21:21:48.91460777+02:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -185,7 +185,7 @@ entries:
     version: 0.2.0
   - apiVersion: v2
     appVersion: 0.1.0
-    created: "2026-05-09T21:10:02.028413225+02:00"
+    created: "2026-05-09T21:21:48.901078655+02:00"
     dependencies:
     - condition: redis.enabled
       name: redis
@@ -206,4 +206,4 @@ entries:
     urls:
     - https://github.com/dbarzin/mercator/releases/download/mercator-2026.05.09/mercator-0.1.0.tgz
     version: 0.1.0
-generated: "2026-05-09T21:10:02.014071549+02:00"
+generated: "2026-05-09T21:21:48.88783718+02:00"
