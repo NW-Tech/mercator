@@ -194,23 +194,6 @@ CREATE TABLE `application_blocks` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `application_cartographer`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `application_cartographer` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `user_id` int(10) unsigned NOT NULL,
-  `application_id` int(10) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `cartographer_m_application_user_id_foreign` (`user_id`),
-  KEY `cartographer_m_application_m_application_id_foreign` (`application_id`),
-  CONSTRAINT `application_cartographer_application_id_foreign` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`),
-  CONSTRAINT `cartographer_m_application_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `application_certificate`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8mb4 */;
@@ -286,6 +269,63 @@ CREATE TABLE `application_events` (
   KEY `m_application_events_m_application_id_foreign` (`application_id`),
   CONSTRAINT `application_events_application_id_foreign` FOREIGN KEY (`application_id`) REFERENCES `applications` (`id`),
   CONSTRAINT `m_application_events_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `application_flow_information`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `application_flow_information` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `flux_id` int(10) unsigned NOT NULL,
+  `information_id` int(10) unsigned NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `flux_information_flux_id_information_id_unique` (`flux_id`,`information_id`),
+  KEY `application_flow_information_information_id_foreign` (`information_id`),
+  CONSTRAINT `application_flow_information_flux_id_foreign` FOREIGN KEY (`flux_id`) REFERENCES `application_flows` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `application_flow_information_information_id_foreign` FOREIGN KEY (`information_id`) REFERENCES `information` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+DROP TABLE IF EXISTS `application_flows`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `application_flows` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `nature` varchar(255) DEFAULT NULL,
+  `attributes` varchar(255) DEFAULT NULL,
+  `description` longtext DEFAULT NULL,
+  `application_source_id` int(10) unsigned DEFAULT NULL,
+  `service_source_id` int(10) unsigned DEFAULT NULL,
+  `module_source_id` int(10) unsigned DEFAULT NULL,
+  `database_source_id` int(10) unsigned DEFAULT NULL,
+  `application_dest_id` int(10) unsigned DEFAULT NULL,
+  `service_dest_id` int(10) unsigned DEFAULT NULL,
+  `module_dest_id` int(10) unsigned DEFAULT NULL,
+  `database_dest_id` int(10) unsigned DEFAULT NULL,
+  `crypted` tinyint(1) DEFAULT NULL,
+  `bidirectional` tinyint(1) DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `application_source_fk_1485545` (`application_source_id`),
+  KEY `service_source_fk_1485546` (`service_source_id`),
+  KEY `module_source_fk_1485547` (`module_source_id`),
+  KEY `database_source_fk_1485548` (`database_source_id`),
+  KEY `application_dest_fk_1485549` (`application_dest_id`),
+  KEY `service_dest_fk_1485550` (`service_dest_id`),
+  KEY `module_dest_fk_1485551` (`module_dest_id`),
+  KEY `database_dest_fk_1485552` (`database_dest_id`),
+  CONSTRAINT `application_dest_fk_1485549` FOREIGN KEY (`application_dest_id`) REFERENCES `applications` (`id`),
+  CONSTRAINT `application_source_fk_1485545` FOREIGN KEY (`application_source_id`) REFERENCES `applications` (`id`),
+  CONSTRAINT `database_dest_fk_1485552` FOREIGN KEY (`database_dest_id`) REFERENCES `databases` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `database_source_fk_1485548` FOREIGN KEY (`database_source_id`) REFERENCES `databases` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `module_dest_fk_1485551` FOREIGN KEY (`module_dest_id`) REFERENCES `application_modules` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `module_source_fk_1485547` FOREIGN KEY (`module_source_id`) REFERENCES `application_modules` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `service_dest_fk_1485550` FOREIGN KEY (`service_dest_id`) REFERENCES `application_services` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `service_source_fk_1485546` FOREIGN KEY (`service_source_id`) REFERENCES `application_services` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `application_logical_server`;
@@ -939,7 +979,7 @@ CREATE TABLE `domain_forest_ad` (
   `forest_ad_id` int(10) unsigned NOT NULL,
   `domain_id` int(10) unsigned NOT NULL,
   KEY `forest_ad_id_fk_1492084` (`forest_ad_id`),
-  KEY `domain_id_fk_1492084` (`domain_id`),
+  KEY `domaine_ad_id_fk_1492084` (`domain_id`),
   CONSTRAINT `domain_id_fk_1492084` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
   CONSTRAINT `forest_ad_id_fk_1492084` FOREIGN KEY (`forest_ad_id`) REFERENCES `forest_ads` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -1049,63 +1089,6 @@ CREATE TABLE `external_connected_entity_subnetwork` (
   KEY `subnetwork_idx_4343848` (`subnetwork_id`),
   CONSTRAINT `external_connected_entity_id_fk_4302049` FOREIGN KEY (`external_connected_entity_id`) REFERENCES `external_connected_entities` (`id`) ON DELETE CASCADE,
   CONSTRAINT `subnetwork_id_fk_09848239` FOREIGN KEY (`subnetwork_id`) REFERENCES `subnetworks` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `flux_information`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `flux_information` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `flux_id` int(10) unsigned NOT NULL,
-  `information_id` int(10) unsigned NOT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `flux_information_flux_id_information_id_unique` (`flux_id`,`information_id`),
-  KEY `flux_information_information_id_foreign` (`information_id`),
-  CONSTRAINT `flux_information_flux_id_foreign` FOREIGN KEY (`flux_id`) REFERENCES `fluxes` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `flux_information_information_id_foreign` FOREIGN KEY (`information_id`) REFERENCES `information` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `fluxes`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `fluxes` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) NOT NULL,
-  `nature` varchar(255) DEFAULT NULL,
-  `attributes` varchar(255) DEFAULT NULL,
-  `description` longtext DEFAULT NULL,
-  `application_source_id` int(10) unsigned DEFAULT NULL,
-  `service_source_id` int(10) unsigned DEFAULT NULL,
-  `module_source_id` int(10) unsigned DEFAULT NULL,
-  `database_source_id` int(10) unsigned DEFAULT NULL,
-  `application_dest_id` int(10) unsigned DEFAULT NULL,
-  `service_dest_id` int(10) unsigned DEFAULT NULL,
-  `module_dest_id` int(10) unsigned DEFAULT NULL,
-  `database_dest_id` int(10) unsigned DEFAULT NULL,
-  `crypted` tinyint(1) DEFAULT NULL,
-  `bidirectional` tinyint(1) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT NULL,
-  `updated_at` timestamp NULL DEFAULT NULL,
-  `deleted_at` timestamp NULL DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `application_source_fk_1485545` (`application_source_id`),
-  KEY `service_source_fk_1485546` (`service_source_id`),
-  KEY `module_source_fk_1485547` (`module_source_id`),
-  KEY `database_source_fk_1485548` (`database_source_id`),
-  KEY `application_dest_fk_1485549` (`application_dest_id`),
-  KEY `service_dest_fk_1485550` (`service_dest_id`),
-  KEY `module_dest_fk_1485551` (`module_dest_id`),
-  KEY `database_dest_fk_1485552` (`database_dest_id`),
-  CONSTRAINT `application_dest_fk_1485549` FOREIGN KEY (`application_dest_id`) REFERENCES `applications` (`id`),
-  CONSTRAINT `application_source_fk_1485545` FOREIGN KEY (`application_source_id`) REFERENCES `applications` (`id`),
-  CONSTRAINT `database_dest_fk_1485552` FOREIGN KEY (`database_dest_id`) REFERENCES `databases` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `database_source_fk_1485548` FOREIGN KEY (`database_source_id`) REFERENCES `databases` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `module_dest_fk_1485551` FOREIGN KEY (`module_dest_id`) REFERENCES `application_modules` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `module_source_fk_1485547` FOREIGN KEY (`module_source_id`) REFERENCES `application_modules` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `service_dest_fk_1485550` FOREIGN KEY (`service_dest_id`) REFERENCES `application_services` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `service_source_fk_1485546` FOREIGN KEY (`service_source_id`) REFERENCES `application_services` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `forest_ads`;
@@ -2656,5 +2639,9 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (327,'2026_05_03_18
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (328,'2026_05_03_192017_rename_m_application_id_in_application_events',27);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (329,'2026_05_03_193002_rename_m_application_permissions',28);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (330,'2026_05_03_230714_consolidate_application_permissions',29);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (331,'2026_05_08_182110_rename_domaine_ads_to_domaines',30);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (332,'2026_05_08_200000_rename_domaines_to_domains',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (331,'2026_05_03_234356_drop_application_cartographer_table',30);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (332,'2026_05_07_215942_rename_fluxes_to_application_flows',31);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (333,'2026_05_08_120804_rename_flux_information_to_application_flow_information',32);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (336,'2026_05_08_182110_rename_domaine_ads_to_domaines',33);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (337,'2026_05_08_200000_rename_domaines_to_domains',33);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (340,'2026_05_08_212557_rename_domaines_to_domains',34);
