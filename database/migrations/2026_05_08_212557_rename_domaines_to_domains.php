@@ -24,47 +24,49 @@ return new class extends Migration
 
     public function up(): void
     {
-        // Support both legacy table names (domaine_ads or domaines)
-        $sourceTable   = 'domaine_ads';
-        $sourcePivot   = 'domaine_ad_forest_ad';
-        $sourceFkCol   = 'domaine_ad_id';
-        $sourcePivotFk = 'domaine_ad_id_fk_1492084';
+        if (Schema::hasTable('domaine_ads')) {
+            // Support both legacy table names (domaine_ads or domaines)
+            $sourceTable = 'domaine_ads';
+            $sourcePivot = 'domaine_ad_forest_ad';
+            $sourceFkCol = 'domaine_ad_id';
+            $sourcePivotFk = 'domaine_ad_id_fk_1492084';
 
-        // Drop FKs referencing the source table
-        $this->dropForeignIfExists('admin_users',    'domain_id_fk_69385935');
-        $this->dropForeignIfExists('logical_servers', 'domain_id_fk_493844');
-        $this->dropForeignIfExists('workstations',   'workstations_domain_id_foreign');
-        $this->dropForeignIfExists($sourcePivot,      $sourcePivotFk);
+            // Drop FKs referencing the source table
+            $this->dropForeignIfExists('admin_users', 'domain_id_fk_69385935');
+            $this->dropForeignIfExists('logical_servers', 'domain_id_fk_493844');
+            $this->dropForeignIfExists('workstations', 'workstations_domain_id_foreign');
+            $this->dropForeignIfExists($sourcePivot, $sourcePivotFk);
 
-        // Rename main table → domains
-        Schema::rename($sourceTable, 'domains');
+            // Rename main table → domains
+            Schema::rename($sourceTable, 'domains');
 
-        // Rename pivot table + FK column → domain_forest_ad / domain_id
-        Schema::rename($sourcePivot, 'domain_forest_ad');
-        Schema::table('domain_forest_ad', function (Blueprint $t) use ($sourceFkCol): void {
-            $t->renameColumn($sourceFkCol, 'domain_id');
-        });
+            // Rename pivot table + FK column → domain_forest_ad / domain_id
+            Schema::rename($sourcePivot, 'domain_forest_ad');
+            Schema::table('domain_forest_ad', function (Blueprint $t) use ($sourceFkCol): void {
+                $t->renameColumn($sourceFkCol, 'domain_id');
+            });
 
-        // Restore FKs pointing to domains
-        Schema::table('admin_users', function (Blueprint $t): void {
-            $t->foreign('domain_id', 'domain_id_fk_69385935')
-                ->references('id')->on('domains')
-                ->onUpdate('NO ACTION')->onDelete('CASCADE');
-        });
-        Schema::table('logical_servers', function (Blueprint $t): void {
-            $t->foreign('domain_id', 'domain_id_fk_493844')
-                ->references('id')->on('domains')
-                ->onUpdate('NO ACTION')->onDelete('SET NULL');
-        });
-        Schema::table('workstations', function (Blueprint $t): void {
-            $t->foreign('domain_id', 'workstations_domain_id_foreign')
-                ->references('id')->on('domains');
-        });
-        Schema::table('domain_forest_ad', function (Blueprint $t): void {
-            $t->foreign('domain_id', 'domain_id_fk_1492084')
-                ->references('id')->on('domains')
-                ->onUpdate('NO ACTION')->onDelete('CASCADE');
-        });
+            // Restore FKs pointing to domains
+            Schema::table('admin_users', function (Blueprint $t): void {
+                $t->foreign('domain_id', 'domain_id_fk_69385935')
+                    ->references('id')->on('domains')
+                    ->onUpdate('NO ACTION')->onDelete('CASCADE');
+            });
+            Schema::table('logical_servers', function (Blueprint $t): void {
+                $t->foreign('domain_id', 'domain_id_fk_493844')
+                    ->references('id')->on('domains')
+                    ->onUpdate('NO ACTION')->onDelete('SET NULL');
+            });
+            Schema::table('workstations', function (Blueprint $t): void {
+                $t->foreign('domain_id', 'workstations_domain_id_foreign')
+                    ->references('id')->on('domains');
+            });
+            Schema::table('domain_forest_ad', function (Blueprint $t): void {
+                $t->foreign('domain_id', 'domain_id_fk_1492084')
+                    ->references('id')->on('domains')
+                    ->onUpdate('NO ACTION')->onDelete('CASCADE');
+            });
+        }
     }
 
     public function down(): void
