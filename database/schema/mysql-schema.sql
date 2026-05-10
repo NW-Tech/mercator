@@ -2642,6 +2642,4 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (330,'2026_05_03_23
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (331,'2026_05_03_234356_drop_application_cartographer_table',30);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (332,'2026_05_07_215942_rename_fluxes_to_application_flows',31);
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (333,'2026_05_08_120804_rename_flux_information_to_application_flow_information',32);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (336,'2026_05_08_182110_rename_domaine_ads_to_domaines',33);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (337,'2026_05_08_200000_rename_domaines_to_domains',33);
-INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (340,'2026_05_08_212557_rename_domaines_to_domains',34);
+INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES (334,'2026_05_08_212557_rename_domaines_to_domains',33);
