@@ -364,20 +364,20 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     // Reporting
     Route::put('report/cartography', [Admin\CartographyController::class, 'cartography'])->name('report.cartography');
     Route::get('report/entities', [Report\EntityList::class, 'generateExcel'])->name('report.entities');
-    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generateExcel'])->name('report.applicationsByBlocks');
+    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generate'])->name('report.applicationsByBlocks');
     Route::get('report/directory', [Report\Directory::class, 'generateDocx'])->name('report.directory');
-    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generateExcel'])->name('report.logicalServers');
+    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generate'])->name('report.logicalServers');
     Route::get('report/backups', [Report\BackupList::class, 'generateExcel'])->name('report.backups');
-    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generateExcel'])->name('report.securityNeeds');
-    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generateExcel'])->name('report.logicalServerConfigs');
-    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generateExcel'])->name('report.externalAccess');
-    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generateExcel'])->name('report.physicalInventory');
-    Route::get('report/vlans', [Report\VLANList::class, 'generateExcel'])->name('report.vlans');
-    Route::get('report/workstations', [Report\WorkstationList::class, 'generateExcel'])->name('report.workstations');
+    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generate'])->name('report.securityNeeds');
+    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generate'])->name('report.logicalServerConfigs');
+    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generate'])->name('report.externalAccess');
+    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generate'])->name('report.physicalInventory');
+    Route::get('report/vlans', [Report\VLANList::class, 'generate'])->name('report.vlans');
+    Route::get('report/workstations', [Report\WorkstationList::class, 'generate'])->name('report.workstations');
     Route::get('report/cve', [Admin\CVEController::class, 'list'])->name('report.view.cve');
 
     // GDPR
-    Route::get('report/activityList', [Report\ActivityList::class, 'generateExcel'])->name('report.activityList');
+    Route::get('report/activityList', [Report\ActivityList::class, 'generate'])->name('report.activityList');
     Route::get('report/activityReport', [Report\ActivityReport::class, 'generateDocx'])->name('report.activityReport');
 
     // CPE

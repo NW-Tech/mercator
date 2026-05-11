@@ -5,12 +5,17 @@ namespace App\Http\Controllers\Report;
 use App\Models\ApplicationBlock;
 use Carbon\Carbon;
 use Gate;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApplicationList extends ReportController
 {
-    public function generateExcel()
+    /**
+     * @throws Exception
+     */
+    public function generate(Request $request)
     {
         abort_if(Gate::denies('reports_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
@@ -191,11 +196,14 @@ class ApplicationList extends ReportController
             }
         }
 
-        // $writer = new \PhpOffice\PhpSpreadsheet\Writer\Ods($spreadsheet);
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-
-        // $path = storage_path('app/applications-'. Carbon::today()->format('Ymd') .'.ods');
-        $path = storage_path('app/applications-'.Carbon::today()->format('Ymd').'.xlsx');
+        if($request->get('format') == 'csv') {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheet);
+            $path = storage_path('app/applications-'.Carbon::today()->format('Ymd').'.csv');
+        }
+        else {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $path = storage_path('app/applications-'.Carbon::today()->format('Ymd').'.xlsx');
+        }
 
         $writer->save($path);
 
