@@ -6,12 +6,15 @@ use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Gate;
 use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Writer\Csv;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -33,7 +36,10 @@ class CVEController extends Controller
         return view('admin.cve.show', compact('cpe', 'cves'));
     }
 
-    public function list()
+    /**
+     * @throws Exception
+     */
+    public function list(Request $request) : Response
     {
         abort_if(Gate::denies('reports_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
@@ -173,8 +179,15 @@ class CVEController extends Controller
             usleep(20000); // 20 ms
         }
 
-        $writer = new Xlsx($spreadsheet);
-        $path = storage_path('app/cve-'.Carbon::today()->format('Ymd').'.xlsx');
+        if ($request->get('format') === 'csv') {
+            $writer = new Csv($spreadsheet);
+            $path = storage_path('app/cve-' . Carbon::today()->format('Ymd') . '.csv');
+        }
+        else {
+            $writer = new Xlsx($spreadsheet);
+            $path = storage_path('app/cve-'.Carbon::today()->format('Ymd').'.xlsx');
+        }
+
         $writer->save($path);
 
         Log::debug('CVEReport - Done.');
