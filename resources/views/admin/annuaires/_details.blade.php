@@ -1,3 +1,7 @@
+@props([
+    'annuaire',
+    'withLink' => false,
+])
 <table class="table table-bordered table-striped table-report" id="{{ $annuaire->getUID() }}">
     <tbody>
         <tr>
@@ -5,7 +9,11 @@
                 {{ trans('cruds.annuaire.fields.name') }}
             </th>
             <td>
+            @if ($withLink)
+            <a href="{{ route('admin.annuaires.show', $annuaire->id) }}">{{ $annuaire->name }}</a>
+            @else
                 {{ $annuaire->name }}
+            @endif
             </td>
         </tr>
         <tr>

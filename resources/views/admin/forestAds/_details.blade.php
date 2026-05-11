@@ -1,11 +1,19 @@
-<table class="table table-bordered table-striped">
+@props([
+    'forestAd',
+    'withLink' => false,
+])
+<table class="table table-bordered table-striped" id="{{ $forestAd->getUID() }}">
     <tbody>
         <tr>
             <th width='10%'>
                 {{ trans('cruds.forestAd.fields.name') }}
             </th>
             <td>
+            @if ($withLink)
+                <a href="{{ route('admin.forest-ads.show', $forestAd->id) }}">{{ $forestAd->name }}</a>
+            @else
                 {{ $forestAd->name }}
+            @endif
             </td>
         </tr>
         <tr>

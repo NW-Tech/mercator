@@ -1,3 +1,7 @@
+@props([
+    'domain',
+    'withLink' => false,
+])
 <table class="table table-bordered table-striped table-report" id="{{ $domain->getUID() }}">
     <tbody>
         <tr>
@@ -5,7 +9,11 @@
                 {{ trans('cruds.domaine.fields.name') }}
             </th>
             <td>
+            @if ($withLink)
+                <a href="{{ route('admin.domains.show', $domain->id) }}">{{ $domain->name }}</a>
+            @else
                 {{ $domain->name }}
+            @endif
             </td>
         </tr>
         <tr>

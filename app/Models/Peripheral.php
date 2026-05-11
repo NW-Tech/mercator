@@ -31,7 +31,6 @@ class Peripheral extends Model implements HasIconContract, HasPrefix
     public static array $searchable = [
         'name',
         'type',
-        'icon_id',
         'description',
         'responsible',
         'address_ip',
