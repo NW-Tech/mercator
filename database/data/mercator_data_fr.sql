@@ -53,13 +53,13 @@ LOCK TABLES `activity_impact` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `activity_m_application`
+-- Dumping data for table `activity_application`
 --
 
-LOCK TABLES `activity_m_application` WRITE;
-/*!40000 ALTER TABLE `activity_m_application` DISABLE KEYS */;
-INSERT INTO `activity_m_application` (`m_application_id`, `activity_id`) VALUES (1,9);
-/*!40000 ALTER TABLE `activity_m_application` ENABLE KEYS */;
+LOCK TABLES `activity_application` WRITE;
+/*!40000 ALTER TABLE `activity_application` DISABLE KEYS */;
+INSERT INTO `activity_application` (`application_id`, `activity_id`) VALUES (1,9);
+/*!40000 ALTER TABLE `activity_application` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -133,12 +133,12 @@ INSERT INTO `actors` (`id`, `name`, `nature`, `type`, `contact`, `created_at`, `
 UNLOCK TABLES;
 
 --
--- Dumping data for table `admin_user_m_application`
+-- Dumping data for table `admin_user_application`
 --
 
-LOCK TABLES `admin_user_m_application` WRITE;
-/*!40000 ALTER TABLE `admin_user_m_application` DISABLE KEYS */;
-/*!40000 ALTER TABLE `admin_user_m_application` ENABLE KEYS */;
+LOCK TABLES `admin_user_application` WRITE;
+/*!40000 ALTER TABLE `admin_user_application` DISABLE KEYS */;
+/*!40000 ALTER TABLE `admin_user_application` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -199,12 +199,12 @@ LOCK TABLES `application_modules` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `application_service_m_application`
+-- Dumping data for table `application_application_service`
 --
 
-LOCK TABLES `application_service_m_application` WRITE;
-/*!40000 ALTER TABLE `application_service_m_application` DISABLE KEYS */;
-/*!40000 ALTER TABLE `application_service_m_application` ENABLE KEYS */;
+LOCK TABLES `application_application_service` WRITE;
+/*!40000 ALTER TABLE `application_application_service` DISABLE KEYS */;
+/*!40000 ALTER TABLE `application_application_service` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -266,15 +266,6 @@ INSERT INTO `buildings` (`id`, `name`, `type`, `description`, `attributes`, `sit
 UNLOCK TABLES;
 
 --
--- Dumping data for table `cartographer_m_application`
---
-
-LOCK TABLES `cartographer_m_application` WRITE;
-/*!40000 ALTER TABLE `cartographer_m_application` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cartographer_m_application` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Dumping data for table `certificate_logical_server`
 --
 
@@ -284,12 +275,12 @@ LOCK TABLES `certificate_logical_server` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `certificate_m_application`
+-- Dumping data for table `application_certificate`
 --
 
-LOCK TABLES `certificate_m_application` WRITE;
-/*!40000 ALTER TABLE `certificate_m_application` DISABLE KEYS */;
-/*!40000 ALTER TABLE `certificate_m_application` ENABLE KEYS */;
+LOCK TABLES `application_certificate` WRITE;
+/*!40000 ALTER TABLE `application_certificate` DISABLE KEYS */;
+/*!40000 ALTER TABLE `application_certificate` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -371,12 +362,12 @@ LOCK TABLES `container_logical_server` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `container_m_application`
+-- Dumping data for table `application_container`
 --
 
-LOCK TABLES `container_m_application` WRITE;
-/*!40000 ALTER TABLE `container_m_application` DISABLE KEYS */;
-/*!40000 ALTER TABLE `container_m_application` ENABLE KEYS */;
+LOCK TABLES `application_container` WRITE;
+/*!40000 ALTER TABLE `application_container` DISABLE KEYS */;
+/*!40000 ALTER TABLE `application_container` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -396,7 +387,7 @@ LOCK TABLES `data_processing` WRITE;
 /*!40000 ALTER TABLE `data_processing` DISABLE KEYS */;
 INSERT INTO `data_processing` (`id`, `name`, `legal_basis`, `description`, `responsible`, `purpose`, `categories`, `recipients`, `transfert`, `retention`, `controls`, `created_at`, `updated_at`, `deleted_at`) VALUES (1,'User account management','Obligation légale / Intérêt légitime.','<p>Creation, modification and deletion of IT accounts for access to internal digital services.</p>','<p>Information Systems Manager.</p>','<p>Information system access rights management.</p>','<p>Internal staff (employees, trainees).<br>Technical provider</p>','<p>Internal IT team<br>DPO<br>IAM provider</p>','<p>No transfers outside the EU.</p>','<p>1 year after end of contract or departure of user.</p>',NULL,'2025-06-14 10:55:47','2025-06-16 04:36:28',NULL),
 (2,'Traçabilité, détection et gestion des incidents de cybersécurité','Obligation légale / Intérêt légitime.','<p>Enregistrement et analyse des incidents ou anomalies affectant la sécurité du SI (ex. : tentative d’intrusion, compromission de compte).</p>','<p>Responsable de la sécurité des systèmes d\'information (RSSI).</p>','<p>Traçabilité, détection et gestion des incidents de cybersécurité.</p>','<ul><li>RSSI, DSI (catégorie : <strong>Service interne</strong>)</li><li>Prestataires de cybersécurité (catégorie : <strong>Prestataire technique</strong>)</li><li>Autorités compétentes en cas de notification (catégorie : <strong>Autorité publique</strong>)</li></ul>','<p>RSSI, DSI, prestataires de cybersécurité.</p>','<p>Aucun, sauf réquisition judiciaire avec coopération internationale.</p>','<p>Trois ans après la clôture de l’incident.</p>',NULL,'2025-06-14 10:56:18','2025-06-14 11:01:37',NULL),
-(3,'Information system analysis (mapping)','Intérêt légitime.','<p>Gathering and structuring information on assets, their flows and those responsible for them, as part of a risk management approach.Information systems manager.</p>','<p>Information Systems Manager.</p>','<p>Referencing and analysis of IS components for security, audit and compliance purposes.</p>','<p>In-house<br>Authorized third-party service provider</p>','<p>IT team<br>CISO, internal auditors<br>External auditors<br>&nbsp;</p>','<p>None.</p>','<p>Data retained as long as the asset is present in the IS.</p>',NULL,'2025-06-14 11:12:15','2025-06-16 04:34:29',NULL),
+(3,'Information system analysis (mapping)','Intérêt légitime.','<p>Gathering and structuring information on assets, their application_flows and those responsible for them, as part of a risk management approach.Information systems manager.</p>','<p>Information Systems Manager.</p>','<p>Referencing and analysis of IS components for security, audit and compliance purposes.</p>','<p>In-house<br>Authorized third-party service provider</p>','<p>IT team<br>CISO, internal auditors<br>External auditors<br>&nbsp;</p>','<p>None.</p>','<p>Data retained as long as the asset is present in the IS.</p>',NULL,'2025-06-14 11:12:15','2025-06-16 04:34:29',NULL),
 (4,'Computerized patient record (CPR) management','Mission d’intérêt public','<p>Record, update and consult patient health data relating to the care provided by the facility (diagnoses, prescriptions, reports, imaging, etc.).</p>','<p>Hospital Director / Medical Director.</p>','<p>Provide medical and administrative care for patients.</p>','<ul><li>&nbsp;Service interne habilité</li><li>&nbsp;Service interne</li><li>Prestataire technique habilité</li><li>Organismes publics ou privés autorisés</li><li>Autorité publique</li></ul>','<ul><li>Professionnels de santé (médecins, infirmiers, secrétaires médicales) – <strong>Catégorie</strong> :</li><li>Services administratifs internes (facturation, admissions) – <strong>Catégorie</strong> :</li><li>Hébergeur de données de santé agréé (HDS) – <strong>Catégorie</strong> :&nbsp;</li><li>Organismes de sécurité sociale, mutuelles – <strong>Catégorie</strong> :&nbsp;</li><li>Autorités de santé (ARS, CNAM, etc.) – <strong>Catégorie</strong> :&nbsp;</li></ul>','<p>Toutes les données sont hébergées chez un prestataire certifié HDS situé au Luxembourg ou dans l’UE.</p>','<p>20 ans après la dernière prise en charge (Code de la santé publique, art. R1112-7)</p>',NULL,'2025-06-14 11:15:41','2025-06-16 04:37:57',NULL);
 /*!40000 ALTER TABLE `data_processing` ENABLE KEYS */;
 UNLOCK TABLES;
@@ -428,12 +419,12 @@ INSERT INTO `data_processing_information` (`data_processing_id`, `information_id
 UNLOCK TABLES;
 
 --
--- Dumping data for table `data_processing_m_application`
+-- Dumping data for table `application_data_processing`
 --
 
-LOCK TABLES `data_processing_m_application` WRITE;
-/*!40000 ALTER TABLE `data_processing_m_application` DISABLE KEYS */;
-INSERT INTO `data_processing_m_application` (`data_processing_id`, `m_application_id`) VALUES (4,1),
+LOCK TABLES `application_data_processing` WRITE;
+/*!40000 ALTER TABLE `application_data_processing` DISABLE KEYS */;
+INSERT INTO `application_data_processing` (`data_processing_id`, `application_id`) VALUES (4,1),
 (1,13),
 (3,6),
 (3,3),
@@ -465,7 +456,7 @@ INSERT INTO `data_processing_m_application` (`data_processing_id`, `m_applicatio
 (2,9),
 (2,11),
 (2,13);
-/*!40000 ALTER TABLE `data_processing_m_application` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_data_processing` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -575,18 +566,18 @@ INSERT INTO `database_logical_server` (`database_id`, `logical_server_id`) VALUE
 UNLOCK TABLES;
 
 --
--- Dumping data for table `database_m_application`
+-- Dumping data for table `application_database`
 --
 
-LOCK TABLES `database_m_application` WRITE;
-/*!40000 ALTER TABLE `database_m_application` DISABLE KEYS */;
-INSERT INTO `database_m_application` (`m_application_id`, `database_id`) VALUES (1,1),
+LOCK TABLES `application_database` WRITE;
+/*!40000 ALTER TABLE `application_database` DISABLE KEYS */;
+INSERT INTO `application_database` (`application_id`, `database_id`) VALUES (1,1),
 (3,2),
 (2,3),
 (12,3),
 (1,4),
 (5,4);
-/*!40000 ALTER TABLE `database_m_application` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_database` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -665,7 +656,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `domain_forest_ad` WRITE;
 /*!40000 ALTER TABLE `domain_forest_ad` DISABLE KEYS */;
-INSERT INTO `domain_forest_ad` (`forest_ad_id`, `domaine_id`) VALUES (1,1);
+INSERT INTO `domain_forest_ad` (`forest_ad_id`, `domain_id`) VALUES (1,1);
 /*!40000 ALTER TABLE `domain_forest_ad` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -715,12 +706,12 @@ LOCK TABLES `entity_document` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `entity_m_application`
+-- Dumping data for table `application_entity`
 --
 
-LOCK TABLES `entity_m_application` WRITE;
-/*!40000 ALTER TABLE `entity_m_application` DISABLE KEYS */;
-INSERT INTO `entity_m_application` (`m_application_id`, `entity_id`) VALUES (3,3),
+LOCK TABLES `application_entity` WRITE;
+/*!40000 ALTER TABLE `application_entity` DISABLE KEYS */;
+INSERT INTO `application_entity` (`application_id`, `entity_id`) VALUES (3,3),
 (4,3),
 (5,4),
 (6,3),
@@ -735,7 +726,7 @@ INSERT INTO `entity_m_application` (`m_application_id`, `entity_id`) VALUES (3,3
 (15,3),
 (2,3),
 (1,3);
-/*!40000 ALTER TABLE `entity_m_application` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_entity` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -814,12 +805,12 @@ LOCK TABLES `external_connected_entity_subnetwork` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `fluxes`
+-- Dumping data for table `application_flows`
 --
 
-LOCK TABLES `fluxes` WRITE;
-/*!40000 ALTER TABLE `fluxes` DISABLE KEYS */;
-INSERT INTO `fluxes` (`id`, `name`, `attributes`, `description`, `application_source_id`, `service_source_id`, `module_source_id`, `database_source_id`, `application_dest_id`, `service_dest_id`, `module_dest_id`, `database_dest_id`, `crypted`, `bidirectional`, `nature`, `created_at`, `updated_at`, `deleted_at`) VALUES (1,'Facturation Médicale',NULL,'<p>Envoie de la facturation aux patients</p>',1,NULL,NULL,NULL,2,NULL,NULL,NULL,0,0,'API','2025-06-12 17:29:15','2025-06-12 17:29:15',NULL),
+LOCK TABLES `application_flows` WRITE;
+/*!40000 ALTER TABLE `application_flows` DISABLE KEYS */;
+INSERT INTO `application_flows` (`id`, `name`, `attributes`, `description`, `application_source_id`, `service_source_id`, `module_source_id`, `database_source_id`, `application_dest_id`, `service_dest_id`, `module_dest_id`, `database_dest_id`, `crypted`, `bidirectional`, `nature`, `created_at`, `updated_at`, `deleted_at`) VALUES (1,'Facturation Médicale',NULL,'<p>Envoie de la facturation aux patients</p>',1,NULL,NULL,NULL,2,NULL,NULL,NULL,0,0,'API','2025-06-12 17:29:15','2025-06-12 17:29:15',NULL),
 (2,'Disponibilité',NULL,'<p>Disponibilité des soignants</p>',4,NULL,NULL,NULL,1,NULL,NULL,NULL,0,0,'API','2025-06-12 17:29:45','2025-06-12 17:29:45',NULL),
 (3,'Gardes',NULL,'<p>Paiement des gardes</p>',4,NULL,NULL,NULL,11,NULL,NULL,NULL,0,0,'API','2025-06-12 17:30:10','2025-06-12 17:30:17',NULL),
 (4,'Prestations Médicales',NULL,'<p>Paiement des prestations</p>',1,NULL,NULL,NULL,11,NULL,NULL,NULL,0,0,'API','2025-06-12 17:30:39','2025-06-12 17:30:39',NULL),
@@ -828,7 +819,7 @@ INSERT INTO `fluxes` (`id`, `name`, `attributes`, `description`, `application_so
 (7,'Synchronisation',NULL,'<p>Ajout suppression des utilisateurs</p>',11,NULL,NULL,NULL,13,NULL,NULL,NULL,0,0,'API','2025-06-12 17:45:07','2025-06-12 17:45:07',NULL),
 (8,'Images',NULL,'<p>Ajouter des données dans le dossier médical</p>',9,NULL,NULL,NULL,1,NULL,NULL,NULL,0,0,'API','2025-06-12 17:46:21','2025-06-12 17:46:21',NULL),
 (9,'Prescriptions',NULL,'<p>Gestion des prescriptions medicales</p>',10,NULL,NULL,NULL,1,NULL,NULL,NULL,0,0,'API','2025-06-12 17:47:42','2025-06-12 17:47:42',NULL);
-/*!40000 ALTER TABLE `fluxes` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_flows` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1025,21 +1016,12 @@ LOCK TABLES `lans` WRITE;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `logical_flows`
+-- Dumping data for table `application_logical_server`
 --
 
-LOCK TABLES `logical_flows` WRITE;
-/*!40000 ALTER TABLE `logical_flows` DISABLE KEYS */;
-/*!40000 ALTER TABLE `logical_flows` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `logical_server_m_application`
---
-
-LOCK TABLES `logical_server_m_application` WRITE;
-/*!40000 ALTER TABLE `logical_server_m_application` DISABLE KEYS */;
-INSERT INTO `logical_server_m_application` (`m_application_id`, `logical_server_id`) VALUES (2,2),
+LOCK TABLES `application_logical_server` WRITE;
+/*!40000 ALTER TABLE `application_logical_server` DISABLE KEYS */;
+INSERT INTO `application_logical_server` (`application_id`, `logical_server_id`) VALUES (2,2),
 (3,1),
 (4,2),
 (5,2),
@@ -1052,7 +1034,7 @@ INSERT INTO `logical_server_m_application` (`m_application_id`, `logical_server_
 (13,3),
 (3,7),
 (1,1);
-/*!40000 ALTER TABLE `logical_server_m_application` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_logical_server` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1084,40 +1066,40 @@ INSERT INTO `logical_servers` (`id`, `name`, `icon_id`, `type`, `active`, `descr
 UNLOCK TABLES;
 
 --
--- Dumping data for table `m_application_events`
+-- Dumping data for table `application_events`
 --
 
-LOCK TABLES `m_application_events` WRITE;
-/*!40000 ALTER TABLE `m_application_events` DISABLE KEYS */;
-/*!40000 ALTER TABLE `m_application_events` ENABLE KEYS */;
+LOCK TABLES `application_events` WRITE;
+/*!40000 ALTER TABLE `application_events` DISABLE KEYS */;
+/*!40000 ALTER TABLE `application_events` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `m_application_peripheral`
+-- Dumping data for table `application_peripheral`
 --
 
-LOCK TABLES `m_application_peripheral` WRITE;
-/*!40000 ALTER TABLE `m_application_peripheral` DISABLE KEYS */;
-/*!40000 ALTER TABLE `m_application_peripheral` ENABLE KEYS */;
+LOCK TABLES `application_peripheral` WRITE;
+/*!40000 ALTER TABLE `application_peripheral` DISABLE KEYS */;
+/*!40000 ALTER TABLE `application_peripheral` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `m_application_physical_server`
+-- Dumping data for table `application_physical_server`
 --
 
-LOCK TABLES `m_application_physical_server` WRITE;
-/*!40000 ALTER TABLE `m_application_physical_server` DISABLE KEYS */;
-INSERT INTO `m_application_physical_server` (`m_application_id`, `physical_server_id`) VALUES (2,1);
-/*!40000 ALTER TABLE `m_application_physical_server` ENABLE KEYS */;
+LOCK TABLES `application_physical_server` WRITE;
+/*!40000 ALTER TABLE `application_physical_server` DISABLE KEYS */;
+INSERT INTO `application_physical_server` (`application_id`, `physical_server_id`) VALUES (2,1);
+/*!40000 ALTER TABLE `application_physical_server` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `m_application_process`
+-- Dumping data for table `application_process`
 --
 
-LOCK TABLES `m_application_process` WRITE;
-/*!40000 ALTER TABLE `m_application_process` DISABLE KEYS */;
-INSERT INTO `m_application_process` (`m_application_id`, `process_id`) VALUES (1,11),
+LOCK TABLES `application_process` WRITE;
+/*!40000 ALTER TABLE `application_process` DISABLE KEYS */;
+INSERT INTO `application_process` (`application_id`, `process_id`) VALUES (1,11),
 (1,18),
 (2,11),
 (3,24),
@@ -1144,16 +1126,16 @@ INSERT INTO `m_application_process` (`m_application_id`, `process_id`) VALUES (1
 (15,32),
 (15,33),
 (15,39);
-/*!40000 ALTER TABLE `m_application_process` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_process` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `m_application_workstation`
+-- Dumping data for table `application_workstation`
 --
 
-LOCK TABLES `m_application_workstation` WRITE;
-/*!40000 ALTER TABLE `m_application_workstation` DISABLE KEYS */;
-INSERT INTO `m_application_workstation` (`m_application_id`, `workstation_id`) VALUES (1,2),
+LOCK TABLES `application_workstation` WRITE;
+/*!40000 ALTER TABLE `application_workstation` DISABLE KEYS */;
+INSERT INTO `application_workstation` (`application_id`, `workstation_id`) VALUES (1,2),
 (1,3),
 (1,4),
 (1,5),
@@ -1182,16 +1164,16 @@ INSERT INTO `m_application_workstation` (`m_application_id`, `workstation_id`) V
 (14,10),
 (15,7),
 (14,7);
-/*!40000 ALTER TABLE `m_application_workstation` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_workstation` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `m_applications`
+-- Dumping data for table `applications`
 --
 
-LOCK TABLES `m_applications` WRITE;
-/*!40000 ALTER TABLE `m_applications` DISABLE KEYS */;
-INSERT INTO `m_applications` (`id`, `name`, `description`, `vendor`, `product`, `security_need_c`, `security_need_i`, `security_need_a`, `security_need_t`, `security_need_auth`, `responsible`, `functional_referent`, `type`, `icon_id`, `technology`, `external`, `users`, `editor`, `entity_resp_id`, `application_block_id`, `documentation`, `version`, `rto`, `rpo`, `install_date`, `update_date`, `attributes`, `patching_frequency`, `next_update`, `created_at`, `updated_at`, `deleted_at`) VALUES (1,'Dossier Médical','<p>Logiciel de gestion des dossier médicaux</p>',NULL,NULL,4,4,4,4,NULL,'Pierre','Jean','Fat Client',NULL,'Web','Internal','> 100','Tech24',15,3,'//documentation/dossier_medical',NULL,60,240,'2025-01-01',NULL,'',NULL,NULL,'2025-06-10 10:05:14','2025-06-18 08:28:48',NULL),
+LOCK TABLES `applications` WRITE;
+/*!40000 ALTER TABLE `applications` DISABLE KEYS */;
+INSERT INTO `applications` (`id`, `name`, `description`, `vendor`, `product`, `security_need_c`, `security_need_i`, `security_need_a`, `security_need_t`, `security_need_auth`, `responsible`, `functional_referent`, `type`, `icon_id`, `technology`, `external`, `users`, `editor`, `entity_resp_id`, `application_block_id`, `documentation`, `version`, `rto`, `rpo`, `install_date`, `update_date`, `attributes`, `patching_frequency`, `next_update`, `created_at`, `updated_at`, `deleted_at`) VALUES (1,'Dossier Médical','<p>Logiciel de gestion des dossier médicaux</p>',NULL,NULL,4,4,4,4,NULL,'Pierre','Jean','Fat Client',NULL,'Web','Internal','> 100','Tech24',15,3,'//documentation/dossier_medical',NULL,60,240,'2025-01-01',NULL,'',NULL,NULL,'2025-06-10 10:05:14','2025-06-18 08:28:48',NULL),
 (2,'Compta+','<p>Logiciel comptable</p>',NULL,NULL,3,3,3,3,NULL,'Sue','Pierre','Software',NULL,'Web','Internal','10',NULL,13,4,'//Share/Documentation/Compta',NULL,1440,1440,'2025-01-01',NULL,'',NULL,NULL,'2025-06-12 11:56:56','2025-06-12 13:05:59',NULL),
 (3,'Biblio+','<p>Application de gestion des publications médicales</p>',NULL,NULL,1,1,1,1,NULL,'Marc','Marc','Internal',NULL,'Web',NULL,'10',NULL,9,3,NULL,NULL,4320,1440,'2025-01-01',NULL,'',NULL,NULL,'2025-06-12 12:46:36','2025-06-12 13:02:56',NULL),
 (4,'Guard','<p>Gestion des gardes hospitalières</p>',NULL,NULL,2,2,2,2,NULL,'David','Julien','Internal',NULL,'Web','Internal','> 100',NULL,2,5,'//Share/Documentation/Guard',NULL,1440,1440,'2025-01-01',NULL,'',NULL,NULL,'2025-06-12 13:16:32','2025-06-12 13:16:32',NULL),
@@ -1206,7 +1188,7 @@ INSERT INTO `m_applications` (`id`, `name`, `description`, `vendor`, `product`, 
 (13,'SyncAD','<p>Synchronisation de l\'active directory</p>',NULL,NULL,3,3,3,3,NULL,'Marc','Julien','Internal dev',NULL,'Job','Internal','5','OPENHOSP',2,6,'//documentation/jobs',NULL,1440,1440,'2025-01-01',NULL,'',NULL,NULL,'2025-06-12 17:33:13','2025-06-12 17:33:13',NULL),
 (14,'LibreOffice','<p>Text</p>',NULL,NULL,1,1,1,1,NULL,'Carole','Marc',NULL,NULL,NULL,NULL,'> 100','Apache Fundation',2,1,NULL,NULL,1440,1440,NULL,NULL,'',NULL,NULL,'2025-06-14 05:50:17','2025-06-14 05:50:17',NULL),
 (15,'LibreCalc','<p>Feuille de calcul</p>',NULL,NULL,1,1,1,1,NULL,'Carole','Marc',NULL,NULL,NULL,NULL,'> 100','Apache Fundation',2,1,NULL,NULL,1440,1440,NULL,NULL,'',NULL,NULL,'2025-06-14 05:51:20','2025-06-14 05:51:20',NULL);
-/*!40000 ALTER TABLE `m_applications` ENABLE KEYS */;
+/*!40000 ALTER TABLE `applications` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -1534,12 +1516,12 @@ INSERT INTO `routers` (`id`, `name`, `type`, `description`, `rules`, `ip_address
 UNLOCK TABLES;
 
 --
--- Dumping data for table `security_control_m_application`
+-- Dumping data for table `application_security_control`
 --
 
-LOCK TABLES `security_control_m_application` WRITE;
-/*!40000 ALTER TABLE `security_control_m_application` DISABLE KEYS */;
-INSERT INTO `security_control_m_application` (`security_control_id`, `m_application_id`) VALUES (7,6),
+LOCK TABLES `application_security_control` WRITE;
+/*!40000 ALTER TABLE `application_security_control` DISABLE KEYS */;
+INSERT INTO `application_security_control` (`security_control_id`, `application_id`) VALUES (7,6),
 (5,6),
 (6,6),
 (2,6),
@@ -1555,7 +1537,7 @@ INSERT INTO `security_control_m_application` (`security_control_id`, `m_applicat
 (4,1),
 (6,3),
 (8,3);
-/*!40000 ALTER TABLE `security_control_m_application` ENABLE KEYS */;
+/*!40000 ALTER TABLE `application_security_control` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
