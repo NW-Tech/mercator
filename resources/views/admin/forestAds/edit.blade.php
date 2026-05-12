@@ -45,7 +45,7 @@
                     <select class="form-control select2 {{ $errors->has('zone_admin') ? 'is-invalid' : '' }}"
                             name="zone_admin_id" id="zone_admin_id">
                         @foreach($zone_admins as $id => $zone_admin)
-                            <option value="{{ $id }}" {{ ($forestAd->zone_admin ? $forestAd->zone_admin->id : old('zone_admin_id')) == $id ? 'selected' : '' }}>{{ $zone_admin }}</option>
+                            <option value="{{ $id }}" {{ ($forestAd->zoneAdmin ? $forestAd->zoneAdmin->id : old('zone_admin_id')) == $id ? 'selected' : '' }}>{{ $zone_admin }}</option>
                         @endforeach
                     </select>
                     @if($errors->has('zone_admin'))
@@ -56,22 +56,22 @@
                     <span class="help-block">{{ trans('cruds.forestAd.fields.zone_admin_helper') }}</span>
                 </div>
                 <div class="form-group">
-                    <label for="domaines">{{ trans('cruds.forestAd.fields.domaines') }}</label>
+                    <label for="domains">{{ trans('cruds.forestAd.fields.domains') }}</label>
                     <div style="padding-bottom: 4px">
                         <span class="btn btn-info btn-xs select-all"
                               style="border-radius: 0">{{ trans('global.select_all') }}</span>
                         <span class="btn btn-info btn-xs deselect-all"
                               style="border-radius: 0">{{ trans('global.deselect_all') }}</span>
                     </div>
-                    <select class="form-control select2 {{ $errors->has('domaines') ? 'is-invalid' : '' }}"
-                            name="domaines[]" id="domaines" multiple>
-                        @foreach($domaines as $id => $domaines)
-                            <option value="{{ $id }}" {{ (in_array($id, old('domaines', [])) || $forestAd->domaines->contains($id)) ? 'selected' : '' }}>{{ $domaines }}</option>
+                    <select class="form-control select2 {{ $errors->has('domains') ? 'is-invalid' : '' }}"
+                            name="domains[]" id="domains" multiple>
+                        @foreach($domains as $id => $domains)
+                            <option value="{{ $id }}" {{ (in_array($id, old('domains', [])) || $forestAd->domains->contains($id)) ? 'selected' : '' }}>{{ $domains }}</option>
                         @endforeach
                     </select>
-                    @if($errors->has('domaines'))
+                    @if($errors->has('domains'))
                         <div class="invalid-feedback">
-                            {{ $errors->first('domaines') }}
+                            {{ $errors->first('domains') }}
                         </div>
                     @endif
                     <span class="help-block">{{ trans('cruds.forestAd.fields.domaines_helper') }}</span>

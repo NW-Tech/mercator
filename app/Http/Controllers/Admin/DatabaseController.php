@@ -13,7 +13,7 @@ use App\Models\Database;
 use App\Models\Entity;
 use App\Models\Information;
 use App\Models\LogicalServer;
-use App\Models\MApplication;
+use App\Models\Application;
 use Symfony\Component\HttpFoundation\Response;
 
 class DatabaseController extends Controller
@@ -37,7 +37,7 @@ class DatabaseController extends Controller
         $entities = Entity::query()->orderBy('name')->pluck('name', 'id');
         $entity_resps = Entity::query()->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $informations = Information::query()->orderBy('name')->pluck('name', 'id');
-        $applications = MApplication::query()
+        $applications = Application::query()
             ->select('id', 'name')
             ->orderBy('name')
             ->pluck('name', 'id');
@@ -94,7 +94,7 @@ class DatabaseController extends Controller
         $entities = Entity::query()->orderBy('name')->pluck('name', 'id');
         $entity_resps = Entity::query()->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $informations = Information::query()->orderBy('name')->pluck('name', 'id');
-        $applications = MApplication::query()
+        $applications = Application::query()
             ->select('id', 'name')
             ->orderBy('name')
             ->pluck('name', 'id');
@@ -109,7 +109,7 @@ class DatabaseController extends Controller
         $external_list = Database::select('external')->where('external', '<>', null)->distinct()->orderBy('external')->pluck('external');
         $responsible_list = Database::select('responsible')->where('responsible', '<>', null)->distinct()->orderBy('responsible')->pluck('responsible');
 
-        $database->load('entities', 'entity_resp', 'informations', 'applications');
+        $database->load('entities', 'entityResp', 'informations', 'applications');
 
         return view(
             'admin.databases.edit',
@@ -152,7 +152,7 @@ class DatabaseController extends Controller
     {
         abort_if(Gate::denies('database_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $database->load('entities', 'entity_resp', 'informations', 'databaseSourceFluxes', 'databaseDestFluxes', 'applications');
+        $database->load('entities', 'entityResp', 'informations', 'databaseSourceFluxes', 'databaseDestFluxes', 'applications');
 
         return view('admin.databases.show', compact('database'));
     }

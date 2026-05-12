@@ -114,11 +114,11 @@ Route::middleware(['api.protected'])->group(function () {
     Route::delete('databases/mass-destroy', [API\DatabaseController::class, 'massDestroy'])->name('databases.mass-destroy');
     Route::resource('databases', API\DatabaseController::class);
 
-    // Fluxes
-    Route::post('fluxes/mass-store', [API\FluxController::class, 'massStore'])->name('fluxes.mass-store');
-    Route::put('fluxes/mass-update', [API\FluxController::class, 'massUpdate'])->name('fluxes.mass-update');
-    Route::delete('fluxes/mass-destroy', [API\FluxController::class, 'massDestroy'])->name('fluxes.mass-destroy');
-    Route::resource('fluxes', API\FluxController::class);
+    // Application Flows
+    Route::post('application-flows/mass-store', [API\ApplicationFlowController::class, 'massStore'])->name('fluxes.mass-store');
+    Route::put('application-flows/mass-update', [API\ApplicationFlowController::class, 'massUpdate'])->name('fluxes.mass-update');
+    Route::delete('application-flows/mass-destroy', [API\ApplicationFlowController::class, 'massDestroy'])->name('fluxes.mass-destroy');
+    Route::resource('application-flows', API\ApplicationFlowController::class);
 
     // Zone Admins
     Route::post('zone-admins/mass-store', [API\ZoneAdminController::class, 'massStore'])->name('zone-admins.mass-store');
@@ -138,11 +138,11 @@ Route::middleware(['api.protected'])->group(function () {
     Route::delete('forest-ads/mass-destroy', [API\ForestAdController::class, 'massDestroy'])->name('forest-ads.mass-destroy');
     Route::resource('forest-ads', API\ForestAdController::class);
 
-    // Domaine Ads
-    Route::post('domaine-ads/mass-store', [API\DomaineAdController::class, 'massStore'])->name('domaine-ads.mass-store');
-    Route::put('domaine-ads/mass-update', [API\DomaineAdController::class, 'massUpdate'])->name('domaine-ads.mass-update');
-    Route::delete('domaine-ads/mass-destroy', [API\DomaineAdController::class, 'massDestroy'])->name('domaine-ads.mass-destroy');
-    Route::resource('domaine-ads', API\DomaineAdController::class);
+    // Domain Ads
+    Route::post('domains/mass-store', [API\DomainController::class, 'massStore'])->name('domains.mass-store');
+    Route::put('domains/mass-update', [API\DomainController::class, 'massUpdate'])->name('domains.mass-update');
+    Route::delete('domains/mass-destroy', [API\DomainController::class, 'massDestroy'])->name('domains.mass-destroy');
+    Route::resource('domains', API\DomainController::class);
 
     // Admin User
     Route::post('admin-users/mass-store', [API\AdminUserController::class, 'massStore'])->name('admin-users.mass-store');
@@ -361,19 +361,19 @@ Route::middleware(['api.protected'])->group(function () {
     // =======================================
     Route::get('report/cartography', [Admin\CartographyController::class, 'cartography']);
     Route::get('report/entities', [Report\EntityList::class, 'generateExcel']);
-    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generateExcel']);
+    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generate']);
     Route::get('report/directory', [Report\Directory::class, 'generateDocx']);
-    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generateExcel']);
-    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generateExcel']);
-    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generateExcel']);
-    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generateExcel']);
-    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generateExcel']);
-    Route::get('report/vlans', [Report\VLANList::class, 'generateExcel']);
-    Route::get('report/workstations', [Report\WorkstationList::class, 'generateExcel']);
+    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generate']);
+    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generate']);
+    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generate']);
+    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generate']);
+    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generate']);
+    Route::get('report/vlans', [Report\VLANList::class, 'generate']);
+    Route::get('report/workstations', [Report\WorkstationList::class, 'generate']);
     Route::get('report/cve', [Admin\CVEController::class, 'list']);
 
     // GDPR
-    Route::get('report/activityList', [Report\ActivityList::class, 'generateExcel'])->name('report.activityList');
+    Route::get('report/activityList', [Report\ActivityList::class, 'generate'])->name('report.activityList');
     Route::get('report/activityReport', [Report\ActivityReport::class, 'generateDocx'])->name('report.activityReport');
 
     Route::get('report/impacts', [Report\ImpactList::class, 'generateExcel'])->name('report.view.impacts');

@@ -660,23 +660,23 @@ INSERT INTO `documents` (`id`, `filename`, `mimetype`, `size`, `hash`, `deleted_
 UNLOCK TABLES;
 
 --
--- Dumping data for table `domaine_ad_forest_ad`
+-- Dumping data for table `domain_forest_ad`
 --
 
-LOCK TABLES `domaine_ad_forest_ad` WRITE;
-/*!40000 ALTER TABLE `domaine_ad_forest_ad` DISABLE KEYS */;
-INSERT INTO `domaine_ad_forest_ad` (`forest_ad_id`, `domaine_ad_id`) VALUES (1,1);
-/*!40000 ALTER TABLE `domaine_ad_forest_ad` ENABLE KEYS */;
+LOCK TABLES `domain_forest_ad` WRITE;
+/*!40000 ALTER TABLE `domain_forest_ad` DISABLE KEYS */;
+INSERT INTO `domain_forest_ad` (`forest_ad_id`, `domaine_id`) VALUES (1,1);
+/*!40000 ALTER TABLE `domain_forest_ad` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
--- Dumping data for table `domaine_ads`
+-- Dumping data for table `domains`
 --
 
-LOCK TABLES `domaine_ads` WRITE;
-/*!40000 ALTER TABLE `domaine_ads` DISABLE KEYS */;
-INSERT INTO `domaine_ads` (`id`, `name`, `description`, `domain_ctrl_cnt`, `user_count`, `machine_count`, `relation_inter_domaine`, `created_at`, `updated_at`, `deleted_at`) VALUES (1,'OPENHOST','<p>Domaine Active Directory Open Hospital</p>',1,120,30,'N/A','2025-06-12 11:24:48','2025-06-12 11:24:48',NULL);
-/*!40000 ALTER TABLE `domaine_ads` ENABLE KEYS */;
+LOCK TABLES `domains` WRITE;
+/*!40000 ALTER TABLE `domains` DISABLE KEYS */;
+INSERT INTO `domains` (`id`, `name`, `description`, `domain_ctrl_cnt`, `user_count`, `machine_count`, `relation_inter_domaine`, `created_at`, `updated_at`, `deleted_at`) VALUES (1,'OPENHOST','<p>Domain Active Directory Open Hospital</p>',1,120,30,'N/A','2025-06-12 11:24:48','2025-06-12 11:24:48',NULL);
+/*!40000 ALTER TABLE `domains` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

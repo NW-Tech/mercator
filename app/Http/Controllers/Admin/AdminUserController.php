@@ -7,7 +7,7 @@ use App\Http\Requests\MassDestroyAdminUserRequest;
 use App\Http\Requests\StoreAdminUserRequest;
 use App\Http\Requests\UpdateAdminUserRequest;
 use App\Models\AdminUser;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use Gate;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -27,7 +27,7 @@ class AdminUserController extends Controller
         abort_if(Gate::denies('admin_user_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $type_list = AdminUser::select('type')->where('type', '<>', null)->distinct()->orderBy('type')->pluck('type');
-        $domains = DomaineAd::all()->sortBy('name')->pluck('name', 'id');
+        $domains = Domain::all()->sortBy('name')->pluck('name', 'id');
 
         // Get Attributes
         $attributes_list = AdminUser::select('attributes')
@@ -61,7 +61,7 @@ class AdminUserController extends Controller
         abort_if(Gate::denies('admin_user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $type_list = AdminUser::select('type')->where('type', '<>', null)->distinct()->orderBy('type')->pluck('type');
-        $domains = DomaineAd::all()->sortBy('name')->pluck('name', 'id');
+        $domains = Domain::all()->sortBy('name')->pluck('name', 'id');
 
         // Get Attributes
         $attributes_list = AdminUser::select('attributes')

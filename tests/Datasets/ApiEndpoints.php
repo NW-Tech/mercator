@@ -15,10 +15,10 @@ use App\Models\Container;
 use App\Models\Database;
 use App\Models\DataProcessing;
 use App\Models\Document;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
-use App\Models\Flux;
+use App\Models\ApplicationFlow;
 use App\Models\ForestAd;
 use App\Models\Gateway;
 use App\Models\Information;
@@ -27,7 +27,7 @@ use App\Models\LogicalFlow;
 use App\Models\LogicalServer;
 use App\Models\MacroProcessus;
 use App\Models\Man;
-use App\Models\MApplication;
+use App\Models\Application;
 use App\Models\Network;
 use App\Models\NetworkSwitch;
 use App\Models\Operation;
@@ -123,7 +123,7 @@ dataset('api_endpoints', [
     'applications' => [
         [
             'route' => 'applications',
-            'model' => MApplication::class,
+            'model' => Application::class,
         ]
     ],
     'application-blocks' => [
@@ -150,10 +150,10 @@ dataset('api_endpoints', [
             'model' => Database::class,
         ]
     ],
-    'fluxes' => [
+    'application-flows' => [
         [
-            'route' => 'fluxes',
-            'model' => Flux::class,
+            'route' => 'application-flows',
+            'model' => ApplicationFlow::class,
         ]
     ],
     'zone-admins' => [
@@ -174,10 +174,10 @@ dataset('api_endpoints', [
             'model' => ForestAd::class,
         ]
     ],
-    'domaine-ads' => [
+    'domains' => [
         [
-            'route' => 'domaine-ads',
-            'model' => DomaineAd::class,
+            'route' => 'domains',
+            'model' => Domain::class,
         ]
     ],
     'admin-users' => [

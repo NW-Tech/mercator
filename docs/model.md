@@ -315,7 +315,7 @@ Impacts are only accessible through "activities" objects.
 
 | Table                                                | api |
 |:-----------------------------------------------------|:----|
-| <span style="color: blue;">*activity_impacts*</span> | N/A |
+| <span style="color: blue;">*activity_impact*</span> | N/A |
 
 | Field       | Type          | Description                                              |
 |:------------|:--------------|:---------------------------------------------------------|
@@ -499,9 +499,9 @@ An application can be deployed on one or more logical servers.
 When there is no virtualized environment, there are not several logical servers per physical server, but one logical
 server per physical server.
 
-| Table                                              | api                 |
-|:---------------------------------------------------|:--------------------|
-| <span style="color: blue;">*m_applications*</span> | `/api/applications` |
+| Table                                            | api                 |
+|:-------------------------------------------------|:--------------------|
+| <span style="color: blue;">*applications*</span> | `/api/applications` |
 
 | Field                | Type         | Description                         |
 |:---------------------|:-------------|:------------------------------------|
@@ -594,18 +594,18 @@ Major events are only accessible through application objects.
 
 They are neither importable nor exportable through the graphics tool.
 
-| Table                                                    | api |
-|:---------------------------------------------------------|:----|
-| <span style="color: blue;">*m_application_events*</span> | N/A |
+| Table                                                  | api |
+|:-------------------------------------------------------|:----|
+| <span style="color: blue;">*application_events*</span> | N/A |
 
-| Field            | Type         | Description                                                    |
-|:-----------------|:-------------|:---------------------------------------------------------------|
-| id               | int unsigned | auto_increment                                                 |
-| user_id          | int unsigned | Mercator user id who has register the event                    |
-| m_application_id | varchar(255) | Reference to the id of the application that suffered the event |
-| message          | longtext     | Description of the event                                       |
-| created_at       | timestamp    | Date of creation                                               |
-| updated_at       | timestamp    | Date of update                                                 |
+| Field          | Type         | Description                                                    |
+|:---------------|:-------------|:---------------------------------------------------------------|
+| id             | int unsigned | auto_increment                                                 |
+| user_id        | int unsigned | Mercator user id who has register the event                    |
+| application_id | int unsigned | Reference to the id of the application that suffered the event |
+| message        | longtext     | Description of the event                                       |
+| created_at     | timestamp    | Date of creation                                               |
+| updated_at     | timestamp    | Date of update                                                 |
 
 ### Applications services
 
@@ -707,7 +707,7 @@ In the app, an application can be linked with a database from these two objects.
 In the app, a logical server can be linked with a database from these two objects.  
 In the app, a container can be linked with a database from these two objects.
 
-### Application Flows {#flows}
+### Application Flows
 
 An application flow is an exchange of information between a sender and a receiver (application, application service,
 application module, or database).
@@ -717,9 +717,9 @@ important to avoid representing all firewall filtering rules in terms of flows.
 
 For example, DNS or NTP requests should not be represented as flows.
 
-| Table                                      | api           |
-|:-------------------------------------------|:--------------|
-| <span style="color: blue;">*fluxes*</span> | `/api/fluxes` |
+| Table                                                 | api                      |
+|:------------------------------------------------------|:-------------------------|
+| <span style="color: blue;">*application_flows*</span> | `/api/application-flows` |
 
 | Champ                  | Type         | Description                             |
 |:-----------------------|:-------------|:----------------------------------------|
@@ -737,12 +737,12 @@ For example, DNS or NTP requests should not be represented as flows.
 
 The  ***device***_ for source_id or dest_id can be: :
 
-| Actif (*device*)    | Source | Destination |
-|:--------------------|:------:|:-----------:|
-| Application         |   ✅    |      ✅      |
-| Application service |   ✅    |      ✅      |
-| Application module  |   ✅    |      ✅      |
-| Database            |   ✅    |      ✅      |
+| Active (*device*)   | Source | Destination | Source field name | dest field name |
+|:--------------------|:------:|:-----------:|-------------------|-----------------|
+| Application         | ✅ | ✅ | application_source_id | application_dest_id |
+| Application service | ✅ | ✅ | service_source_id | service_dest_id |
+| Application module  | ✅ | ✅ | module_source_id | module_dest_id |
+| Database            | ✅ | ✅ | database_source_id | database_dest_id |
 
 In the app, an information can be linked with an application flow from an application flow object.
 
@@ -809,7 +809,7 @@ These objects represent an organized grouping of Active Directory domains or LDA
 | name          | varchar(255) | Name of Active Directory or LDAP forests        |
 | description   | longtext     | Description of Active Directory or LDAP forests |
 | zone_admin_id | int unsigned | Reference to Administration zone                |
-| domaines      | List int [,] | IDs list of related active directory domaines   |
+| domains       | List int [,] | IDs list of related active directory domains    |
 | created_at    | timestamp    | Date of creation                                |
 | updated_at    | timestamp    | Date of update                                  |
 | deleted_at    | timestamp    | Date of deletion                                |
@@ -821,20 +821,20 @@ objects rights, and a part of IT policies (e.g. Group Policy Object - GPO).
 
 | Table                                           | api                |
 |:------------------------------------------------|:-------------------|
-| <span style="color: blue;">*domaine_ads*</span> | `/api/domaine-ads` |
+| <span style="color: blue;">*domains*</span> | `/api/domains` |
 
-| Champ                  | Type         | Description                             |
-|:-----------------------|:-------------|:----------------------------------------|
-| id                     | int unsigned | auto_increment                          |
-| name                   | varchar(255) | AD Domain / LDAP name                   |
-| description            | longtext     | Domain description                      |
-| domain_ctrl_cnt        | int signed   | Number of domain controllers            |
-| user_count             | int signed   | Number of domain users                  |
-| machine_count          | int signed   | Number of domain computers              |
-| relation_inter_domaine | varchar(255) | Cross domains relationships description |
-| created_at             | timestamp    | Date of creation                        |
-| updated_at             | timestamp    | Date of update                          |
-| deleted_at             | timestamp    | Date of deletion                        |
+| Champ                 | Type         | Description                             |
+|:----------------------|:-------------|:----------------------------------------|
+| id                    | int unsigned | auto_increment                          |
+| name                  | varchar(255) | AD Domain / LDAP name                   |
+| description           | longtext     | Domain description                      |
+| domain_ctrl_cnt       | int signed   | Number of domain controllers            |
+| user_count            | int signed   | Number of domain users                  |
+| machine_count         | int signed   | Number of domain computers              |
+| relation_inter_domain | varchar(255) | Cross domains relationships description |
+| created_at            | timestamp    | Date of creation                        |
+| updated_at            | timestamp    | Date of update                          |
+| deleted_at            | timestamp    | Date of deletion                        |
 
 The data model esport lists AD forests / LDAP trees linked with an AD domain / LDAP.
 
@@ -1329,17 +1329,17 @@ General principle :
 
 Source and destination devices can be:
 
-| *device*                 | Source | Destination |
-|:-------------------------|:------:|:-----------:|
-| Peripherals              |   ✅    |      ✅      |
-| Physical security device |   ✅    |      ✅      |
-| Physical server          |   ✅    |      ✅      |
-| Storage infrastructure   |   ✅    |      ✅      |
-| Workstations             |   ✅    |      ✅      |
-| Logical security device  |   ✅    |      ✅      |
-| Logical server           |   ✅    |      ✅      |
-| clusters                 |   ✅    |      ✅      |
-| Subnetworks              |   ✅    |      ✅      |
+| Active (*device*)         | Source | Destination | Source field name | dest field name |
+|:-------------------------|:------:|:-----------:|---------------------------|-------------------------|
+| Peripherals              |   ✅    |      ✅      | peripheral_source_id      | peripheral_dest_id      |
+| Physical security device |   ✅    |      ✅      | physical_security_device_source_id | 
+| Physical server          |   ✅    |      ✅      | physical_server_source_id | physical_server_dest_id |
+| Storage infrastructure   |   ✅    |      ✅      | storage_device_source_id  | storage_device_dest_id  |
+| Workstations             |   ✅    |      ✅      | workstation_source_id     | workstation_dest_id     |
+| Logical security device  |   ✅    |      ✅      | security_device_source_id | security_device_dest_id |
+| Logical server           |   ✅    |      ✅      | logical_server_source_id  | logical_server_dest_id  |
+| clusters                 |   ✅    |      ✅      | cluster_source_id         | cluster_dest_id         |
+| Subnetworks              |   ✅    |      ✅      | subnetwork_source_id      | subnetwork_dest_id      |
 
 ### Certificates
 
@@ -1833,20 +1833,20 @@ A logic flow describes a relationship at layers 3 and 4 of the OSI model.
 
 Source and destination devices can be:
 
-| *device*                 | Source | Destination |
-|:-------------------------|:------:|:-----------:|
-| Peripheral device        |   ✅    |      ✅      |
-| Phone                    |   ✅    |      ✅      |
-| Physical router          |   ✅    |      ✅      |
-| Physical security device |   ✅    |      ✅      |
-| Physical server          |   ✅    |      ✅      |
-| Physical switch          |   ✅    |      ✅      |
-| Storage infrastructure   |   ✅    |      ✅      |
-| Wifi terminal            |   ✅    |      ✅      |
-| Workstation              |   ✅    |      ✅      |
-| Logical server           |   ✅    |      ✅      |
-| Logical switch           |   ✅    |      ✅      |
-| Logical router           |   ✅    |      ✅      |
+| *device*                 | Source | Destination | Source field name | dest field name |
+|:-------------------------|:------:|:-----------:|-------------------|-----------------|
+| Peripheral device        | ✅ | ✅ | peripheral_source_id      | peripheral_dest_id      |
+| Phone                    | ✅ | ✅ | phone_src_id              | phone_dest_id           |
+| Physical router          | ✅ | ✅ | physical_router_src_id    | physical_router_dest_id |
+| Physical security device | ✅ | ✅ | physical_security_device_source_id | physical_security_device_dest_id |
+| Physical server          | ✅ | ✅ | physical_server_source_id | physical_server_dest_id |
+| Physical switch          | ✅ | ✅ | physical_switch_src_id    | physical_switch_dest_id |
+| Storage infrastructure   | ✅ | ✅ | storage_device_source_id  | storage_device_dest_id  |
+| Wifi terminal            | ✅ | ✅ | wifi_terminal_src_id      | wifi_terminal_dest_id   |
+| Workstation              | ✅ | ✅ | workstation_source_id     | workstation_dest_id     |
+| Logical server           | ✅ | ✅ | logical_server_source_id  | logical_server_dest_id  |
+| Logical switch           | ✅ | ✅ | network_switch_src_id     | network_switch_dest_id  |
+| Logical router           | ✅ | ✅ | router_src_id             | router_dest_id          |
 
 ### WANs
 

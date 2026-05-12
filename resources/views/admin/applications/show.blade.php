@@ -13,19 +13,19 @@
             <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$application->getUID()}}">
                 {{ trans('global.explore') }}
             </a>
-            @if(auth()->user()->can('m_application_edit'))
+            @if(auth()->user()->can('application_edit'))
                 <a class="btn btn-info" href="{{ route('admin.applications.edit', $application->id) }}">
                     {{ trans('global.edit') }}
                 </a>
             @endif
 
-            @can('m_application_create')
+            @can('application_create')
                 <a class="btn btn-warning" href="{{ route('admin.applications.clone', $application->id) }}">
                     {{ trans('global.clone') }}
                 </a>
             @endcan
 
-            @if(auth()->user()->can('m_application_delete'))
+            @if(auth()->user()->can('application_delete'))
                 <form action="{{ route('admin.applications.destroy', $application->id) }}" method="POST"
                       onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                     <input type="hidden" name="_method" value="DELETE">
@@ -497,65 +497,65 @@
                         {{ trans('cruds.flux.fields.information') }}
                     </th>
                 </tr>
-                @foreach($application->applicationSourceFluxes->union($application->applicationDestFluxes) as $flux)
+                @foreach($application->applicationSourceFluxes->union($application->applicationDestFluxes) as $flow)
                 <tr>
                     <td>
-                        <a href="{{ route('admin.fluxes.show', $flux->id) }}">{{ $flux->name }}</a>
+                        <a href="{{ route('admin.application-flows.show', $flow->id) }}">{{ $flow->name }}</a>
                     </td>
                     <td>
-                       {{ $flux->nature }}
+                       {{ $flow->nature }}
                     </td>
                     <td>
-                        @foreach(explode(" ",$flux->attributes) as $attribute)
+                        @foreach(explode(" ",$flow->attributes) as $attribute)
                             <span class="badge badge-info">{{ $attribute }}</span>
                         @endforeach
                     </td>
                     <td>
-                        @if ($flux->application_source!=null)
-                            <a href="{{ route('admin.applications.show',$flux->application_source->id) }}">
-                                {{ $flux->application_source->name }}
+                        @if ($flow->applicationSource!=null)
+                            <a href="{{ route('admin.applications.show',$flow->applicationSource->id) }}">
+                                {{ $flow->applicationSource->name }}
                             </a>
                         @endif
-                        @if($flux->service_source!=null)
-                            <a href="{{ route('admin.application-services.show', $flux->service_source->id) }}">
-                                {{ $flux->service_source->name }}
+                        @if($flow->serviceSource!=null)
+                            <a href="{{ route('admin.application-services.show', $flow->serviceSource->id) }}">
+                                {{ $flow->serviceSource->name }}
                             </a>
                         @endif
-                        @if ($flux->module_source!=null)
-                            <a href="{{ route('admin.application-modules.show', $flux->module_source->id) }}">
-                                {{ $flux->module_source->name }}
+                        @if ($flow->moduleSource!=null)
+                            <a href="{{ route('admin.application-modules.show', $flow->moduleSource->id) }}">
+                                {{ $flow->moduleSource->name }}
                             </a>
                         @endif
-                        @if ($flux->database_source!=null)
-                            <a href="{{ route('admin.databases.show',$flux->database_source->id) }}">
-                                {{ $flux->database_source->name }}
-                            </a>
-                        @endif
-                    </td>
-                    <td>
-                        @if ($flux->application_dest!=null)
-                            <a href="{{ route('admin.applications.show',$flux->application_dest->id) }}">
-                                {{ $flux->application_dest->name }}
-                            </a>
-                        @endif
-                        @if ($flux->service_dest!=null)
-                            <a href="{{ route('admin.application-services.show', $flux->service_dest->id) }}">
-                                {{ $flux->service_dest->name }}
-                            </a>
-                        @endif
-                        @if ($flux->module_dest!=null)
-                            <a href="{{ route('admin.application-modules.show', $flux->module_dest->id) }}">
-                                {{ $flux->module_dest->name }}
-                            </a>
-                        @endif
-                        @if ($flux->database_dest!=null)
-                            <a href="{{ route('admin.databases.show',$flux->database_dest->id) }}">
-                                {{ $flux->database_dest->name }}
+                        @if ($flow->databaseSource!=null)
+                            <a href="{{ route('admin.databases.show',$flow->databaseSource->id) }}">
+                                {{ $flow->databaseSource->name }}
                             </a>
                         @endif
                     </td>
                     <td>
-                        @foreach($flux->informations as $info)
+                        @if ($flow->applicationDest!=null)
+                            <a href="{{ route('admin.applications.show',$flow->applicationDest->id) }}">
+                                {{ $flow->applicationDest->name }}
+                            </a>
+                        @endif
+                        @if ($flow->serviceDest!=null)
+                            <a href="{{ route('admin.application-services.show', $flow->serviceDest->id) }}">
+                                {{ $flow->serviceDest->name }}
+                            </a>
+                        @endif
+                        @if ($flow->moduleDest!=null)
+                            <a href="{{ route('admin.application-modules.show', $flow->moduleDest->id) }}">
+                                {{ $flow->moduleDest->name }}
+                            </a>
+                        @endif
+                        @if ($flow->databaseDest!=null)
+                            <a href="{{ route('admin.databases.show',$flow->databaseDest->id) }}">
+                                {{ $flow->databaseDest->name }}
+                            </a>
+                        @endif
+                    </td>
+                    <td>
+                        @foreach($flow->informations as $info)
                             <a href="{{ route('admin.information.show',$info->id) }}">{{$info->name}}</a>
                             @if (!$loop->last) , @endif
                         @endforeach

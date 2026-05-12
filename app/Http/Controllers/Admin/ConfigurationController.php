@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Document;
+use App\Models\Parameter;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Models\Document;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -46,6 +47,8 @@ class ConfigurationController extends Controller
             'sum'        => Document::query()->sum('size'),
             // Set the active tab
             'active_tab' => $request->query('tab', 'general'),
+            // Last CPE Sync
+            'last_cpe_sync' => Parameter::getValue('cpe_sync.last_run'),
         ]);
     }
 

@@ -25,10 +25,10 @@ class StoreForestAdRequest extends BaseFormRequest
                 'required',
                 Rule::unique('forest_ads')->whereNull('deleted_at'),
             ],
-            'domaines.*' => [
+            'domains.*' => [
                 'integer',
             ],
-            'domaines' => [
+            'domains' => [
                 'array',
             ],
         ];

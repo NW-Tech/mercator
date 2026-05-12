@@ -123,10 +123,10 @@ class Workstation extends Model implements HasIconContract, HasPrefix
         return $this->belongsTo(Entity::class, 'entity_id');
     }
 
-    /** @return BelongsTo<DomaineAd, $this> */
+    /** @return BelongsTo<Domain, $this> */
     public function domain(): BelongsTo
     {
-        return $this->belongsTo(DomaineAd::class, 'domain_id');
+        return $this->belongsTo(Domain::class, 'domain_id');
     }
 
     /** @return BelongsTo<Network, $this> */
@@ -141,9 +141,9 @@ class Workstation extends Model implements HasIconContract, HasPrefix
         return $this->belongsTo(AdminUser::class, 'user_id');
     }
 
-    /** @return BelongsToMany<MApplication, $this> */
+    /** @return BelongsToMany<Application, $this> */
     public function applications(): BelongsToMany
     {
-        return $this->belongsToMany(MApplication::class)->orderBy('name');
+        return $this->belongsToMany(Application::class)->orderBy('name');
     }
 }

@@ -85,8 +85,8 @@ return [
             'attributes_helper' => 'ex: local, admin, privileged...',
             'description' => 'Description',
             'description_helper' => '',
-            'domain' => 'Domaine',
-            'domain_helper' => 'Domaine dans lequel l\'utilisateir est défini',
+            'domain' => 'Domain',
+            'domain_helper' => 'Domain dans lequel l\'utilisateir est défini',
         ],
         'title' => 'Utilisateurs',
         'title_singular' => 'Utilisateurs',
@@ -593,7 +593,7 @@ return [
         'title' => 'Dns servers',
         'title_singular' => 'DNS server',
     ],
-    'domaineAd' => [
+    'domaine' => [
         'description' => 'Set of elements (members, resources) governed by the same security policy.',
         'fields' => [
             'description' => 'Description',
@@ -741,7 +741,7 @@ return [
         'fields' => [
             'description' => 'Description',
             'description_helper' => '',
-            'domaines' => 'areas',
+            'domains' => 'areas',
             'domaines_helper' => 'Domains belonging to the forest / tree',
             'name' => 'Name',
             'name_helper' => '',

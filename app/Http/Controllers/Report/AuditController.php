@@ -314,14 +314,14 @@ class AuditController extends HomeController
 
         // flux
         $sheet->setCellValue("A{$row}", trans('cruds.flux.title'));
-        $sheet->setCellValue("B{$row}", $levels['fluxes_lvl1']);
-        $sheet->setCellValue("C{$row}", $levels['fluxes']);
+        $sheet->setCellValue("B{$row}", $levels['flows_lvl1']);
+        $sheet->setCellValue("C{$row}", $levels['flows']);
         $sheet->setCellValue("D{$row}", "=B{$row}/C{$row}");
-        $sheet->setCellValue("E{$row}", $levels['fluxes_lvl1']);
-        $sheet->setCellValue("F{$row}", $levels['fluxes']);
+        $sheet->setCellValue("E{$row}", $levels['flows_lvl1']);
+        $sheet->setCellValue("F{$row}", $levels['flows']);
         $sheet->setCellValue("G{$row}", "=E{$row}/F{$row}");
-        $sheet->setCellValue("H{$row}", $levels['fluxes_lvl1']);
-        $sheet->setCellValue("I{$row}", $levels['fluxes']);
+        $sheet->setCellValue("H{$row}", $levels['flows_lvl1']);
+        $sheet->setCellValue("I{$row}", $levels['flows']);
         $sheet->setCellValue("J{$row}", "=H{$row}/I{$row}");
         $row++;
 
@@ -388,15 +388,15 @@ class AuditController extends HomeController
         $row++;
 
         // Domaines
-        $sheet->setCellValue("A{$row}", trans('cruds.domaineAd.title'));
+        $sheet->setCellValue("A{$row}", trans('cruds.domaine.title'));
         $sheet->setCellValue("B{$row}", $levels['domaines_lvl1']);
-        $sheet->setCellValue("C{$row}", $levels['domaines']);
+        $sheet->setCellValue("C{$row}", $levels['domains']);
         $sheet->setCellValue("D{$row}", "=B{$row}/C{$row}");
         $sheet->setCellValue("E{$row}", $levels['domaines_lvl1']);
-        $sheet->setCellValue("F{$row}", $levels['domaines']);
+        $sheet->setCellValue("F{$row}", $levels['domains']);
         $sheet->setCellValue("G{$row}", "=E{$row}/F{$row}");
         $sheet->setCellValue("H{$row}", $levels['domaines_lvl1']);
-        $sheet->setCellValue("I{$row}", $levels['domaines']);
+        $sheet->setCellValue("I{$row}", $levels['domains']);
         $sheet->setCellValue("J{$row}", "=H{$row}/I{$row}");
         $row++;
 
@@ -849,17 +849,17 @@ class AuditController extends HomeController
 
             'Applications' => ['index' => 38, 'title' => trans('cruds.menu.application.title_short')],
             'App\\Models\\ApplicationBlock' => ['index' => 39, 'title' => trans('cruds.applicationBlock.title')],
-            'App\\Models\\MApplication' => ['index' => 42, 'title' => trans('cruds.application.title')],
+            'App\\Models\\Application' => ['index' => 42, 'title' => trans('cruds.application.title')],
             'App\\Models\\ApplicationService' => ['index' => 45, 'title' => trans('cruds.applicationService.title')],
             'App\\Models\\ApplicationModule' => ['index' => 48, 'title' => trans('cruds.applicationModule.title')],
             'App\\Models\\Database' => ['index' => 51, 'title' => trans('cruds.database.title')],
-            'App\\Models\\Flux' => ['index' => 54, 'title' => trans('cruds.flux.title')],
+            'App\\Models\\ApplicationFlow' => ['index' => 54, 'title' => trans('cruds.flux.title')],
 
             'Administration' => ['index' => 57, 'title' => trans('cruds.menu.administration.title_short')],
             'App\\Models\\ZoneAdmin' => ['index' => 58, 'title' => trans('cruds.zoneAdmin.title')],
             'App\\Models\\Annuaire' => ['index' => 61, 'title' => trans('cruds.annuaire.title')],
             'App\\Models\\ForestAd' => ['index' => 64, 'title' => trans('cruds.forestAd.title')],
-            'App\\Models\\DomaineAd' => ['index' => 67, 'title' => trans('cruds.domaineAd.title')],
+            'App\\Models\\Domain' => ['index' => 67, 'title' => trans('cruds.domaine.title')],
 
             'LogicalInfrastructure' => ['index' => 70, 'title' => trans('cruds.menu.logical_infrastructure.title_short')],
             'App\\Models\\Network' => ['index' => 71, 'title' => trans('cruds.network.title')],

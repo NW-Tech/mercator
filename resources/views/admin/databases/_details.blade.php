@@ -55,7 +55,7 @@
                 {{ trans('cruds.database.fields.entity_resp') }}
             </th>
             <td style="width: 20%;">
-                {{ $database->entity_resp->name ?? '' }}
+                {{ $database->entityResp->name ?? '' }}
             </td>
             <th style="width: 10%;">
                 {{ trans('cruds.database.fields.responsible') }}

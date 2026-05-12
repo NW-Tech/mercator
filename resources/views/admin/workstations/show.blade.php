@@ -70,7 +70,7 @@
                       <th width="10%">{{ trans('cruds.workstation.fields.domain') }}</th>
                       <td width="15%">
                         @if ($workstation->domain!=null)
-                        <a href="{{ route('admin.domaine-ads.show', $workstation->domain_id) }}">
+                        <a href="{{ route('admin.domains.show', $workstation->domain_id) }}">
                             {{ $workstation->domain->name ?? '' }}
                         </a>
                         @endif

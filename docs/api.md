@@ -16,22 +16,22 @@ php artisan passport:install
 
 - The Docker environment supports this functionality natively, via the entrypoint.
 
-### APIs
+## Mapping APIs
 
 For each object in the cartography data model, there is an API.
 The list of APIs can be found in /route/api.php
 
-#### Endpoints for GDPR
+### Endpoints for GDPR
 
 - [/api/data-processings](./model.md#register)
 - [/api/security-controls](./model.md#security-measures)
 
-#### Endpoints for Ecosystem
+### Endpoints for Ecosystem
 
 - [/api/entities](./model.md#entities)
 - [/api/relations](./model.md#relationships)
 
-#### Endpoints for Information system business
+### Endpoints for Information system business
 
 - [/api/macro-processuses](./model.md#macro-processes)
 - [/api/processes](./model.md#processes)
@@ -41,24 +41,24 @@ The list of APIs can be found in /route/api.php
 - [/api/actors](./model.md#actors)
 - [/api/information](./model.md#information)
 
-#### Endpoints for Application
+### Endpoints for Application
 
 - [/api/application-blocks](./model.md#applications-blocks)
 - [/api/applications](./model.md#applications)
 - [/api/application-services](./model.md#applications-services)
 - [/api/application-modules](./model.md#application-modules)
 - [/api/databases](./model.md#databases)
-- [/api/fluxes](./model.md#flows)
+- [/api/application-flows](./model.md#application-flows)
 
-#### Endpoints for Administration view
+### Endpoints for Administration view
 
 - [/api/zone-admins](./model.md#administration-areas)
 - [/api/annuaires](./model.md#administration-directory-services)
 - [/api/forest-ads](./model.md#active-directory-forests-ldap-tree-structure)
-- [/api/domaine-ads](./model.md#active-directory-domains-ldap)
+- [/api/domains](./model.md#active-directory-domains-ldap)
 - [/api/admin-users](./model.md#users)
 
-#### Endpoints for Logical infrastructure
+### Endpoints for Logical infrastructure
 
 - [/api/networks](./model.md#networks)
 - [/api/subnetworks](./model.md#subnetworks)
@@ -77,7 +77,7 @@ The list of APIs can be found in /route/api.php
 - [/api/certificates](./model.md#certificates)
 - [/api/vlans](./model.md#vlans)
 
-#### Endpoints for Physical infrastructure
+### Endpoints for Physical infrastructure
 
 - [/api/sites](./model.md#sites)
 - [/api/buildings](./model.md#buildings-rooms)
@@ -96,7 +96,7 @@ The list of APIs can be found in /route/api.php
 - [/api/lans](./model.md#lans)
 - [/api/physical-links](./model.md#physical-links)
 
-#### Endpoints for Configuration
+## Configuration APIs
 
 - [/api/users](./model.md#users)
 - [/api/roles](./model.md#roles)
@@ -104,8 +104,10 @@ The list of APIs can be found in /route/api.php
 - [/api/documents](./model.md#documents)
 
 The unique feature of the endpoint **documents** is that it allows you to either upload or download a document.
-The syntax is as follows:
-##### Example of adding a document in Mercator:
+
+#### Example for a document in Mercator:
+
+- Add a document in the database
 ```bash
 RESPONSE=$(http_call -X POST "$API/api/documents" \
     -H "Authorization: Bearer $TOKEN" \
@@ -118,7 +120,7 @@ echo "$RESPONSE" | jq .
 DOC_ID=$(echo "$RESPONSE" | jq -r '.id // empty' 2>/dev/null)
 ```
 
-##### Exemple of downloading a document from mercator:
+- Exemple of downloading a document from mercator:
 ```bash
  OUTFILE="./downloaded_${DOC_ID}.pdf"
     curl -s -X GET "$API/api/documents/$DOC_ID/download" \
@@ -128,11 +130,12 @@ DOC_ID=$(echo "$RESPONSE" | jq -r '.id // empty' 2>/dev/null)
         -w "HTTP %{http_code}\n"
 ```
 
-#### Endpoint for queries
+## Queries APIs
 
 - /api/queries
+- /api/queries/***id***
 
-#### Endpoints for Reports
+## Reports APIs
 
 - /api/report/cartography
 - /api/report/entities
@@ -151,7 +154,26 @@ DOC_ID=$(echo "$RESPONSE" | jq -r '.id // empty' 2>/dev/null)
 - /api/report/impacts
 - /api/report/rto
 
-### Actions managed by the resource controller
+
+### Excel reports can be extracted as csv. 
+
+- Example for report extracted with excel format
+```bash
+curl -s -X GET http://localhost:8081/api/report/cve \
+    -H "Authorization: Bearer ${TOKEN}" \
+    -H "Accept: application/octet-stream" \
+    -o "rapport_cve_$(date +%Y%m%d).xlsx"
+```
+- Exemple for a report extracted with csv format
+```bash
+curl -s -X GET "http://localhost:8081/api/report/cve?format=csv" \
+     -H "Authorization: Bearer ${TOKEN}" \
+     -H "Accept: text/csv" \
+     -o "rapport_cve_$(date +%Y%m%d).csv"
+```
+
+
+## Actions managed by the resource controller
 
 Requests and URIs for each api are shown in the table below.
 
@@ -171,7 +193,7 @@ The fields to be supplied are those described in the [data model](model.md).
 
 To get access to advanced filters, feel free to check the related page: [API Advanced (filters)](./apifilters.md)
 
-### Access rights
+## Access rights
 
 To access the APIs, you must identify yourself as a Mercator application user.
 This user must have a role in Mercator that allows him/her to access/modify the objects
@@ -180,7 +202,7 @@ objects accessed via the API.
 When authentication is successful, the API sends an "access_token", which must be passed in the "Authorization" header.
 header of the API request.
 
-### Linking objects
+## Linking objects
 
 Mapping objects can refer to other objects. For example, we can link a process to an application. Suppose we have a
 ‘process’ that uses two applications, ‘app1’ and ‘app2’. To do this, we follow these steps:
@@ -211,17 +233,17 @@ Mapping objects can refer to other objects. For example, we can link a process t
 ```
 
 The names of all extra fields
-are: ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domaineAds', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'networkSwitches', 'physicalSwitches', 'physicalRouters']
+are: ['actors', 'tasks', 'activities', 'entities', 'applications', 'informations', 'processes', 'databases', 'logical_servers', 'modules', 'domainesForestAds', 'servers', 'vlans', 'lans', 'mans', 'wans', 'operations', 'domaines', 'applicationServices', 'certificates', 'peripherals', 'physicalServers', 'networkSwitches', 'physicalSwitches', 'physicalRouters']
 
 
-### Examples
+## Examples
 
 Please find below few examples with differents languages
 
-#### PHP
+### PHP
 Here are a few examples of how to use the API with PHP:
 
-##### Authentification
+#### Authentification
 
 ```php
 <?php
@@ -266,7 +288,7 @@ Here are a few examples of how to use the API with PHP:
     var_dump($response);
 ```
 
-##### Users list
+#### Users list
 
 ```php
 <?php
@@ -297,7 +319,7 @@ Here are a few examples of how to use the API with PHP:
 
 ```
 
-##### Get a user
+#### Get a user
 
 ```php
 <?php
@@ -326,7 +348,7 @@ Here are a few examples of how to use the API with PHP:
     var_dump($response);
 ```
 
-##### Update a user
+#### Update a user
 
 ```php
 <?php
@@ -363,7 +385,7 @@ Here are a few examples of how to use the API with PHP:
     var_dump($response);
 ```
 
-#### Python
+### Python
 
 Here's an example of how to use the API in Python :
 
@@ -392,7 +414,7 @@ print(response.status_code)
 
 ```
 
-#### Bash
+### Bash
 
 Here's an example of using the API on the command line with [CURL](https://curl.se/docs/manpage.html)
 and [JQ](https://stedolan.github.io/jq/)
@@ -456,12 +478,12 @@ UPDATED_OBJECT=$(curl -s -X GET "${API_URL}/logical-servers/${OBJECT_ID}" \
 echo "Objet mis à jour: ${UPDATED_OBJECT}"
 ```
 
-#### PowerShell
+### PowerShell
 
 The following **PowerShell** script demonstrates how to authenticate with the API and retrieve the list of logical
 servers.
 
-##### Step 1 — Authenticate and obtain an access token
+#### Step 1 — Authenticate and obtain an access token
 
 ```powershell
 # Define the login endpoint and credentials
@@ -482,7 +504,7 @@ try {
 }
 ```
 
-##### Step 2 — Use the token to query logical servers
+#### Step 2 — Use the token to query logical servers
 
 ```powershell
 # Define the endpoint and authorization headers

@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 // GDPR
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use App\Models\Activity;
 use App\Models\Actor;
 use App\Models\Annuaire;
+use App\Models\Application;
 use App\Models\ApplicationBlock;
+use App\Models\ApplicationFlow;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
 use App\Models\Bay;
@@ -20,10 +21,9 @@ use App\Models\Database;
 use App\Models\DataProcessing;
 use App\Models\DhcpServer;
 use App\Models\Dnsserver;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
-use App\Models\Flux;
 use App\Models\ForestAd;
 use App\Models\Gateway;
 use App\Models\Information;
@@ -31,7 +31,6 @@ use App\Models\Lan;
 use App\Models\LogicalServer;
 use App\Models\MacroProcessus;
 use App\Models\Man;
-use App\Models\MApplication;
 use App\Models\Network;
 use App\Models\NetworkSwitch;
 use App\Models\Operation;
@@ -55,6 +54,7 @@ use App\Models\Wan;
 use App\Models\WifiTerminal;
 use App\Models\Workstation;
 use App\Models\ZoneAdmin;
+use Illuminate\Support\Facades\DB;
 
 // ecosystem
 // information system
@@ -189,9 +189,9 @@ class HomeController extends Controller
                 })
                 // process must be supported by one application
                 ->whereExists(function ($query) {
-                    $query->select("m_application_process.process_id")
-                        ->from("m_application_process")
-                        ->whereRaw("m_application_process.process_id = processes.id");
+                    $query->select("application_process.process_id")
+                        ->from("application_process")
+                        ->whereRaw("application_process.process_id = processes.id");
                 })
                 */
                 ->count(),
@@ -287,35 +287,35 @@ class HomeController extends Controller
                 ->where('responsible', '<>', null)
                 // applicationBlock must have one application
                 ->whereExists(function ($query): void {
-                    $query->select('m_applications.id')
-                        ->from('m_applications')
-                        ->whereRaw('m_applications.application_block_id = application_blocks.id');
+                    $query->select('applications.id')
+                        ->from('applications')
+                        ->whereRaw('applications.application_block_id = application_blocks.id');
                 })
                 ->count(),
 
-            'applications' => MApplication::count(),
-            'applications_lvl1' => MApplication::where('description', '<>', null)
+            'applications' => Application::count(),
+            'applications_lvl1' => Application::where('description', '<>', null)
                 ->where('responsible', '<>', null)
                 ->where('technology', '<>', null)
                 ->where('type', '<>', null)
                 ->where('users', '<>', null)
                 // application must have one process
                 ->whereExists(function ($query): void {
-                    $query->select('m_application_process.m_application_id')
-                        ->from('m_application_process')
-                        ->whereRaw('m_application_process.m_application_id = m_applications.id');
+                    $query->select('application_process.application_id')
+                        ->from('application_process')
+                        ->whereRaw('application_process.application_id = applications.id');
                 })
                 // application must have one logical server
                 /* No - fat client application does not have a logical server
                 ->whereExists(function ($query) {
-                    $query->select("logical_server_m_application.m_application_id")
-                        ->from("logical_server_m_application")
-                        ->whereRaw("logical_server_m_application.m_application_id = m_applications.id");
+                    $query->select("application_logical_server.application_id")
+                        ->from("application_logical_server")
+                        ->whereRaw("application_logical_server.application_id = applications.id");
                 })
                 */
                 ->count(),
 
-            'applications_lvl2' => MApplication::where('description', '<>', null)
+            'applications_lvl2' => Application::where('description', '<>', null)
                 ->where('responsible', '<>', null)
                 ->where('technology', '<>', null)
                 ->where('type', '<>', null)
@@ -327,16 +327,16 @@ class HomeController extends Controller
                 ->where('security_need_t', '<>', null)
                 // application must have one process
                 ->whereExists(function ($query): void {
-                    $query->select('m_application_process.m_application_id')
-                        ->from('m_application_process')
-                        ->whereRaw('m_application_process.m_application_id = m_applications.id');
+                    $query->select('application_process.application_id')
+                        ->from('application_process')
+                        ->whereRaw('application_process.application_id = applications.id');
                 })
                 // application must have one logical server
                 /* No - fat client application does not have a logical server
                 ->whereExists(function ($query) {
-                    $query->select("logical_server_m_application.m_application_id")
-                        ->from("logical_server_m_application")
-                        ->whereRaw("logical_server_m_application.m_application_id = m_applications.id");
+                    $query->select("application_logical_server.application_id")
+                        ->from("application_logical_server")
+                        ->whereRaw("application_logical_server.application_id = applications.id");
                 })
                 */
 
@@ -344,14 +344,14 @@ class HomeController extends Controller
                 // NO - services of external applications are not documented
                 /*
                 ->whereExists(function ($query) {
-                   $query->select("application_service_m_application.m_application_id")
-                        ->from("application_service_m_application")
-                        ->whereRaw("application_service_m_application.m_application_id = m_applications.id");
+                   $query->select("application_application_service.application_id")
+                        ->from("application_application_service")
+                        ->whereRaw("application_application_service.application_id = applications.id");
                 })
                 */
                 ->count(),
 
-            'applications_lvl3' => MApplication::where('description', '<>', null)
+            'applications_lvl3' => Application::where('description', '<>', null)
                 ->where('entity_resp_id', '<>', null)
                 ->where('responsible', '<>', null)
                 ->where('technology', '<>', null)
@@ -363,9 +363,9 @@ class HomeController extends Controller
                 ->where('security_need_t', '<>', null)
                 // application must have one process
                 ->whereExists(function ($query): void {
-                    $query->select('m_application_process.m_application_id')
-                        ->from('m_application_process')
-                        ->whereRaw('m_application_process.m_application_id = m_applications.id');
+                    $query->select('application_process.application_id')
+                        ->from('application_process')
+                        ->whereRaw('application_process.application_id = applications.id');
                 })
                 // CPE must be given
                 //    ->where('vendor', '<>', null)
@@ -377,9 +377,9 @@ class HomeController extends Controller
             'applicationServices_lvl2' => ApplicationService::where('description', '<>', null)
                 // applicationService must have one application
                 ->whereExists(function ($query): void {
-                    $query->select('application_service_m_application.m_application_id')
-                        ->from('application_service_m_application')
-                        ->whereRaw('application_service_m_application.application_service_id = application_services.id');
+                    $query->select('application_application_service.application_id')
+                        ->from('application_application_service')
+                        ->whereRaw('application_application_service.application_service_id = application_services.id');
                 })
                 ->count(),
 
@@ -405,8 +405,8 @@ class HomeController extends Controller
                 // ->where('external', '<>', null) //lvl2
                 ->count(),
 
-            'fluxes' => Flux::count(),
-            'fluxes_lvl1' => Flux::where('description', '<>', null)
+            'flows' => ApplicationFlow::count(),
+            'flows_lvl1' => ApplicationFlow::where('description', '<>', null)
                 ->orWhere(function ($query): void {
                     $query->where('application_source_id', '<>', null)
                         ->where('module_source_id', '<>', null)
@@ -436,8 +436,8 @@ class HomeController extends Controller
                 ->where('zone_admin_id', '<>', null)
                 ->count(),
 
-            'domaines' => DomaineAd::count(),
-            'domaines_lvl1' => DomaineAd::where('description', '<>', null)
+            'domains' => Domain::count(),
+            'domaines_lvl1' => Domain::where('description', '<>', null)
                 ->where('domain_ctrl_cnt', '<>', null)
                 ->where('user_count', '<>', null)
                 ->where('machine_count', '<>', null)
@@ -516,8 +516,8 @@ class HomeController extends Controller
                 // doit avoir au moins une application
                 ->whereExists(function ($q): void {
                     $q->select(DB::raw(1))
-                        ->from('logical_server_m_application')
-                        ->whereColumn('logical_server_m_application.logical_server_id', 'logical_servers.id');
+                        ->from('application_logical_server')
+                        ->whereColumn('application_logical_server.logical_server_id', 'logical_servers.id');
                 })
 
                 // doit être installé sur un serveur physique OU appartenir à un cluster
@@ -539,9 +539,9 @@ class HomeController extends Controller
                 ->where('type', '<>', null)
                 // Container must have one application
                 ->whereExists(function ($query): void {
-                    $query->select('container_m_application.m_application_id')
-                        ->from('container_m_application')
-                        ->whereRaw('container_m_application.container_id = containers.id');
+                    $query->select('application_container.application_id')
+                        ->from('application_container')
+                        ->whereRaw('application_container.container_id = containers.id');
                 })
                 // Container must be deployer one logical_server
                 ->whereExists(function ($query): void {
@@ -677,8 +677,8 @@ class HomeController extends Controller
         $denominator =
             $levels['entities'] + $levels['relations'] +
             $levels['processes'] + $levels['operations'] + $levels['informations'] +
-            $levels['applications'] + $levels['databases'] + $levels['fluxes'] +
-            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domaines'] +
+            $levels['applications'] + $levels['databases'] + $levels['flows'] +
+            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domains'] +
             $levels['networks'] + $levels['subnetworks'] + $levels['gateways'] + $levels['switches'] + $levels['routers'] + $levels['securityDevices'] + $levels['clusters'] + $levels['logicalServers'] + $levels['containers'] +
             $levels['sites'] + $levels['buildings'] + $levels['bays'] + $levels['physicalServers'] + $levels['physicalRouters'] + $levels['physicalSwitchs'] + $levels['physicalSecurityDevices'] +
             $levels['wans'] + $levels['mans'] + $levels['lans'] + $levels['vlans'];
@@ -688,7 +688,7 @@ class HomeController extends Controller
             number_format(
                 ($levels['entities_lvl1'] + $levels['relations_lvl1'] +
             $levels['processes_lvl1'] + $levels['operations_lvl1'] + $levels['informations_lvl1'] +
-            $levels['applications_lvl1'] + $levels['databases_lvl1'] + $levels['fluxes_lvl1'] +
+            $levels['applications_lvl1'] + $levels['databases_lvl1'] + $levels['flows_lvl1'] +
             $levels['zones_lvl1'] + $levels['annuaires_lvl1'] + $levels['forests_lvl1'] + $levels['domaines_lvl1'] +
             $levels['networks_lvl1'] + $levels['subnetworks_lvl1'] + $levels['gateways_lvl1'] + $levels['switches_lvl1'] + $levels['routers_lvl1'] + $levels['securityDevices_lvl1'] + $levels['clusters_lvl1'] + $levels['logicalServers_lvl1'] + $levels['containers_lvl1'] +
             $levels['sites_lvl1'] + $levels['buildings_lvl1'] + $levels['bays_lvl1'] + $levels['physicalServers_lvl1'] + $levels['physicalRouters_lvl1'] + $levels['physicalSwitchs_lvl1'] + $levels['physicalSecurityDevices_lvl1'] +
@@ -700,8 +700,8 @@ class HomeController extends Controller
         $denominator =
             $levels['entities'] + $levels['relations'] +
             $levels['macroProcessuses'] + $levels['processes'] + $levels['activities'] + $levels['operations'] + $levels['actors'] + $levels['informations'] +
-            $levels['applicationBlocks'] + $levels['applications'] + $levels['applicationServices'] + $levels['applicationModules'] + $levels['databases'] + $levels['fluxes'] +
-            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domaines'] +
+            $levels['applicationBlocks'] + $levels['applications'] + $levels['applicationServices'] + $levels['applicationModules'] + $levels['databases'] + $levels['flows'] +
+            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domains'] +
             $levels['networks'] + $levels['subnetworks'] + $levels['gateways'] + $levels['externalConnectedEntities'] + $levels['switches'] + $levels['routers'] + $levels['securityDevices'] + $levels['DHCPServers'] + $levels['DNSServers'] + $levels['clusters'] + $levels['logicalServers'] + $levels['certificates'] + $levels['containers'] +
             $levels['sites'] + $levels['buildings'] + $levels['bays'] + $levels['physicalServers'] + $levels['physicalRouters'] + $levels['physicalSwitchs'] + $levels['physicalSecurityDevices'] +
             $levels['wans'] + $levels['mans'] + $levels['lans'] + $levels['vlans'];
@@ -711,7 +711,7 @@ class HomeController extends Controller
             number_format(
                 ($levels['entities_lvl1'] + $levels['relations_lvl2'] +
             $levels['macroProcessuses_lvl2'] + $levels['processes_lvl2'] + $levels['activities_lvl2'] + $levels['operations_lvl2'] + $levels['actors_lvl2'] + $levels['informations_lvl2'] +
-            $levels['applicationBlocks_lvl2'] + $levels['applications_lvl2'] + $levels['applicationServices_lvl2'] + $levels['applicationModules_lvl2'] + $levels['databases_lvl2'] + $levels['fluxes_lvl1'] +
+            $levels['applicationBlocks_lvl2'] + $levels['applications_lvl2'] + $levels['applicationServices_lvl2'] + $levels['applicationModules_lvl2'] + $levels['databases_lvl2'] + $levels['flows_lvl1'] +
             $levels['zones_lvl1'] + $levels['annuaires_lvl1'] + $levels['forests_lvl1'] + $levels['domaines_lvl1'] +
             $levels['networks_lvl1'] + $levels['subnetworks_lvl1'] + $levels['gateways_lvl1'] + $levels['externalConnectedEntities_lvl2'] + $levels['switches_lvl1'] + $levels['routers_lvl1'] + $levels['securityDevices_lvl1'] + $levels['DHCPServers_lvl2'] + $levels['DNSServers_lvl2'] + $levels['clusters_lvl1'] + $levels['logicalServers_lvl1'] + $levels['containers_lvl1'] + $levels['certificates_lvl2'] +
             $levels['sites_lvl1'] + $levels['buildings_lvl1'] + $levels['bays_lvl1'] + $levels['physicalServers_lvl1'] + $levels['physicalRouters_lvl1'] + $levels['physicalSwitchs_lvl1'] + $levels['physicalSecurityDevices_lvl1'] +
@@ -723,8 +723,8 @@ class HomeController extends Controller
         $denominator =
             $levels['entities'] + $levels['relations'] +
             $levels['macroProcessuses'] + $levels['processes'] + $levels['activities'] + $levels['tasks'] + $levels['operations'] + $levels['actors'] + $levels['informations'] +
-            $levels['applicationBlocks'] + $levels['applications'] + $levels['applicationServices'] + $levels['applicationModules'] + $levels['databases'] + $levels['fluxes'] +
-            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domaines'] +
+            $levels['applicationBlocks'] + $levels['applications'] + $levels['applicationServices'] + $levels['applicationModules'] + $levels['databases'] + $levels['flows'] +
+            $levels['zones'] + $levels['annuaires'] + $levels['forests'] + $levels['domains'] +
             $levels['networks'] + $levels['subnetworks'] + $levels['gateways'] + $levels['externalConnectedEntities'] + $levels['switches'] + $levels['routers'] + $levels['securityDevices'] + $levels['DHCPServers'] + $levels['DNSServers'] + $levels['clusters'] + $levels['logicalServers'] + $levels['containers'] + $levels['certificates'] +
             $levels['sites'] + $levels['buildings'] + $levels['bays'] + $levels['physicalServers'] + $levels['physicalRouters'] + $levels['physicalSwitchs'] + $levels['physicalSecurityDevices']
             + $levels['wans'] + $levels['mans'] + $levels['lans'] + $levels['vlans'];
@@ -734,7 +734,8 @@ class HomeController extends Controller
             number_format(
                 ($levels['entities_lvl1'] + $levels['relations_lvl2'] +
             $levels['macroProcessuses_lvl3'] + $levels['processes_lvl2'] + $levels['activities_lvl2'] + $levels['tasks_lvl3'] + $levels['operations_lvl2'] + $levels['actors_lvl2'] + $levels['informations_lvl2'] +
-            $levels['applicationBlocks_lvl2'] + $levels['applications_lvl3'] + $levels['applicationServices_lvl2'] + $levels['applicationModules_lvl2'] + $levels['databases_lvl2'] + $levels['fluxes_lvl1'] +
+            $levels['applicationBlocks_lvl2'] + $levels['applications_lvl3'] + $levels['applicationServices_lvl2'] + $levels['applicationModules_lvl2'] + $levels['databases_lvl2'] + $levels['flows_lvl1'] +
+            $levels['applicationBlocks_lvl2'] + $levels['applications_lvl3'] + $levels['applicationServices_lvl2'] + $levels['applicationModules_lvl2'] + $levels['databases_lvl2'] + $levels['flows_lvl1'] +
             $levels['zones_lvl1'] + $levels['annuaires_lvl1'] + $levels['forests_lvl1'] + $levels['domaines_lvl1'] +
             $levels['networks_lvl1'] + $levels['subnetworks_lvl1'] + $levels['gateways_lvl1'] + $levels['externalConnectedEntities_lvl2'] + $levels['switches_lvl1'] + $levels['routers_lvl1'] + $levels['securityDevices_lvl1'] + $levels['DHCPServers_lvl2'] + $levels['DNSServers_lvl2'] + $levels['clusters_lvl1'] + $levels['logicalServers_lvl1'] + $levels['containers_lvl1'] + $levels['certificates_lvl2'] +
             $levels['sites_lvl1'] + $levels['buildings_lvl1'] + $levels['bays_lvl1'] + $levels['physicalServers_lvl1'] + $levels['physicalRouters_lvl1'] + $levels['physicalSwitchs_lvl1'] + $levels['physicalSecurityDevices_lvl1'] + $levels['wans_lvl1'] + $levels['mans_lvl1'] + $levels['lans_lvl1'] + $levels['vlans_lvl1']) * 100 / $denominator,
