@@ -322,7 +322,7 @@ Ils ne sont ni importables, ni exportables à travers l'outil graphique.
 
 | Table                                                | api |
 |:-----------------------------------------------------|:----|
-| <span style="color: blue;">*activity_impacts*</span> |     |
+| <span style="color: blue;">*activity_impact*</span> |     |
 
 | Champ       | Type          | Description                                           |
 |:------------|:--------------|:------------------------------------------------------|
@@ -734,12 +734,12 @@ Par exemple, les requêtes DNS ou NTP ne devraient pas être représentées comm
 
 Les <span style="color: purple;">*actifs (device)*</span>  sources et destination peuvent être :
 
-| Actif (*device*)   | Source | Destination |
-|:-------------------|:------:|:-----------:|
-| Application        |   ✅    |      ✅      |
-| Service applicatif |   ✅    |      ✅      |
-| Module applicatif  |   ✅    |      ✅      |
-| Base de données    |   ✅    |      ✅      |
+| Actif (*device*)   | Source | Destination | nom du champs source | nom du champs destination |
+|:-------------------|:------:|:-----------:|----------------------|---------------------------|
+| Application        | ✅ |  ✅ | application_source_id | application_dest_id |
+| Service applicatif | ✅ |  ✅ | service_source_id | service_dest_id |
+| Module applicatif  | ✅ |  ✅ | module_source_id | module_dest_id |
+| Base de données    | ✅ |  ✅ | database_source_id | database_dest_id |
 
 Dans l'application, une information peut être rattaché à un flux applicatif depuis un objet flux applicatif.
 
@@ -1333,17 +1333,17 @@ Principe général :
 
 Les <span style="color: purple;">*actifs (devices)*</span> sources et destination peuvent être :
 
-| Actif (*device*)                | Source | Destination |
-|:--------------------------------|:------:|:-----------:|
-| Périphérique                    |   ✅    |      ✅      |
-| Equipement de sécurité physique |   ✅    |      ✅      |
-| Serveur physique                |   ✅    |      ✅      |
-| Infrastructure de stockage      |   ✅    |      ✅      |
-| Poste de travail                |   ✅    |      ✅      |
-| Equipement de sécurité logique  |   ✅    |      ✅      |
-| Serveur logique                 |   ✅    |      ✅      |
-| Clusters                        |   ✅    |      ✅      |
-| Sous-réseaux                    |   ✅    |      ✅      |
+| Actif (*device*)                | Source | Destination | nom du champs source | nom du champs destination |
+|:--------------------------------|:--:|:---:|---------------------------|-------------------------|
+| Périphérique                    | ✅ | ✅  | peripheral_source_id      | peripheral_dest_id      |
+| Equipement de sécurité physique | ✅ | ✅  | physical_security_device_source_id | physical_security_device_dest_id |
+| Serveur physique                | ✅ | ✅  | physical_server_source_id | physical_server_dest_id |
+| Infrastructure de stockage      | ✅ | ✅  | storage_device_source_id  | storage_device_dest_id  |
+| Poste de travail                | ✅ | ✅  | workstation_source_id     | workstation_dest_id     |
+| Equipement de sécurité logique  | ✅ | ✅  | security_device_source_id | security_device_dest_id |
+| Serveur logique                 | ✅ | ✅  | logical_server_source_id  | logical_server_dest_id  |
+| Clusters                        | ✅ | ✅  | cluster_source_id         | cluster_dest_id         |
+| Sous-réseaux                    | ✅ | ✅  | subnetwork_source_id      | subnetwork_dest_id      |
 
 ### Certificats
 
@@ -1842,20 +1842,20 @@ Principe général :
 
 Les actifs sources et destination peuvent être :
 
-| Actif                           | Source | Destination |
-|:--------------------------------|:------:|:-----------:|
-| Périphérique                    |   ✅    |      ✅      |
-| Téléphone                       |   ✅    |      ✅      |
-| Routeur physique                |   ✅    |      ✅      |
-| Equipement de sécurité physique |   ✅    |      ✅      |
-| Serveur physique                |   ✅    |      ✅      |
-| Commutateur physique            |   ✅    |      ✅      |
-| Infrastructure de stockage      |   ✅    |      ✅      |
-| Borne Wifi                      |   ✅    |      ✅      |
-| Poste de travail                |   ✅    |      ✅      |
-| Serveur logique                 |   ✅    |      ✅      |
-| Commutateur logique             |   ✅    |      ✅      |
-| Routeur logique                 |   ✅    |      ✅      |
+| Actif                           | Source | Destination | nom du champs source | nom du champs destination |
+|:--------------------------------|:--:|:--:|---------------------------|-------------------------|
+| Périphérique                    | ✅ | ✅ | peripheral_source_id      | peripheral_dest_id      |
+| Téléphone                       | ✅ | ✅ | phone_src_id              | phone_dest_id           |
+| Routeur physique                | ✅ | ✅ | physical_router_src_id    | physical_router_dest_id |
+| Equipement de sécurité physique | ✅ | ✅ | physical_security_device_source_id | physical_security_device_dest_id |
+| Serveur physique                | ✅ | ✅ | physical_server_source_id | physical_server_dest_id |
+| Commutateur physique            | ✅ | ✅ | physical_switch_src_id    | physical_switch_dest_id |
+| Infrastructure de stockage      | ✅ | ✅ | storage_device_source_id  | storage_device_dest_id  |
+| Borne Wifi                      | ✅ | ✅ | wifi_terminal_src_id      | wifi_terminal_dest_id   |
+| Poste de travail                | ✅ | ✅ | workstation_source_id     | workstation_dest_id     |
+| Serveur logique                 | ✅ | ✅ | logical_server_source_id  | logical_server_dest_id  |
+| Commutateur logique             | ✅ | ✅ | network_switch_src_id     | network_switch_dest_id  |
+| Routeur logique                 | ✅ | ✅ | router_src_id             | router_dest_id          |
 
 ### WANs
 
