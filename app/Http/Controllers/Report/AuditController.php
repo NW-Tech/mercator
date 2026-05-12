@@ -315,13 +315,13 @@ class AuditController extends HomeController
         // flux
         $sheet->setCellValue("A{$row}", trans('cruds.flux.title'));
         $sheet->setCellValue("B{$row}", $levels['flows_lvl1']);
-        $sheet->setCellValue("C{$row}", $levels['fluxes']);
+        $sheet->setCellValue("C{$row}", $levels['flows']);
         $sheet->setCellValue("D{$row}", "=B{$row}/C{$row}");
         $sheet->setCellValue("E{$row}", $levels['flows_lvl1']);
-        $sheet->setCellValue("F{$row}", $levels['fluxes']);
+        $sheet->setCellValue("F{$row}", $levels['flows']);
         $sheet->setCellValue("G{$row}", "=E{$row}/F{$row}");
         $sheet->setCellValue("H{$row}", $levels['flows_lvl1']);
-        $sheet->setCellValue("I{$row}", $levels['fluxes']);
+        $sheet->setCellValue("I{$row}", $levels['flows']);
         $sheet->setCellValue("J{$row}", "=H{$row}/I{$row}");
         $row++;
 
