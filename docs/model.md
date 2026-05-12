@@ -315,7 +315,7 @@ Impacts are only accessible through "activities" objects.
 
 | Table                                                | api |
 |:-----------------------------------------------------|:----|
-| <span style="color: blue;">*activity_impacts*</span> | N/A |
+| <span style="color: blue;">*activity_impact*</span> | N/A |
 
 | Field       | Type          | Description                                              |
 |:------------|:--------------|:---------------------------------------------------------|
@@ -707,7 +707,7 @@ In the app, an application can be linked with a database from these two objects.
 In the app, a logical server can be linked with a database from these two objects.  
 In the app, a container can be linked with a database from these two objects.
 
-### Application Flows {#flows}
+### Application Flows
 
 An application flow is an exchange of information between a sender and a receiver (application, application service,
 application module, or database).
@@ -737,12 +737,12 @@ For example, DNS or NTP requests should not be represented as flows.
 
 The  ***device***_ for source_id or dest_id can be: :
 
-| Actif (*device*)    | Source | Destination |
-|:--------------------|:------:|:-----------:|
-| Application         |   ✅    |      ✅      |
-| Application service |   ✅    |      ✅      |
-| Application module  |   ✅    |      ✅      |
-| Database            |   ✅    |      ✅      |
+| Active (*device*)   | Source | Destination | Source field name | dest field name |
+|:--------------------|:------:|:-----------:|-------------------|-----------------|
+| Application         | ✅ | ✅ | application_source_id | application_dest_id |
+| Application service | ✅ | ✅ | service_source_id | service_dest_id |
+| Application module  | ✅ | ✅ | module_source_id | module_dest_id |
+| Database            | ✅ | ✅ | database_source_id | database_dest_id |
 
 In the app, an information can be linked with an application flow from an application flow object.
 
@@ -1329,17 +1329,17 @@ General principle :
 
 Source and destination devices can be:
 
-| *device*                 | Source | Destination |
-|:-------------------------|:------:|:-----------:|
-| Peripherals              |   ✅    |      ✅      |
-| Physical security device |   ✅    |      ✅      |
-| Physical server          |   ✅    |      ✅      |
-| Storage infrastructure   |   ✅    |      ✅      |
-| Workstations             |   ✅    |      ✅      |
-| Logical security device  |   ✅    |      ✅      |
-| Logical server           |   ✅    |      ✅      |
-| clusters                 |   ✅    |      ✅      |
-| Subnetworks              |   ✅    |      ✅      |
+| Active (*device*)         | Source | Destination | Source field name | dest field name |
+|:-------------------------|:------:|:-----------:|---------------------------|-------------------------|
+| Peripherals              |   ✅    |      ✅      | peripheral_source_id      | peripheral_dest_id      |
+| Physical security device |   ✅    |      ✅      | physical_security_device_source_id | 
+| Physical server          |   ✅    |      ✅      | physical_server_source_id | physical_server_dest_id |
+| Storage infrastructure   |   ✅    |      ✅      | storage_device_source_id  | storage_device_dest_id  |
+| Workstations             |   ✅    |      ✅      | workstation_source_id     | workstation_dest_id     |
+| Logical security device  |   ✅    |      ✅      | security_device_source_id | security_device_dest_id |
+| Logical server           |   ✅    |      ✅      | logical_server_source_id  | logical_server_dest_id  |
+| clusters                 |   ✅    |      ✅      | cluster_source_id         | cluster_dest_id         |
+| Subnetworks              |   ✅    |      ✅      | subnetwork_source_id      | subnetwork_dest_id      |
 
 ### Certificates
 
@@ -1833,20 +1833,20 @@ A logic flow describes a relationship at layers 3 and 4 of the OSI model.
 
 Source and destination devices can be:
 
-| *device*                 | Source | Destination |
-|:-------------------------|:------:|:-----------:|
-| Peripheral device        |   ✅    |      ✅      |
-| Phone                    |   ✅    |      ✅      |
-| Physical router          |   ✅    |      ✅      |
-| Physical security device |   ✅    |      ✅      |
-| Physical server          |   ✅    |      ✅      |
-| Physical switch          |   ✅    |      ✅      |
-| Storage infrastructure   |   ✅    |      ✅      |
-| Wifi terminal            |   ✅    |      ✅      |
-| Workstation              |   ✅    |      ✅      |
-| Logical server           |   ✅    |      ✅      |
-| Logical switch           |   ✅    |      ✅      |
-| Logical router           |   ✅    |      ✅      |
+| *device*                 | Source | Destination | Source field name | dest field name |
+|:-------------------------|:------:|:-----------:|-------------------|-----------------|
+| Peripheral device        | ✅ | ✅ | peripheral_source_id      | peripheral_dest_id      |
+| Phone                    | ✅ | ✅ | phone_src_id              | phone_dest_id           |
+| Physical router          | ✅ | ✅ | physical_router_src_id    | physical_router_dest_id |
+| Physical security device | ✅ | ✅ | physical_security_device_source_id | physical_security_device_dest_id |
+| Physical server          | ✅ | ✅ | physical_server_source_id | physical_server_dest_id |
+| Physical switch          | ✅ | ✅ | physical_switch_src_id    | physical_switch_dest_id |
+| Storage infrastructure   | ✅ | ✅ | storage_device_source_id  | storage_device_dest_id  |
+| Wifi terminal            | ✅ | ✅ | wifi_terminal_src_id      | wifi_terminal_dest_id   |
+| Workstation              | ✅ | ✅ | workstation_source_id     | workstation_dest_id     |
+| Logical server           | ✅ | ✅ | logical_server_source_id  | logical_server_dest_id  |
+| Logical switch           | ✅ | ✅ | network_switch_src_id     | network_switch_dest_id  |
+| Logical router           | ✅ | ✅ | router_src_id             | router_dest_id          |
 
 ### WANs
 
