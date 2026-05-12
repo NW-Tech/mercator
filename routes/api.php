@@ -361,19 +361,19 @@ Route::middleware(['api.protected'])->group(function () {
     // =======================================
     Route::get('report/cartography', [Admin\CartographyController::class, 'cartography']);
     Route::get('report/entities', [Report\EntityList::class, 'generateExcel']);
-    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generateExcel']);
+    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generate']);
     Route::get('report/directory', [Report\Directory::class, 'generateDocx']);
-    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generateExcel']);
-    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generateExcel']);
-    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generateExcel']);
-    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generateExcel']);
-    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generateExcel']);
-    Route::get('report/vlans', [Report\VLANList::class, 'generateExcel']);
-    Route::get('report/workstations', [Report\WorkstationList::class, 'generateExcel']);
+    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generate']);
+    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generate']);
+    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generate']);
+    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generate']);
+    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generate']);
+    Route::get('report/vlans', [Report\VLANList::class, 'generate']);
+    Route::get('report/workstations', [Report\WorkstationList::class, 'generate']);
     Route::get('report/cve', [Admin\CVEController::class, 'list']);
 
     // GDPR
-    Route::get('report/activityList', [Report\ActivityList::class, 'generateExcel'])->name('report.activityList');
+    Route::get('report/activityList', [Report\ActivityList::class, 'generate'])->name('report.activityList');
     Route::get('report/activityReport', [Report\ActivityReport::class, 'generateDocx'])->name('report.activityReport');
 
     Route::get('report/impacts', [Report\ImpactList::class, 'generateExcel'])->name('report.view.impacts');
