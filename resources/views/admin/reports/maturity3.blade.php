@@ -107,7 +107,7 @@
                 <th><center>{{ trans("global.mature") }}</center></th>
                 <th><center>
                     {{ ($applicationBlocks+$applications+$applicationServices+$applicationModules+$databases+$flows)>0 ?
-                       number_format(($applicationBlocks_lvl2+$applications_lvl3+$applicationServices_lvl2+$applicationModules_lvl2+$databases_lvl2+$fluxes_lvl1) *100 / ($applicationBlocks+$applications+$applicationServices+$applicationModules+$databases+$flows),0) : 0 }}%
+                       number_format(($applicationBlocks_lvl2+$applications_lvl3+$applicationServices_lvl2+$applicationModules_lvl2+$databases_lvl2+$flows_lvl1) *100 / ($applicationBlocks+$applications+$applicationServices+$applicationModules+$databases+$flows),0) : 0 }}%
                 </center></th>
             </thead>
 
@@ -145,8 +145,8 @@
                 <tr>
                     <td><a href="/admin/fluxes">{{ trans("cruds.flux.title") }}</a></td>
                     <td><center>{{ $flows }}</center></td>
-                    <td><center>{{ $fluxes_lvl1 }}</center></td>
-                    <td><center>{{ $flows>0 ? number_format($fluxes_lvl1*100/$flows,0):0 }}%</center></td>
+                    <td><center>{{ $flows_lvl1 }}</center></td>
+                    <td><center>{{ $flows>0 ? number_format($flows_lvl1*100/$flows,0):0 }}%</center></td>
                 </tr>
             </tbody>
 
