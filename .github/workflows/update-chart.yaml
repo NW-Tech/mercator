@@ -50,6 +50,7 @@ jobs:
           mark_as_latest: false
           pages_branch: master
           pages_index_path: docs/_helm_chart/index/index.yaml
+          release_name_template: "{{ .Version }}"
         env:
           CR_TOKEN: "${{secrets.GITHUB_TOKEN}}"
 
