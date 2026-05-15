@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Requests\MassDestroySavedQueryRequest;
 use App\Http\Requests\StoreSavedQueryRequest;
 use App\Http\Requests\UpdateSavedQueryRequest;
+use App\Models\Process;
 use App\Models\SavedQuery;
 use App\Services\QueryEngine\GraphResult;
 use App\Services\QueryEngine\ListResult;
@@ -142,4 +144,14 @@ class QueryController extends APIController
 
         return response()->json();
     }
+
+    public function massDestroy(MassDestroySavedQueryRequest $request)
+    {
+        abort_if(Gate::denies('query_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        Process::whereIn('id', $request->input('ids', []))->delete();
+
+        return response(null, Response::HTTP_NO_CONTENT);
+    }
+
 }
