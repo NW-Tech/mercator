@@ -353,7 +353,10 @@ Route::middleware(['api.protected'])->group(function () {
     Route::resource('roles', API\RoleController::class);
 
     // Queries
-    Route::get('queries/execute/{query}', [API\QueryController::class, 'execute'])->name('api.queries.execute');
+    Route::put('queries/mass-store', [API\QueryController::class, 'massStore'])->name('queries.mass-store');
+    Route::put('queries/mass-update', [API\QueryController::class, 'massUpdate'])->name('queries.mass-update');
+    Route::delete('queries/mass-destroy', [API\QueryController::class, 'massDestroy'])->name('queries.mass-destroy');
+    Route::get('queries/execute/{query}', [API\QueryController::class, 'execute'])->name('queries.execute');
     Route::resource('queries', API\QueryController::class);
 
     // =======================================

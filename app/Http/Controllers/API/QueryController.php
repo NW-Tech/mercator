@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Requests\MassDestroySavedQueryRequest;
+use App\Http\Requests\MassStoreSavedQueryRequest;
+use App\Http\Requests\MassUpdateSavedQueryRequest;
 use App\Http\Requests\StoreSavedQueryRequest;
 use App\Http\Requests\UpdateSavedQueryRequest;
 use App\Models\Process;
@@ -154,4 +156,27 @@ class QueryController extends APIController
         return response(null, Response::HTTP_NO_CONTENT);
     }
 
+    public function massStore(MassStoreSavedQueryRequest $request)
+    {
+        $data       = $request->validated();
+        $createdIds = $this->massStoreItems($data['items']);
+
+        return response()->json([
+            'status' => 'ok',
+            'count'  => count($createdIds),
+            'ids'    => $createdIds,
+        ], Response::HTTP_CREATED);
+    }
+
+    public function massUpdate(MassUpdateSavedQueryRequest $request)
+    {
+        $data = $request->validated();
+
+        $this->massUpdateItems($data['items']);
+
+        return response()->json([
+            'status' => 'ok',
+        ]);
+    }
 }
+
