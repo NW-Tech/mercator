@@ -50,6 +50,7 @@ use App\Models\Vlan;
 use App\Models\Wan;
 use App\Models\WifiTerminal;
 use App\Models\Workstation;
+use App\Models\Zone;
 use App\Models\ZoneAdmin;
 use Gate;
 use Illuminate\Support\Collection;
@@ -672,6 +673,7 @@ class ExplorerController extends Controller
         $this->buildLogicalFlows();
         $this->buildContainers();
         $this->buildClusters();
+        $this->buildSecurityZones();
     }
 
     private function buildNetworks(): void {
@@ -903,6 +905,44 @@ class ExplorerController extends Controller
                 $this->formatId(Router::$prefix, $join->router_id));
         }
 
+    }
+
+    private function buildSecurityZones(): void
+    {
+        $zones = DB::table('zones')
+            ->select('id', 'name', 'attributes')
+            ->whereNull('deleted_at')
+            ->get();
+
+        foreach ($zones as $zone) {
+            $this->addNode(
+                5,
+                $this->formatId(Zone::$prefix, $zone->id),
+                $zone->name,
+                Zone::$icon,
+                'zones',
+                545,
+                null,
+                $zone->attributes
+            );
+        }
+
+        // Zone-Zone (parent/child)
+        $links = DB::table('zone_zone')->select('zone_id', 'related_zone_id')->get();
+        foreach ($links as $link) {
+            $this->addLinkEdge(
+                $this->formatId(Zone::$prefix, $link->related_zone_id),
+                $this->formatId(Zone::$prefix, $link->zone_id)
+            );
+        }
+
+        $this->linkJoinTable('building_zone',
+            Zone::$prefix, Building::$prefix,
+            'zone_id', 'building_id');
+
+        $this->linkJoinTable('admin_user_zone',
+            Zone::$prefix, AdminUser::$prefix,
+            'zone_id', 'admin_user_id');
     }
 
     private function buildLogicalServers(): void
