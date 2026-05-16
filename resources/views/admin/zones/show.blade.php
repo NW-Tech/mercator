@@ -1,0 +1,44 @@
+@extends('layouts.admin')
+
+@section('title')
+    {{ $zone->name }}
+@endsection
+
+@section('content')
+    <div class="card">
+        <div class="card-header">
+            <a class="btn btn-default" href="{{ route('admin.zones.index') }}">
+                {{ trans('global.back_to_list') }}
+            </a>
+            @can('zone_edit')
+                <a class="btn btn-info" href="{{ route('admin.zones.edit', $zone->id) }}">
+                    {{ trans('global.edit') }}
+                </a>
+            @endcan
+            @can('zone_delete')
+                <form action="{{ route('admin.zones.destroy', $zone->id) }}" method="POST"
+                      onsubmit="return confirm('{{ trans('global.areYouSure') }}');"
+                      style="display: inline-block;">
+                    @method('DELETE')
+                    @csrf
+                    <input type="submit" class="btn btn-danger" value="{{ trans('global.delete') }}">
+                </form>
+            @endcan
+        </div>
+
+        <div class="card-header">
+            {{ trans('global.show') }} {{ trans('cruds.zone.title_singular') }}
+        </div>
+
+        <div class="card-body">
+            @include('admin.zones._details', ['zone' => $zone])
+        </div>
+
+        <div class="card-footer">
+            {{ trans('global.created_at') }} {{ $zone->created_at ? $zone->created_at->format(trans('global.timestamp')) : '' }} |
+            {{ trans('global.updated_at') }} {{ $zone->updated_at ? $zone->updated_at->format(trans('global.timestamp')) : '' }}
+        </div>
+    </div>
+
+    <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.zones.index') }}"></a>
+@endsection

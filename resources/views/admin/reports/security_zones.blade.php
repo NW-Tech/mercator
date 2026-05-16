@@ -1,0 +1,192 @@
+@extends('layouts.admin')
+
+@section('title')
+    {{ trans('cruds.zone.title') }}
+@endsection
+
+@section('content')
+<div class="graph-card-sticky">
+    <div class="card mb-3">
+        <div class="card-header">
+            {{ trans('cruds.zone.title') }}
+        </div>
+        <form action="{{ route('admin.report.view.security-zones') }}" method="GET" id="filter-form">
+            <input type="hidden" name="filter" value="1">
+            <div class="card-body">
+
+                <div class="col-sm-6">
+                    <table class="table table-bordered table-striped" style="max-width: 700px; width: 100%;">
+                        <tr>
+                            <td>
+                                {{ trans('cruds.zone.title') }} :
+                                <select name="zones[]" id="zones" class="form-control select2" multiple
+                                        onchange="this.form.submit()">
+                                    @foreach($allZones as $id => $name)
+                                        <option value="{{ $id }}" {{ in_array($id, $selectedIds) ? 'selected' : '' }}>{{ $name }}</option>
+                                    @endforeach
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="graph-container">
+                    <div id="graph" class="graphviz"></div>
+                    <div class="graph-resize-handle"></div>
+                </div>
+
+                <div class="row p-1">
+                    <div class="col-4">
+                        @php
+                            $engines = ['dot', 'fdp', 'osage', 'circo'];
+                            $engine  = request()->get('engine', 'dot');
+                        @endphp
+
+                        <label class="inline-flex items-center ps-1 pe-1">
+                            <a href="#" id="downloadSvg"><i class="bi bi-download"></i></a>
+                        </label>
+                        <label class="inline-flex items-center">Rendu :</label>
+                        @foreach($engines as $value)
+                            <label class="inline-flex items-center ps-1">
+                                <input type="radio" name="engine" value="{{ $value }}"
+                                       @checked($engine === $value)
+                                       onchange="this.form.submit();">
+                                <span>{{ $value }}</span>
+                            </label>
+                        @endforeach
+                    </div>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="report-scroll-area">
+
+    @can('zone_access')
+        @if($zones->count() > 0)
+        <br>
+        <div class="card">
+            <div class="card-header">{{ trans('cruds.zone.title') }}</div>
+            <div class="card-body">
+                <p>{{ trans('cruds.zone.description') }}</p>
+                @foreach($zones as $zone)
+                    <div class="row">
+                        <div class="col">
+                            @include('admin.zones._details', ['zone' => $zone, 'withLink' => true])
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    @endcan
+
+    @can('building_access')
+        @if($buildings->count() > 0)
+        <br>
+        <div class="card">
+            <div class="card-header">{{ trans('cruds.building.title') }}</div>
+            <div class="card-body">
+                <p>{{ trans('cruds.building.description') }}</p>
+                @foreach($buildings as $building)
+                    <div class="row">
+                        <div class="col">
+                            @include('admin.buildings._details', ['building' => $building, 'withLink' => true])
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    @endcan
+
+    @can('admin_user_access')
+        @if($adminUsers->count() > 0)
+        <br>
+        <div class="card">
+            <div class="card-header">{{ trans('cruds.adminUser.title') }}</div>
+            <div class="card-body">
+                @foreach($adminUsers as $adminUser)
+                    <div class="row">
+                        <div class="col">
+                            @include('admin.adminUser._details', ['adminUser' => $adminUser, 'withLink' => true])
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
+    @endcan
+
+</div>
+@endsection
+
+@section('scripts')
+@vite(['resources/js/graphviz.js'])
+<script>
+let dotSrc = `
+digraph {
+    graph [rankdir=TB fontname="FreeSans"]
+    node  [fontname="FreeSans"]
+    edge  [fontname="FreeSans"]
+
+@foreach($zones as $zone)
+ZONE{{ $zone->id }} [label="{{ addslashes($zone->name) }}" shape=none labelloc="b" width=1 height=1.1 image="/images/security.png" href="#{{ $zone->getUID() }}"]
+@endforeach
+
+@foreach($buildings as $building)
+BUILD{{ $building->id }} [label="{{ addslashes($building->name) }}" shape=none labelloc="b" width=1 height=1.1 image="/images/building.png" href="#{{ $building->getUID() }}"]
+@endforeach
+
+@foreach($adminUsers as $adminUser)
+AU{{ $adminUser->id }} [label="{{ addslashes($adminUser->user_id) }}" shape=none labelloc="b" width=1 height=1.1 image="/images/user.png" href="#{{ $adminUser->getUID() }}"]
+@endforeach
+
+@foreach($zones as $zone)
+    @foreach($zone->childZones as $child)
+        @if($zones->contains('id', $child->id))
+ZONE{{ $zone->id }} -> ZONE{{ $child->id }}
+        @endif
+    @endforeach
+    @foreach($zone->buildings as $building)
+ZONE{{ $zone->id }} -> BUILD{{ $building->id }}
+    @endforeach
+    @foreach($zone->adminUsers as $adminUser)
+ZONE{{ $zone->id }} -> AU{{ $adminUser->id }}
+    @endforeach
+@endforeach
+}`;
+
+document.addEventListener('graphvizReady', () => {
+    document.getElementById('graph').innerHTML = window.graphviz.layout(
+        dotSrc,
+        'svg',
+        '{{ $engine }}',
+        {
+            images: [
+                { path: '/images/security.png', width: '64px', height: '64px' },
+                { path: '/images/building.png', width: '64px', height: '64px' },
+                { path: '/images/user.png',     width: '64px', height: '64px' },
+            ]
+        }
+    );
+
+    // Download SVG
+    document.getElementById('downloadSvg').addEventListener('click', (e) => {
+        e.preventDefault();
+        const svg = document.getElementById('graph').querySelector('svg');
+        if (!svg) return;
+        const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = 'security-zones.svg';
+        a.click();
+        URL.revokeObjectURL(url);
+    });
+});
+</script>
+@parent
+@endsection

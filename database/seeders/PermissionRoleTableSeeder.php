@@ -325,6 +325,12 @@ class PermissionRoleTableSeeder extends Seeder
                 ['role_id' => $adminRoleId, 'permission_id' => 322],
                 ['role_id' => $adminRoleId, 'permission_id' => 323],
                 ['role_id' => $adminRoleId, 'permission_id' => 324],
+                // Zone
+                ['role_id' => $adminRoleId, 'permission_id' => 325],
+                ['role_id' => $adminRoleId, 'permission_id' => 326],
+                ['role_id' => $adminRoleId, 'permission_id' => 327],
+                ['role_id' => $adminRoleId, 'permission_id' => 328],
+                ['role_id' => $adminRoleId, 'permission_id' => 329],
                 ]
             );
 

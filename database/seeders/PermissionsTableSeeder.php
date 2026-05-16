@@ -333,7 +333,13 @@ class PermissionsTableSeeder extends Seeder
                 ['id' => '321', 'title' => 'query_edit'],
                 ['id' => '322', 'title' => 'query_show'],
                 ['id' => '323', 'title' => 'query_delete'],
-                ['id' => '324', 'title' => 'query_access']
+                ['id' => '324', 'title' => 'query_access'],
+                // Zone
+                ['id' => 325, 'title' => 'zone_create'],
+                ['id' => 326, 'title' => 'zone_edit'],
+                ['id' => 327, 'title' => 'zone_show'],
+                ['id' => 328, 'title' => 'zone_delete'],
+                ['id' => 329, 'title' => 'zone_access'],
             ]);
         }
     }

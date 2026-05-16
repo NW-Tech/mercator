@@ -250,6 +250,12 @@ Route::middleware(['api.protected'])->group(function () {
     Route::delete('buildings/mass-destroy', [API\BuildingController::class, 'massDestroy'])->name('buildings.mass-destroy');
     Route::resource('buildings', API\BuildingController::class);
 
+    // Zones
+    Route::post('zones/mass-store', [API\ZoneController::class, 'massStore'])->name('zones.mass-store');
+    Route::put('zones/mass-update', [API\ZoneController::class, 'massUpdate'])->name('zones.mass-update');
+    Route::delete('zones/mass-destroy', [API\ZoneController::class, 'massDestroy'])->name('zones.mass-destroy');
+    Route::resource('zones', API\ZoneController::class);
+
     // Bays
     Route::post('bays/mass-store', [API\BayController::class, 'massStore'])->name('bays.mass-store');
     Route::put('bays/mass-update', [API\BayController::class, 'massUpdate'])->name('bays.mass-update');

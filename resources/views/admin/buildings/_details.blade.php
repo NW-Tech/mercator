@@ -1,5 +1,5 @@
 @props([
-    'bay',
+    'building',
     'withLink' => false
 ])
 <table class="table table-bordered table-striped table-report" id="{{ $building->getUID() }}">

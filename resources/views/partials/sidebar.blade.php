@@ -367,6 +367,7 @@
             request()->is('admin/sites*')||
             request()->is('admin/buildings*')||
             request()->is('admin/bays*')||
+            request()->is('admin/zones*')||
             request()->is('admin/physical*')||
             request()->is('admin/workstations*')||
             request()->is('admin/storage-devices*')||
@@ -395,6 +396,12 @@
                     <a href="{{ route('admin.bays.index') }}"
                        class="ps-4 {{ request()->is('admin/bays*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span class="menu-text">{{ trans('cruds.bay.title') }}</span>
+                    </a>
+                @endcan
+                @can('zone_access')
+                    <a href="{{ route('admin.zones.index') }}"
+                       class="ps-4 {{ request()->is('admin/zones*') ? 'active' : '' }}">
+                        <i class="bi bi-list-columns"></i><span class="menu-text">{{ trans('cruds.zone.title') }}</span>
                     </a>
                 @endcan
                 @can('physical_server_access')
