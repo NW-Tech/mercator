@@ -7,7 +7,6 @@ use App\Http\Requests\MassStoreSavedQueryRequest;
 use App\Http\Requests\MassUpdateSavedQueryRequest;
 use App\Http\Requests\StoreSavedQueryRequest;
 use App\Http\Requests\UpdateSavedQueryRequest;
-use App\Models\Process;
 use App\Models\SavedQuery;
 use App\Services\QueryEngine\GraphResult;
 use App\Services\QueryEngine\ListResult;
@@ -151,7 +150,7 @@ class QueryController extends APIController
     {
         abort_if(Gate::denies('query_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        Process::whereIn('id', $request->input('ids', []))->delete();
+        SavedQuery::whereIn('id', $request->input('ids', []))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
     }
