@@ -133,7 +133,7 @@ digraph {
     edge  [fontname="FreeSans"]
 
 @foreach($zones as $zone)
-ZONE{{ $zone->id }} [label="{{ addslashes($zone->name) }}" shape=none labelloc="b" width=1 height=1.1 image="/images/security.png" href="#{{ $zone->getUID() }}"]
+ZONE{{ $zone->id }} [label="{{ addslashes($zone->name) }}" shape=none labelloc="b" width=1 height=1.1 image="/images/zone.png" href="#{{ $zone->getUID() }}"]
 @endforeach
 
 @foreach($buildings as $building)
@@ -166,7 +166,7 @@ document.addEventListener('graphvizReady', () => {
         '{{ $engine }}',
         {
             images: [
-                { path: '/images/security.png', width: '64px', height: '64px' },
+                { path: '/images/zone.png', width: '64px', height: '64px' },
                 { path: '/images/building.png', width: '64px', height: '64px' },
                 { path: '/images/user.png',     width: '64px', height: '64px' },
             ]
