@@ -1806,6 +1806,7 @@ return [
             'type_helper' => 'Type de zone de sécurité (ex : interne, externe, isolée, salle blanche).',
         ],
         'title' => 'Zones de sécurité',
+        'title_short' => 'Zones',
         'title_singular' => 'Zone de sécurité',
     ],
     'zoneAdmin' => [

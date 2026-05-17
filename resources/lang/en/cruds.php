@@ -1767,6 +1767,7 @@ return [
             'type_helper' => 'Zone classification (e.g. : interne, externe, isolée, salle blanche).',
         ],
         'title' => 'Security Zones',
+        'title_short' => 'Zones',
         'title_singular' => 'Security Zone',
     ],
     'zoneAdmin' => [

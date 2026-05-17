@@ -362,6 +362,14 @@ barChart: {
     url: "/admin/bays"
   },
   @endcan
+  @can('zone_access')
+  {
+    label: "{!! trans('cruds.zone.title_short') !!}",
+    data: [0, 0, 0, 0, 0, 0, {!! $zones !!}],
+    value: {!! $zones !!},
+    url: "/admin/zones"
+  },
+  @endcan
   @can('physical_server_access')
   {
     label: "{!! trans('cruds.physicalServer.title_short') !!}",
@@ -563,6 +571,7 @@ var topTags = [
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.site.title') !!}" , num: {!! $sites !!}, url: "/admin/sites" },
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.building.title') !!}" , num:{!! $buildings !!}, url: "/admin/buildings" },
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.bay.title') !!}" , num:{!! $bays !!}, url: "/admin/bays" },
+    {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.zone.title_short') !!}" , num:{!! $zones !!}, url: "/admin/zones" },
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.physicalServer.title_short') !!}", num:{!! $physicalServers !!}, url: "/admin/physical-servers" },
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.workstation.title') !!}" , num:{!! $workstations !!}, url: "/admin/workstations" },
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.phone.title') !!}" , num:{!! $phones !!}, url: "/admin/phones" },

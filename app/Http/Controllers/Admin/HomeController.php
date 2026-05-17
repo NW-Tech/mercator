@@ -53,6 +53,7 @@ use App\Models\Vlan;
 use App\Models\Wan;
 use App\Models\WifiTerminal;
 use App\Models\Workstation;
+use App\Models\Zone;
 use App\Models\ZoneAdmin;
 use Illuminate\Support\Facades\DB;
 
@@ -578,6 +579,8 @@ class HomeController extends Controller
             'bays' => Bay::count(),
             'bays_lvl1' => Bay::where('description', '<>', null)
                 ->count(),
+
+            'zones' => Zone::count(),
 
             'physicalServers' => PhysicalServer::count(),
             'physicalServers_lvl1' => PhysicalServer::where('description', '<>', null)
