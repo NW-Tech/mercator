@@ -9,6 +9,11 @@
     <a class="btn btn-default" href="{{ route('admin.zones.index') }}">
         {{ trans('global.back_to_list') }}
     </a>
+
+    <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$zone->getUID()}}">
+        {{ trans('global.explore') }}
+    </a>
+
     @can('zone_edit')
         <a class="btn btn-info" href="{{ route('admin.zones.edit', $zone->id) }}">
             {{ trans('global.edit') }}

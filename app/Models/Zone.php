@@ -30,7 +30,7 @@ class Zone extends Model implements HasPrefix, HasIconContract
 
     public $table = 'zones';
 
-    public static string $prefix = 'ZONE_';
+    public static string $prefix = 'ZONE_SEC_';
 
     public static string $icon = '/images/zone.png';
 

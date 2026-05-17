@@ -268,9 +268,9 @@ class ExplorerController extends Controller
         // Zone-Zone (parent/child)
         $links = DB::table('zone_zone')->select('zone_id', 'related_zone_id')->get();
         foreach ($links as $link) {
-            $this->addLinkEdge(
-                $this->formatId(Zone::$prefix, $link->related_zone_id),
-                $this->formatId(Zone::$prefix, $link->zone_id)
+            $this->addFluxEdge(null, false,
+                $this->formatId(Zone::$prefix, $link->zone_id),
+                $this->formatId(Zone::$prefix, $link->related_zone_id)
             );
         }
 
