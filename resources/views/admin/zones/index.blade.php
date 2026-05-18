@@ -30,6 +30,8 @@
                         <th>{{ trans('cruds.zone.fields.attributes') }}</th>
                         <th>{{ trans('cruds.zone.fields.description') }}</th>
                         <th>{{ trans('cruds.zone.fields.buildings') }}</th>
+                        <th>{{ trans('cruds.zone.fields.parent_zones') }}</th>
+                        <th>{{ trans('cruds.zone.fields.child_zones') }}</th>
                         <th>&nbsp;</th>
                     </tr>
                     </thead>
@@ -44,12 +46,26 @@
                                 </a>
                             </td>
                             <td>{{ $zone->type ?? '' }}</td>
-                            <td>{{ $zone->attributes ?? '' }}</td>
+                            <td>
+                            @foreach(explode(" ",$zone->attributes) as $attribute)
+                                <span class="badge badge-info">{{ $attribute }}</span>
+                            @endforeach
+                            </td>
                             <td>{!! \Illuminate\Support\Str::limit(strip_tags($zone->description ?? ''), 80) !!}</td>
                             <td>
-                                @foreach($zone->buildings as $building)
-                                    <a href="{{ route('admin.buildings.show', $building->id) }}">{{ $building->name }}</a>{{ !$loop->last ? ', ' : '' }}
-                                @endforeach
+                            @foreach($zone->buildings as $building)
+                                <a href="{{ route('admin.buildings.show', $building->id) }}">{{ $building->name }}</a>{{ !$loop->last ? ', ' : '' }}
+                            @endforeach
+                            </td>
+                            <td>
+                            @foreach($zone->parentZones as $parentZone)
+                                <a href="{{ route('admin.zones.show', $parentZone->id) }}">{{ $parentZone->name }}</a>{{ !$loop->last ? ', ' : '' }}
+                            @endforeach
+                            </td>
+                            <td>
+                            @foreach($zone->childZones as $childZone)
+                                <a href="{{ route('admin.zones.show', $childZone->id) }}">{{ $childZone->name }}</a>{{ !$loop->last ? ', ' : '' }}
+                            @endforeach
                             </td>
                             <td nowrap>
                                 @can('zone_show')

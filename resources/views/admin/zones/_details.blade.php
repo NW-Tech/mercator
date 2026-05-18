@@ -16,7 +16,11 @@
         <th width="10%">{{ trans('cruds.zone.fields.type') }}</th>
         <td width="20%">{{ $zone->type }}</td>
         <th width="10%">{{ trans('cruds.zone.fields.attributes') }}</th>
-        <td width="30%">{{ $zone->attributes }}</td>
+        <td width="30%">
+        @foreach(explode(" ",$zone->attributes) as $attribute)
+            <span class="badge badge-info">{{ $attribute }}</span>
+        @endforeach
+        </td>
     </tr>
     <tr>
         <th>{{ trans('cruds.zone.fields.description') }}</th>
