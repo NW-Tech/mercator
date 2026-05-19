@@ -15,14 +15,14 @@ OUTPUT  list | graph
 LIMIT   <n>
 ```
 
-| Clause | Obligatoire | Description |
-|--------|-------------|-------------|
-| `FROM` | ✅ | Modèle de données cible (voir [Modèles disponibles](#modeles-disponibles)) |
+| Clause | Obligatoire | Description                                                                       |
+|--------|-------------|-----------------------------------------------------------------------------------|
+| `FROM` | ✅ | Modèle de données cible (voir [Modèles disponibles](#modeles-disponibles))        |
 | `FIELDS` | ➖ | Liste des champs à afficher, y compris les champs de relations (`relation.champ`) |
-| `WHERE` | ➖ | Filtre sur les données (voir [Conditions](#conditions)) |
-| `WITH` | ➖ | Relations à charger en eager loading |
-| `OUTPUT` | ➖ | Format de sortie : `list` ou `graph` (`list` par défaut) |
-| `LIMIT` | ➖ | Nombre maximum d'enregistrements retournés (défaut : 100) |
+| `WHERE` | ➖ | Filtre sur les données (voir [Conditions](#conditions))                           |
+| `WITH` | ➖ | Relations à afficher dans le graphe                                               |
+| `OUTPUT` | ➖ | Format de sortie : `list` ou `graph` (`list` par défaut)                          |
+| `LIMIT` | ➖ | Nombre maximum d'enregistrements retournés (défaut : 100)                         |
 
 ## Modèles disponibles
 

@@ -228,6 +228,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::get('bays/{bay}/clone', [Admin\BayController::class, 'clone'])->name('bays.clone');
     Route::delete('bays-destroy', [Admin\BayController::class, 'massDestroy'])->name('bays.massDestroy');
 
+    // Zones
+    Route::resource('zones', Admin\ZoneController::class);
+    Route::delete('zones-destroy', [Admin\ZoneController::class, 'massDestroy'])->name('zones.massDestroy');
+
     // Physical Servers
     Route::resource('physical-servers', Admin\PhysicalServerController::class);
     Route::get('physical-servers-clone/{id}', [Admin\PhysicalServerController::class, 'clone'])->name('physical-servers.clone');
@@ -327,6 +331,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::get('report/administration', [Report\AdministrationView::class, 'generate'])->name('report.view.administration');
     Route::get('report/physical_infrastructure', [Report\PhysicalInfrastructureView::class, 'generate'])->name('report.view.physical-infrastructure');
     Route::get('report/network_infrastructure', [Report\NetworkInfrastructureView::class, 'generate'])->name('report.view.network-infrastructure');
+    Route::get('report/security_zones', [Report\SecurityZoneView::class, 'generate'])->name('report.view.security-zones');
 
     Route::get('report/impacts', [Report\ImpactList::class, 'generateExcel'])->name('report.view.impacts');
     Route::get('report/rto', [Report\RTO::class, 'generateExcel'])->name('report.view.rto');

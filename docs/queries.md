@@ -15,14 +15,14 @@ OUTPUT  list | graph
 LIMIT   <n>
 ```
 
-| Clause | Required | Description |
-|--------|----------|-------------|
-| `FROM` | ✅ | Target data model (see [Available models](#available-models)) |
+| Clause | Required | Description                                                             |
+|--------|----------|-------------------------------------------------------------------------|
+| `FROM` | ✅ | Target data model (see [Available models](#available-models))           |
 | `FIELDS` | ➖ | List of fields to display, including relation fields (`relation.field`) |
-| `WHERE` | ➖ | Data filter (see [Conditions](#conditions)) |
-| `WITH` | ➖ | Relations to load via eager loading |
-| `OUTPUT` | ➖ | Output format: `list` or `graph` (default: `list`) |
-| `LIMIT` | ➖ | Maximum number of records returned (default: 100) |
+| `WHERE` | ➖ | Data filter (see [Conditions](#conditions))                             |
+| `WITH` | ➖ | Relations to display on the graph                                       |
+| `OUTPUT` | ➖ | Output format: `list` or `graph` (default: `list`)                      |
+| `LIMIT` | ➖ | Maximum number of records returned (default: 100)                       |
 
 ## Available models {#available-models}
 

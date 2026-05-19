@@ -50,6 +50,7 @@ use App\Models\Vlan;
 use App\Models\Wan;
 use App\Models\WifiTerminal;
 use App\Models\Workstation;
+use App\Models\Zone;
 use App\Models\ZoneAdmin;
 use Gate;
 use Illuminate\Support\Collection;
@@ -151,6 +152,7 @@ class ExplorerController extends Controller
         $this->buildSites();
         $this->buildBuildings();
         $this->buildBays();
+        $this->buildSecurityZones();
         $this->buildPhysicalServers();
         $this->buildPhones();
         $this->buildStorageDevices();
@@ -241,6 +243,51 @@ class ExplorerController extends Controller
                 );
             }
         }
+    }
+
+    private function buildSecurityZones(): void
+    {
+        $zones = DB::table('zones')
+            ->select('id', 'name', 'attributes')
+            ->whereNull('deleted_at')
+            ->get();
+
+        foreach ($zones as $zone) {
+            $this->addNode(
+                6,
+                $this->formatId(Zone::$prefix, $zone->id),
+                $zone->name,
+                Zone::$icon,
+                'zones',
+                613,
+                null,
+                $zone->attributes
+            );
+        }
+
+        // Zone-Zone (parent/child)
+        $links = DB::table('zone_zone as zz')
+                 ->join('zones as parent', 'parent.id', '=', 'zz.zone_id')
+                 ->join('zones as child', 'child.id', '=', 'zz.related_zone_id')
+                 ->whereNull('parent.deleted_at')
+                 ->whereNull('child.deleted_at')
+                 ->select('zz.zone_id', 'zz.related_zone_id')
+                 ->get();
+
+        foreach ($links as $link) {
+            $this->addFluxEdge(null, false,
+                $this->formatId(Zone::$prefix, $link->zone_id),
+                $this->formatId(Zone::$prefix, $link->related_zone_id)
+            );
+        }
+
+        $this->linkJoinTable('building_zone',
+            Zone::$prefix, Building::$prefix,
+            'zone_id', 'building_id');
+
+        $this->linkJoinTable('admin_user_zone',
+            Zone::$prefix, AdminUser::$prefix,
+            'zone_id', 'admin_user_id');
     }
 
     private function buildPhysicalServers(): void
@@ -904,6 +951,7 @@ class ExplorerController extends Controller
         }
 
     }
+
 
     private function buildLogicalServers(): void
     {

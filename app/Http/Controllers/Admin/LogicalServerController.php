@@ -311,7 +311,7 @@ class LogicalServerController extends Controller
 
         if (Auth::user()->can('backup_edit')) {
             // Delete previous Backups
-            Backup::query()->where('logical_server_id', $logicalServer->id)->delete();
+            Backup::query()->where('logical_server_id', $logicalServer->id)->forceDelete();
 
             // Save Backups
             $storageDeviceId = $request['storage_device_id'];

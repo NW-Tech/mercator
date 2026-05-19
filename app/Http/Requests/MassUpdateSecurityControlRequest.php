@@ -2,10 +2,10 @@
 
 namespace App\Http\Requests;
 
+use App\Models\SecurityControl;
 use Gate;
 use Illuminate\Foundation\Http\FormRequest;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\SecurityControl;
 
 class MassUpdateSecurityControlRequest extends FormRequest
 {
@@ -19,7 +19,7 @@ class MassUpdateSecurityControlRequest extends FormRequest
     public function rules()
     {
         // Règles du UpdateSecurityControlRequest classique
-        $updateRules = (new UpdateSecurityControlRequest())->rules();
+        $updateRules = new UpdateSecurityControlRequest()->rules();
 
         // On récupère dynamiquement le nom de la table du modèle
         $model = new SecurityControl();
