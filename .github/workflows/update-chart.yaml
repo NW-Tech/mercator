@@ -56,6 +56,11 @@ jobs:
           skip_existing: true
           mark_as_latest: false
           pages_branch: dev
+<<<<<<< HEAD
+=======
+          pages_index_path: docs/_helm_chart/index/index.yaml
+          release_name_template: "{{ .Version }}"
+>>>>>>> 9c87a100fed72824b0d9ce9d9268695a44d466ad
         env:
           CR_TOKEN: "${{secrets.GITHUB_TOKEN}}"
 
