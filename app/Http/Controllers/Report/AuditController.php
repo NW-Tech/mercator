@@ -350,14 +350,14 @@ class AuditController extends HomeController
 
         // Zone
         $sheet->setCellValue("A{$row}", trans('cruds.zoneAdmin.title'));
-        $sheet->setCellValue("B{$row}", $levels['zones_lvl1']);
-        $sheet->setCellValue("C{$row}", $levels['zones']);
+        $sheet->setCellValue("B{$row}", $levels['zones_ad_lvl1']);
+        $sheet->setCellValue("C{$row}", $levels['zones_ad']);
         $sheet->setCellValue("D{$row}", "=B{$row}/C{$row}");
-        $sheet->setCellValue("E{$row}", $levels['zones_lvl1']);
-        $sheet->setCellValue("F{$row}", $levels['zones']);
+        $sheet->setCellValue("E{$row}", $levels['zones_ad_lvl1']);
+        $sheet->setCellValue("F{$row}", $levels['zones_ad']);
         $sheet->setCellValue("G{$row}", "=E{$row}/F{$row}");
-        $sheet->setCellValue("H{$row}", $levels['zones_lvl1']);
-        $sheet->setCellValue("I{$row}", $levels['zones']);
+        $sheet->setCellValue("H{$row}", $levels['zones_ad_lvl1']);
+        $sheet->setCellValue("I{$row}", $levels['zones_ad']);
         $sheet->setCellValue("J{$row}", "=H{$row}/I{$row}");
         $row++;
 

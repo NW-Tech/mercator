@@ -266,7 +266,14 @@ class ExplorerController extends Controller
         }
 
         // Zone-Zone (parent/child)
-        $links = DB::table('zone_zone')->select('zone_id', 'related_zone_id')->get();
+        $links = DB::table('zone_zone as zz')
+                 ->join('zones as parent', 'parent.id', '=', 'zz.zone_id')
+                 ->join('zones as child', 'child.id', '=', 'zz.related_zone_id')
+                 ->whereNull('parent.deleted_at')
+                 ->whereNull('child.deleted_at')
+                 ->select('zz.zone_id', 'zz.related_zone_id')
+                 ->get();
+
         foreach ($links as $link) {
             $this->addFluxEdge(null, false,
                 $this->formatId(Zone::$prefix, $link->zone_id),

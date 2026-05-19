@@ -221,8 +221,8 @@ barChart: {
   @can('zone_admin_access')
   {
     label: "{!! trans('cruds.zoneAdmin.title_short') !!}",
-    data: [ 0, 0, 0, 0, {!!$zones!!}, 0, 0],
-    value: {!!$zones!!},
+    data: [ 0, 0, 0, 0, {!!$zones_ad!!}, 0, 0],
+    value: {!!$zones_ad!!},
     url: "/admin/zone-admins"
   },
   @endcan
@@ -548,7 +548,7 @@ var topTags = [
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.flux.title') !!}" , num:{!! $flows !!}, url: "/admin/application-flows" },
     @endcan
     @can("administration_access")
-    {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.zoneAdmin.title_short') !!}" , num:{!!$zones!!}, url: "/admin/zone-admins" },
+    {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.zoneAdmin.title_short') !!}" , num:{!!$zones_ad!!}, url: "/admin/zone-admins" },
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.annuaire.title_short') !!}" , num:{!!$annuaires!!}, url: "/admin/annuaires" },
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.forestAd.title_short') !!}" , num:{!!$forests!!}, url: "/admin/forest-ads" },
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.domaine.title_short') !!}" , num:{!!$domains!!}, url: "/admin/domains" },

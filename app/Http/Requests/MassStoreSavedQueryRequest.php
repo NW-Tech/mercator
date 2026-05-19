@@ -10,7 +10,7 @@ class MassStoreSavedQueryRequest extends FormRequest
 {
     public function authorize(): true
     {
-        abort_if(Gate::denies('security_control_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('query_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return true;
     }

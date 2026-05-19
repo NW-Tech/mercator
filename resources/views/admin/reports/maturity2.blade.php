@@ -150,17 +150,17 @@
                 <th><center>#</center></th>
                 <th><center>{{ trans("global.mature") }}</center></th>
                 <th><center>
-                    {{ ($zones+$annuaires+$forests+$domains)>0 ?
-                        number_format(($zones_lvl1+$annuaires_lvl1+$forests_lvl1+$domaines_lvl1)*100/($zones+$annuaires+$forests+$domains),0) : 0 }}%
+                    {{ ($zones_ad+$annuaires+$forests+$domains)>0 ?
+                        number_format(($zones_ad_lvl1+$annuaires_lvl1+$forests_lvl1+$domaines_lvl1)*100/($zones_ad+$annuaires+$forests+$domains),0) : 0 }}%
                 </center></th>
             </thead>
 
             <tbody>
                 <tr>
                     <td><a href="/admin/zone-admins">{{ trans("cruds.zoneAdmin.title") }}</a></td>
-                    <td><center>{{ $zones }}</center></td>
-                    <td><center>{{ $zones_lvl1 }}</center></td>
-                    <td><center>{{ $zones>0 ? number_format($zones_lvl1*100/$zones,0):0 }}%</center></td>
+                    <td><center>{{ $zones_ad }}</center></td>
+                    <td><center>{{ $zones_ad_lvl1 }}</center></td>
+                    <td><center>{{ $zones_ad>0 ? number_format($zones_ad_lvl1*100/$zones_ad,0):0 }}%</center></td>
                 </tr>
                 <tr>
                     <td><a href="/admin/annuaires">{{ trans("cruds.annuaire.title") }}</a></td>
