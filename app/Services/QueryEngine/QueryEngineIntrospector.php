@@ -9,6 +9,8 @@ use ReflectionMethod;
 
 class QueryEngineIntrospector
 {
+    private const EXCLUDED_MODELS = ['User', 'PasswordReset'];
+
     protected const MODEL_NAMESPACE = 'App\\Models\\';
 
     /**
@@ -191,6 +193,10 @@ class QueryEngineIntrospector
                 continue;
             }
             if ((new ReflectionClass($class))->isAbstract()) {
+                continue;
+            }
+
+            if (in_array($modelName, self::EXCLUDED_MODELS)) {
                 continue;
             }
 

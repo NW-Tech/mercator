@@ -113,6 +113,8 @@ class QueryController extends Controller
      */
     public function duplicate(SavedQuery $query): RedirectResponse
     {
+        abort_if(Gate::denies('query_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $copy = $query->duplicate();
         $copy->save();
 
@@ -132,6 +134,8 @@ class QueryController extends Controller
      */
     public function execute(Request $request): JsonResponse
     {
+        abort_if(Gate::denies('query_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $dsl = QueryDslValidator::validate($request->all());
 
         $result = $this->resolver->execute($dsl);
@@ -155,6 +159,8 @@ class QueryController extends Controller
      */
     public function schema(): JsonResponse
     {
+        abort_if(Gate::denies('query_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         return response()->json([
             'models' => QueryEngineIntrospector::listModels(),
         ]);
@@ -165,6 +171,8 @@ class QueryController extends Controller
      */
     public function schemaModel(string $model): JsonResponse
     {
+        abort_if(Gate::denies('query_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         return response()->json(
             QueryEngineIntrospector::describe($model)
         );
