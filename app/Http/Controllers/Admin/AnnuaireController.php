@@ -44,7 +44,7 @@ class AnnuaireController extends Controller
 
         $zone_admins = ZoneAdmin::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
-        $annuaire->load('zone_admin');
+        $annuaire->load('zoneAdmin');
 
         return view('admin.annuaires.edit', compact('zone_admins', 'annuaire'));
     }
@@ -60,7 +60,7 @@ class AnnuaireController extends Controller
     {
         abort_if(Gate::denies('annuaire_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $annuaire->load('zone_admin');
+        $annuaire->load('zoneAdmin');
 
         return view('admin.annuaires.show', compact('annuaire'));
     }

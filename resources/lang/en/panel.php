@@ -34,6 +34,7 @@ return [
         'network_schema' => 'Network schema',
         'logical_infrastructure' => 'Logical infrastructure',
         'network_infrastructure' => 'Network infrastructure',
+        'security_zones'         => 'Security zones',
         'options' => 'Options',
         'password' => 'Password',
         'physical_infrastructure' => 'Physical infrastructure',

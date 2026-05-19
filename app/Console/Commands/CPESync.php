@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Parameter;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Http\Client\ConnectionException;
@@ -22,6 +23,9 @@ class CPESync extends Command
                             {--now : Run immediately, skip random delay}';
 
     protected $description = 'Synchronize the database with the CPE dictionary from NVD.';
+
+    /** @internal Cache key used to store the last successful run timestamp in the parameters table. */
+    public const string PARAM_LAST_RUN = 'cpe_sync.last_run';
 
     /**
      * @throws \Throwable
@@ -49,37 +53,40 @@ class CPESync extends Command
 
         $this->info("Source CPE API: {$apiUrl}");
 
-        // Determine to sync a time window (UTC) for incremental mode
+        // Determine the sync time window (UTC) for incremental mode
         $nowUtc = now('UTC');
         $start = null;
         $end = null;
 
-        if (!$isFull) {
+        if (! $isFull) {
             if ($sinceOpt) {
                 try {
                     $start = Carbon::parse($sinceOpt)->utc();
                 } catch (\Throwable $e) {
                     $this->error("Invalid --since option: {$sinceOpt}");
+
                     return self::FAILURE;
                 }
             } else {
-                $lastRun = cache()->get('cpe_sync.last_run');
+                // Persistent read from the parameters table (survives container restarts)
+                $lastRun = Parameter::getValue(self::PARAM_LAST_RUN);
                 if ($lastRun) {
                     $this->info("Last successful run: {$lastRun}");
                     $start = Carbon::parse($lastRun)->utc();
                 } else {
                     $this->info('No previous run found, full sync now.');
                     $isFull = true;
-                    }
+                }
             }
             $end = $nowUtc;
         }
-        // Message
-        if (!$isFull)
-            $this->line("Incremental window: {$start->toIso8601String()} -> {$end->toIso8601String()}");
-        else
-            $this->warn('FULL resync mode: ignoring lastMod*, fetching the entire dictionary.');
 
+        // Message
+        if (! $isFull) {
+            $this->line("Incremental window: {$start->toIso8601String()} -> {$end->toIso8601String()}");
+        } else {
+            $this->warn('FULL resync mode: ignoring lastMod*, fetching the entire dictionary.');
+        }
 
         // HTTP client with retry & timeout
         $client = Http::timeout(120)
@@ -213,8 +220,9 @@ class CPESync extends Command
             }
         }
 
-        // Toujours sauvegarder, mais avec un message différent
-        cache()->forever('cpe_sync.last_run', $nowUtc->toIso8601String());
+        // Persist the last run timestamp to the database (survives container restarts)
+        Parameter::setValue(self::PARAM_LAST_RUN, $nowUtc->toIso8601String());
+
         if ($isFull) {
             $this->info("Full sync completed. Next run will be incremental from {$nowUtc->toIso8601String()}");
         } else {

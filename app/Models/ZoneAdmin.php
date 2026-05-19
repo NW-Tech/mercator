@@ -20,7 +20,7 @@ class ZoneAdmin extends Model implements HasIconContract, HasPrefix
 
     public $table = 'zone_admins';
 
-    public static string $prefix = 'ZONE_';
+    public static string $prefix = 'ZONE_AD_';
 
     public static string $icon = '/images/zoneadmin.png';
 

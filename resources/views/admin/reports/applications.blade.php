@@ -210,7 +210,7 @@
 @endcan
 
 @can('flux_access')
-    @if ($fluxes->count()>0)
+    @if ($flows->count()>0)
         <br>
         <div class="card">
             <div class="card-header">
@@ -219,12 +219,12 @@
 
             <div class="card-body">
                 <p>{{ trans("cruds.flux.description") }}</p>
-                @foreach($fluxes as $flux)
+                @foreach($flows as $flow)
                     <div class="row">
                         <div class="col">
 
-                            @include('admin.fluxes._details', [
-                                'flux' => $flux,
+                            @include('admin.application-flows._details', [
+                                'flux' => $flow,
                                 'withLink' => true,
                             ])
                         </div>

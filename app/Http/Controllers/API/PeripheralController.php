@@ -7,10 +7,10 @@ use App\Http\Requests\MassStorePeripheralRequest;
 use App\Http\Requests\MassUpdatePeripheralRequest;
 use App\Http\Requests\StorePeripheralRequest;
 use App\Http\Requests\UpdatePeripheralRequest;
+use App\Models\Peripheral;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Peripheral;
 use Symfony\Component\HttpFoundation\Response;
 
 class PeripheralController extends APIController
@@ -32,8 +32,6 @@ class PeripheralController extends APIController
         $peripheral = Peripheral::query()->create($request->all());
 
         $peripheral->applications()->sync($request->input('applications', []));
-        // syncs
-        // $peripheral->roles()->sync($request->input('roles', []));
 
         return response()->json($peripheral, 201);
     }
@@ -54,10 +52,6 @@ class PeripheralController extends APIController
         if ($request->has('applications')) {
             $peripheral->applications()->sync($request->input('applications', []));
         }
-        // syncs
-        // if ($request->has('roles')) {
-        //     $peripheral->roles()->sync($request->input('roles', []));
-        // }
 
         return response()->json();
     }

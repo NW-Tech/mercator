@@ -1,3 +1,7 @@
+@props([
+    'zoneAdmin',
+    'withLink' => false
+])
 <table class="table table-bordered table-striped table-report" id="{{ $zoneAdmin->getUID() }}">
     <tbody>
         <tr>
@@ -5,7 +9,11 @@
                 {{ trans('cruds.zoneAdmin.fields.name') }}
             </th>
             <td>
+            @if ($withLink)
+                <a href="{{ route('admin.zone-admins.show', $zoneAdmin->id) }}">{{ $zoneAdmin->name }}</a>
+            @else
                 {{ $zoneAdmin->name }}
+            @endif
             </td>
         </tr>
         <tr>

@@ -1,3 +1,7 @@
+@props([
+    'adminUser',
+    'withLink' => false,
+])
 <table class="table table-bordered table-striped table-report" id="{{ $adminUser->getUID() }}">
     <tbody>
         <tr>
@@ -5,7 +9,11 @@
                 {{ trans('cruds.adminUser.fields.user_id') }}
             </th>
             <td colspan="3">
+            @if ($withLink)
+                <a href="{{ route('admin.admin-users.show', $adminUser->id) }}">{{ $adminUser->user_id }}</a>
+            @else
                 {{ $adminUser->user_id }}
+            @endif
             </td>
         </tr>
         <tr>
@@ -45,7 +53,7 @@
             </th>
             <td>
                 @if ($adminUser->domain_id !== null)
-                    <a href="{{ route('admin.domaine-ads.show', $adminUser->domain_id) }}">
+                    <a href="{{ route('admin.domains.show', $adminUser->domain_id) }}">
                         {{ $adminUser->domain->name }}
                     </a>
                 @endif

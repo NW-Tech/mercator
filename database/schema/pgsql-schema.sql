@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.13 (Debian 15.13-0+deb12u1)
--- Dumped by pg_dump version 15.13 (Debian 15.13-0+deb12u1)
+\restrict dlo9Zu4CGsfSzLIZ9VR2tYElKPWxfak59eZizHrgsGBO1oeL6Ns2gvNUCervyIC
+
+-- Dumped from database version 15.16 (Debian 15.16-0+deb12u1)
+-- Dumped by pg_dump version 15.16 (Debian 15.16-0+deb12u1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -61,6 +63,16 @@ ALTER SEQUENCE public.activities_id_seq OWNED BY public.activities.id;
 
 
 --
+-- Name: activity_application; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activity_application (
+    application_id integer NOT NULL,
+    activity_id integer NOT NULL
+);
+
+
+--
 -- Name: activity_document; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -101,16 +113,6 @@ CREATE SEQUENCE public.activity_impact_id_seq
 --
 
 ALTER SEQUENCE public.activity_impact_id_seq OWNED BY public.activity_impact.id;
-
-
---
--- Name: activity_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.activity_m_application (
-    m_application_id integer NOT NULL,
-    activity_id integer NOT NULL
-);
 
 
 --
@@ -180,12 +182,12 @@ ALTER SEQUENCE public.actors_id_seq OWNED BY public.actors.id;
 
 
 --
--- Name: admin_user_m_application; Type: TABLE; Schema: public; Owner: -
+-- Name: admin_user_application; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.admin_user_m_application (
+CREATE TABLE public.admin_user_application (
     admin_user_id integer NOT NULL,
-    m_application_id integer NOT NULL
+    application_id integer NOT NULL
 );
 
 
@@ -266,6 +268,16 @@ ALTER SEQUENCE public.annuaires_id_seq OWNED BY public.annuaires.id;
 
 
 --
+-- Name: application_application_service; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_application_service (
+    application_id integer NOT NULL,
+    application_service_id integer NOT NULL
+);
+
+
+--
 -- Name: application_blocks; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -301,12 +313,135 @@ ALTER SEQUENCE public.application_blocks_id_seq OWNED BY public.application_bloc
 
 
 --
+-- Name: application_certificate; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_certificate (
+    certificate_id integer NOT NULL,
+    application_id integer NOT NULL
+);
+
+
+--
+-- Name: application_container; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_container (
+    container_id integer NOT NULL,
+    application_id integer NOT NULL
+);
+
+
+--
+-- Name: application_data_processing; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_data_processing (
+    data_processing_id integer NOT NULL,
+    application_id integer NOT NULL
+);
+
+
+--
+-- Name: application_database; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_database (
+    application_id integer NOT NULL,
+    database_id integer NOT NULL
+);
+
+
+--
+-- Name: application_entity; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_entity (
+    application_id integer NOT NULL,
+    entity_id integer NOT NULL
+);
+
+
+--
+-- Name: application_events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_events (
+    id integer NOT NULL,
+    user_id integer NOT NULL,
+    application_id integer NOT NULL,
+    message text NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: application_flow_information; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_flow_information (
+    id bigint NOT NULL,
+    flux_id integer NOT NULL,
+    information_id integer NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: application_flows; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_flows (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    attributes character varying(255),
+    description text,
+    application_source_id integer,
+    service_source_id integer,
+    module_source_id integer,
+    database_source_id integer,
+    application_dest_id integer,
+    service_dest_id integer,
+    module_dest_id integer,
+    database_dest_id integer,
+    crypted boolean,
+    bidirectional boolean,
+    nature character varying(255),
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    deleted_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: application_logical_server; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_logical_server (
+    application_id integer NOT NULL,
+    logical_server_id integer NOT NULL
+);
+
+
+--
 -- Name: application_module_application_service; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.application_module_application_service (
     application_service_id integer NOT NULL,
     application_module_id integer NOT NULL
+);
+
+
+--
+-- Name: application_module_entity; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_module_entity (
+    application_module_id integer NOT NULL,
+    entity_id integer NOT NULL
 );
 
 
@@ -320,7 +455,10 @@ CREATE TABLE public.application_modules (
     description text,
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    vendor character varying(255),
+    product character varying(255),
+    version character varying(255)
 );
 
 
@@ -345,12 +483,52 @@ ALTER SEQUENCE public.application_modules_id_seq OWNED BY public.application_mod
 
 
 --
--- Name: application_service_m_application; Type: TABLE; Schema: public; Owner: -
+-- Name: application_peripheral; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.application_service_m_application (
-    m_application_id integer NOT NULL,
-    application_service_id integer NOT NULL
+CREATE TABLE public.application_peripheral (
+    application_id integer NOT NULL,
+    peripheral_id integer NOT NULL
+);
+
+
+--
+-- Name: application_physical_server; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_physical_server (
+    application_id integer NOT NULL,
+    physical_server_id integer NOT NULL
+);
+
+
+--
+-- Name: application_process; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_process (
+    application_id integer NOT NULL,
+    process_id integer NOT NULL
+);
+
+
+--
+-- Name: application_security_control; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_security_control (
+    security_control_id integer NOT NULL,
+    application_id integer NOT NULL
+);
+
+
+--
+-- Name: application_security_device; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_security_device (
+    security_device_id integer NOT NULL,
+    application_id integer NOT NULL
 );
 
 
@@ -390,6 +568,56 @@ ALTER SEQUENCE public.application_services_id_seq OWNED BY public.application_se
 
 
 --
+-- Name: application_workstation; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.application_workstation (
+    application_id integer NOT NULL,
+    workstation_id integer NOT NULL
+);
+
+
+--
+-- Name: applications; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.applications (
+    id integer NOT NULL,
+    name character varying(255) NOT NULL,
+    type character varying(255),
+    icon_id integer,
+    description text,
+    responsible character varying(255),
+    technology character varying(255),
+    external character varying(255),
+    users character varying(255),
+    entity_resp_id integer,
+    application_block_id integer,
+    documentation character varying(255),
+    security_need_c integer,
+    security_need_i integer,
+    security_need_a integer,
+    security_need_t integer,
+    version character varying(255),
+    functional_referent character varying(255),
+    editor character varying(255),
+    install_date date,
+    update_date date,
+    rto integer,
+    rpo integer,
+    vendor character varying(255),
+    product character varying(255),
+    attributes character varying(255),
+    patching_frequency integer,
+    next_update date,
+    security_need_auth integer,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    deleted_at timestamp(0) without time zone
+);
+
+
+--
 -- Name: audit_logs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -424,6 +652,64 @@ CREATE SEQUENCE public.audit_logs_id_seq
 --
 
 ALTER SEQUENCE public.audit_logs_id_seq OWNED BY public.audit_logs.id;
+
+
+--
+-- Name: backups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.backups (
+    id integer NOT NULL,
+    logical_server_id integer NOT NULL,
+    storage_device_id integer NOT NULL,
+    backup_frequency smallint,
+    backup_cycle smallint,
+    backup_retention smallint,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone,
+    deleted_at timestamp(0) without time zone
+);
+
+
+--
+-- Name: COLUMN backups.backup_frequency; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.backups.backup_frequency IS '1=daily,2=weekly,3=monthly';
+
+
+--
+-- Name: COLUMN backups.backup_cycle; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.backups.backup_cycle IS 'Ex: 1 full/day + 1 weekly/month';
+
+
+--
+-- Name: COLUMN backups.backup_retention; Type: COMMENT; Schema: public; Owner: -
+--
+
+COMMENT ON COLUMN public.backups.backup_retention IS 'Retention in days';
+
+
+--
+-- Name: backups_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.backups_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: backups_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.backups_id_seq OWNED BY public.backups.id;
 
 
 --
@@ -511,56 +797,12 @@ ALTER SEQUENCE public.buildings_id_seq OWNED BY public.buildings.id;
 
 
 --
--- Name: cartographer_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.cartographer_m_application (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    m_application_id integer NOT NULL,
-    created_at timestamp(0) without time zone,
-    updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
-);
-
-
---
--- Name: cartographer_m_application_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.cartographer_m_application_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: cartographer_m_application_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.cartographer_m_application_id_seq OWNED BY public.cartographer_m_application.id;
-
-
---
 -- Name: certificate_logical_server; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.certificate_logical_server (
     certificate_id integer NOT NULL,
     logical_server_id integer NOT NULL
-);
-
-
---
--- Name: certificate_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.certificate_m_application (
-    certificate_id integer NOT NULL,
-    m_application_id integer NOT NULL
 );
 
 
@@ -688,16 +930,6 @@ CREATE TABLE public.container_database (
 CREATE TABLE public.container_logical_server (
     container_id integer NOT NULL,
     logical_server_id integer NOT NULL
-);
-
-
---
--- Name: container_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.container_m_application (
-    container_id integer NOT NULL,
-    m_application_id integer NOT NULL
 );
 
 
@@ -855,7 +1087,12 @@ CREATE TABLE public.data_processing (
     lawfulness_consent boolean,
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    data_source text,
+    data_collection_obligation text,
+    data_subject_rights text,
+    automated_decision_making text,
+    update_date date
 );
 
 
@@ -900,16 +1137,6 @@ CREATE TABLE public.data_processing_information (
 
 
 --
--- Name: data_processing_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.data_processing_m_application (
-    data_processing_id integer NOT NULL,
-    m_application_id integer NOT NULL
-);
-
-
---
 -- Name: data_processing_process; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -950,16 +1177,6 @@ CREATE TABLE public.database_logical_server (
 
 
 --
--- Name: database_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.database_m_application (
-    m_application_id integer NOT NULL,
-    database_id integer NOT NULL
-);
-
-
---
 -- Name: databases; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -978,7 +1195,8 @@ CREATE TABLE public.databases (
     security_need_auth integer,
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    icon_id integer
 );
 
 
@@ -1139,20 +1357,20 @@ ALTER SEQUENCE public.documents_id_seq OWNED BY public.documents.id;
 
 
 --
--- Name: domaine_ad_forest_ad; Type: TABLE; Schema: public; Owner: -
+-- Name: domain_forest_ad; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.domaine_ad_forest_ad (
+CREATE TABLE public.domain_forest_ad (
     forest_ad_id integer NOT NULL,
-    domaine_ad_id integer NOT NULL
+    domain_id integer NOT NULL
 );
 
 
 --
--- Name: domaine_ads; Type: TABLE; Schema: public; Owner: -
+-- Name: domains; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.domaine_ads (
+CREATE TABLE public.domains (
     id integer NOT NULL,
     name character varying(255) NOT NULL,
     description text,
@@ -1183,7 +1401,7 @@ CREATE SEQUENCE public.domaine_ads_id_seq
 -- Name: domaine_ads_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.domaine_ads_id_seq OWNED BY public.domaine_ads.id;
+ALTER SEQUENCE public.domaine_ads_id_seq OWNED BY public.domains.id;
 
 
 --
@@ -1236,16 +1454,6 @@ ALTER SEQUENCE public.entities_id_seq OWNED BY public.entities.id;
 CREATE TABLE public.entity_document (
     entity_id integer NOT NULL,
     document_id integer NOT NULL
-);
-
-
---
--- Name: entity_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.entity_m_application (
-    m_application_id integer NOT NULL,
-    entity_id integer NOT NULL
 );
 
 
@@ -1313,29 +1521,22 @@ CREATE TABLE public.external_connected_entity_subnetwork (
 
 
 --
--- Name: fluxes; Type: TABLE; Schema: public; Owner: -
+-- Name: flux_information_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.fluxes (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    attributes character varying(255),
-    description text,
-    application_source_id integer,
-    service_source_id integer,
-    module_source_id integer,
-    database_source_id integer,
-    application_dest_id integer,
-    service_dest_id integer,
-    module_dest_id integer,
-    database_dest_id integer,
-    crypted boolean,
-    bidirectional boolean,
-    nature character varying(255),
-    created_at timestamp(0) without time zone,
-    updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
-);
+CREATE SEQUENCE public.flux_information_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: flux_information_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.flux_information_id_seq OWNED BY public.application_flow_information.id;
 
 
 --
@@ -1355,7 +1556,7 @@ CREATE SEQUENCE public.fluxes_id_seq
 -- Name: fluxes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.fluxes_id_seq OWNED BY public.fluxes.id;
+ALTER SEQUENCE public.fluxes_id_seq OWNED BY public.application_flows.id;
 
 
 --
@@ -1511,6 +1712,16 @@ ALTER SEQUENCE public.information_id_seq OWNED BY public.information.id;
 
 
 --
+-- Name: information_information; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.information_information (
+    information_id integer NOT NULL,
+    child_information_id integer NOT NULL
+);
+
+
+--
 -- Name: information_process; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1607,7 +1818,14 @@ CREATE TABLE public.logical_flows (
     physical_security_device_dest_id integer,
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    chain character varying(255),
+    subnetwork_source_id integer,
+    subnetwork_dest_id integer,
+    security_device_source_id integer,
+    security_device_dest_id integer,
+    cluster_source_id integer,
+    cluster_dest_id integer
 );
 
 
@@ -1629,16 +1847,6 @@ CREATE SEQUENCE public.logical_flows_id_seq
 --
 
 ALTER SEQUENCE public.logical_flows_id_seq OWNED BY public.logical_flows.id;
-
-
---
--- Name: logical_server_m_application; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.logical_server_m_application (
-    m_application_id integer NOT NULL,
-    logical_server_id integer NOT NULL
-);
 
 
 --
@@ -1704,20 +1912,6 @@ ALTER SEQUENCE public.logical_servers_id_seq OWNED BY public.logical_servers.id;
 
 
 --
--- Name: m_application_events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.m_application_events (
-    id integer NOT NULL,
-    user_id integer NOT NULL,
-    m_application_id integer NOT NULL,
-    message text NOT NULL,
-    created_at timestamp(0) without time zone,
-    updated_at timestamp(0) without time zone
-);
-
-
---
 -- Name: m_application_events_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -1734,97 +1928,7 @@ CREATE SEQUENCE public.m_application_events_id_seq
 -- Name: m_application_events_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.m_application_events_id_seq OWNED BY public.m_application_events.id;
-
-
---
--- Name: m_application_peripheral; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.m_application_peripheral (
-    m_application_id integer NOT NULL,
-    peripheral_id integer NOT NULL
-);
-
-
---
--- Name: m_application_physical_server; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.m_application_physical_server (
-    m_application_id integer NOT NULL,
-    physical_server_id integer NOT NULL
-);
-
-
---
--- Name: m_application_process; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.m_application_process (
-    m_application_id integer NOT NULL,
-    process_id integer NOT NULL
-);
-
-
---
--- Name: m_application_security_device; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.m_application_security_device (
-    security_device_id integer NOT NULL,
-    m_application_id integer NOT NULL
-);
-
-
---
--- Name: m_application_workstation; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.m_application_workstation (
-    m_application_id integer NOT NULL,
-    workstation_id integer NOT NULL
-);
-
-
---
--- Name: m_applications; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.m_applications (
-    id integer NOT NULL,
-    name character varying(255) NOT NULL,
-    type character varying(255),
-    icon_id integer,
-    description text,
-    responsible character varying(255),
-    technology character varying(255),
-    external character varying(255),
-    users character varying(255),
-    entity_resp_id integer,
-    application_block_id integer,
-    documentation character varying(255),
-    security_need_c integer,
-    security_need_i integer,
-    security_need_a integer,
-    security_need_t integer,
-    version character varying(255),
-    functional_referent character varying(255),
-    editor character varying(255),
-    install_date date,
-    update_date date,
-    rto integer,
-    rpo integer,
-    vendor character varying(255),
-    product character varying(255),
-    attributes character varying(255),
-    patching_frequency integer,
-    next_update date,
-    security_need_auth integer,
-    created_at timestamp(0) without time zone,
-    updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
-);
+ALTER SEQUENCE public.m_application_events_id_seq OWNED BY public.application_events.id;
 
 
 --
@@ -1844,7 +1948,7 @@ CREATE SEQUENCE public.m_applications_id_seq
 -- Name: m_applications_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE public.m_applications_id_seq OWNED BY public.m_applications.id;
+ALTER SEQUENCE public.m_applications_id_seq OWNED BY public.applications.id;
 
 
 --
@@ -1907,7 +2011,9 @@ CREATE TABLE public.mans (
     name character varying(255) NOT NULL,
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    description text,
+    parent_man_id integer
 );
 
 
@@ -1972,6 +2078,20 @@ CREATE SEQUENCE public.media_id_seq
 --
 
 ALTER SEQUENCE public.media_id_seq OWNED BY public.media.id;
+
+
+--
+-- Name: mercator_modules; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.mercator_modules (
+    name character varying(255) NOT NULL,
+    label character varying(255) NOT NULL,
+    version character varying(255) NOT NULL,
+    enabled boolean DEFAULT false NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
 
 
 --
@@ -2109,7 +2229,7 @@ ALTER SEQUENCE public.networks_id_seq OWNED BY public.networks.id;
 CREATE TABLE public.oauth_access_tokens (
     id character varying(100) NOT NULL,
     user_id bigint,
-    client_id character varying(36) NOT NULL,
+    client_id character varying(100) NOT NULL,
     name character varying(255),
     scopes text,
     revoked boolean NOT NULL,
@@ -2126,7 +2246,7 @@ CREATE TABLE public.oauth_access_tokens (
 CREATE TABLE public.oauth_auth_codes (
     id character varying(100) NOT NULL,
     user_id bigint NOT NULL,
-    client_id character varying(36) NOT NULL,
+    client_id character varying(100) NOT NULL,
     scopes text,
     revoked boolean NOT NULL,
     expires_at timestamp(0) without time zone
@@ -2138,7 +2258,7 @@ CREATE TABLE public.oauth_auth_codes (
 --
 
 CREATE TABLE public.oauth_clients (
-    id character varying(36) NOT NULL,
+    id character varying(100) NOT NULL,
     user_id bigint,
     name character varying(255) NOT NULL,
     secret character varying(100),
@@ -2172,12 +2292,29 @@ ALTER SEQUENCE public.oauth_clients_id_seq OWNED BY public.oauth_clients.id;
 
 
 --
+-- Name: oauth_device_codes; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.oauth_device_codes (
+    id character(80) NOT NULL,
+    user_id bigint,
+    client_id uuid NOT NULL,
+    user_code character(8) NOT NULL,
+    scopes text NOT NULL,
+    revoked boolean NOT NULL,
+    user_approved_at timestamp(0) without time zone,
+    last_polled_at timestamp(0) without time zone,
+    expires_at timestamp(0) without time zone
+);
+
+
+--
 -- Name: oauth_personal_access_clients; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.oauth_personal_access_clients (
     id bigint NOT NULL,
-    client_id character varying(36) NOT NULL,
+    client_id bigint NOT NULL,
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone
 );
@@ -2335,7 +2472,7 @@ CREATE TABLE public.permissions (
     title character varying(255),
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    module character varying(255)
 );
 
 
@@ -2435,7 +2572,9 @@ CREATE TABLE public.physical_links (
     logical_server_dest_id integer,
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    type character varying(255),
+    color character varying(255)
 );
 
 
@@ -2644,7 +2783,8 @@ CREATE TABLE public.physical_switches (
     version character varying(255),
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    icon_id integer
 );
 
 
@@ -2856,13 +2996,38 @@ ALTER SEQUENCE public.routers_id_seq OWNED BY public.routers.id;
 
 
 --
--- Name: security_control_m_application; Type: TABLE; Schema: public; Owner: -
+-- Name: saved_queries; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.security_control_m_application (
-    security_control_id integer NOT NULL,
-    m_application_id integer NOT NULL
+CREATE TABLE public.saved_queries (
+    id bigint NOT NULL,
+    name character varying(255) NOT NULL,
+    description text,
+    query json NOT NULL,
+    is_public boolean DEFAULT false NOT NULL,
+    user_id integer,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
 );
+
+
+--
+-- Name: saved_queries_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.saved_queries_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: saved_queries_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.saved_queries_id_seq OWNED BY public.saved_queries.id;
 
 
 --
@@ -2925,7 +3090,8 @@ CREATE TABLE public.security_devices (
     attributes character varying(255),
     created_at timestamp(0) without time zone,
     updated_at timestamp(0) without time zone,
-    deleted_at timestamp(0) without time zone
+    deleted_at timestamp(0) without time zone,
+    address_ip character varying(255)
 );
 
 
@@ -3399,6 +3565,27 @@ ALTER TABLE ONLY public.application_blocks ALTER COLUMN id SET DEFAULT nextval('
 
 
 --
+-- Name: application_events id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_events ALTER COLUMN id SET DEFAULT nextval('public.m_application_events_id_seq'::regclass);
+
+
+--
+-- Name: application_flow_information id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flow_information ALTER COLUMN id SET DEFAULT nextval('public.flux_information_id_seq'::regclass);
+
+
+--
+-- Name: application_flows id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flows ALTER COLUMN id SET DEFAULT nextval('public.fluxes_id_seq'::regclass);
+
+
+--
 -- Name: application_modules id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -3413,10 +3600,24 @@ ALTER TABLE ONLY public.application_services ALTER COLUMN id SET DEFAULT nextval
 
 
 --
+-- Name: applications id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.applications ALTER COLUMN id SET DEFAULT nextval('public.m_applications_id_seq'::regclass);
+
+
+--
 -- Name: audit_logs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.audit_logs ALTER COLUMN id SET DEFAULT nextval('public.audit_logs_id_seq'::regclass);
+
+
+--
+-- Name: backups id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.backups ALTER COLUMN id SET DEFAULT nextval('public.backups_id_seq'::regclass);
 
 
 --
@@ -3431,13 +3632,6 @@ ALTER TABLE ONLY public.bays ALTER COLUMN id SET DEFAULT nextval('public.bays_id
 --
 
 ALTER TABLE ONLY public.buildings ALTER COLUMN id SET DEFAULT nextval('public.buildings_id_seq'::regclass);
-
-
---
--- Name: cartographer_m_application id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.cartographer_m_application ALTER COLUMN id SET DEFAULT nextval('public.cartographer_m_application_id_seq'::regclass);
 
 
 --
@@ -3518,10 +3712,10 @@ ALTER TABLE ONLY public.documents ALTER COLUMN id SET DEFAULT nextval('public.do
 
 
 --
--- Name: domaine_ads id; Type: DEFAULT; Schema: public; Owner: -
+-- Name: domains id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.domaine_ads ALTER COLUMN id SET DEFAULT nextval('public.domaine_ads_id_seq'::regclass);
+ALTER TABLE ONLY public.domains ALTER COLUMN id SET DEFAULT nextval('public.domaine_ads_id_seq'::regclass);
 
 
 --
@@ -3536,13 +3730,6 @@ ALTER TABLE ONLY public.entities ALTER COLUMN id SET DEFAULT nextval('public.ent
 --
 
 ALTER TABLE ONLY public.external_connected_entities ALTER COLUMN id SET DEFAULT nextval('public.external_connected_entities_id_seq'::regclass);
-
-
---
--- Name: fluxes id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.fluxes ALTER COLUMN id SET DEFAULT nextval('public.fluxes_id_seq'::regclass);
 
 
 --
@@ -3595,20 +3782,6 @@ ALTER TABLE ONLY public.logical_servers ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- Name: m_application_events id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_application_events ALTER COLUMN id SET DEFAULT nextval('public.m_application_events_id_seq'::regclass);
-
-
---
--- Name: m_applications id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_applications ALTER COLUMN id SET DEFAULT nextval('public.m_applications_id_seq'::regclass);
-
-
---
 -- Name: macro_processuses id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -3648,13 +3821,6 @@ ALTER TABLE ONLY public.network_switches ALTER COLUMN id SET DEFAULT nextval('pu
 --
 
 ALTER TABLE ONLY public.networks ALTER COLUMN id SET DEFAULT nextval('public.networks_id_seq'::regclass);
-
-
---
--- Name: oauth_clients id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.oauth_clients ALTER COLUMN id SET DEFAULT nextval('public.oauth_clients_id_seq'::regclass);
 
 
 --
@@ -3753,6 +3919,13 @@ ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_
 --
 
 ALTER TABLE ONLY public.routers ALTER COLUMN id SET DEFAULT nextval('public.routers_id_seq'::regclass);
+
+
+--
+-- Name: saved_queries id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.saved_queries ALTER COLUMN id SET DEFAULT nextval('public.saved_queries_id_seq'::regclass);
 
 
 --
@@ -3864,11 +4037,11 @@ ALTER TABLE ONLY public.actors
 
 
 --
--- Name: admin_user_m_application admin_user_m_application_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: admin_user_application admin_user_m_application_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.admin_user_m_application
-    ADD CONSTRAINT admin_user_m_application_pkey PRIMARY KEY (admin_user_id, m_application_id);
+ALTER TABLE ONLY public.admin_user_application
+    ADD CONSTRAINT admin_user_m_application_pkey PRIMARY KEY (admin_user_id, application_id);
 
 
 --
@@ -3904,6 +4077,14 @@ ALTER TABLE ONLY public.application_blocks
 
 
 --
+-- Name: application_module_entity application_module_entity_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_module_entity
+    ADD CONSTRAINT application_module_entity_pkey PRIMARY KEY (application_module_id, entity_id);
+
+
+--
 -- Name: application_modules application_modules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3928,6 +4109,14 @@ ALTER TABLE ONLY public.audit_logs
 
 
 --
+-- Name: backups backups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.backups
+    ADD CONSTRAINT backups_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: bays bays_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -3941,14 +4130,6 @@ ALTER TABLE ONLY public.bays
 
 ALTER TABLE ONLY public.buildings
     ADD CONSTRAINT buildings_pkey PRIMARY KEY (id);
-
-
---
--- Name: cartographer_m_application cartographer_m_application_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.cartographer_m_application
-    ADD CONSTRAINT cartographer_m_application_pkey PRIMARY KEY (id);
 
 
 --
@@ -4112,10 +4293,10 @@ ALTER TABLE ONLY public.admin_users
 
 
 --
--- Name: domaine_ads domaine_ads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: domains domaine_ads_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.domaine_ads
+ALTER TABLE ONLY public.domains
     ADD CONSTRAINT domaine_ads_pkey PRIMARY KEY (id);
 
 
@@ -4136,10 +4317,26 @@ ALTER TABLE ONLY public.external_connected_entities
 
 
 --
--- Name: fluxes fluxes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: application_flow_information flux_information_flux_id_information_id_unique; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
+ALTER TABLE ONLY public.application_flow_information
+    ADD CONSTRAINT flux_information_flux_id_information_id_unique UNIQUE (flux_id, information_id);
+
+
+--
+-- Name: application_flow_information flux_information_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flow_information
+    ADD CONSTRAINT flux_information_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: application_flows fluxes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flows
     ADD CONSTRAINT fluxes_pkey PRIMARY KEY (id);
 
 
@@ -4165,6 +4362,14 @@ ALTER TABLE ONLY public.gateways
 
 ALTER TABLE ONLY public.graphs
     ADD CONSTRAINT graphs_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: information_information information_information_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.information_information
+    ADD CONSTRAINT information_information_pkey PRIMARY KEY (information_id, child_information_id);
 
 
 --
@@ -4200,18 +4405,18 @@ ALTER TABLE ONLY public.logical_servers
 
 
 --
--- Name: m_application_events m_application_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: application_events m_application_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_application_events
+ALTER TABLE ONLY public.application_events
     ADD CONSTRAINT m_application_events_pkey PRIMARY KEY (id);
 
 
 --
--- Name: m_applications m_applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: applications m_applications_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_applications
+ALTER TABLE ONLY public.applications
     ADD CONSTRAINT m_applications_pkey PRIMARY KEY (id);
 
 
@@ -4237,6 +4442,14 @@ ALTER TABLE ONLY public.mans
 
 ALTER TABLE ONLY public.media
     ADD CONSTRAINT media_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mercator_modules mercator_modules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.mercator_modules
+    ADD CONSTRAINT mercator_modules_pkey PRIMARY KEY (name);
 
 
 --
@@ -4293,6 +4506,22 @@ ALTER TABLE ONLY public.oauth_auth_codes
 
 ALTER TABLE ONLY public.oauth_clients
     ADD CONSTRAINT oauth_clients_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: oauth_device_codes oauth_device_codes_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.oauth_device_codes
+    ADD CONSTRAINT oauth_device_codes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: oauth_device_codes oauth_device_codes_user_code_unique; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.oauth_device_codes
+    ADD CONSTRAINT oauth_device_codes_user_code_unique UNIQUE (user_code);
 
 
 --
@@ -4413,6 +4642,14 @@ ALTER TABLE ONLY public.roles
 
 ALTER TABLE ONLY public.routers
     ADD CONSTRAINT routers_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: saved_queries saved_queries_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.saved_queries
+    ADD CONSTRAINT saved_queries_pkey PRIMARY KEY (id);
 
 
 --
@@ -4558,21 +4795,21 @@ CREATE INDEX actor_id_fk_1472680 ON public.actor_operation USING btree (actor_id
 -- Name: application_block_fk_1644592; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX application_block_fk_1644592 ON public.m_applications USING btree (application_block_id);
+CREATE INDEX application_block_fk_1644592 ON public.applications USING btree (application_block_id);
 
 
 --
 -- Name: application_dest_fk_1485549; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX application_dest_fk_1485549 ON public.fluxes USING btree (application_dest_id);
+CREATE INDEX application_dest_fk_1485549 ON public.application_flows USING btree (application_dest_id);
 
 
 --
 -- Name: application_id_fk_0394834858; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX application_id_fk_0394834858 ON public.activity_m_application USING btree (m_application_id);
+CREATE INDEX application_id_fk_0394834858 ON public.activity_application USING btree (application_id);
 
 
 --
@@ -4586,7 +4823,7 @@ CREATE INDEX application_module_id_fk_1492414 ON public.application_module_appli
 -- Name: application_service_id_fk_1482585; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX application_service_id_fk_1482585 ON public.application_service_m_application USING btree (application_service_id);
+CREATE INDEX application_service_id_fk_1482585 ON public.application_application_service USING btree (application_service_id);
 
 
 --
@@ -4600,7 +4837,7 @@ CREATE INDEX application_service_id_fk_1492414 ON public.application_module_appl
 -- Name: application_source_fk_1485545; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX application_source_fk_1485545 ON public.fluxes USING btree (application_source_id);
+CREATE INDEX application_source_fk_1485545 ON public.application_flows USING btree (application_source_id);
 
 
 --
@@ -4726,7 +4963,7 @@ CREATE INDEX building_id_fk_94821232 ON public.buildings USING btree (building_i
 -- Name: certificate_id_fk_4584393; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX certificate_id_fk_4584393 ON public.certificate_m_application USING btree (certificate_id);
+CREATE INDEX certificate_id_fk_4584393 ON public.application_certificate USING btree (certificate_id);
 
 
 --
@@ -4775,7 +5012,7 @@ CREATE INDEX container_id_fk_54933032 ON public.container_logical_server USING b
 -- Name: container_id_fk_549854345; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX container_id_fk_549854345 ON public.container_m_application USING btree (container_id);
+CREATE INDEX container_id_fk_549854345 ON public.application_container USING btree (container_id);
 
 
 --
@@ -4817,21 +5054,21 @@ CREATE INDEX data_processing_id_fk_6930583 ON public.data_processing_document US
 -- Name: data_processing_id_fk_6948435; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX data_processing_id_fk_6948435 ON public.data_processing_m_application USING btree (data_processing_id);
+CREATE INDEX data_processing_id_fk_6948435 ON public.application_data_processing USING btree (data_processing_id);
 
 
 --
 -- Name: database_dest_fk_1485552; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX database_dest_fk_1485552 ON public.fluxes USING btree (database_dest_id);
+CREATE INDEX database_dest_fk_1485552 ON public.application_flows USING btree (database_dest_id);
 
 
 --
 -- Name: database_id_fk_1482586; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX database_id_fk_1482586 ON public.database_m_application USING btree (database_id);
+CREATE INDEX database_id_fk_1482586 ON public.application_database USING btree (database_id);
 
 
 --
@@ -4859,7 +5096,7 @@ CREATE INDEX database_id_fk_1542475 ON public.database_logical_server USING btre
 -- Name: database_source_fk_1485548; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX database_source_fk_1485548 ON public.fluxes USING btree (database_source_id);
+CREATE INDEX database_source_fk_1485548 ON public.application_flows USING btree (database_source_id);
 
 
 --
@@ -4915,7 +5152,7 @@ CREATE INDEX document_id_fk_129487 ON public.admin_users USING btree (icon_id);
 -- Name: document_id_fk_4394343; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX document_id_fk_4394343 ON public.m_applications USING btree (icon_id);
+CREATE INDEX document_id_fk_4394343 ON public.applications USING btree (icon_id);
 
 
 --
@@ -4992,7 +5229,7 @@ CREATE INDEX domain_id_fk_69385935 ON public.admin_users USING btree (domain_id)
 -- Name: domaine_ad_id_fk_1492084; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX domaine_ad_id_fk_1492084 ON public.domaine_ad_forest_ad USING btree (domaine_ad_id);
+CREATE INDEX domaine_ad_id_fk_1492084 ON public.domain_forest_ad USING btree (domain_id);
 
 
 --
@@ -5013,7 +5250,7 @@ CREATE INDEX entity_id_fk_1485563 ON public.database_entity USING btree (entity_
 -- Name: entity_id_fk_1488611; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX entity_id_fk_1488611 ON public.entity_m_application USING btree (entity_id);
+CREATE INDEX entity_id_fk_1488611 ON public.application_entity USING btree (entity_id);
 
 
 --
@@ -5048,7 +5285,7 @@ CREATE INDEX entity_resp_fk_1485569 ON public.databases USING btree (entity_resp
 -- Name: entity_resp_fk_1488612; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX entity_resp_fk_1488612 ON public.m_applications USING btree (entity_resp_id);
+CREATE INDEX entity_resp_fk_1488612 ON public.applications USING btree (entity_resp_id);
 
 
 --
@@ -5069,7 +5306,7 @@ CREATE INDEX external_connected_entity_idx_59458458 ON public.external_connected
 -- Name: forest_ad_id_fk_1492084; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX forest_ad_id_fk_1492084 ON public.domaine_ad_forest_ad USING btree (forest_ad_id);
+CREATE INDEX forest_ad_id_fk_1492084 ON public.domain_forest_ad USING btree (forest_ad_id);
 
 
 --
@@ -5122,6 +5359,20 @@ CREATE INDEX lan_id_fk_1490368 ON public.lan_wan USING btree (lan_id);
 
 
 --
+-- Name: logical_flows_subnetwork_dest_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX logical_flows_subnetwork_dest_id_index ON public.logical_flows USING btree (subnetwork_dest_id);
+
+
+--
+-- Name: logical_flows_subnetwork_source_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX logical_flows_subnetwork_source_id_index ON public.logical_flows USING btree (subnetwork_source_id);
+
+
+--
 -- Name: logical_server_dest_id_fk; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5132,7 +5383,7 @@ CREATE INDEX logical_server_dest_id_fk ON public.physical_links USING btree (log
 -- Name: logical_server_id_fk_1488616; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX logical_server_id_fk_1488616 ON public.logical_server_m_application USING btree (logical_server_id);
+CREATE INDEX logical_server_id_fk_1488616 ON public.application_logical_server USING btree (logical_server_id);
 
 
 --
@@ -5188,91 +5439,91 @@ CREATE INDEX logical_servers_active ON public.logical_servers USING btree (activ
 -- Name: m_application_id_fk_1482573; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_1482573 ON public.m_application_process USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_1482573 ON public.application_process USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_1482585; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_1482585 ON public.application_service_m_application USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_1482585 ON public.application_application_service USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_1482586; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_1482586 ON public.database_m_application USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_1482586 ON public.application_database USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_1486547; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_1486547 ON public.m_application_workstation USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_1486547 ON public.application_workstation USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_1488611; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_1488611 ON public.entity_m_application USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_1488611 ON public.application_entity USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_1488616; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_1488616 ON public.logical_server_m_application USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_1488616 ON public.application_logical_server USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_344234340; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_344234340 ON public.container_m_application USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_344234340 ON public.application_container USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_41923483; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_41923483 ON public.m_application_security_device USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_41923483 ON public.application_security_device USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_4584393s; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_4584393s ON public.certificate_m_application USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_4584393s ON public.application_certificate USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_5483543; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_5483543 ON public.m_application_physical_server USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_5483543 ON public.application_physical_server USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_5837573; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_5837573 ON public.security_control_m_application USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_5837573 ON public.application_security_control USING btree (application_id);
 
 
 --
 -- Name: m_application_id_fk_9878654; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_application_id_fk_9878654 ON public.m_application_peripheral USING btree (m_application_id);
+CREATE INDEX m_application_id_fk_9878654 ON public.application_peripheral USING btree (application_id);
 
 
 --
 -- Name: m_applications_id_fk_4384483; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX m_applications_id_fk_4384483 ON public.data_processing_m_application USING btree (m_application_id);
+CREATE INDEX m_applications_id_fk_4384483 ON public.application_data_processing USING btree (application_id);
 
 
 --
@@ -5290,6 +5541,13 @@ CREATE INDEX man_id_fk_1490367 ON public.man_wan USING btree (man_id);
 
 
 --
+-- Name: man_id_fk_4385454; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX man_id_fk_4385454 ON public.mans USING btree (parent_man_id);
+
+
+--
 -- Name: media_model_type_model_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5300,14 +5558,14 @@ CREATE INDEX media_model_type_model_id_index ON public.media USING btree (model_
 -- Name: module_dest_fk_1485551; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX module_dest_fk_1485551 ON public.fluxes USING btree (module_dest_id);
+CREATE INDEX module_dest_fk_1485551 ON public.application_flows USING btree (module_dest_id);
 
 
 --
 -- Name: module_source_fk_1485547; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX module_source_fk_1485547 ON public.fluxes USING btree (module_source_id);
+CREATE INDEX module_source_fk_1485547 ON public.application_flows USING btree (module_source_id);
 
 
 --
@@ -5381,6 +5639,20 @@ CREATE INDEX oauth_clients_user_id_index ON public.oauth_clients USING btree (us
 
 
 --
+-- Name: oauth_device_codes_client_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX oauth_device_codes_client_id_index ON public.oauth_device_codes USING btree (client_id);
+
+
+--
+-- Name: oauth_device_codes_user_id_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX oauth_device_codes_user_id_index ON public.oauth_device_codes USING btree (user_id);
+
+
+--
 -- Name: oauth_refresh_tokens_access_token_id_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5447,7 +5719,7 @@ CREATE INDEX peripheral_dest_id_fk ON public.physical_links USING btree (periphe
 -- Name: peripheral_id_fk_6454564; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX peripheral_id_fk_6454564 ON public.m_application_peripheral USING btree (peripheral_id);
+CREATE INDEX peripheral_id_fk_6454564 ON public.application_peripheral USING btree (peripheral_id);
 
 
 --
@@ -5552,7 +5824,7 @@ CREATE INDEX physical_server_id_fk_1657961 ON public.logical_server_physical_ser
 -- Name: physical_server_id_fk_4543543; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX physical_server_id_fk_4543543 ON public.m_application_physical_server USING btree (physical_server_id);
+CREATE INDEX physical_server_id_fk_4543543 ON public.application_physical_server USING btree (physical_server_id);
 
 
 --
@@ -5622,7 +5894,7 @@ CREATE INDEX process_id_fk_1473025 ON public.information_process USING btree (pr
 -- Name: process_id_fk_1482573; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX process_id_fk_1482573 ON public.m_application_process USING btree (process_id);
+CREATE INDEX process_id_fk_1482573 ON public.application_process USING btree (process_id);
 
 
 --
@@ -5643,7 +5915,7 @@ CREATE INDEX process_id_fk_1627958 ON public.entity_process USING btree (process
 -- Name: process_id_fk_394823838; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX process_id_fk_394823838 ON public.activity_m_application USING btree (activity_id);
+CREATE INDEX process_id_fk_394823838 ON public.activity_application USING btree (activity_id);
 
 
 --
@@ -5731,6 +6003,13 @@ CREATE INDEX router_src_id_fk ON public.physical_links USING btree (router_src_i
 
 
 --
+-- Name: saved_queries_user_id_is_public_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX saved_queries_user_id_is_public_index ON public.saved_queries USING btree (user_id, is_public);
+
+
+--
 -- Name: security_control_id_fk_54354353; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -5741,14 +6020,14 @@ CREATE INDEX security_control_id_fk_54354353 ON public.security_control_process 
 -- Name: security_control_id_fk_5920381; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX security_control_id_fk_5920381 ON public.security_control_m_application USING btree (security_control_id);
+CREATE INDEX security_control_id_fk_5920381 ON public.application_security_control USING btree (security_control_id);
 
 
 --
 -- Name: security_device_id_fk_304832731; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX security_device_id_fk_304832731 ON public.m_application_security_device USING btree (security_device_id);
+CREATE INDEX security_device_id_fk_304832731 ON public.application_security_device USING btree (security_device_id);
 
 
 --
@@ -5769,14 +6048,14 @@ CREATE INDEX security_devices_icon_id_index ON public.security_devices USING btr
 -- Name: service_dest_fk_1485550; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX service_dest_fk_1485550 ON public.fluxes USING btree (service_dest_id);
+CREATE INDEX service_dest_fk_1485550 ON public.application_flows USING btree (service_dest_id);
 
 
 --
 -- Name: service_source_fk_1485546; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX service_source_fk_1485546 ON public.fluxes USING btree (service_source_id);
+CREATE INDEX service_source_fk_1485546 ON public.application_flows USING btree (service_source_id);
 
 
 --
@@ -5965,7 +6244,7 @@ CREATE INDEX workstation_dest_id_fk ON public.physical_links USING btree (workst
 -- Name: workstation_id_fk_1486547; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX workstation_id_fk_1486547 ON public.m_application_workstation USING btree (workstation_id);
+CREATE INDEX workstation_id_fk_1486547 ON public.application_workstation USING btree (workstation_id);
 
 
 --
@@ -5987,6 +6266,14 @@ CREATE INDEX zone_admin_fk_1482666 ON public.annuaires USING btree (zone_admin_i
 --
 
 CREATE INDEX zone_admin_fk_1482667 ON public.forest_ads USING btree (zone_admin_id);
+
+
+--
+-- Name: activity_application activity_application_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activity_application
+    ADD CONSTRAINT activity_application_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
 
 
 --
@@ -6022,19 +6309,11 @@ ALTER TABLE ONLY public.activity_impact
 
 
 --
--- Name: activity_m_application activity_m_application_activity_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: activity_application activity_m_application_activity_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.activity_m_application
+ALTER TABLE ONLY public.activity_application
     ADD CONSTRAINT activity_m_application_activity_id_foreign FOREIGN KEY (activity_id) REFERENCES public.activities(id) ON DELETE CASCADE;
-
-
---
--- Name: activity_m_application activity_m_application_m_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.activity_m_application
-    ADD CONSTRAINT activity_m_application_m_application_id_foreign FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
 
 
 --
@@ -6046,35 +6325,131 @@ ALTER TABLE ONLY public.actor_operation
 
 
 --
--- Name: admin_user_m_application admin_user_m_application_admin_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: admin_user_application admin_user_application_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.admin_user_m_application
+ALTER TABLE ONLY public.admin_user_application
+    ADD CONSTRAINT admin_user_application_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: admin_user_application admin_user_m_application_admin_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.admin_user_application
     ADD CONSTRAINT admin_user_m_application_admin_user_id_foreign FOREIGN KEY (admin_user_id) REFERENCES public.admin_users(id) ON DELETE CASCADE;
 
 
 --
--- Name: admin_user_m_application admin_user_m_application_m_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_application_service application_application_service_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.admin_user_m_application
-    ADD CONSTRAINT admin_user_m_application_m_application_id_foreign FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.application_application_service
+    ADD CONSTRAINT application_application_service_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
 
 
 --
--- Name: m_applications application_block_fk_1644592; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: applications application_block_fk_1644592; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_applications
+ALTER TABLE ONLY public.applications
     ADD CONSTRAINT application_block_fk_1644592 FOREIGN KEY (application_block_id) REFERENCES public.application_blocks(id);
 
 
 --
--- Name: fluxes application_dest_fk_1485549; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_certificate application_certificate_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
-    ADD CONSTRAINT application_dest_fk_1485549 FOREIGN KEY (application_dest_id) REFERENCES public.m_applications(id);
+ALTER TABLE ONLY public.application_certificate
+    ADD CONSTRAINT application_certificate_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_container application_container_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_container
+    ADD CONSTRAINT application_container_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_data_processing application_data_processing_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_data_processing
+    ADD CONSTRAINT application_data_processing_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_database application_database_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_database
+    ADD CONSTRAINT application_database_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_flows application_dest_fk_1485549; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flows
+    ADD CONSTRAINT application_dest_fk_1485549 FOREIGN KEY (application_dest_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_entity application_entity_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_entity
+    ADD CONSTRAINT application_entity_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_events application_events_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_events
+    ADD CONSTRAINT application_events_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_flow_information application_flow_information_flux_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flow_information
+    ADD CONSTRAINT application_flow_information_flux_id_foreign FOREIGN KEY (flux_id) REFERENCES public.application_flows(id) ON DELETE CASCADE;
+
+
+--
+-- Name: application_flow_information application_flow_information_information_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flow_information
+    ADD CONSTRAINT application_flow_information_information_id_foreign FOREIGN KEY (information_id) REFERENCES public.information(id) ON DELETE CASCADE;
+
+
+--
+-- Name: application_logical_server application_logical_server_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_logical_server
+    ADD CONSTRAINT application_logical_server_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_module_entity application_module_entity_application_module_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_module_entity
+    ADD CONSTRAINT application_module_entity_application_module_id_foreign FOREIGN KEY (application_module_id) REFERENCES public.application_modules(id) ON DELETE CASCADE;
+
+
+--
+-- Name: application_module_entity application_module_entity_entity_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_module_entity
+    ADD CONSTRAINT application_module_entity_entity_id_foreign FOREIGN KEY (entity_id) REFERENCES public.entities(id) ON DELETE CASCADE;
 
 
 --
@@ -6086,10 +6461,50 @@ ALTER TABLE ONLY public.application_module_application_service
 
 
 --
--- Name: application_service_m_application application_service_id_fk_1482585; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_peripheral application_peripheral_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.application_service_m_application
+ALTER TABLE ONLY public.application_peripheral
+    ADD CONSTRAINT application_peripheral_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_physical_server application_physical_server_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_physical_server
+    ADD CONSTRAINT application_physical_server_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_process application_process_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_process
+    ADD CONSTRAINT application_process_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_security_control application_security_control_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_security_control
+    ADD CONSTRAINT application_security_control_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_security_device application_security_device_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_security_device
+    ADD CONSTRAINT application_security_device_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: application_application_service application_service_id_fk_1482585; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_application_service
     ADD CONSTRAINT application_service_id_fk_1482585 FOREIGN KEY (application_service_id) REFERENCES public.application_services(id) ON DELETE CASCADE;
 
 
@@ -6102,19 +6517,35 @@ ALTER TABLE ONLY public.application_module_application_service
 
 
 --
--- Name: fluxes application_source_fk_1485545; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_flows application_source_fk_1485545; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
-    ADD CONSTRAINT application_source_fk_1485545 FOREIGN KEY (application_source_id) REFERENCES public.m_applications(id);
+ALTER TABLE ONLY public.application_flows
+    ADD CONSTRAINT application_source_fk_1485545 FOREIGN KEY (application_source_id) REFERENCES public.applications(id);
 
 
 --
--- Name: data_processing_m_application applications_id_fk_0483434; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_workstation application_workstation_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.data_processing_m_application
-    ADD CONSTRAINT applications_id_fk_0483434 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.application_workstation
+    ADD CONSTRAINT application_workstation_application_id_foreign FOREIGN KEY (application_id) REFERENCES public.applications(id);
+
+
+--
+-- Name: backups backups_logical_server_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.backups
+    ADD CONSTRAINT backups_logical_server_id_foreign FOREIGN KEY (logical_server_id) REFERENCES public.logical_servers(id) ON DELETE CASCADE;
+
+
+--
+-- Name: backups backups_storage_device_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.backups
+    ADD CONSTRAINT backups_storage_device_id_foreign FOREIGN KEY (storage_device_id) REFERENCES public.storage_devices(id) ON DELETE CASCADE;
 
 
 --
@@ -6254,22 +6685,6 @@ ALTER TABLE ONLY public.buildings
 
 
 --
--- Name: cartographer_m_application cartographer_m_application_m_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.cartographer_m_application
-    ADD CONSTRAINT cartographer_m_application_m_application_id_foreign FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: cartographer_m_application cartographer_m_application_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.cartographer_m_application
-    ADD CONSTRAINT cartographer_m_application_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
 -- Name: certificate_logical_server certificate_logical_server_certificate_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6286,19 +6701,11 @@ ALTER TABLE ONLY public.certificate_logical_server
 
 
 --
--- Name: certificate_m_application certificate_m_application_certificate_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_certificate certificate_m_application_certificate_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.certificate_m_application
+ALTER TABLE ONLY public.application_certificate
     ADD CONSTRAINT certificate_m_application_certificate_id_foreign FOREIGN KEY (certificate_id) REFERENCES public.certificates(id) ON DELETE CASCADE;
-
-
---
--- Name: certificate_m_application certificate_m_application_m_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.certificate_m_application
-    ADD CONSTRAINT certificate_m_application_m_application_id_foreign FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
 
 
 --
@@ -6390,19 +6797,11 @@ ALTER TABLE ONLY public.container_logical_server
 
 
 --
--- Name: container_m_application container_m_application_container_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_container container_m_application_container_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.container_m_application
+ALTER TABLE ONLY public.application_container
     ADD CONSTRAINT container_m_application_container_id_foreign FOREIGN KEY (container_id) REFERENCES public.containers(id) ON DELETE CASCADE;
-
-
---
--- Name: container_m_application container_m_application_m_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.container_m_application
-    ADD CONSTRAINT container_m_application_m_application_id_foreign FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
 
 
 --
@@ -6438,10 +6837,10 @@ ALTER TABLE ONLY public.data_processing_information
 
 
 --
--- Name: data_processing_m_application data_processing_id_fk_49838437; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_data_processing data_processing_id_fk_49838437; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.data_processing_m_application
+ALTER TABLE ONLY public.application_data_processing
     ADD CONSTRAINT data_processing_id_fk_49838437 FOREIGN KEY (data_processing_id) REFERENCES public.data_processing(id) ON DELETE CASCADE;
 
 
@@ -6454,18 +6853,18 @@ ALTER TABLE ONLY public.data_processing_process
 
 
 --
--- Name: fluxes database_dest_fk_1485552; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_flows database_dest_fk_1485552; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
+ALTER TABLE ONLY public.application_flows
     ADD CONSTRAINT database_dest_fk_1485552 FOREIGN KEY (database_dest_id) REFERENCES public.databases(id);
 
 
 --
--- Name: database_m_application database_id_fk_1482586; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_database database_id_fk_1482586; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.database_m_application
+ALTER TABLE ONLY public.application_database
     ADD CONSTRAINT database_id_fk_1482586 FOREIGN KEY (database_id) REFERENCES public.databases(id) ON DELETE CASCADE;
 
 
@@ -6486,11 +6885,19 @@ ALTER TABLE ONLY public.database_information
 
 
 --
--- Name: fluxes database_source_fk_1485548; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_flows database_source_fk_1485548; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
+ALTER TABLE ONLY public.application_flows
     ADD CONSTRAINT database_source_fk_1485548 FOREIGN KEY (database_source_id) REFERENCES public.databases(id);
+
+
+--
+-- Name: databases databases_icon_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.databases
+    ADD CONSTRAINT databases_icon_id_foreign FOREIGN KEY (icon_id) REFERENCES public.documents(id);
 
 
 --
@@ -6574,10 +6981,10 @@ ALTER TABLE ONLY public.entity_document
 
 
 --
--- Name: m_applications document_id_fk_4394343; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: applications document_id_fk_4394343; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_applications
+ALTER TABLE ONLY public.applications
     ADD CONSTRAINT document_id_fk_4394343 FOREIGN KEY (icon_id) REFERENCES public.documents(id);
 
 
@@ -6638,11 +7045,19 @@ ALTER TABLE ONLY public.processes
 
 
 --
+-- Name: domain_forest_ad domain_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.domain_forest_ad
+    ADD CONSTRAINT domain_id_fk_1492084 FOREIGN KEY (domain_id) REFERENCES public.domains(id) ON DELETE CASCADE;
+
+
+--
 -- Name: logical_servers domain_id_fk_493844; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.logical_servers
-    ADD CONSTRAINT domain_id_fk_493844 FOREIGN KEY (domain_id) REFERENCES public.domaine_ads(id) ON DELETE SET NULL;
+    ADD CONSTRAINT domain_id_fk_493844 FOREIGN KEY (domain_id) REFERENCES public.domains(id) ON DELETE SET NULL;
 
 
 --
@@ -6650,15 +7065,7 @@ ALTER TABLE ONLY public.logical_servers
 --
 
 ALTER TABLE ONLY public.admin_users
-    ADD CONSTRAINT domain_id_fk_69385935 FOREIGN KEY (domain_id) REFERENCES public.domaine_ads(id) ON DELETE CASCADE;
-
-
---
--- Name: domaine_ad_forest_ad domaine_ad_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.domaine_ad_forest_ad
-    ADD CONSTRAINT domaine_ad_id_fk_1492084 FOREIGN KEY (domaine_ad_id) REFERENCES public.domaine_ads(id) ON DELETE CASCADE;
+    ADD CONSTRAINT domain_id_fk_69385935 FOREIGN KEY (domain_id) REFERENCES public.domains(id) ON DELETE CASCADE;
 
 
 --
@@ -6678,10 +7085,10 @@ ALTER TABLE ONLY public.database_entity
 
 
 --
--- Name: entity_m_application entity_id_fk_1488611; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_entity entity_id_fk_1488611; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.entity_m_application
+ALTER TABLE ONLY public.application_entity
     ADD CONSTRAINT entity_id_fk_1488611 FOREIGN KEY (entity_id) REFERENCES public.entities(id) ON DELETE CASCADE;
 
 
@@ -6726,10 +7133,10 @@ ALTER TABLE ONLY public.databases
 
 
 --
--- Name: m_applications entity_resp_fk_1488612; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: applications entity_resp_fk_1488612; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_applications
+ALTER TABLE ONLY public.applications
     ADD CONSTRAINT entity_resp_fk_1488612 FOREIGN KEY (entity_resp_id) REFERENCES public.entities(id);
 
 
@@ -6750,10 +7157,10 @@ ALTER TABLE ONLY public.document_external_connected_entity
 
 
 --
--- Name: domaine_ad_forest_ad forest_ad_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: domain_forest_ad forest_ad_id_fk_1492084; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.domaine_ad_forest_ad
+ALTER TABLE ONLY public.domain_forest_ad
     ADD CONSTRAINT forest_ad_id_fk_1492084 FOREIGN KEY (forest_ad_id) REFERENCES public.forest_ads(id) ON DELETE CASCADE;
 
 
@@ -6790,6 +7197,22 @@ ALTER TABLE ONLY public.database_information
 
 
 --
+-- Name: information_information information_information_child_information_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.information_information
+    ADD CONSTRAINT information_information_child_information_id_foreign FOREIGN KEY (child_information_id) REFERENCES public.information(id) ON DELETE CASCADE;
+
+
+--
+-- Name: information_information information_information_information_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.information_information
+    ADD CONSTRAINT information_information_information_id_foreign FOREIGN KEY (information_id) REFERENCES public.information(id) ON DELETE CASCADE;
+
+
+--
 -- Name: lan_man lan_id_fk_1490345; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6803,6 +7226,22 @@ ALTER TABLE ONLY public.lan_man
 
 ALTER TABLE ONLY public.lan_wan
     ADD CONSTRAINT lan_id_fk_1490368 FOREIGN KEY (lan_id) REFERENCES public.lans(id) ON DELETE CASCADE;
+
+
+--
+-- Name: logical_flows logical_flows_cluster_dest_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.logical_flows
+    ADD CONSTRAINT logical_flows_cluster_dest_id_foreign FOREIGN KEY (cluster_dest_id) REFERENCES public.clusters(id) ON DELETE SET NULL;
+
+
+--
+-- Name: logical_flows logical_flows_cluster_source_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.logical_flows
+    ADD CONSTRAINT logical_flows_cluster_source_id_foreign FOREIGN KEY (cluster_source_id) REFERENCES public.clusters(id) ON DELETE SET NULL;
 
 
 --
@@ -6870,6 +7309,22 @@ ALTER TABLE ONLY public.logical_flows
 
 
 --
+-- Name: logical_flows logical_flows_security_device_dest_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.logical_flows
+    ADD CONSTRAINT logical_flows_security_device_dest_id_foreign FOREIGN KEY (security_device_dest_id) REFERENCES public.security_devices(id) ON DELETE SET NULL;
+
+
+--
+-- Name: logical_flows logical_flows_security_device_source_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.logical_flows
+    ADD CONSTRAINT logical_flows_security_device_source_id_foreign FOREIGN KEY (security_device_source_id) REFERENCES public.security_devices(id) ON DELETE SET NULL;
+
+
+--
 -- Name: logical_flows logical_flows_storage_device_dest_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6883,6 +7338,22 @@ ALTER TABLE ONLY public.logical_flows
 
 ALTER TABLE ONLY public.logical_flows
     ADD CONSTRAINT logical_flows_storage_device_source_id_foreign FOREIGN KEY (storage_device_source_id) REFERENCES public.storage_devices(id) ON DELETE CASCADE;
+
+
+--
+-- Name: logical_flows logical_flows_subnetwork_dest_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.logical_flows
+    ADD CONSTRAINT logical_flows_subnetwork_dest_id_foreign FOREIGN KEY (subnetwork_dest_id) REFERENCES public.subnetworks(id) ON DELETE SET NULL;
+
+
+--
+-- Name: logical_flows logical_flows_subnetwork_source_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.logical_flows
+    ADD CONSTRAINT logical_flows_subnetwork_source_id_foreign FOREIGN KEY (subnetwork_source_id) REFERENCES public.subnetworks(id) ON DELETE SET NULL;
 
 
 --
@@ -6910,10 +7381,10 @@ ALTER TABLE ONLY public.physical_links
 
 
 --
--- Name: logical_server_m_application logical_server_id_fk_1488616; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_logical_server logical_server_id_fk_1488616; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.logical_server_m_application
+ALTER TABLE ONLY public.application_logical_server
     ADD CONSTRAINT logical_server_id_fk_1488616 FOREIGN KEY (logical_server_id) REFERENCES public.logical_servers(id) ON DELETE CASCADE;
 
 
@@ -6942,99 +7413,11 @@ ALTER TABLE ONLY public.physical_links
 
 
 --
--- Name: m_application_events m_application_events_m_application_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_events m_application_events_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_application_events
-    ADD CONSTRAINT m_application_events_m_application_id_foreign FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: m_application_events m_application_events_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_application_events
+ALTER TABLE ONLY public.application_events
     ADD CONSTRAINT m_application_events_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id);
-
-
---
--- Name: m_application_process m_application_id_fk_1482573; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_application_process
-    ADD CONSTRAINT m_application_id_fk_1482573 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: application_service_m_application m_application_id_fk_1482585; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.application_service_m_application
-    ADD CONSTRAINT m_application_id_fk_1482585 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: database_m_application m_application_id_fk_1482586; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.database_m_application
-    ADD CONSTRAINT m_application_id_fk_1482586 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: m_application_workstation m_application_id_fk_1486547; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_application_workstation
-    ADD CONSTRAINT m_application_id_fk_1486547 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: entity_m_application m_application_id_fk_1488611; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.entity_m_application
-    ADD CONSTRAINT m_application_id_fk_1488611 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: logical_server_m_application m_application_id_fk_1488616; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.logical_server_m_application
-    ADD CONSTRAINT m_application_id_fk_1488616 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: security_control_m_application m_application_id_fk_304958543; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.security_control_m_application
-    ADD CONSTRAINT m_application_id_fk_304958543 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: m_application_security_device m_application_id_fk_41923483; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_application_security_device
-    ADD CONSTRAINT m_application_id_fk_41923483 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: m_application_physical_server m_application_id_fk_5483543; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_application_physical_server
-    ADD CONSTRAINT m_application_id_fk_5483543 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
-
-
---
--- Name: m_application_peripheral m_application_id_fk_9878654; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.m_application_peripheral
-    ADD CONSTRAINT m_application_id_fk_9878654 FOREIGN KEY (m_application_id) REFERENCES public.m_applications(id) ON DELETE CASCADE;
 
 
 --
@@ -7054,18 +7437,26 @@ ALTER TABLE ONLY public.man_wan
 
 
 --
--- Name: fluxes module_dest_fk_1485551; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: mans man_id_fk_4385454; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
+ALTER TABLE ONLY public.mans
+    ADD CONSTRAINT man_id_fk_4385454 FOREIGN KEY (parent_man_id) REFERENCES public.mans(id) ON DELETE SET NULL;
+
+
+--
+-- Name: application_flows module_dest_fk_1485551; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_flows
     ADD CONSTRAINT module_dest_fk_1485551 FOREIGN KEY (module_dest_id) REFERENCES public.application_modules(id);
 
 
 --
--- Name: fluxes module_source_fk_1485547; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_flows module_source_fk_1485547; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
+ALTER TABLE ONLY public.application_flows
     ADD CONSTRAINT module_source_fk_1485547 FOREIGN KEY (module_source_id) REFERENCES public.application_modules(id);
 
 
@@ -7166,10 +7557,10 @@ ALTER TABLE ONLY public.physical_links
 
 
 --
--- Name: m_application_peripheral peripheral_id_fk_6454564; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_peripheral peripheral_id_fk_6454564; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_application_peripheral
+ALTER TABLE ONLY public.application_peripheral
     ADD CONSTRAINT peripheral_id_fk_6454564 FOREIGN KEY (peripheral_id) REFERENCES public.peripherals(id) ON DELETE CASCADE;
 
 
@@ -7286,10 +7677,10 @@ ALTER TABLE ONLY public.logical_server_physical_server
 
 
 --
--- Name: m_application_physical_server physical_server_id_fk_4543543; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_physical_server physical_server_id_fk_4543543; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_application_physical_server
+ALTER TABLE ONLY public.application_physical_server
     ADD CONSTRAINT physical_server_id_fk_4543543 FOREIGN KEY (physical_server_id) REFERENCES public.physical_servers(id) ON DELETE CASCADE;
 
 
@@ -7350,6 +7741,14 @@ ALTER TABLE ONLY public.physical_links
 
 
 --
+-- Name: physical_switches physical_switches_icon_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.physical_switches
+    ADD CONSTRAINT physical_switches_icon_id_foreign FOREIGN KEY (icon_id) REFERENCES public.documents(id);
+
+
+--
 -- Name: data_processing_process process_id_fk_0483434; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -7366,10 +7765,10 @@ ALTER TABLE ONLY public.information_process
 
 
 --
--- Name: m_application_process process_id_fk_1482573; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_process process_id_fk_1482573; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_application_process
+ALTER TABLE ONLY public.application_process
     ADD CONSTRAINT process_id_fk_1482573 FOREIGN KEY (process_id) REFERENCES public.processes(id) ON DELETE CASCADE;
 
 
@@ -7486,10 +7885,18 @@ ALTER TABLE ONLY public.physical_links
 
 
 --
--- Name: security_control_m_application security_control_id_fk_49294573; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: saved_queries saved_queries_user_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.security_control_m_application
+ALTER TABLE ONLY public.saved_queries
+    ADD CONSTRAINT saved_queries_user_id_foreign FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE SET NULL;
+
+
+--
+-- Name: application_security_control security_control_id_fk_49294573; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.application_security_control
     ADD CONSTRAINT security_control_id_fk_49294573 FOREIGN KEY (security_control_id) REFERENCES public.security_controls(id) ON DELETE CASCADE;
 
 
@@ -7502,10 +7909,10 @@ ALTER TABLE ONLY public.security_control_process
 
 
 --
--- Name: m_application_security_device security_device_id_fk_304832731; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_security_device security_device_id_fk_304832731; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_application_security_device
+ALTER TABLE ONLY public.application_security_device
     ADD CONSTRAINT security_device_id_fk_304832731 FOREIGN KEY (security_device_id) REFERENCES public.security_devices(id) ON DELETE CASCADE;
 
 
@@ -7526,18 +7933,18 @@ ALTER TABLE ONLY public.security_devices
 
 
 --
--- Name: fluxes service_dest_fk_1485550; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_flows service_dest_fk_1485550; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
+ALTER TABLE ONLY public.application_flows
     ADD CONSTRAINT service_dest_fk_1485550 FOREIGN KEY (service_dest_id) REFERENCES public.application_services(id);
 
 
 --
--- Name: fluxes service_source_fk_1485546; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_flows service_source_fk_1485546; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.fluxes
+ALTER TABLE ONLY public.application_flows
     ADD CONSTRAINT service_source_fk_1485546 FOREIGN KEY (service_source_id) REFERENCES public.application_services(id);
 
 
@@ -7742,10 +8149,10 @@ ALTER TABLE ONLY public.physical_links
 
 
 --
--- Name: m_application_workstation workstation_id_fk_1486547; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: application_workstation workstation_id_fk_1486547; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.m_application_workstation
+ALTER TABLE ONLY public.application_workstation
     ADD CONSTRAINT workstation_id_fk_1486547 FOREIGN KEY (workstation_id) REFERENCES public.workstations(id) ON DELETE CASCADE;
 
 
@@ -7762,7 +8169,7 @@ ALTER TABLE ONLY public.physical_links
 --
 
 ALTER TABLE ONLY public.workstations
-    ADD CONSTRAINT workstations_domain_id_foreign FOREIGN KEY (domain_id) REFERENCES public.domaine_ads(id);
+    ADD CONSTRAINT workstations_domain_id_foreign FOREIGN KEY (domain_id) REFERENCES public.domains(id);
 
 
 --
@@ -7809,12 +8216,16 @@ ALTER TABLE ONLY public.forest_ads
 -- PostgreSQL database dump complete
 --
 
+\unrestrict dlo9Zu4CGsfSzLIZ9VR2tYElKPWxfak59eZizHrgsGBO1oeL6Ns2gvNUCervyIC
+
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 15.13 (Debian 15.13-0+deb12u1)
--- Dumped by pg_dump version 15.13 (Debian 15.13-0+deb12u1)
+\restrict W305QXlYtSkbFvFcleYrleNR5JUxgH6RRxdlLbp7itNZJtEbCxufiMI4feyCFdr
+
+-- Dumped from database version 15.16 (Debian 15.16-0+deb12u1)
+-- Dumped by pg_dump version 15.16 (Debian 15.16-0+deb12u1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -8064,6 +8475,36 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 231	2016_06_01_000004_create_oauth_clients_table	4
 232	2016_06_01_000005_create_oauth_personal_access_clients_table	4
 236	2025_10_18_183453_add_cluster_router	5
+237	2025_11_21_123505_add_chain_to_logical_flow	6
+238	2025_11_24_152357_create_mercator_modules_table	6
+239	2025_11_30_123016_add_module_to_permissions_table	6
+240	2024_06_01_000001_create_oauth_device_codes_table	7
+241	2025_12_03_105527_add_ip_to_security_devices	7
+242	2025_12_03_111641_add_security_device_to_logical_flows	7
+243	2025_12_04_135457_add_manage_module_role	7
+244	2026_01_16_114842_add_icon_to_databases	7
+245	2026_01_24_091900_add_information_flow_table	7
+246	2026_02_13_134714_add_cpe_to_application_modules	7
+247	2026_02_18_085500_add_type_color_to_physical_links	7
+248	2026_03_02_000001_upgrade_oauth_clients_uuid	7
+249	2026_03_03_184523_add_parent_man	7
+250	2026_03_05_114042_add_icon_to_physical_switches	7
+251	2026_03_11_134833_add_cluster_to_logical_flows	7
+252	2026_03_11_175208_add_information_information	7
+253	2026_03_22_121031_add_data_processing_fields	7
+254	2026_03_30_095429_add_document_permissions	7
+255	2026_04_05_180615_add_table_backups	7
+256	2026_04_15_100554_add_application_module_entity	7
+257	2026_04_17_211419_add_query_table	7
+258	2026_05_03_184011_rename_m_applications_to_applications	8
+259	2026_05_03_185943_rename_m_application_events_to_application_events	8
+260	2026_05_03_192017_rename_m_application_id_in_application_events	8
+261	2026_05_03_193002_rename_m_application_permissions	8
+262	2026_05_03_230714_consolidate_application_permissions	8
+263	2026_05_03_234356_drop_application_cartographer_table	8
+264	2026_05_07_215942_rename_fluxes_to_application_flows	8
+265	2026_05_08_120804_rename_flux_information_to_application_flow_information	8
+266	2026_05_08_212557_rename_domaines_to_domains	8
 \.
 
 
@@ -8071,10 +8512,12 @@ COPY public.migrations (id, migration, batch) FROM stdin;
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 236, true);
+SELECT pg_catalog.setval('public.migrations_id_seq', 266, true);
 
 
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict W305QXlYtSkbFvFcleYrleNR5JUxgH6RRxdlLbp7itNZJtEbCxufiMI4feyCFdr
 

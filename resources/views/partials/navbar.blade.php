@@ -57,6 +57,12 @@
                                 </a>
                             </li>
                         @endcan
+                        @can('zone_access')
+                            <li><a class="dropdown-item" href="/admin/report/security_zones">
+                                    <i class="bi bi-diagram-3-fill"></i>{{ trans('panel.menu.security_zones') }}
+                                </a>
+                            </li>
+                        @endcan
                         @can('physical_link_access')
                             <li><a class="dropdown-item" href="/admin/report/network_infrastructure">
                                     <i class="bi bi-diagram-3-fill"></i>{{ trans('panel.menu.network_infrastructure') }}

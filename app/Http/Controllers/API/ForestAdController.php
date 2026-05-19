@@ -30,7 +30,7 @@ class ForestAdController extends APIController
 
         $forestAd = ForestAd::query()->create($request->all());
 
-        $forestAd->domaines()->sync($request->input('domaines', []));
+        $forestAd->domains()->sync($request->input('domains', []));
 
         return response()->json($forestAd, 201);
     }
@@ -39,7 +39,7 @@ class ForestAdController extends APIController
     {
         abort_if(Gate::denies('forest_ad_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $forestAd['domaines'] = $forestAd->domaines()->pluck('id');
+        $forestAd['domains'] = $forestAd->domains()->pluck('id');
 
         return new JsonResource($forestAd);
     }
@@ -50,8 +50,8 @@ class ForestAdController extends APIController
 
         $forestAd->update($request->all());
 
-        if ($request->has('domaines')) {
-            $forestAd->domaines()->sync($request->input('domaines', []));
+        if ($request->has('domains')) {
+            $forestAd->domains()->sync($request->input('domains', []));
         }
 
         return response()->json();

@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Workstation;
 use Carbon\Carbon;
 use Gate;
+use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class WorkstationList extends Controller
 {
-    public function generateExcel()
+    /**
+     * @throws Exception
+     */
+    public function generate(Request $request)
     {
         abort_if(Gate::denies('reports_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
@@ -83,9 +88,13 @@ class WorkstationList extends Controller
             $row++;
         }
 
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-
-        $path = storage_path('app/workstations-'.Carbon::today()->format('Ymd').'.xlsx');
+        if ($request->get('format') == 'csv') {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheet);
+            $path = storage_path('app/workstations-'.Carbon::today()->format('Ymd').'.csv');
+        } else {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $path = storage_path('app/workstations-'.Carbon::today()->format('Ymd').'.xlsx');
+        }
 
         $writer->save($path);
 

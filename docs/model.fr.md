@@ -322,7 +322,7 @@ Ils ne sont ni importables, ni exportables à travers l'outil graphique.
 
 | Table                                                | api |
 |:-----------------------------------------------------|:----|
-| <span style="color: blue;">*activity_impacts*</span> |     |
+| <span style="color: blue;">*activity_impact*</span> |     |
 
 | Champ       | Type          | Description                                           |
 |:------------|:--------------|:------------------------------------------------------|
@@ -495,9 +495,9 @@ Une application peut être déployée sur un ou plusieurs serveurs logiques.
 Lorsqu'il n'y a pas d'environnement virtualisé, il n'y a pas plusieurs serveurs logiques par serveur physique mais il y
 a un serveur logique par serveur physique.
 
-| Table                                              | api                 |
-|:---------------------------------------------------|:--------------------|
-| <span style="color: blue;">*m_applications*</span> | `/api/applications` |
+| Table                                            | api                 |
+|:-------------------------------------------------|:--------------------|
+| <span style="color: blue;">*applications*</span> | `/api/applications` |
 
 | Champ                | Type         | Description                                                         |
 |:---------------------|:-------------|:--------------------------------------------------------------------|
@@ -590,18 +590,18 @@ Les évènements majeurs ne sont accessibles qu'à travers les objets applicatio
 
 Ils ne sont ni importables, ni exportables à travers l'outil graphique.
 
-| Table                                                    | api |
-|:---------------------------------------------------------|:----|
-| <span style="color: blue;">*m_application_events*</span> | S/O |
+| Table                                                  | api |
+|:-------------------------------------------------------|:----|
+| <span style="color: blue;">*application_events*</span> | S/O |
 
-| Champ            | Type         | Description                                         |
-|:-----------------|:-------------|:----------------------------------------------------|
-| id               | int unsigned | auto_increment                                      |
-| user_id          | int unsigned | Utilisateur de Mercator ayant renseigné l'évènement |
-| m_application_id | varchar(255) | Référence vers l'application ayant subi l'évènement |
-| message          | longtext     | Description de l'évènement                          |
-| created_at       | timestamp    | Date de création                                    |
-| updated_at       | timestamp    | Date de mise à jour                                 |
+| Champ          | Type         | Description                                         |
+|:---------------|:-------------|:----------------------------------------------------|
+| id             | int unsigned | auto_increment                                      |
+| user_id        | int unsigned | Utilisateur de Mercator ayant renseigné l'évènement |
+| application_id | int unsigned | Référence vers l'application ayant subi l'évènement |
+| message        | longtext     | Description de l'évènement                          |
+| created_at     | timestamp    | Date de création                                    |
+| updated_at     | timestamp    | Date de mise à jour                                 |
 
 ### Services applicatif
 
@@ -703,7 +703,7 @@ Dans l'application, une application peut être rattachée à une base de donnée
 Dans l'application, un serveur logique peut être rattaché à une base de données depuis ces deux objets.  
 Dans l'application, un conteneur peut être rattaché à une base de données depuis ces deux objets.
 
-### Flux
+### Flux applicatifs
 
 Un flux est un échange d’informations entre un émetteur ou un récepteur (application, service applicatif, module
 applicatif ou base de données).
@@ -713,9 +713,9 @@ en termes de flux l’ensemble des règles de filtrage du firewall.
 
 Par exemple, les requêtes DNS ou NTP ne devraient pas être représentées comme des flux.
 
-| Table                                      | api           |
-|:-------------------------------------------|:--------------|
-| <span style="color: blue;">*fluxes*</span> | `/api/fluxes` |
+| Table                                                 | api                      |
+|:------------------------------------------------------|:-------------------------|
+| <span style="color: blue;">*application_flows*</span> | `/api/application-flows` |
 
 | Champ                                             | Type         | Description                               |
 |:--------------------------------------------------|:-------------|:------------------------------------------|
@@ -734,12 +734,12 @@ Par exemple, les requêtes DNS ou NTP ne devraient pas être représentées comm
 
 Les <span style="color: purple;">*actifs (device)*</span>  sources et destination peuvent être :
 
-| Actif (*device*)   | Source | Destination |
-|:-------------------|:------:|:-----------:|
-| Application        |   ✅    |      ✅      |
-| Service applicatif |   ✅    |      ✅      |
-| Module applicatif  |   ✅    |      ✅      |
-| Base de données    |   ✅    |      ✅      |
+| Actif (*device*)   | Source | Destination | nom du champs source | nom du champs destination |
+|:-------------------|:------:|:-----------:|----------------------|---------------------------|
+| Application        | ✅ |  ✅ | application_source_id | application_dest_id |
+| Service applicatif | ✅ |  ✅ | service_source_id | service_dest_id |
+| Module applicatif  | ✅ |  ✅ | module_source_id | module_dest_id |
+| Base de données    | ✅ |  ✅ | database_source_id | database_dest_id |
 
 Dans l'application, une information peut être rattaché à un flux applicatif depuis un objet flux applicatif.
 
@@ -813,7 +813,7 @@ Ces objets représentent un regroupement organisé de domaines Active Directory 
 | name          | varchar(255) | Nom de la forêt Active Directory ou de l'arborescence LDAP         |
 | description   | longtext     | Description de la forêt Active Directory ou de l'arborescence LDAP |
 | zone_admin_id | int unsigned | Référence vers la zone d'administration                            |
-| domaines      | List int [,] | Liens vers les IDs des domaines active directory                   |
+| domains       | List int [,] | Liens vers les IDs des domaines active directory                   |
 | created_at    | timestamp    | Date de création                                                   |
 | updated_at    | timestamp    | Date de mise à jour                                                |
 | deleted_at    | timestamp    | Date de suppression                                                |
@@ -829,20 +829,20 @@ GPO, par exemple) ainsi que les droits des objets.
 
 | Table                                           | api                |
 |:------------------------------------------------|:-------------------|
-| <span style="color: blue;">*domaine_ads*</span> | `/api/domaine-ads` |
+| <span style="color: blue;">*domains*</span> | `/api/domains` |
 
-| Champ                  | Type         | Description                              |
-|:-----------------------|:-------------|:-----------------------------------------|
-| id                     | int unsigned | auto_increment                           |
-| name                   | varchar(255) | Nom du domaine AD / LDAP                 |
-| description            | longtext     | Description du domaine                   |
-| domain_ctrl_cnt        | int signed   | Nombre de contrôleurs de domaine         |
-| user_count             | int signed   | Nombre d'utilisateurs du domaine         |
-| machine_count          | int signed   | Nombre de machines du domaine            |
-| relation_inter_domaine | varchar(255) | Description des relations inter-domaines |
-| created_at             | timestamp    | Date de création                         |
-| updated_at             | timestamp    | Date de mise à jour                      |
-| deleted_at             | timestamp    | Date de suppression                      |
+| Champ                 | Type         | Description                              |
+|:----------------------|:-------------|:-----------------------------------------|
+| id                    | int unsigned | auto_increment                           |
+| name                  | varchar(255) | Nom du domaine AD / LDAP                 |
+| description           | longtext     | Description du domaine                   |
+| domain_ctrl_cnt       | int signed   | Nombre de contrôleurs de domaine         |
+| user_count            | int signed   | Nombre d'utilisateurs du domaine         |
+| machine_count         | int signed   | Nombre de machines du domaine            |
+| relation_inter_domain | varchar(255) | Description des relations inter-domaines |
+| created_at            | timestamp    | Date de création                         |
+| updated_at            | timestamp    | Date de mise à jour                      |
+| deleted_at            | timestamp    | Date de suppression                      |
 
 L'export du modèle de données référence les forêts AD / arborescence LDAP rattachées à un domaine AD / LDAP.  
 Dans l'application, une forêt AD / arborescence LDAP peut être rattachée à un domaine AD / LDAP depuis ces deux
@@ -1333,17 +1333,17 @@ Principe général :
 
 Les <span style="color: purple;">*actifs (devices)*</span> sources et destination peuvent être :
 
-| Actif (*device*)                | Source | Destination |
-|:--------------------------------|:------:|:-----------:|
-| Périphérique                    |   ✅    |      ✅      |
-| Equipement de sécurité physique |   ✅    |      ✅      |
-| Serveur physique                |   ✅    |      ✅      |
-| Infrastructure de stockage      |   ✅    |      ✅      |
-| Poste de travail                |   ✅    |      ✅      |
-| Equipement de sécurité logique  |   ✅    |      ✅      |
-| Serveur logique                 |   ✅    |      ✅      |
-| Clusters                        |   ✅    |      ✅      |
-| Sous-réseaux                    |   ✅    |      ✅      |
+| Actif (*device*)                | Source | Destination | nom du champs source | nom du champs destination |
+|:--------------------------------|:--:|:---:|---------------------------|-------------------------|
+| Périphérique                    | ✅ | ✅  | peripheral_source_id      | peripheral_dest_id      |
+| Equipement de sécurité physique | ✅ | ✅  | physical_security_device_source_id | physical_security_device_dest_id |
+| Serveur physique                | ✅ | ✅  | physical_server_source_id | physical_server_dest_id |
+| Infrastructure de stockage      | ✅ | ✅  | storage_device_source_id  | storage_device_dest_id  |
+| Poste de travail                | ✅ | ✅  | workstation_source_id     | workstation_dest_id     |
+| Equipement de sécurité logique  | ✅ | ✅  | security_device_source_id | security_device_dest_id |
+| Serveur logique                 | ✅ | ✅  | logical_server_source_id  | logical_server_dest_id  |
+| Clusters                        | ✅ | ✅  | cluster_source_id         | cluster_dest_id         |
+| Sous-réseaux                    | ✅ | ✅  | subnetwork_source_id      | subnetwork_dest_id      |
 
 ### Certificats
 
@@ -1842,20 +1842,20 @@ Principe général :
 
 Les actifs sources et destination peuvent être :
 
-| Actif                           | Source | Destination |
-|:--------------------------------|:------:|:-----------:|
-| Périphérique                    |   ✅    |      ✅      |
-| Téléphone                       |   ✅    |      ✅      |
-| Routeur physique                |   ✅    |      ✅      |
-| Equipement de sécurité physique |   ✅    |      ✅      |
-| Serveur physique                |   ✅    |      ✅      |
-| Commutateur physique            |   ✅    |      ✅      |
-| Infrastructure de stockage      |   ✅    |      ✅      |
-| Borne Wifi                      |   ✅    |      ✅      |
-| Poste de travail                |   ✅    |      ✅      |
-| Serveur logique                 |   ✅    |      ✅      |
-| Commutateur logique             |   ✅    |      ✅      |
-| Routeur logique                 |   ✅    |      ✅      |
+| Actif                           | Source | Destination | nom du champs source | nom du champs destination |
+|:--------------------------------|:--:|:--:|---------------------------|-------------------------|
+| Périphérique                    | ✅ | ✅ | peripheral_source_id      | peripheral_dest_id      |
+| Téléphone                       | ✅ | ✅ | phone_src_id              | phone_dest_id           |
+| Routeur physique                | ✅ | ✅ | physical_router_src_id    | physical_router_dest_id |
+| Equipement de sécurité physique | ✅ | ✅ | physical_security_device_source_id | physical_security_device_dest_id |
+| Serveur physique                | ✅ | ✅ | physical_server_source_id | physical_server_dest_id |
+| Commutateur physique            | ✅ | ✅ | physical_switch_src_id    | physical_switch_dest_id |
+| Infrastructure de stockage      | ✅ | ✅ | storage_device_source_id  | storage_device_dest_id  |
+| Borne Wifi                      | ✅ | ✅ | wifi_terminal_src_id      | wifi_terminal_dest_id   |
+| Poste de travail                | ✅ | ✅ | workstation_source_id     | workstation_dest_id     |
+| Serveur logique                 | ✅ | ✅ | logical_server_source_id  | logical_server_dest_id  |
+| Commutateur logique             | ✅ | ✅ | network_switch_src_id     | network_switch_dest_id  |
+| Routeur logique                 | ✅ | ✅ | router_src_id             | router_dest_id          |
 
 ### WANs
 

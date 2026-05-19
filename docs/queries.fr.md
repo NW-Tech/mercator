@@ -15,14 +15,14 @@ OUTPUT  list | graph
 LIMIT   <n>
 ```
 
-| Clause | Obligatoire | Description |
-|--------|-------------|-------------|
-| `FROM` | ✅ | Modèle de données cible (voir [Modèles disponibles](#modeles-disponibles)) |
+| Clause | Obligatoire | Description                                                                       |
+|--------|-------------|-----------------------------------------------------------------------------------|
+| `FROM` | ✅ | Modèle de données cible (voir [Modèles disponibles](#modeles-disponibles))        |
 | `FIELDS` | ➖ | Liste des champs à afficher, y compris les champs de relations (`relation.champ`) |
-| `WHERE` | ➖ | Filtre sur les données (voir [Conditions](#conditions)) |
-| `WITH` | ➖ | Relations à charger en eager loading |
-| `OUTPUT` | ➖ | Format de sortie : `list` ou `graph` (`list` par défaut) |
-| `LIMIT` | ➖ | Nombre maximum d'enregistrements retournés (défaut : 100) |
+| `WHERE` | ➖ | Filtre sur les données (voir [Conditions](#conditions))                           |
+| `WITH` | ➖ | Relations à afficher dans le graphe                                               |
+| `OUTPUT` | ➖ | Format de sortie : `list` ou `graph` (`list` par défaut)                          |
+| `LIMIT` | ➖ | Nombre maximum d'enregistrements retournés (défaut : 100)                         |
 
 ## Modèles disponibles
 
@@ -304,7 +304,7 @@ Liste les applications non rattachées à un serveur logique, symptôme possible
 
 ## Bonnes pratiques
 
-- **Limitez le `LIMIT`** à la valeur nécessaire : des requêtes trop larges peuvent être lentes sur de grands référentiels.
+- **Utilisez `LIMIT`** pour limiter le nombre de résultats à la valeur nécessaire : des requêtes trop larges peuvent être lentes sur de grands référentiels.
 - **Utilisez `OUTPUT graph`** uniquement lorsque les relations sont déclarées dans `WITH` ; un graphe sans relations ne sera composé que de nœuds isolés.
 - **Vérifiez les noms de champs** dans la [référence API](api.fr.md) — une faute de frappe dans un champ n'affiche simplement rien, sans message d'erreur.
 - **Avec `EXISTS`**, déclarez la relation dans `WITH` uniquement si vous avez besoin d'afficher ses champs dans `FIELDS` ; sinon, `EXISTS` seul suffit à filtrer sans surcharge.

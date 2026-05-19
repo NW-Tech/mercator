@@ -55,7 +55,7 @@
                     <select class="form-control select2 {{ $errors->has('zone_admin') ? 'is-invalid' : '' }}"
                             name="zone_admin_id" id="zone_admin_id">
                         @foreach($zone_admins as $id => $zone_admin)
-                            <option value="{{ $id }}" {{ ($annuaire->zone_admin ? $annuaire->zone_admin->id : old('zone_admin_id')) == $id ? 'selected' : '' }}>{{ $zone_admin }}</option>
+                            <option value="{{ $id }}" {{ ($annuaire->zoneAdmin ? $annuaire->zoneAdmin->id : old('zone_admin_id')) == $id ? 'selected' : '' }}>{{ $zone_admin }}</option>
                         @endforeach
                     </select>
                     @if($errors->has('zone_admin'))

@@ -9,6 +9,8 @@ use ReflectionMethod;
 
 class QueryEngineIntrospector
 {
+    private const EXCLUDED_MODELS = ['User', 'PasswordReset'];
+
     protected const MODEL_NAMESPACE = 'App\\Models\\';
 
     /**
@@ -139,7 +141,7 @@ class QueryEngineIntrospector
      */
     public static function modelToApiName(string $modelName): string
     {
-        return $modelName === 'MApplication'
+        return $modelName === 'Application'
             ? 'applications'
             : Str::plural(Str::snake($modelName, '-'));
     }
@@ -194,6 +196,10 @@ class QueryEngineIntrospector
                 continue;
             }
 
+            if (in_array($modelName, self::EXCLUDED_MODELS)) {
+                continue;
+            }
+
             $classes[] = $modelName;
         }
 
@@ -202,7 +208,7 @@ class QueryEngineIntrospector
 
     /**
      * Retourne les noms d'API (slugs) pour tous les modèles concrets.
-     * Ex : MApplication → applications, LogicalServer → logical-servers
+     * Ex : Application → applications, LogicalServer → logical-servers
      */
     public static function listModels(): array
     {

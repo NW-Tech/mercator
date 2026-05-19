@@ -10,8 +10,8 @@ use App\Models\ApplicationBlock;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
 use App\Models\Database;
-use App\Models\Flux;
-use App\Models\MApplication;
+use App\Models\ApplicationFlow;
+use App\Models\Application;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApplicationFlowView extends Controller
@@ -60,22 +60,22 @@ class ApplicationFlowView extends Controller
         }
 
         // Get assets
-        $application_ids = DB::table('m_applications')
+        $application_ids = DB::table('applications')
             ->whereIn('application_block_id', $applicationBlocks)
             ->whereNull('deleted_at')
             ->orWhereIn('id', $applications)
             ->pluck('id');
 
-        $applicationservice_ids = DB::table('m_applications')
-            ->join('application_service_m_application', 'm_applications.id', '=', 'application_service_m_application.m_application_id')
+        $applicationservice_ids = DB::table('applications')
+            ->join('application_application_service', 'applications.id', '=', 'application_application_service.application_id')
             ->whereIn('application_block_id', $applicationBlocks)
             ->whereNull('deleted_at')
             ->pluck('application_service_id')
             ->unique();
 
-        $applicationmodule_ids = DB::table('m_applications')
-            ->join('application_service_m_application', 'm_applications.id', '=', 'application_service_m_application.m_application_id')
-            ->join('application_module_application_service', 'application_service_m_application.application_service_id', '=', 'application_module_application_service.application_service_id')
+        $applicationmodule_ids = DB::table('applications')
+            ->join('application_application_service', 'applications.id', '=', 'application_application_service.application_id')
+            ->join('application_module_application_service', 'application_application_service.application_service_id', '=', 'application_module_application_service.application_service_id')
             ->whereNull('deleted_at')
             ->whereIn('application_block_id', $applicationBlocks)
             ->pluck('application_module_id')
@@ -84,7 +84,7 @@ class ApplicationFlowView extends Controller
         $database_ids = collect($databases);
 
         // get all flows
-        $flows = Flux::All()->sortBy('name');
+        $flows = ApplicationFlow::All()->sortBy('name');
 
         // Filter Flows
         $flows = $flows
@@ -114,50 +114,50 @@ class ApplicationFlowView extends Controller
         $module_ids = collect();
 
         // loop on flows
-        foreach ($flows as $flux) {
+        foreach ($flows as $flow) {
             // applications
-            if (($flux->application_source_id !== null) &&
-               (! $application_ids->contains($flux->application_source_id))) {
-                $application_ids->push($flux->application_source_id);
+            if (($flow->application_source_id !== null) &&
+               (! $application_ids->contains($flow->application_source_id))) {
+                $application_ids->push($flow->application_source_id);
             }
-            if (($flux->application_dest_id !== null) &&
-               (! $application_ids->contains($flux->application_dest_id))) {
-                $application_ids->push($flux->application_dest_id);
+            if (($flow->application_dest_id !== null) &&
+               (! $application_ids->contains($flow->application_dest_id))) {
+                $application_ids->push($flow->application_dest_id);
             }
 
             // services
-            if (($flux->service_source_id !== null) &&
-               (! $service_ids->contains($flux->service_source_id))) {
-                $service_ids->push($flux->service_source_id);
+            if (($flow->service_source_id !== null) &&
+               (! $service_ids->contains($flow->service_source_id))) {
+                $service_ids->push($flow->service_source_id);
             }
-            if (($flux->service_dest_id !== null) &&
-               (! $service_ids->contains($flux->service_dest_id))) {
-                $service_ids->push($flux->service_dest_id);
+            if (($flow->service_dest_id !== null) &&
+               (! $service_ids->contains($flow->service_dest_id))) {
+                $service_ids->push($flow->service_dest_id);
             }
 
             // modules
-            if (($flux->module_source_id !== null) &&
-               (! $module_ids->contains($flux->module_source_id))) {
-                $module_ids->push($flux->module_source_id);
+            if (($flow->module_source_id !== null) &&
+               (! $module_ids->contains($flow->module_source_id))) {
+                $module_ids->push($flow->module_source_id);
             }
-            if (($flux->module_dest_id !== null) &&
-               (! $module_ids->contains($flux->module_dest_id))) {
-                $module_ids->push($flux->module_dest_id);
+            if (($flow->module_dest_id !== null) &&
+               (! $module_ids->contains($flow->module_dest_id))) {
+                $module_ids->push($flow->module_dest_id);
             }
 
             // databases
-            if (($flux->database_source_id !== null) &&
-               (! $database_ids->contains($flux->database_source_id))) {
-                $database_ids->push($flux->database_source_id);
+            if (($flow->database_source_id !== null) &&
+               (! $database_ids->contains($flow->database_source_id))) {
+                $database_ids->push($flow->database_source_id);
             }
-            if (($flux->database_dest_id !== null) &&
-               (! $database_ids->contains($flux->database_dest_id))) {
-                $database_ids->push($flux->database_dest_id);
+            if (($flow->database_dest_id !== null) &&
+               (! $database_ids->contains($flow->database_dest_id))) {
+                $database_ids->push($flow->database_dest_id);
             }
         }
 
         // get objects
-        $applications = MApplication::All()
+        $applications = Application::All()
             ->whereIn('id', $application_ids)
             ->sortBy('name');
         $applicationServices = ApplicationService::All()
@@ -172,7 +172,7 @@ class ApplicationFlowView extends Controller
 
         // update lists
         $all_applicationBlocks = ApplicationBlock::All()->sortBy('name')->pluck('name', 'id');
-        $all_applications = MApplication::All()->sortBy('name')->pluck('name', 'id');
+        $all_applications = Application::All()->sortBy('name')->pluck('name', 'id');
         $all_databases = Database::All()->sortBy('name')->pluck('name', 'id');
 
         // return

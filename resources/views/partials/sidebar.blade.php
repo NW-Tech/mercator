@@ -143,7 +143,7 @@
                                 class="menu-text">{{ trans('cruds.applicationBlock.title') }}</span>
                     </a>
                 @endcan
-                @can('m_application_access')
+                @can('application_access')
                     <a href="{{ route('admin.applications.index') }}"
                        class="ps-4 {{ request()->is('admin/applications*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span
@@ -172,7 +172,7 @@
                     </a>
                 @endcan
                 @can('flux_access')
-                    <a href="{{ route('admin.fluxes.index') }}"
+                    <a href="{{ route('admin.application-flows.index') }}"
                        class="ps-4 {{ request()->is('admin/fluxes*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span class="menu-text">{{ trans('cruds.flux.title') }}</span>
                     </a>
@@ -188,7 +188,7 @@
             request()->is('admin/zone-admins*')||
             request()->is('admin/annuaires*')||
             request()->is('admin/forest-ads*')||
-            request()->is('admin/domaine-ads*')||
+            request()->is('admin/domains*')||
             request()->is('admin/admin-users*')
             ) ? 'show' : '' }}">
                 @can('zone_admin_access')
@@ -213,10 +213,10 @@
                     </a>
                 @endcan
                 @can('domaine_ad_access')
-                    <a href="{{ route('admin.domaine-ads.index') }}"
-                       class="ps-4 {{ request()->is('admin/domaine-ads*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.domains.index') }}"
+                       class="ps-4 {{ request()->is('admin/domains*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span
-                                class="menu-text">{{ trans('cruds.domaineAd.title') }}</span>
+                                class="menu-text">{{ trans('cruds.domaine.title') }}</span>
                     </a>
                 @endcan
                 @can('admin_user_access')
@@ -367,6 +367,7 @@
             request()->is('admin/sites*')||
             request()->is('admin/buildings*')||
             request()->is('admin/bays*')||
+            request()->is('admin/zones*')||
             request()->is('admin/physical*')||
             request()->is('admin/workstations*')||
             request()->is('admin/storage-devices*')||
@@ -395,6 +396,12 @@
                     <a href="{{ route('admin.bays.index') }}"
                        class="ps-4 {{ request()->is('admin/bays*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span class="menu-text">{{ trans('cruds.bay.title') }}</span>
+                    </a>
+                @endcan
+                @can('zone_access')
+                    <a href="{{ route('admin.zones.index') }}"
+                       class="ps-4 {{ request()->is('admin/zones*') ? 'active' : '' }}">
+                        <i class="bi bi-list-columns"></i><span class="menu-text">{{ trans('cruds.zone.title') }}</span>
                     </a>
                 @endcan
                 @can('physical_server_access')

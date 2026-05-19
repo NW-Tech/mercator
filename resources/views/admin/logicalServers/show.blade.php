@@ -95,7 +95,7 @@
                     </th>
                     <td>
                         @if ($logicalServer->domain_id!==null)
-                            <a href="{{ route('admin.domaine-ads.show', $logicalServer->domain_id) }}">
+                            <a href="{{ route('admin.domains.show', $logicalServer->domain_id) }}">
                                 {{ $logicalServer->domain->name }}
                             </a>
                         @endif

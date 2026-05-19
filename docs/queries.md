@@ -15,14 +15,14 @@ OUTPUT  list | graph
 LIMIT   <n>
 ```
 
-| Clause | Required | Description |
-|--------|----------|-------------|
-| `FROM` | ✅ | Target data model (see [Available models](#available-models)) |
+| Clause | Required | Description                                                             |
+|--------|----------|-------------------------------------------------------------------------|
+| `FROM` | ✅ | Target data model (see [Available models](#available-models))           |
 | `FIELDS` | ➖ | List of fields to display, including relation fields (`relation.field`) |
-| `WHERE` | ➖ | Data filter (see [Conditions](#conditions)) |
-| `WITH` | ➖ | Relations to load via eager loading |
-| `OUTPUT` | ➖ | Output format: `list` or `graph` (default: `list`) |
-| `LIMIT` | ➖ | Maximum number of records returned (default: 100) |
+| `WHERE` | ➖ | Data filter (see [Conditions](#conditions))                             |
+| `WITH` | ➖ | Relations to display on the graph                                       |
+| `OUTPUT` | ➖ | Output format: `list` or `graph` (default: `list`)                      |
+| `LIMIT` | ➖ | Maximum number of records returned (default: 100)                       |
 
 ## Available models {#available-models}
 
@@ -304,7 +304,7 @@ Lists applications not attached to any logical server — a possible indicator o
 
 ## Best practices
 
-- **Keep `LIMIT` to the necessary value**: overly broad queries can be slow on large repositories.
+- **Use `LIMIT`** to limit the number of results to the necessary value: overly broad queries can be slow on large repositories.
 - **Use `OUTPUT graph`** only when relations are declared in `WITH`; a graph without relations will consist of isolated nodes only.
 - **Check field names** in the [API reference](api.md) — a typo in a field name simply returns nothing, with no error message.
 - **With `EXISTS`**, declare the relation in `WITH` only if you need to display its fields in `FIELDS`; otherwise, `EXISTS` alone is sufficient to filter without extra overhead.

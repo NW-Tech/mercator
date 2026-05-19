@@ -4,7 +4,7 @@ namespace App\Factories;
 
 use App\Models\AdminUser;
 use App\Models\Building;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\Network;
 use App\Models\Site;
@@ -55,7 +55,7 @@ class WorkstationFactory extends Factory
             'site_id' => Site::factory(),
             'building_id' => Building::factory(),
             'user_id' => AdminUser::factory(),
-            'domain_id' => DomaineAd::factory(),
+            'domain_id' => Domain::factory(),
             'network_id' => Network::factory(),
         ];
     }

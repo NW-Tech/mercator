@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Document;
+use App\Models\Parameter;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Models\Document;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 
@@ -46,6 +47,8 @@ class ConfigurationController extends Controller
             'sum'        => Document::query()->sum('size'),
             // Set the active tab
             'active_tab' => $request->query('tab', 'general'),
+            // Last CPE Sync
+            'last_cpe_sync' => Parameter::getValue('cpe_sync.last_run'),
         ]);
     }
 
@@ -111,6 +114,25 @@ class ConfigurationController extends Controller
 
     private function handleCve(string $action, Request $request): array
     {
+        try {
+            // Check provider URL
+            $provider = $request->input('provider');
+            if (!empty($provider)) {
+                $provider = $this->validateProviderUrl($provider);
+                $this->rejectPrivateHost($provider);
+            }
+
+            // Check CPE-Guesser URL
+            $guesser = $request->input('cpe_guesser');
+            if (!empty($guesser)) {
+                $guesser = $this->validateProviderUrl($guesser);
+                $this->rejectPrivateHost($guesser);
+            }
+        } catch (\InvalidArgumentException $e) {
+            return [$e->getMessage(), false];
+        }
+
+        // Handle action
         if ($action === 'save') {
             $cfg = $this->readConfigFile();
             $cfg['cve']['mail-from']       = $request->input('mail_from');
@@ -222,6 +244,11 @@ class ConfigurationController extends Controller
         $client = curl_init($provider . '/api/dbInfo');
         curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($client, CURLOPT_TIMEOUT, 10);
+
+        // Restrict allowed curl schemes explicitly:
+        curl_setopt($client, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        curl_setopt($client, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+
         $response = curl_exec($client);
         curl_close($client);
 
@@ -259,6 +286,12 @@ class ConfigurationController extends Controller
             'Content-Type: application/json',
             'Content-Length: ' . strlen($payload),
         ]);
+
+        // Restrict allowed curl schemes explicitly:
+        curl_setopt($client, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+        curl_setopt($client, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+
+        // Execute the request:
         $response = curl_exec($client);
         $httpCode = curl_getinfo($client, CURLINFO_HTTP_CODE);
         curl_close($client);
@@ -276,5 +309,26 @@ class ConfigurationController extends Controller
             'CPE guesser OK (HTTP ' . $httpCode . ') — ' . count($json) . ' result(s) for "test"',
             true,
         ];
+    }
+
+    private function validateProviderUrl(string $url): string
+    {
+        if (preg_match('/[?#@]/', $url)) {
+            throw new \InvalidArgumentException('Invalid provider URL.');
+        }
+        $parsed = parse_url($url);
+        if (!$parsed || !in_array($parsed['scheme'] ?? '', ['http', 'https'], true)) {
+            throw new \InvalidArgumentException('Invalid provider URL scheme.');
+        }
+        return $url;
+    }
+
+    private function rejectPrivateHost(string $url): void
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+        $ip   = gethostbyname($host);
+        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+            throw new \InvalidArgumentException('Provider host resolves to a private or reserved address.');
+        }
     }
 }

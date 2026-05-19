@@ -100,8 +100,8 @@
                 <th><center>#</center></th>
                 <th><center>{{ trans("global.mature") }}</center></th>
                 <th><center>
-                    {{ ($applicationBlocks+$applications+$applicationServices+$applicationModules+$databases+$fluxes)>0 ?
-                       number_format(($applicationBlocks_lvl2+$applications_lvl2+$applicationServices_lvl2+$applicationModules_lvl2+$databases_lvl2+$fluxes_lvl1) *100 / ($applicationBlocks+$applications+$applicationServices+$applicationModules+$databases+$fluxes),0) : 0 }}%
+                    {{ ($applicationBlocks+$applications+$applicationServices+$applicationModules+$databases+$flows)>0 ?
+                       number_format(($applicationBlocks_lvl2+$applications_lvl2+$applicationServices_lvl2+$applicationModules_lvl2+$databases_lvl2+$flows_lvl1) *100 / ($applicationBlocks+$applications+$applicationServices+$applicationModules+$databases+$flows),0) : 0 }}%
                 </center></th>
             </thead>
 
@@ -138,9 +138,9 @@
                 </tr>
                 <tr>
                     <td><a href="/admin/fluxes">{{ trans("cruds.flux.title") }}</a></td>
-                    <td><center>{{ $fluxes }}</center></td>
-                    <td><center>{{ $fluxes_lvl1 }}</center></td>
-                    <td><center>{{ $fluxes>0 ? number_format($fluxes_lvl1*100/$fluxes,0):0 }}%</center></td>
+                    <td><center>{{ $flows }}</center></td>
+                    <td><center>{{ $flows_lvl1 }}</center></td>
+                    <td><center>{{ $flows>0 ? number_format($flows_lvl1*100/$flows,0):0 }}%</center></td>
                 </tr>
             </tbody>
 
@@ -150,17 +150,17 @@
                 <th><center>#</center></th>
                 <th><center>{{ trans("global.mature") }}</center></th>
                 <th><center>
-                    {{ ($zones+$annuaires+$forests+$domaines)>0 ?
-                        number_format(($zones_lvl1+$annuaires_lvl1+$forests_lvl1+$domaines_lvl1)*100/($zones+$annuaires+$forests+$domaines),0) : 0 }}%
+                    {{ ($zones_ad+$annuaires+$forests+$domains)>0 ?
+                        number_format(($zones_ad_lvl1+$annuaires_lvl1+$forests_lvl1+$domaines_lvl1)*100/($zones_ad+$annuaires+$forests+$domains),0) : 0 }}%
                 </center></th>
             </thead>
 
             <tbody>
                 <tr>
                     <td><a href="/admin/zone-admins">{{ trans("cruds.zoneAdmin.title") }}</a></td>
-                    <td><center>{{ $zones }}</center></td>
-                    <td><center>{{ $zones_lvl1 }}</center></td>
-                    <td><center>{{ $zones>0 ? number_format($zones_lvl1*100/$zones,0):0 }}%</center></td>
+                    <td><center>{{ $zones_ad }}</center></td>
+                    <td><center>{{ $zones_ad_lvl1 }}</center></td>
+                    <td><center>{{ $zones_ad>0 ? number_format($zones_ad_lvl1*100/$zones_ad,0):0 }}%</center></td>
                 </tr>
                 <tr>
                     <td><a href="/admin/annuaires">{{ trans("cruds.annuaire.title") }}</a></td>
@@ -175,10 +175,10 @@
                     <td><center>{{ $forests>0 ? number_format($forests_lvl1*100/$forests,0):0 }}%</center></td>
                 </tr>
                 <tr>
-                    <td><a href="/admin/domaine-ads">{{ trans("cruds.domaineAd.title") }}</a></td>
-                    <td><center>{{ $domaines }}</center></td>
+                    <td><a href="/admin/domains">{{ trans("cruds.domaine.title") }}</a></td>
+                    <td><center>{{ $domains }}</center></td>
                     <td><center>{{ $domaines_lvl1 }}</center></td>
-                    <td><center>{{ $domaines>0 ? number_format($domaines_lvl1*100/$domaines,0):0 }}%</center></td>
+                    <td><center>{{ $domains>0 ? number_format($domaines_lvl1*100/$domains,0):0 }}%</center></td>
                 </tr>
             </tbody>
 

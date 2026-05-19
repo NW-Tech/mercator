@@ -1,0 +1,151 @@
+@extends('layouts.admin')
+
+@section('title')
+    {{ trans('global.add') }} {{ trans('cruds.zone.title_singular') }}
+@endsection
+
+@section('content')
+    <form method="POST" action="{{ route('admin.zones.store') }}" enctype="multipart/form-data">
+        @csrf
+        <div class="card">
+            <div class="card-header">
+                {{ trans('global.add') }} {{ trans('cruds.zone.title_singular') }}
+            </div>
+            <div class="card-body">
+
+                {{-- Ligne 1 : nom, type, attributs --}}
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label class="label-required" for="name">{{ trans('cruds.zone.fields.name') }}</label>
+                            <input class="form-control {{ $errors->has('name') ? 'is-invalid' : '' }}"
+                                   type="text" name="name" id="name"
+                                   value="{{ old('name') }}" required autofocus/>
+                            @error('name') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <span class="help-block">{{ trans('cruds.zone.fields.name_helper') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="type">{{ trans('cruds.zone.fields.type') }}</label>
+                            <select class="form-control select2-free {{ $errors->has('type') ? 'is-invalid' : '' }}"
+                                    name="type" id="type">
+                                @if (!$type_list->contains(old('type')))
+                                    <option>{{ old('type') }}</option>
+                                @endif
+                                @foreach($type_list as $t)
+                                    <option {{ old('type') === $t ? 'selected' : '' }}>{{ $t }}</option>
+                                @endforeach
+                            </select>
+                            @error('type') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <span class="help-block">{{ trans('cruds.zone.fields.type_helper') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="attributes">{{ trans('cruds.zone.fields.attributes') }}</label>
+                            <select class="form-control select2-free-tags {{ $errors->has('attributes') ? 'is-invalid' : '' }}"
+                                    name="attributes[]" id="attributes" multiple>
+                                @foreach($attributes_list as $a)
+                                    <option {{ in_array($a, old('attributes', [])) ? 'selected' : '' }}>{{ $a }}</option>
+                                @endforeach
+                            </select>
+                            @error('attributes') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                            <span class="help-block">{{ trans('cruds.zone.fields.attributes_helper') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Ligne 2 : description --}}
+                <div class="form-group">
+                    <label for="description">{{ trans('cruds.zone.fields.description') }}</label>
+                    <textarea class="form-control ckeditor {{ $errors->has('description') ? 'is-invalid' : '' }}"
+                              name="description" id="description">{!! old('description') !!}</textarea>
+                    @error('description') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div>
+
+                {{-- Ligne 3 : zones parentes / zones enfants --}}
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="parentZones">{{ trans('cruds.zone.fields.parent_zones') }}</label>
+                            <div style="padding-bottom:4px">
+                                <span class="btn btn-info btn-xs select-all" style="border-radius:0">{{ trans('global.select_all') }}</span>
+                                <span class="btn btn-info btn-xs deselect-all" style="border-radius:0">{{ trans('global.deselect_all') }}</span>
+                            </div>
+                            <select class="form-control select2 {{ $errors->has('parentZones') ? 'is-invalid' : '' }}"
+                                    name="parentZones[]" id="parentZones" multiple>
+                                @foreach($zones as $id => $name)
+                                    <option value="{{ $id }}" {{ in_array($id, old('parentZones', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                            @error('parentZones') <span class="text-danger">{{ $message }}</span> @enderror
+                            <span class="help-block">{{ trans('cruds.zone.fields.parent_zones_helper') }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="childZones">{{ trans('cruds.zone.fields.child_zones') }}</label>
+                            <div style="padding-bottom:4px">
+                                <span class="btn btn-info btn-xs select-all" style="border-radius:0">{{ trans('global.select_all') }}</span>
+                                <span class="btn btn-info btn-xs deselect-all" style="border-radius:0">{{ trans('global.deselect_all') }}</span>
+                            </div>
+                            <select class="form-control select2 {{ $errors->has('childZones') ? 'is-invalid' : '' }}"
+                                    name="childZones[]" id="childZones" multiple>
+                                @foreach($zones as $id => $name)
+                                    <option value="{{ $id }}" {{ in_array($id, old('childZones', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                                @endforeach
+                            </select>
+                            @error('childZones') <span class="text-danger">{{ $message }}</span> @enderror
+                            <span class="help-block">{{ trans('cruds.zone.fields.child_zones_helper') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Ligne 4 : locaux --}}
+                <div class="form-group">
+                    <label for="buildings">{{ trans('cruds.zone.fields.buildings') }}</label>
+                    <div style="padding-bottom:4px">
+                        <span class="btn btn-info btn-xs select-all" style="border-radius:0">{{ trans('global.select_all') }}</span>
+                        <span class="btn btn-info btn-xs deselect-all" style="border-radius:0">{{ trans('global.deselect_all') }}</span>
+                    </div>
+                    <select class="form-control select2 {{ $errors->has('buildings') ? 'is-invalid' : '' }}"
+                            name="buildings[]" id="buildings" multiple>
+                        @foreach($buildings as $id => $name)
+                            <option value="{{ $id }}" {{ in_array($id, old('buildings', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                    </select>
+                    @error('buildings') <span class="text-danger">{{ $message }}</span> @enderror
+                    <span class="help-block">{{ trans('cruds.zone.fields.buildings_helper') }}</span>
+                </div>
+
+                {{-- Ligne 5 : admin users --}}
+                <div class="form-group">
+                    <label for="adminUsers">{{ trans('cruds.zone.fields.admin_users') }}</label>
+                    <div style="padding-bottom:4px">
+                        <span class="btn btn-info btn-xs select-all" style="border-radius:0">{{ trans('global.select_all') }}</span>
+                        <span class="btn btn-info btn-xs deselect-all" style="border-radius:0">{{ trans('global.deselect_all') }}</span>
+                    </div>
+                    <select class="form-control select2 {{ $errors->has('adminUsers') ? 'is-invalid' : '' }}"
+                            name="adminUsers[]" id="adminUsers" multiple>
+                        @foreach($adminUsers as $id => $name)
+                            <option value="{{ $id }}" {{ in_array($id, old('adminUsers', [])) ? 'selected' : '' }}>{{ $name }}</option>
+                        @endforeach
+                    </select>
+                    @error('adminUsers') <span class="text-danger">{{ $message }}</span> @enderror
+                    <span class="help-block">{{ trans('cruds.zone.fields.admin_users_helper') }}</span>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.zones.index') }}">
+                {{ trans('global.back_to_list') }}
+            </a>
+            <button id="btn-save" class="btn btn-success" type="submit">
+                {{ trans('global.save') }}
+            </button>
+        </div>
+    </form>
+@endsection

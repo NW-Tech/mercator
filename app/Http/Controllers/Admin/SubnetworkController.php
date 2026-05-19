@@ -105,7 +105,7 @@ class SubnetworkController extends Controller
         $wifi_list = Subnetwork::select('wifi')->where('wifi', '<>', null)->distinct()->orderBy('wifi')->pluck('wifi');
         $zone_list = Subnetwork::select('zone')->where('zone', '<>', null)->distinct()->orderBy('zone')->pluck('zone');
 
-        $subnetwork->load('connected_subnets', 'gateway');
+        $subnetwork->load('connectedSubnets', 'gateway');
 
         return view(
             'admin.subnetworks.edit',
@@ -135,7 +135,7 @@ class SubnetworkController extends Controller
     {
         abort_if(Gate::denies('subnetwork_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $subnetwork->load('connected_subnets', 'gateway');
+        $subnetwork->load('connectedSubnets', 'gateway');
 
         return view('admin.subnetworks.show', compact('subnetwork'));
     }

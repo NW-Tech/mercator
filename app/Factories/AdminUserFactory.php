@@ -3,7 +3,7 @@
 namespace App\Factories;
 
 use App\Models\AdminUser;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 
@@ -24,7 +24,7 @@ class AdminUserFactory extends Factory
             'created_at' => Carbon::now(),
             'updated_at' => Carbon::now(),
 
-            'domain_id' => DomaineAd::factory(),
+            'domain_id' => Domain::factory(),
         ];
     }
 }

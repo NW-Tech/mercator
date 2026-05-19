@@ -20,8 +20,6 @@ class Backup extends Model implements HasIconContract
 
     public static string $icon = '/images/backup.png';
 
-    public $incrementing = false;
-    public $timestamps = false;
 
     protected $fillable = [
         'logical_server_id',

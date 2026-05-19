@@ -65,22 +65,22 @@ class Database extends Model implements HasIconContract, HasPrefix
         return DatabaseFactory::new();
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function databaseSourceFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'database_source_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'database_source_id', 'id')->orderBy('name');
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function databaseDestFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'database_dest_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'database_dest_id', 'id')->orderBy('name');
     }
 
-    /** @return BelongsToMany<MApplication, $this> */
+    /** @return BelongsToMany<Application, $this> */
     public function applications(): BelongsToMany
     {
-        return $this->belongsToMany(MApplication::class)->orderBy('name');
+        return $this->belongsToMany(Application::class)->orderBy('name');
     }
 
     /** @return BelongsToMany<Entity, $this> */
@@ -90,7 +90,7 @@ class Database extends Model implements HasIconContract, HasPrefix
     }
 
     /** @return BelongsTo<Entity, $this> */
-    public function entity_resp(): BelongsTo
+    public function entityResp(): BelongsTo
     {
         return $this->belongsTo(Entity::class, 'entity_resp_id');
     }

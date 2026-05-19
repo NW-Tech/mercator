@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Requests\MassDestroySavedQueryRequest;
+use App\Http\Requests\MassStoreSavedQueryRequest;
+use App\Http\Requests\MassUpdateSavedQueryRequest;
 use App\Http\Requests\StoreSavedQueryRequest;
 use App\Http\Requests\UpdateSavedQueryRequest;
 use App\Models\SavedQuery;
@@ -142,4 +145,37 @@ class QueryController extends APIController
 
         return response()->json();
     }
+
+    public function massDestroy(MassDestroySavedQueryRequest $request)
+    {
+        abort_if(Gate::denies('query_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        SavedQuery::whereIn('id', $request->input('ids', []))->delete();
+
+        return response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    public function massStore(MassStoreSavedQueryRequest $request)
+    {
+        $data       = $request->validated();
+        $createdIds = $this->massStoreItems($data['items']);
+
+        return response()->json([
+            'status' => 'ok',
+            'count'  => count($createdIds),
+            'ids'    => $createdIds,
+        ], Response::HTTP_CREATED);
+    }
+
+    public function massUpdate(MassUpdateSavedQueryRequest $request)
+    {
+        $data = $request->validated();
+
+        $this->massUpdateItems($data['items']);
+
+        return response()->json([
+            'status' => 'ok',
+        ]);
+    }
 }
+
