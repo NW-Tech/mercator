@@ -82,6 +82,7 @@ The list of APIs can be found in /route/api.php
 - [/api/sites](./model.md#sites)
 - [/api/buildings](./model.md#buildings-rooms)
 - [/api/bays](./model.md#racks)
+- [/api/zones](./model.md#security-zones)
 - [/api/physical-servers](./model.md#physical-servers)
 - [/api/workstations](./model.md#workstations)
 - [/api/storage-devices](./model.md#storage-infrastructures) (recommended for backups)
