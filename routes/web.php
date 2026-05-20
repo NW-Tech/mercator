@@ -198,8 +198,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     // Logical Servers
     Route::resource('logical-servers', Admin\LogicalServerController::class);
     Route::post('logical-servers-data', [Admin\LogicalServerController::class, 'getData'])->name('logical-servers.data');
-
     Route::delete('logical-servers-destroy', [Admin\LogicalServerController::class, 'massDestroy'])->name('logical-servers.massDestroy');
+
+    // Backups
+    Route::resource('backups', Admin\BackupController::class);
+    Route::delete('backups-destroy', [Admin\BackupController::class, 'massDestroy'])->name('backups.massDestroy');
 
     // Containers
     Route::resource('containers', Admin\ContainerController::class);

@@ -51,19 +51,19 @@
                     <table class="table table-bordered table-striped">
                         <tbody>
                             <tr>
-                                <th width="30%">{{ trans('cruds.logicalServer.title') }}</th>
+                                <th width="25%">{{ trans('cruds.backup.fields.name') }}</th>
+                                <th width="25%">{{ trans('cruds.logicalServer.title') }}</th>
                                 <th width="20%">{{ trans('cruds.backup.frequency') }}</th>
-                                <th width="30%">{{ trans('cruds.backup.cycle') }}</th>
-                                <th width="20%">{{ trans('cruds.backup.retention') }}</th>
+                                <th width="15%">{{ trans('cruds.backup.cycle') }}</th>
+                                <th width="15%">{{ trans('cruds.backup.retention') }}</th>
                             </tr>
                             @foreach($storageDevice->backups as $backup)
                             <tr>
+                                <td>{{ $backup->name }}</td>
                                 <td>
-                                @if ($backup->logical_server_id!==null)
-                                    <a href="{{ route('admin.logical-servers.show', $backup->logical_server_id) }}">
-                                        {{ $backup->logicalServer->name }}
-                                    </a>
-                                @endif
+                                    @foreach($backup->logicalServers as $server)
+                                        <a href="{{ route('admin.logical-servers.show', $server->id) }}">{{ $server->name }}</a>@if(!$loop->last), @endif
+                                    @endforeach
                                 </td>
                                 <td>{{ $backup->backup_frequency ? trans("cruds.backup.frequencies.{$backup->backup_frequency}") : '' }}</td>
                                 <td>{{ $backup->backup_cycle ? trans("cruds.backup.cycles.{$backup->backup_cycle}") : '' }}</td>

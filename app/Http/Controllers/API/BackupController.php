@@ -28,23 +28,37 @@ class BackupController extends APIController
     {
         abort_if(Gate::denies('backup_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $backup = Backup::query()->create($request->all());
+        $backup = Backup::query()->create($request->validated());
 
-        return response()->json($backup, Response::HTTP_CREATED);
+        if ($request->has('logical_server_ids')) {
+            $backup->logicalServers()->sync($request->input('logical_server_ids', []));
+        }
+        if ($request->has('storage_device_ids')) {
+            $backup->storageDevices()->sync($request->input('storage_device_ids', []));
+        }
+
+        return response()->json($backup->load('logicalServers', 'storageDevices'), Response::HTTP_CREATED);
     }
 
     public function show(Backup $backup)
     {
         abort_if(Gate::denies('backup_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        return new JsonResource($backup);
+        return new JsonResource($backup->load('logicalServers', 'storageDevices'));
     }
 
     public function update(UpdateBackupRequest $request, Backup $backup)
     {
         abort_if(Gate::denies('backup_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $backup->update($request->all());
+        $backup->update($request->validated());
+
+        if ($request->has('logical_server_ids')) {
+            $backup->logicalServers()->sync($request->input('logical_server_ids', []));
+        }
+        if ($request->has('storage_device_ids')) {
+            $backup->storageDevices()->sync($request->input('storage_device_ids', []));
+        }
 
         return response()->json();
     }
@@ -72,13 +86,10 @@ class BackupController extends APIController
         $data       = $request->validated();
         $createdIds = [];
 
-        $model    = new Backup();
-        $attributes = $model->getFillable();
-
         foreach ($data['items'] as $item) {
-            /** @var Backup $backup */
-            $backup = Backup::query()->create($attributes);
-
+            $backup       = Backup::query()->create(
+                collect($item)->only((new Backup())->getFillable())->all()
+            );
             $createdIds[] = $backup->id;
         }
 
@@ -91,24 +102,14 @@ class BackupController extends APIController
 
     public function massUpdate(MassUpdateBackupRequest $request)
     {
-        $data     = $request->validated();
-        $model    = new Backup();
-        $attributes = $model->getFillable();
+        $data       = $request->validated();
+        $fillable   = (new Backup())->getFillable();
 
         foreach ($data['items'] as $rawItem) {
-            $id        = $rawItem['id'];
-
-            /** @var Backup $backup */
-            $backup = Backup::query()->findOrFail($id);
-            
-            if (! empty($attributes)) {
-                $backup->update($attributes);
-            }
-
+            $backup = Backup::query()->findOrFail($rawItem['id']);
+            $backup->update(collect($rawItem)->only($fillable)->all());
         }
 
-        return response()->json([
-            'status' => 'ok',
-        ]);
+        return response()->json(['status' => 'ok']);
     }
 }

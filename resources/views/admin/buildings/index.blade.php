@@ -75,13 +75,13 @@
                                 {{ $building->type }}
                             </td>
                             <td>
-                                    <?php
-                                    foreach (explode(" ", $building->attributes) as $attribute) {
-                                        echo "<span class='badge badge-info'>";
-                                        echo $attribute;
-                                        echo "</span> ";
-                                    }
-                                    ?>
+                                <?php
+                                foreach (explode(" ", $building->attributes) as $attribute) {
+                                    echo "<span class='badge badge-info'>";
+                                    echo $attribute;
+                                    echo "</span> ";
+                                }
+                                ?>
                             </td>
                             <td>
                                 @if ($building->site!=null)

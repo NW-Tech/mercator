@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -77,10 +76,10 @@ class StorageDevice extends Model implements HasIconContract, HasPrefix
         return $this->belongsTo(Bay::class, 'bay_id');
     }
 
-    /** @return HasMany<Backup, $this> */
-    public function backups(): HasMany
+    /** @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Backup, $this> */
+    public function backups(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Backup::class);
+        return $this->belongsToMany(Backup::class, 'backup_storage_device');
     }
 
     protected function serializeDate(DateTimeInterface $date): string

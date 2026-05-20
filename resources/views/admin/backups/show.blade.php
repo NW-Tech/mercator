@@ -1,0 +1,44 @@
+@extends('layouts.admin')
+
+@section('title')
+    {{ $backup->name }}
+@endsection
+
+@section('content')
+    <div class="form-group">
+        <a class="btn btn-default" href="{{ route('admin.backups.index') }}">{{ trans('global.back_to_list') }}</a>
+
+        <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$backup->getUID()}}">
+            {{ trans('global.explore') }}
+        </a>
+
+        @can('backup_edit')
+            <a class="btn btn-info" href="{{ route('admin.backups.edit', $backup->id) }}">{{ trans('global.edit') }}</a>
+        @endcan
+
+        @can('backup_delete')
+            <form action="{{ route('admin.backups.destroy', $backup->id) }}" method="POST"
+                  onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
+                <input type="hidden" name="_method" value="DELETE">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="submit" class="btn btn-danger" value="{{ trans('global.delete') }}">
+            </form>
+        @endcan
+    </div>
+
+    <div class="card">
+        <div class="card-header">{{ trans('global.show') }} {{ trans('cruds.backup.title_singular') }}</div>
+        <div class="card-body">
+            @include('admin.backups._details', ['backup' => $backup, 'withLink' => false])
+        </div>
+        <div class="card-footer">
+            {{ trans('global.created_at') }} {{ $backup->created_at?->format(trans('global.timestamp')) }}
+            |
+            {{ trans('global.updated_at') }} {{ $backup->updated_at?->format(trans('global.timestamp')) }}
+        </div>
+    </div>
+
+    <div class="form-group">
+        <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.backups.index') }}">{{ trans('global.back_to_list') }}</a>
+    </div>
+@endsection

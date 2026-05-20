@@ -34,12 +34,8 @@ beforeEach(function () {
 // ============================================================
 
 it('fills created_at when a backup is created via API', function () {
-    $logicalServer = LogicalServer::factory()->create();
-    $storageDevice = StorageDevice::factory()->create();
-
     $response = $this->postJson('/api/backups', [
-        'logical_server_id' => $logicalServer->id,
-        'storage_device_id' => $storageDevice->id,
+        'name'              => 'Daily backup',
         'backup_frequency'  => 1,
         'backup_cycle'      => 1,
         'backup_retention'  => 30,
@@ -59,22 +55,43 @@ it('fills created_at when a backup is created directly', function () {
 });
 
 // ============================================================
-// L'update via l'interface admin ne doit pas laisser
-// d'anciens enregistrements soft-deletés
+// Relations n-m : logicalServers et storageDevices
 // ============================================================
 
-it('replaces backups without leaving soft-deleted residue on admin update', function () {
+it('links a backup to a logical server and a storage device via API', function () {
+    $server = LogicalServer::factory()->create(['name' => 'WebServer']);
+    $device = StorageDevice::factory()->create(['name' => 'NAS-01']);
+
+    $response = $this->postJson('/api/backups', [
+        'name'               => 'WebServer NAS backup',
+        'backup_frequency'   => 1,
+        'backup_cycle'       => 1,
+        'backup_retention'   => 30,
+        'logical_server_ids' => [$server->id],
+        'storage_device_ids' => [$device->id],
+    ])->assertCreated();
+
+    $backup = Backup::findOrFail($response->json('id'));
+
+    expect($backup->logicalServers->pluck('id')->contains($server->id))->toBeTrue();
+    expect($backup->storageDevices->pluck('id')->contains($device->id))->toBeTrue();
+});
+
+// ============================================================
+// L'update via l'interface admin ne doit pas laisser
+// d'anciens enregistrements residuels
+// ============================================================
+
+it('replaces backups without leaving residue on admin update', function () {
     $this->actingAs($this->user);
 
     $logicalServer = LogicalServer::factory()->create(['name' => 'TestServer']);
-    $device        = StorageDevice::factory()->create();
+    $device        = StorageDevice::factory()->create(['name' => 'StorageA']);
 
-    // Backup initial
-    $old = Backup::factory()->create([
-        'logical_server_id' => $logicalServer->id,
-        'storage_device_id' => $device->id,
-        'backup_frequency'  => 2,
-    ]);
+    // Backup initial lié via pivot
+    $old = Backup::factory()->create(['backup_frequency' => 2]);
+    $old->logicalServers()->attach($logicalServer->id);
+    $old->storageDevices()->attach($device->id);
 
     // Mise à jour du serveur logique (remplace le backup)
     $this->put(route('admin.logical-servers.update', $logicalServer), array_merge(
@@ -87,10 +104,10 @@ it('replaces backups without leaving soft-deleted residue on admin update', func
         ]
     ))->assertRedirect();
 
-    // L'ancien enregistrement doit être définitivement supprimé (pas soft-deleted)
+    // L'ancien enregistrement doit être définitivement supprimé
     $this->assertDatabaseMissing('backups', ['id' => $old->id]);
 
-    // Un seul backup actif doit exister pour ce serveur
-    expect(Backup::where('logical_server_id', $logicalServer->id)->count())->toBe(1);
-    expect(Backup::where('logical_server_id', $logicalServer->id)->first()->backup_frequency)->toBe(1);
+    // Un seul backup actif doit être lié à ce serveur
+    expect($logicalServer->fresh()->backups()->count())->toBe(1);
+    expect($logicalServer->fresh()->backups()->first()->backup_frequency)->toBe(1);
 });
