@@ -1476,6 +1476,27 @@ Racks are technical cabinets housing computer network or telephony equipment.
 
 In the app, a rack can be linked to a building / room from a rack objet.
 
+### Security zones
+
+A Security Zone is a physically secured area accessible only with accreditation or specific authorizations.
+
+| Table                                    | api         |
+|:-----------------------------------------|:------------|
+| <span style="color: blue;">*zones*</span> | `/api/zones` |
+
+| Champ       | Type         | Description                  |
+|:------------|:-------------|:-----------------------------|
+| id          | int unsigned | auto_increment               |
+| name        | varchar(255) | Name of the rack             |
+| description | longtext     | Description of the zone      |
+| type        | varchar(255) | Type of the Zone             |
+| attributes  | varchar(255) | Attributes of the zone       |
+| created_at  | timestamp    | Date of creation             |
+| updated_at  | timestamp    | Date of update               |
+| deleted_at  | timestamp    | Date of deletion             |
+
+
+
 ### Physical servers
 
 Physical servers are physical machines running a set of IT services.

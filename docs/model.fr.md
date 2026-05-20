@@ -1481,6 +1481,28 @@ Les baies sont des armoires techniques rassemblant des équipements de réseau i
 
 Dans l'application, une baie peut être rattachée à un bâtiment / baie depuis un objet baie.
 
+### Zones de sécurité
+
+Une zone est un espace physiquement sécurisé, accessible uniquement avec une accréditation ou des autorisations spécifiques.
+
+| Table                                    | api         |
+|:-----------------------------------------|:------------|
+| <span style="color: blue;">*zones*</span> | `/api/zones` |
+
+| Champ       | Type         | Description                  |
+|:------------|:-------------|:------------------------|
+| id          | int unsigned | auto_increment          |
+| name        | varchar(255) | Nom de la zone          |
+| description | longtext     | Description de la zone  |
+| type        | varchar(255) | Type de la zone         |
+| attributes  | varchar(255) | Attributs de la zone    |
+| created_at  | timestamp    | Date of creation        |
+| updated_at  | timestamp    | Date of update          |
+| deleted_at  | timestamp    | Date of deletion        |
+
+In the app, a rack can be linked to a building / room from a rack objet.
+
+
 ### Serveurs physiques
 
 Les serveurs physiques sont des machines physiques exécutant un ensemble de services informatiques.
