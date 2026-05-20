@@ -19,23 +19,23 @@ class DemoDomainForestAdTableSeeder extends Seeder
         \DB::table('domain_forest_ad')->insert([
             0 => [
                 'forest_ad_id' => 1,
-                'domaine_id' => 1,
+                'domain_id' => 1,
             ],
             1 => [
                 'forest_ad_id' => 2,
-                'domaine_id' => 1,
+                'domain_id' => 1,
             ],
             2 => [
                 'forest_ad_id' => 1,
-                'domaine_id' => 3,
+                'domain_id' => 3,
             ],
             3 => [
                 'forest_ad_id' => 2,
-                'domaine_id' => 5,
+                'domain_id' => 5,
             ],
             4 => [
                 'forest_ad_id' => 1,
-                'domaine_id' => 4,
+                'domain_id' => 4,
             ],
         ]);
 
