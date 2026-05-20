@@ -168,11 +168,9 @@ class ZoneController extends APIController
                 ->except(['id', 'parentZones', 'childZones', 'buildings', 'adminUsers'])
                 ->only($fillable)
                 ->toArray();
+            $attributes['attributes'] = implode(' ', (array) ($attributes['attributes'] ?? []));
 
-            if ($attributes['attributes']!=null) {
-                $attributes['attributes'] = implode(' ', (array) ($attributes['attributes']));
-                $zone->update($attributes);
-            }
+            $zone->update($attributes);
 
             if (array_key_exists('parentZones', $rawItem) && $parentZones !== null) {
                 $zone->parentZones()->sync($parentZones);
