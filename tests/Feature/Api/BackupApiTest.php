@@ -78,36 +78,34 @@ it('links a backup to a logical server and a storage device via API', function (
 });
 
 // ============================================================
-// L'update via l'interface admin ne doit pas laisser
-// d'anciens enregistrements residuels
+// L'update via l'interface admin doit synchroniser les backups
 // ============================================================
 
-it('replaces backups without leaving residue on admin update', function () {
+it('syncs backup links on admin update', function () {
     $this->actingAs($this->user);
 
     $logicalServer = LogicalServer::factory()->create(['name' => 'TestServer']);
-    $device        = StorageDevice::factory()->create(['name' => 'StorageA']);
+    $oldBackup     = Backup::factory()->create(['name' => 'Old Backup']);
+    $newBackup     = Backup::factory()->create(['name' => 'New Backup']);
 
-    // Backup initial lié via pivot
-    $old = Backup::factory()->create(['backup_frequency' => 2]);
-    $old->logicalServers()->attach($logicalServer->id);
-    $old->storageDevices()->attach($device->id);
+    // Lier l'ancien backup au serveur
+    $logicalServer->backups()->attach($oldBackup->id);
 
-    // Mise à jour du serveur logique (remplace le backup)
+    // Mise à jour du serveur logique : on remplace par le nouveau backup
     $this->put(route('admin.logical-servers.update', $logicalServer), array_merge(
         $logicalServer->only(['name']),
-        [
-            'storage_device_id' => [$device->id],
-            'backup_frequency'  => [1],
-            'backup_cycle'      => [1],
-            'backup_retention'  => [30],
-        ]
+        ['backup_ids' => [$newBackup->id]]
     ))->assertRedirect();
 
-    // L'ancien enregistrement doit être définitivement supprimé
-    $this->assertDatabaseMissing('backups', ['id' => $old->id]);
+    $fresh = $logicalServer->fresh();
 
-    // Un seul backup actif doit être lié à ce serveur
-    expect($logicalServer->fresh()->backups()->count())->toBe(1);
-    expect($logicalServer->fresh()->backups()->first()->backup_frequency)->toBe(1);
+    // L'ancien backup est détaché
+    expect($fresh->backups->pluck('id')->contains($oldBackup->id))->toBeFalse();
+    // Le nouveau backup est attaché
+    expect($fresh->backups->pluck('id')->contains($newBackup->id))->toBeTrue();
+    // Un seul backup lié
+    expect($fresh->backups->count())->toBe(1);
+    // Les deux backups existent toujours en base (sync ne supprime pas)
+    $this->assertDatabaseHas('backups', ['id' => $oldBackup->id]);
+    $this->assertDatabaseHas('backups', ['id' => $newBackup->id]);
 });

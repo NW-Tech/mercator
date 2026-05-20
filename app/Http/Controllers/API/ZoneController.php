@@ -7,10 +7,10 @@ use App\Http\Requests\MassStoreZoneRequest;
 use App\Http\Requests\MassUpdateZoneRequest;
 use App\Http\Requests\StoreZoneRequest;
 use App\Http\Requests\UpdateZoneRequest;
+use App\Models\Zone;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Zone;
 use Symfony\Component\HttpFoundation\Response;
 
 class ZoneController extends APIController
@@ -168,9 +168,9 @@ class ZoneController extends APIController
                 ->except(['id', 'parentZones', 'childZones', 'buildings', 'adminUsers'])
                 ->only($fillable)
                 ->toArray();
-            $attributes['attributes'] = implode(' ', (array) ($attributes['attributes'] ?? []));
 
-            if (! empty($attributes)) {
+            if ($attributes['attributes']!=null) {
+                $attributes['attributes'] = implode(' ', (array) ($attributes['attributes']));
                 $zone->update($attributes);
             }
 
