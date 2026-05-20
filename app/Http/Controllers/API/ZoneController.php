@@ -54,6 +54,11 @@ class ZoneController extends APIController
     {
         abort_if(Gate::denies('zone_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        $zone['parentZones'] = $zone->parentZones()->pluck('id');
+        $zone['childZones']  = $zone->childZones()->pluck('id');
+        $zone['buildings']   = $zone->buildings()->pluck('id');
+        $zone['adminUsers']  = $zone->adminUsers()->pluck('id');
+
         return new JsonResource($zone);
     }
 

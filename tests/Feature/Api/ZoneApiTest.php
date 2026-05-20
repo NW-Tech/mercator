@@ -129,6 +129,26 @@ it('shows a zone when permitted', function () {
         ->assertJsonFragment(['name' => 'Zone Visible']);
 });
 
+it('show includes relations', function () {
+    $parent   = Zone::factory()->create(['name' => 'Parent Zone']);
+    $child    = Zone::factory()->create(['name' => 'Child Zone']);
+    $building = Building::factory()->create();
+    $admin    = AdminUser::factory()->create();
+
+    $zone = Zone::factory()->create(['name' => 'Zone With Relations']);
+    $zone->parentZones()->sync([$parent->id]);
+    $zone->childZones()->sync([$child->id]);
+    $zone->buildings()->sync([$building->id]);
+    $zone->adminUsers()->sync([$admin->id]);
+
+    $data = $this->getJson("/api/zones/{$zone->id}")->assertOk()->json('data');
+
+    expect($data['parentZones'])->toContain($parent->id);
+    expect($data['childZones'])->toContain($child->id);
+    expect($data['buildings'])->toContain($building->id);
+    expect($data['adminUsers'])->toContain($admin->id);
+});
+
 // ============================================================
 // update
 // ============================================================
