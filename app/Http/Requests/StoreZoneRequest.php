@@ -20,8 +20,7 @@ class StoreZoneRequest extends FormRequest
         return [
             'name'        => 'required|string|max:255|unique:zones,name',
             'type'        => 'nullable|string|max:255',
-            'attributes'  => 'nullable|array',
-            'attributes.*' => 'nullable|string|max:255',
+            'attributes'  => 'nullable',
             'description' => 'nullable|string',
             'parentZones' => 'nullable|array',
             'parentZones.*' => 'exists:zones,id',
