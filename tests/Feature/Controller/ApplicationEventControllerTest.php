@@ -88,9 +88,6 @@ describe('ApplicationEventController', function () {
         );
 
         $response->assertRedirectBack();
-        //$response->assertJsonStructure(['events']);
-        // $response->assertJsonMissing(['message' => 'To be deleted']);
-        //$response->assertJsonFragment(['message' => 'To keep']);
 
         $this->assertDatabaseMissing('application_events', [
             'id' => $eventToDelete->id,
