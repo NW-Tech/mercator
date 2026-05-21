@@ -430,12 +430,18 @@
                 attrs.push(`color="${edge.color ?? 'blue'}"`);
                 attrs.push('penwidth=2');
                 attrs.push('dir=none');
+            } else if (edge.type === 'FLUX') {
+                if (edge.name)          attrs.push(`label="${esc(edge.name)}"`);
+                if (edge.bidirectional) attrs.push('dir=both');
+                attrs.push('color="#1a6496"');
+            } else if (edge.type === 'LINK') {
+                attrs.push('color="#000000"');
+                attrs.push('style=dashed');
             } else {
                 if (edge.name)          attrs.push(`label="${esc(edge.name)}"`);
                 if (edge.bidirectional) attrs.push('dir=both');
                 if (edge.color)         attrs.push(`color="${esc(edge.color)}"`);
             }
-
             dot += `  "${esc(edge.from)}" -> "${esc(edge.to)}"${attrs.length ? ' [' + attrs.join(' ') + ']' : ''}\n`;
         }
         dot += '}\n';
