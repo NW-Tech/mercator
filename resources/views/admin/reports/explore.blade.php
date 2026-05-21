@@ -513,6 +513,7 @@
                         to,
                         smooth: getSmooth(from, to),
                         font:   FONT_OPTIONS,
+                        color:  { color: '#1a6496', highlight: '#2196F3' },
                         arrows: edge.bidirectional
                             ? { to: { enabled: true, type: 'arrow' }, from: { enabled: true, type: 'arrow' } }
                             : { to: { enabled: true, type: 'arrow' } }
@@ -536,7 +537,9 @@
                     edges.add({
                         from:   sourceNodeId,
                         to:     targetNodeId,
-                        smooth: getSmooth(sourceNodeId, targetNodeId)
+                        smooth: getSmooth(sourceNodeId, targetNodeId),
+                        color:  { color: '#000000', highlight: '#333333' },
+                        dashes: true
                     });
 
                 } else {
