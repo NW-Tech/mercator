@@ -795,10 +795,8 @@
                             fetch(`/admin/application-events/${eventId}`, {
                                 method: 'DELETE',
                                 headers: {
-                                    'Content-Type': 'application/json',
                                     'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                                },
-                                body: JSON.stringify({ application_id: {{ $application->id }} })
+                                }
                             })
                             .then(resp => {
                                 if (!resp.ok) throw new Error();

@@ -63,13 +63,9 @@ class ApplicationEventController extends Controller
     {
         abort_if(Gate::denies('application_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $request->validate([
-            'application_id' => ['required', 'integer', 'exists:applications,id'],
-        ]);
+        $event = ApplicationEvent::with('application')->findOrFail($id);
 
-        $application = Application::findOrFail($request->integer('application_id'));
-
-        $event = $application->events()->findOrFail($id);
+        $application = $event->application;
 
         $event->delete();
 
