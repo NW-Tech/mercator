@@ -64,10 +64,9 @@ class ApplicationEventController extends Controller
     {
         abort_if(Gate::denies('application_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $event = ApplicationEvent::with('application')->findOrFail($id);
-        $applicationId = $event->application_id;
+        $event = ApplicationEvent::query()->findOrFail($id);
         $event->delete();
 
-        return redirect()->route('admin.applications.edit', $applicationId);
+        return redirect()->back();
     }
 }

@@ -755,15 +755,10 @@
                     let ret = '<ul class="list-unstyled">';
                     events.forEach(function (event) {
                         ret += `
-                            <li class="mb-3 position-relative border-bottom pb-2">
-                                <form action="/admin/application-events/${event.id}" method="POST"
-                                      class="position-absolute end-0 top-0">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-trash-fill"></i>
-                                    </button>
-                                </form>
+                            <li data-id="${event.id}" class="mb-3 position-relative border-bottom pb-2">
+                                <button class="delete_event btn btn-sm btn-outline-danger position-absolute end-0 top-0" type="button">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
                                 <div class="pe-5">${event.message}</div>
                                 <small class="text-muted">Date : ${moment(event.created_at).format('DD-MM-YYYY')} | Utilisateur : ${event.user.name}</small>
                             </li>`;
@@ -790,6 +785,28 @@
                 modal.show();
 
                 modalBody.innerHTML = await fetchAndRenderEvents({{ $application->id }});
+
+                modalBody.querySelectorAll('.delete_event').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        const li = this.closest('li');
+                        const eventId = li.getAttribute('data-id');
+
+                        fetch(`/admin/application-events/${eventId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({
+                                _method: 'DELETE',
+                                _token: '{{ csrf_token() }}'
+                            })
+                        })
+                        .then(resp => {
+                            if (!resp.ok) throw new Error();
+                            li.remove();
+                            showToast('Évènement supprimé !', 'success');
+                        })
+                        .catch(() => showToast('Une erreur est survenue', 'danger'));
+                    });
+                });
             });
 
             /**
