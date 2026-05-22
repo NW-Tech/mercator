@@ -533,14 +533,15 @@
                 } else if (edge.edgeType === 'LINK') {
                     if (exists(sourceNodeId, targetNodeId, null).length > 0) continue;
 
-                    console.log("add edge=", edge);
                     edges.add({
                         from:   sourceNodeId,
                         to:     targetNodeId,
                         smooth: getSmooth(sourceNodeId, targetNodeId),
                         color:  { color: '#000000', highlight: '#333333' },
-                        dashes: true
-                    });
+                        // dashes: true
+                        dashes: [3, 3],
+                        width:  2,
+                        });
 
                 } else {
                     console.error("Unknown edge type:", edge.edgeType);

@@ -437,6 +437,7 @@
             } else if (edge.type === 'LINK') {
                 attrs.push('color="#000000"');
                 attrs.push('style=dashed');
+                attrs.push('penwidth=2');
             } else {
                 if (edge.name)          attrs.push(`label="${esc(edge.name)}"`);
                 if (edge.bidirectional) attrs.push('dir=both');
