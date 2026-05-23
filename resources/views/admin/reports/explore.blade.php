@@ -538,7 +538,6 @@
                         to:     targetNodeId,
                         smooth: getSmooth(sourceNodeId, targetNodeId),
                         color:  { color: '#000000', highlight: '#333333' },
-                        // dashes: true
                         dashes: [3, 3],
                         width:  2,
                         });

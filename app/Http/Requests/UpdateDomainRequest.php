@@ -25,26 +25,26 @@ class UpdateDomainRequest extends BaseFormRequest
                 'max:32',
                 'required',
                 Rule::unique('domains')
-                    ->ignore($this->route('domaine_ad')->id ?? $this->id)
+                    ->ignore($this->route('domain')?->id ?? $this->id)
                     ->whereNull('deleted_at'),
             ],
             'domain_ctrl_cnt' => [
                 'nullable',
                 'integer',
-                'min:-2147483648',
-                'max:2147483647',
+                'min:0',
+                'max:999999',
             ],
             'user_count' => [
                 'nullable',
                 'integer',
-                'min:-2147483648',
-                'max:2147483647',
+                'min:0',
+                'max:999999',
             ],
             'machine_count' => [
                 'nullable',
                 'integer',
-                'min:-2147483648',
-                'max:2147483647',
+                'min:0',
+                'max:999999',
             ],
         ];
     }
