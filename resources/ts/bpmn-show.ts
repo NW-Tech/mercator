@@ -39,7 +39,7 @@ graph.container.addEventListener("mousemove", (e) => {
     const y = mouseEvent.clientY - rect.top;
 
     const cell = graph.getCellAt(x, y);
-    if (typeof cell === "object" && cell?.url) {
+    if (typeof cell === "object" && (cell as any)?.url) {
         graph.container.style.cursor = "pointer";
     } else {
         graph.container.style.cursor = "default";
@@ -52,8 +52,8 @@ graph.addListener(InternalEvent.CLICK, (_sender: any, evt: { getProperty: (arg0:
 
     if (!cell || !cell.isVertex()) return;
 
-    if (cell.url) {
-        window.location.href = cell.url;
+    if ((cell as any).url) {
+        window.location.href = (cell as any).url;
     }
 });
 
