@@ -100,8 +100,6 @@ export function makeDefaultHandlers(): Record<VertexActionId, VertexActionHandle
         "add-state": ({ graph, undoManager, parent, cell, menuEl, event }) => {
             if (!event) return;
 
-            console.log('add-state', parent, cell);
-
             const model = graph.getDataModel ? graph.getDataModel() : graph.model;
             model.beginUpdate();
             try {
@@ -167,9 +165,7 @@ export function makeDefaultHandlers(): Record<VertexActionId, VertexActionHandle
                 model.endUpdate();
             }
         },
-        "search":  ({ graph, undoManager, parent, cell, menuEl, event }) => {
-            console.log('search');
-        },
+        "search": () => { /* noop — feature not implemented */ },
         "rotate": ({ graph, cell, menuEl }) => {
             graph.model.beginUpdate();
             try {

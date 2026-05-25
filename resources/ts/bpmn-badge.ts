@@ -1,153 +1,114 @@
-import {Cell, Graph, Point} from "@maxgraph/core";
-import {BPMN_ICONS} from "./bpmn-icons";
-import {isLaneVertex} from "./bpmn-helpers";
+import { Cell, Graph, Point } from "@maxgraph/core";
+import { BPMN_ICONS } from "./bpmn-icons";
 
-function setBadgeValue(graph: Graph, cell: Cell, glyph: string) {
-    const badgeCell = getBadge(graph, cell);
-    let newValue: string;
-    if (glyph == "") {
-        newValue = "";
-        }
-    else {
-        const curValue = badgeCell.value ?? "";
-        if (curValue.includes(BPMN_ICONS.SUB_PROCESS_ACTIVITY)) {
-            if (glyph == BPMN_ICONS.SUB_PROCESS_ACTIVITY) {
-                // No changes
-                newValue = BPMN_ICONS.SUB_PROCESS_ACTIVITY;
-            } else {
-                // glyphs and sub-process
-                newValue = glyph + BPMN_ICONS.SUB_PROCESS_ACTIVITY;
-            }
-        } else {
-            if (glyph == BPMN_ICONS.SUB_PROCESS_ACTIVITY)
-                newValue = curValue + BPMN_ICONS.SUB_PROCESS_ACTIVITY;
-            else
-                newValue = glyph;
-        }
-    }
-    graph.batchUpdate(() => {
-        badgeCell.setValue(newValue);
-        graph.refresh(badgeCell);
-    });
-}
+// ── Lookup helpers ─────────────────────────────────────────────────────────────
 
-export function removeBottomCenterBadge(graph: Graph, parentVertex: Cell) {
-    const child = getBadge(graph, parentVertex);
-    if (!child) return;
-    graph.batchUpdate(() => {
-        graph.removeCells([child], true);
-    });
-}
-
-
-function getBadge(graph: Graph, cell : Cell): Cell {
-    console.log("getBadge", cell);
-    // Check if the cell already has a badge
+function findBadge(cell: Cell): Cell | null {
     for (const child of cell.getChildren()) {
-        const styleName = child.getStyle?.()?.baseStyleNames?.includes?.("bpmnBadge");
-        if (styleName)
+        if (child.getStyle?.()?.baseStyleNames?.includes?.("bpmnBadge"))
             return child;
     }
+    return null;
+}
 
-    console.log("createBadge", cell);
-    if (isLaneVertex(graph, cell)) {
-        console.log("isLane ");
-    }
+function getOrCreateBadge(graph: Graph, cell: Cell): Cell {
+    const existing = findBadge(cell);
+    if (existing) return existing;
 
-    // ✅ Initialiser à null avec type explicite
-    let newBadge: Cell | null = null;
-
+    let badge: Cell | null = null;
 
     graph.batchUpdate(() => {
-        const isLane = isLaneVertex(graph, cell);
-
-        if (isLane) {
-            console.log("isLane - création du badge dans la lane");
-        }
-
-        // Créer le badge
-        newBadge = graph.insertVertex({
-            parent: cell,
-            position: [0, 0], // Position temporaire
-            size: [30, 28],
-            style: { baseStyleNames: ["bpmnBadge"] },
+        badge = graph.insertVertex({
+            parent:   cell,
+            position: [0, 0],
+            size:     [30, 28],
+            style:    { baseStyleNames: ["bpmnBadge"] },
         });
 
-        const badgeGeo = newBadge.getGeometry();
-
-        if (badgeGeo) {
-            // ✅ Définir explicitement les valeurs après création
-            badgeGeo.relative = true;
-            badgeGeo.x = 0.5;  // ✅ Force x à 0.5 (50%)
-            badgeGeo.y = 1;    // ✅ Force y à 1 (100%)
-            badgeGeo.offset = new Point(-15, -28); // Centré + au-dessus du bas
-
-            console.log("Badge geometry configured:", {
-                x: badgeGeo.x,
-                y: badgeGeo.y,
-                relative: badgeGeo.relative,
-                offset: badgeGeo.offset
-            });
+        const g = badge.getGeometry();
+        if (g) {
+            g.relative = true;
+            g.x        = 0.5;
+            g.y        = 1;
+            g.offset   = new Point(-15, -28);
+            badge.setGeometry(g);
         }
 
-        newBadge.setConnectable(false);
+        badge.setConnectable(false);
     });
 
-    if (!newBadge) {
-        throw new Error("Failed to create badge");
-    }
-    return newBadge;
+    if (!badge) throw new Error("Failed to create badge");
+    return badge;
 }
 
+// ── Value management ───────────────────────────────────────────────────────────
 
-/* sub-process marker */
-export function setSubProcessMarker(graph: Graph, cell: Cell) {
+function buildBadgeValue(current: string, glyph: string): string {
+    if (glyph === "") return "";
+
+    const hasSub = current.includes(BPMN_ICONS.SUB_PROCESS_ACTIVITY);
+    const isSub  = glyph === BPMN_ICONS.SUB_PROCESS_ACTIVITY;
+
+    if (isSub)  return hasSub ? current : current + glyph;
+    return hasSub ? glyph + BPMN_ICONS.SUB_PROCESS_ACTIVITY : glyph;
+}
+
+function setBadgeValue(graph: Graph, cell: Cell, glyph: string): void {
+    const badge    = getOrCreateBadge(graph, cell);
+    const newValue = buildBadgeValue(String(badge.value ?? ""), glyph);
+
+    graph.batchUpdate(() => {
+        badge.setValue(newValue);
+        graph.refresh(badge);
+    });
+}
+
+// ── Public API ─────────────────────────────────────────────────────────────────
+
+export function removeBottomCenterBadge(graph: Graph, parentVertex: Cell): void {
+    const child = findBadge(parentVertex);
+    if (!child) return;
+    graph.batchUpdate(() => graph.removeCells([child], true));
+}
+
+export function setSubProcessMarker(graph: Graph, cell: Cell): void {
     setBadgeValue(graph, cell, BPMN_ICONS.SUB_PROCESS_ACTIVITY);
 }
-
-export function hasSubProcessMarker(graph: Graph, cell: Cell): boolean {
-    const badge = getBadge(graph, cell);
-    return badge.value.includes(BPMN_ICONS.SUB_PROCESS_ACTIVITY);
+export function hasSubProcessMarker(_graph: Graph, cell: Cell): boolean {
+    return findBadge(cell)?.value?.includes(BPMN_ICONS.SUB_PROCESS_ACTIVITY) ?? false;
 }
 
-/* Sequential marker */
-export function setSequentialMarker(graph: Graph, cell: Cell) {
+export function setSequentialMarker(graph: Graph, cell: Cell): void {
     setBadgeValue(graph, cell, BPMN_ICONS.SEQUENTIAL_MARKER);
 }
-export function hasSequentialMarker(graph: Graph, cell: Cell): boolean {
-    const badge = getBadge(graph, cell);
-    return badge.value.includes(BPMN_ICONS.SEQUENTIAL_MARKER);
+export function hasSequentialMarker(_graph: Graph, cell: Cell): boolean {
+    return findBadge(cell)?.value?.includes(BPMN_ICONS.SEQUENTIAL_MARKER) ?? false;
 }
 
-/* Parallel marker */
-export function setParallelMarker(graph: Graph, cell: Cell) {
+export function setParallelMarker(graph: Graph, cell: Cell): void {
     setBadgeValue(graph, cell, BPMN_ICONS.PARALLEL_MARKER);
 }
-export function hasParallelMarker(graph: Graph, cell: Cell): boolean {
-    const badge = getBadge(graph, cell);
-    return badge.value.includes(BPMN_ICONS.PARALLEL_MARKER);
+export function hasParallelMarker(_graph: Graph, cell: Cell): boolean {
+    return findBadge(cell)?.value?.includes(BPMN_ICONS.PARALLEL_MARKER) ?? false;
 }
-/* Loop marker */
-export function hasLoopMarker(graph: Graph, cell: Cell): boolean {
-    const badge = getBadge(graph, cell);
-    return badge.value.includes(BPMN_ICONS.LOOP_MARKER);
-}
-export function setLoopMarker(graph: Graph, cell: Cell) {
+
+export function setLoopMarker(graph: Graph, cell: Cell): void {
     setBadgeValue(graph, cell, BPMN_ICONS.LOOP_MARKER);
 }
-/* Ad-Hoc marker */
-export function hasAdHocMarker(graph: Graph, cell: Cell): boolean {
-    const badge = getBadge(graph, cell);
-    return badge.value.includes(BPMN_ICONS.AD_HOC_MARKER);
+export function hasLoopMarker(_graph: Graph, cell: Cell): boolean {
+    return findBadge(cell)?.value?.includes(BPMN_ICONS.LOOP_MARKER) ?? false;
 }
-export function setAdHocMarker(graph: Graph, cell: Cell) {
+
+export function setAdHocMarker(graph: Graph, cell: Cell): void {
     setBadgeValue(graph, cell, BPMN_ICONS.AD_HOC_MARKER);
 }
-/* Compensation marker */
-export function hasCompensationMarker(graph: Graph, cell: Cell): boolean {
-    const badge = getBadge(graph, cell);
-    return badge.value.includes(BPMN_ICONS.COMPENSATION_MARKER);
+export function hasAdHocMarker(_graph: Graph, cell: Cell): boolean {
+    return findBadge(cell)?.value?.includes(BPMN_ICONS.AD_HOC_MARKER) ?? false;
 }
-export function setCompensationMarker(graph: Graph, cell: Cell) {
+
+export function setCompensationMarker(graph: Graph, cell: Cell): void {
     setBadgeValue(graph, cell, BPMN_ICONS.COMPENSATION_MARKER);
+}
+export function hasCompensationMarker(_graph: Graph, cell: Cell): boolean {
+    return findBadge(cell)?.value?.includes(BPMN_ICONS.COMPENSATION_MARKER) ?? false;
 }

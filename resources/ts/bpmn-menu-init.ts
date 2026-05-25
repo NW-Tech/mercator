@@ -127,8 +127,7 @@ export function initVertexMenuActions(
             actions.delete("rotate");
             actions.delete("menu-break");
         }
-        else
-            console.warn("Unknown cell style: ", cell.style);
+        else { /* unknown style — show all actions by default */ }
 
         // applique
         for (const action of ALL_ACTIONS) {
@@ -136,13 +135,7 @@ export function initVertexMenuActions(
         }
     }
 
-    // parent “logique” pour les insertions
-    const parent =
-        (graph as any).getDefaultParent?.() ??
-        (graph as any).getDefaultParent?.call(graph) ??
-        (graph as any).getDefaultParent ??
-        graph.getDefaultParent?.() ??
-        (graph as any).getDefaultParent?.();
+    const parent = graph.getDefaultParent();
 
     let currentCell: Cell | null = null;
 
@@ -288,8 +281,7 @@ export function initVertexMenuActions(
         showForCellFallback(currentCell);
     };
 
-    const defaultHandlers = makeDefaultHandlers();
-    const handlers = { ...defaultHandlers, ...({} as any) };
+    const handlers = makeDefaultHandlers();
 
     // 1) sélection
     const onSelectionChange = () => updateFromSelection();
@@ -342,7 +334,7 @@ export function initVertexMenuActions(
                 graph,
                 undoManager,
                 cell: currentCell,
-                parent: (graph as any).getDefaultParent?.() ?? (graph as any).getDefaultParent?.call?.(graph),
+                parent,
                 menuEl: target,
                 event: e,
             });
@@ -367,7 +359,7 @@ export function initVertexMenuActions(
             graph,
             undoManager,
             cell: currentCell,
-            parent: (graph as any).getDefaultParent?.() ?? (graph as any).getDefaultParent?.call?.(graph),
+            parent,
             menuEl,
             event: e,
         });
