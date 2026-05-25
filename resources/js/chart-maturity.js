@@ -1,6 +1,5 @@
 import { Chart } from "chart.js"
-import GaugeController from './gauge-controller';
-import { color } from "chart.js/helpers";
+import { GaugeController } from '@sourcentis/chartjs-gauge';
 
 Chart.register(GaugeController);
 

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "bdab71446867271158b4ed07bbf1fd66",
+    "content-hash": "f15f5bc13bbd46f177903c68a3f152bf",
     "packages": [
         {
             "name": "brick/math",
@@ -5657,6 +5657,57 @@
                 "source": "https://github.com/socialiteproviders/manager"
             },
             "time": "2026-03-18T22:13:24+00:00"
+        },
+        {
+            "name": "sourcentis/chartjs-gauge",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../../chartjs-gauge",
+                "reference": "7c435a46eef14873ac09f445681ffb4350da515b"
+            },
+            "require": {
+                "php": "^8.1"
+            },
+            "require-dev": {
+                "orchestra/testbench": "^8.0 || ^9.0"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Sourcentis\\ChartjsGauge\\ChartjsGaugeServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Sourcentis\\ChartjsGauge\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Sourcentis",
+                    "email": "contact@sourcentis.fr",
+                    "homepage": "https://github.com/sourcentis"
+                }
+            ],
+            "description": "A Chart.js plugin providing a gauge chart type with needle and value label",
+            "homepage": "https://github.com/sourcentis/chartjs-gauge",
+            "keywords": [
+                "chart",
+                "chart.js",
+                "gauge",
+                "javascript",
+                "laravel"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
         },
         {
             "name": "spatie/laravel-package-tools",
@@ -14490,13 +14541,15 @@
     ],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {},
+    "stability-flags": {
+        "sourcentis/chartjs-gauge": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
         "php": "^8.4",
-        "ext-ldap": "*",
-        "ext-curl": "*"
+        "ext-curl": "*",
+        "ext-ldap": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.9.0"

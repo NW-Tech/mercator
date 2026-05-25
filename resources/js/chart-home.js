@@ -1,8 +1,7 @@
 import { Chart, BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from "chart.js"
 import ChartDataLabels from "chartjs-plugin-datalabels"
 import {TreemapController, TreemapElement} from 'chartjs-chart-treemap';
-import GaugeController from './gauge-controller';
-import { color } from "chart.js/helpers";
+import { GaugeController } from '@sourcentis/chartjs-gauge';
 
 Chart.register(GaugeController);
 Chart.register(BarController, BarElement, CategoryScale, LinearScale, Tooltip, Legend, ChartDataLabels, TreemapController, TreemapElement);

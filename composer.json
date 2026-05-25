@@ -10,11 +10,20 @@
     {
       "type": "composer",
       "url": "https://composer.sourcentis.com"
+    },
+    {
+      "type": "path",
+      "url": "../../chartjs-gauge",
+      "options": {
+        "symlink": true
+      }
     }
   ],
   "license": "GPL-3.0-or-later",
   "require": {
     "php": "^8.4",
+    "ext-curl": "*",
+    "ext-ldap": "*",
     "directorytree/ldaprecord-laravel": "^3.3",
     "laravel/framework": "^11.9",
     "laravel/passport": "^13",
@@ -26,10 +35,9 @@
     "phpmailer/phpmailer": "^6.9",
     "phpoffice/phpword": "^1.4",
     "socialiteproviders/keycloak": "^5.3",
+    "sourcentis/chartjs-gauge": "@dev",
     "spatie/laravel-query-builder": "^6.3",
-    "yajra/laravel-datatables-oracle": "^11.1",
-    "ext-ldap": "*",
-    "ext-curl": "*"
+    "yajra/laravel-datatables-oracle": "^11.1"
   },
   "require-dev": {
     "fakerphp/faker": "^1.23",
