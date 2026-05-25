@@ -1,165 +1,45 @@
-// bpmp-api.ts
+// bpmn-api.ts
+import { BpmnElementDef } from "./bpmn-menu-select";
 
-// Call the API to get the object list
-import {BpmnElementDef} from "./bpmn-menu-select";
+const API_HEADERS = {
+    "Accept": "application/json",
+    "X-Requested-With": "XMLHttpRequest",
+} as const;
 
-export async function fetchGraphObjects(): Promise<BpmnElementDef[]> {
-    const res = await fetch("/admin/bpmn/objects", {
-        method: "GET",
-        headers: {
-            "Accept": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-        },
-        credentials: "same-origin", // important si session Laravel / cookies
-    });
-
-    if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        throw new Error(`GET /admin/graph/objects failed (${res.status}): ${body}`);
-    }
-
-    const data: unknown = await res.json();
-
-    if (!Array.isArray(data)) {
-        throw new Error("Unexpected response: expected an array");
-    }
-
-    // parsing/validation minimaliste
-    return data
-        .filter(
-            (o): o is { id: string; name: string; type: string; url: string} =>
-                typeof o === "object" &&
-                o !== null &&
-                "id" in o &&
-                "name" in o  &&
-                "url" in o
-        )
-        .map((o): BpmnElementDef => ({
-            id: o.id,
-            name: o.name,
-            glyph: o.id[0],
-            url: o.url
-        })
+function isBpmnObject(o: unknown): o is { id: string; name: string; url: string } {
+    return (
+        typeof o === "object" &&
+        o !== null &&
+        "id" in o &&
+        "name" in o &&
+        "url" in o
     );
 }
 
-export async function fetchInformationObjects(): Promise<BpmnElementDef[]> {
-    const res = await fetch("/admin/bpmn/information", {
+async function fetchBpmnObjects(endpoint: string): Promise<BpmnElementDef[]> {
+    const res = await fetch(endpoint, {
         method: "GET",
-        headers: {
-            "Accept": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-        },
-        credentials: "same-origin", // important si session Laravel / cookies
+        headers: API_HEADERS,
+        credentials: "same-origin",
     });
 
     if (!res.ok) {
         const body = await res.text().catch(() => "");
-        throw new Error(`GET /admin/graph/information failed (${res.status}): ${body}`);
+        throw new Error(`GET ${endpoint} failed (${res.status}): ${body}`);
     }
 
     const data: unknown = await res.json();
+    if (!Array.isArray(data)) throw new Error("Unexpected response: expected an array");
 
-    if (!Array.isArray(data)) {
-        throw new Error("Unexpected response: expected an array");
-    }
-
-    // parsing/validation minimaliste
-    return data
-        .filter(
-            (o): o is { id: string; name: string; type: string; url: string} =>
-                typeof o === "object" &&
-                o !== null &&
-                "id" in o &&
-                "name" in o  &&
-                "url" in o
-        )
-        .map((o): BpmnElementDef => ({
-                id: o.id,
-                name: o.name,
-                glyph: o.id[0],
-                url: o.url
-            })
-        );
+    return data.filter(isBpmnObject).map((o): BpmnElementDef => ({
+        id:    o.id,
+        name:  o.name,
+        glyph: o.id[0],
+        url:   o.url,
+    }));
 }
 
-export async function fetchActorObjects(): Promise<BpmnElementDef[]> {
-    const res = await fetch("/admin/bpmn/actors", {
-        method: "GET",
-        headers: {
-            "Accept": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-        },
-        credentials: "same-origin", // important si session Laravel / cookies
-    });
-
-    if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        throw new Error(`GET /admin/graph/actors failed (${res.status}): ${body}`);
-    }
-
-    const data: unknown = await res.json();
-
-    if (!Array.isArray(data)) {
-        throw new Error("Unexpected response: expected an array");
-    }
-
-    // parsing/validation minimaliste
-    return data
-        .filter(
-            (o): o is { id: string; name: string; type: string; url: string} =>
-                typeof o === "object" &&
-                o !== null &&
-                "id" in o &&
-                "name" in o  &&
-                "url" in o
-        )
-        .map((o): BpmnElementDef => ({
-                id: o.id,
-                name: o.name,
-                glyph: o.id[0],
-                url: o.url
-            })
-        );
-}
-
-export async function fetchProcessObjects(): Promise<BpmnElementDef[]> {
-    const res = await fetch("/admin/bpmn/process", {
-        method: "GET",
-        headers: {
-            "Accept": "application/json",
-            "X-Requested-With": "XMLHttpRequest",
-        },
-        credentials: "same-origin", // important si session Laravel / cookies
-    });
-
-    if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        throw new Error(`GET /admin/graph/process failed (${res.status}): ${body}`);
-    }
-
-    const data: unknown = await res.json();
-
-    if (!Array.isArray(data)) {
-        throw new Error("Unexpected response: expected an array");
-    }
-
-    // parsing/validation minimaliste
-    return data
-        .filter(
-            (o): o is { id: string; name: string; type: string; url: string} =>
-                typeof o === "object" &&
-                o !== null &&
-                "id" in o &&
-                "name" in o  &&
-                "url" in o
-        )
-        .map((o): BpmnElementDef => ({
-                id: o.id,
-                name: o.name,
-                glyph: o.id[0],
-                url: o.url
-            })
-        );
-}
-
+export const fetchGraphObjects       = (): Promise<BpmnElementDef[]> => fetchBpmnObjects("/admin/bpmn/objects");
+export const fetchInformationObjects = (): Promise<BpmnElementDef[]> => fetchBpmnObjects("/admin/bpmn/information");
+export const fetchActorObjects       = (): Promise<BpmnElementDef[]> => fetchBpmnObjects("/admin/bpmn/actors");
+export const fetchProcessObjects     = (): Promise<BpmnElementDef[]> => fetchBpmnObjects("/admin/bpmn/process");

@@ -114,19 +114,21 @@ class ConfigurationController extends Controller
 
     private function handleCve(string $action, Request $request): array
     {
+        $providerPinnedIp = null;
+
         try {
-            // Check provider URL
+            // Check provider URL — resolve once, validate all records, store pinned IP
             $provider = $request->input('provider');
             if (!empty($provider)) {
-                $provider = $this->validateProviderUrl($provider);
-                $this->rejectPrivateHost($provider);
+                $provider         = $this->validateProviderUrl($provider);
+                $providerPinnedIp = $this->resolveAndValidateHost($provider);
             }
 
-            // Check CPE-Guesser URL
+            // Check CPE-Guesser URL (validation only; test_guesser re-résout depuis la config sauvée)
             $guesser = $request->input('cpe_guesser');
             if (!empty($guesser)) {
                 $guesser = $this->validateProviderUrl($guesser);
-                $this->rejectPrivateHost($guesser);
+                $this->resolveAndValidateHost($guesser);
             }
         } catch (\InvalidArgumentException $e) {
             return [$e->getMessage(), false];
@@ -147,12 +149,19 @@ class ConfigurationController extends Controller
         }
 
         if ($action === 'test_provider') {
-            return $this->testProvider($request->input('provider'));
+            return $this->testProvider($request->input('provider'), $providerPinnedIp ?? '');
         }
 
         if ($action === 'test_guesser') {
-            $cfg = $this->readConfigFile();
-            return $this->testGuesser($cfg['cpe']['guesser'] ?? '');
+            $cfg        = $this->readConfigFile();
+            $guesserUrl = $cfg['cpe']['guesser'] ?? '';
+            try {
+                $this->validateProviderUrl($guesserUrl);
+                $guesserPinnedIp = $this->resolveAndValidateHost($guesserUrl);
+            } catch (\InvalidArgumentException $e) {
+                return [$e->getMessage(), false];
+            }
+            return $this->testGuesser($guesserUrl, $guesserPinnedIp);
         }
 
         return $this->sendTestMail(
@@ -239,15 +248,22 @@ class ConfigurationController extends Controller
     }
 
     /** @return array{0: string, 1: bool} */
-    private function testProvider(string $provider): array
+    private function testProvider(string $provider, string $pinnedIp): array
     {
+        $host = parse_url($provider, PHP_URL_HOST) ?? '';
+        $port = parse_url($provider, PHP_URL_PORT)
+            ?? (str_starts_with($provider, 'https') ? 443 : 80);
+
         $client = curl_init($provider . '/api/dbInfo');
         curl_setopt($client, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($client, CURLOPT_TIMEOUT, 10);
-
-        // Restrict allowed curl schemes explicitly:
         curl_setopt($client, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
         curl_setopt($client, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
+
+        // Épingler l'IP validée : curl ne re-résout pas, ce qui ferme le DNS rebinding et le bypass dual-stack.
+        if ($pinnedIp !== '') {
+            curl_setopt($client, CURLOPT_RESOLVE, ["{$host}:{$port}:{$pinnedIp}"]);
+        }
 
         $response = curl_exec($client);
         curl_close($client);
@@ -268,12 +284,15 @@ class ConfigurationController extends Controller
     }
 
     /** @return array{0: string, 1: bool} */
-    private function testGuesser(string $guesser): array
+    private function testGuesser(string $guesser, string $pinnedIp): array
     {
         if (empty($guesser)) {
             return ['CPE guesser URL is not configured', false];
         }
 
+        $host    = parse_url($guesser, PHP_URL_HOST) ?? '';
+        $port    = parse_url($guesser, PHP_URL_PORT)
+            ?? (str_starts_with($guesser, 'https') ? 443 : 80);
         $url     = rtrim($guesser, '/') . '/search';
         $payload = json_encode(['query' => ['test']]);
 
@@ -286,12 +305,14 @@ class ConfigurationController extends Controller
             'Content-Type: application/json',
             'Content-Length: ' . strlen($payload),
         ]);
-
-        // Restrict allowed curl schemes explicitly:
         curl_setopt($client, CURLOPT_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
         curl_setopt($client, CURLOPT_REDIR_PROTOCOLS, CURLPROTO_HTTP | CURLPROTO_HTTPS);
 
-        // Execute the request:
+        // Épingler l'IP validée pour interdire toute re-résolution par curl.
+        if ($pinnedIp !== '') {
+            curl_setopt($client, CURLOPT_RESOLVE, ["{$host}:{$port}:{$pinnedIp}"]);
+        }
+
         $response = curl_exec($client);
         $httpCode = curl_getinfo($client, CURLINFO_HTTP_CODE);
         curl_close($client);
@@ -323,12 +344,44 @@ class ConfigurationController extends Controller
         return $url;
     }
 
-    private function rejectPrivateHost(string $url): void
+    /**
+     * Résout tous les enregistrements A et AAAA de l'hôte, valide que chacun est
+     * public, et retourne la première IP (IPv4 préférée) pour l'épingler dans curl.
+     *
+     * Contrairement à gethostbyname(), cette approche :
+     *   - couvre IPv6 (bypass dual-stack),
+     *   - valide TOUTES les adresses (pas seulement la première),
+     *   - retourne l'IP qui sera effectivement utilisée, fermant ainsi le DNS rebinding.
+     */
+    private function resolveAndValidateHost(string $url): string
     {
-        $host = parse_url($url, PHP_URL_HOST);
-        $ip   = gethostbyname($host);
-        if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
-            throw new \InvalidArgumentException('Provider host resolves to a private or reserved address.');
+        $host = parse_url($url, PHP_URL_HOST) ?? '';
+
+        // Adresse IP littérale : validation directe, pas de résolution DNS
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            if (filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                throw new \InvalidArgumentException('Provider host resolves to a private or reserved address.');
+            }
+            return $host;
         }
+
+        // Hostname : résoudre une seule fois tous les enregistrements A + AAAA
+        $records = @dns_get_record($host, DNS_A | DNS_AAAA) ?: [];
+        $ipv4s   = array_column($records, 'ip');
+        $ipv6s   = array_column($records, 'ipv6');
+        $allIps  = array_merge($ipv4s, $ipv6s);
+
+        if (empty($allIps)) {
+            throw new \InvalidArgumentException('Provider host could not be resolved.');
+        }
+
+        foreach ($allIps as $ip) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) === false) {
+                throw new \InvalidArgumentException('Provider host resolves to a private or reserved address.');
+            }
+        }
+
+        // Préférer IPv4 pour la compatibilité CURLOPT_RESOLVE
+        return $ipv4s[0] ?? $ipv6s[0];
     }
 }

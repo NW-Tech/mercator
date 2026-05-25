@@ -72,11 +72,20 @@ class QueryEngineIntrospector
                 $result = $method->invoke($instance);
 
                 if ($result instanceof Relation) {
+                    $related = class_basename($result->getRelated());
+
+                    // Une relation pointant vers un modèle exclu ne doit être ni listée
+                    // ni traversable, sinon EXCLUDED_MODELS est contournable via
+                    // from:roles + fields:users.* (pivot Role::users()).
+                    if (in_array($related, self::EXCLUDED_MODELS, true)) {
+                        continue;
+                    }
+
                     $relations[] = [
                         'name'    => Str::snake($method->getName()),   // logical_servers
                         'method'  => $method->getName(),               // logicalServers (usage interne)
                         'type'    => class_basename($result),
-                        'related' => class_basename($result->getRelated()),
+                        'related' => $related,
                     ];
                 }
             } catch (\Throwable) {

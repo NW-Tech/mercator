@@ -10,7 +10,7 @@ class MassDestroyBackupRequest extends FormRequest
 {
     public function authorize()
     {
-        abort_if(Gate::denies('bay_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('backup_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return true;
     }
@@ -18,8 +18,8 @@ class MassDestroyBackupRequest extends FormRequest
     public function rules()
     {
         return [
-            'ids' => 'required|array',
-            'ids.*' => 'exists:bays,id',
+            'ids'   => 'required|array',
+            'ids.*' => 'exists:backups,id',
         ];
     }
 }

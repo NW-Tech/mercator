@@ -1,31 +1,24 @@
-import {Graph, KeyHandler} from '@maxgraph/core';
+import { Graph } from '@maxgraph/core';
 
 export function initCopyPaste(graph: Graph): void {
-
     let clipboard: any[] = [];
 
-    // Écouter les événements natifs sur le conteneur ou document
     document.addEventListener('keydown', (evt: KeyboardEvent) => {
-        // Vérifier que le focus est sur le graph
         if (graph.isEditing()) return;
 
-        const ctrlKey = evt.ctrlKey || evt.metaKey;
+        const ctrl = evt.ctrlKey || evt.metaKey;
 
-        // Ctrl+C - Copier
-        if (ctrlKey && evt.key === 'c') {
+        if (ctrl && evt.key === 'c') {
             const cells = graph.getSelectionCells();
             if (cells.length > 0) {
                 clipboard = graph.cloneCells(cells);
                 evt.preventDefault();
             }
-        }
-
-        // Ctrl+V - Coller
-        if (ctrlKey && evt.key === 'v') {
+        } else if (ctrl && evt.key === 'v') {
             if (clipboard.length > 0) {
                 graph.model.beginUpdate();
                 try {
-                    const parent = graph.getDefaultParent();
+                    const parent      = graph.getDefaultParent();
                     const pastedCells = graph.addCells(clipboard, parent);
                     graph.moveCells(pastedCells, 20, 20);
                     graph.setSelectionCells(pastedCells);
@@ -35,10 +28,7 @@ export function initCopyPaste(graph: Graph): void {
                 }
                 evt.preventDefault();
             }
-        }
-
-        // Ctrl+X - Couper
-        if (ctrlKey && evt.key === 'x') {
+        } else if (ctrl && evt.key === 'x') {
             const cells = graph.getSelectionCells();
             if (cells.length > 0) {
                 clipboard = graph.cloneCells(cells);
@@ -47,7 +37,4 @@ export function initCopyPaste(graph: Graph): void {
             }
         }
     });
-
-
-
 }

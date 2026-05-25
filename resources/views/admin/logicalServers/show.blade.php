@@ -143,19 +143,19 @@
                     <table class="table table-bordered table-striped">
                         <tbody>
                             <tr>
-                                <th width="30%">{{ trans('cruds.storageDevice.title_singular') }}</th>
+                                <th width="25%">{{ trans('cruds.backup.fields.name') }}</th>
+                                <th width="25%">{{ trans('cruds.storageDevice.title_singular') }}</th>
                                 <th width="20%">{{ trans('cruds.backup.frequency') }}</th>
-                                <th width="30%">{{ trans('cruds.backup.cycle') }}</th>
-                                <th width="20%">{{ trans('cruds.backup.retention') }}</th>
+                                <th width="15%">{{ trans('cruds.backup.cycle') }}</th>
+                                <th width="15%">{{ trans('cruds.backup.retention') }}</th>
                             </tr>
                             @foreach($logicalServer->backups as $backup)
                             <tr>
+                                <td>{{ $backup->name }}</td>
                                 <td>
-                                @if ($backup->storage_device_id!==null)
-                                    <a href="{{ route('admin.storage-devices.show', $backup->storage_device_id) }}">
-                                        {{ $backup->storageDevice->name }}
-                                    </a>
-                                @endif
+                                    @foreach($backup->storageDevices as $device)
+                                        <a href="{{ route('admin.storage-devices.show', $device->id) }}">{{ $device->name }}</a>@if(!$loop->last), @endif
+                                    @endforeach
                                 </td>
                                 <td>{{ $backup->backup_frequency ? trans("cruds.backup.frequencies.{$backup->backup_frequency}") : '' }}</td>
                                 <td>{{ $backup->backup_cycle ? trans("cruds.backup.cycles.{$backup->backup_cycle}") : '' }}</td>

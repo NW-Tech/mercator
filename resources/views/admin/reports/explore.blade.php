@@ -513,6 +513,7 @@
                         to,
                         smooth: getSmooth(from, to),
                         font:   FONT_OPTIONS,
+                        color:  { color: '#1a6496', highlight: '#2196F3' },
                         arrows: edge.bidirectional
                             ? { to: { enabled: true, type: 'arrow' }, from: { enabled: true, type: 'arrow' } }
                             : { to: { enabled: true, type: 'arrow' } }
@@ -532,12 +533,14 @@
                 } else if (edge.edgeType === 'LINK') {
                     if (exists(sourceNodeId, targetNodeId, null).length > 0) continue;
 
-                    console.log("add edge=", edge);
                     edges.add({
                         from:   sourceNodeId,
                         to:     targetNodeId,
-                        smooth: getSmooth(sourceNodeId, targetNodeId)
-                    });
+                        smooth: getSmooth(sourceNodeId, targetNodeId),
+                        color:  { color: '#000000', highlight: '#333333' },
+                        dashes: [3, 3],
+                        width:  2,
+                        });
 
                 } else {
                     console.error("Unknown edge type:", edge.edgeType);

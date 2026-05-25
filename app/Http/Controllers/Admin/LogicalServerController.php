@@ -13,10 +13,8 @@ use App\Models\Database;
 use App\Models\Domain;
 use App\Models\LogicalServer;
 use App\Models\PhysicalServer;
-use App\Models\StorageDevice;
 use App\Services\IconUploadService;
 use Gate;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -174,7 +172,7 @@ class LogicalServerController extends Controller
         $clusters = Cluster::query()->orderBy('name')->pluck('name', 'id');
         $domains = Domain::query()->orderBy('name')->pluck('name', 'id');
         $icons = LogicalServer::query()->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
-        $storageDevices = StorageDevice::query()->orderBy('name')->pluck('name', 'id');
+        $backups = Backup::query()->orderBy('name')->pluck('name', 'id');
 
         // Lists
         $type_list = LogicalServer::query()->select('type')->whereNotNull('type')->distinct()->orderBy('type')->pluck('type');
@@ -192,7 +190,7 @@ class LogicalServerController extends Controller
                 'clusters',
                 'icons',
                 'physicalServers',
-                'storageDevices',
+                'backups',
                 'applications',
                 'databases',
                 'type_list',
@@ -224,24 +222,7 @@ class LogicalServerController extends Controller
         $logicalServer->clusters()->sync($request->input('clusters', []));
 
         // Backups
-        if (Auth::user()->can('backup_create')) {
-            $storageDeviceId = $request['storage_device_id'];
-            $backupFrequency = $request['backup_frequency'];
-            $backupCycle = $request['backup_cycle'];
-            $backupRetention = $request['backup_retention'];
-
-            if ($storageDeviceId !== null) {
-                for ($i = 0; $i < count($storageDeviceId); $i++) {
-                    $backup = new Backup;
-                    $backup->logical_server_id = $logicalServer->id;
-                    $backup->storage_device_id = $storageDeviceId[$i];
-                    $backup->backup_frequency = (int)$backupFrequency[$i];
-                    $backup->backup_cycle = (int)$backupCycle[$i];
-                    $backup->backup_retention = (int)$backupRetention[$i];
-                    $backup->save();
-                }
-            }
-        }
+        $logicalServer->backups()->sync($request->input('backup_ids', []));
 
         return redirect()->route('admin.logical-servers.index');
     }
@@ -256,7 +237,7 @@ class LogicalServerController extends Controller
         $clusters = Cluster::query()->orderBy('name')->pluck('name', 'id');
         $domains = Domain::query()->orderBy('name')->pluck('name', 'id');
         $icons = LogicalServer::query()->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
-        $storageDevices = StorageDevice::query()->orderBy('name')->pluck('name', 'id');
+        $backups = Backup::query()->orderBy('name')->pluck('name', 'id');
 
         // Lists
         $type_list = LogicalServer::query()->select('type')->whereNotNull('type')->distinct()->orderBy('type')->pluck('type');
@@ -266,11 +247,6 @@ class LogicalServerController extends Controller
 
         $logicalServer->load('physicalServers', 'applications', 'backups');
 
-        $logicalServer->setRelation(
-            'backups',
-            $logicalServer->backups->sortBy('storageDevice.name')
-        );
-
         return view(
             'admin.logicalServers.edit',
             compact(
@@ -278,7 +254,7 @@ class LogicalServerController extends Controller
                 'icons',
                 'clusters',
                 'physicalServers',
-                'storageDevices',
+                'backups',
                 'applications',
                 'databases',
                 'type_list',
@@ -309,28 +285,8 @@ class LogicalServerController extends Controller
         $logicalServer->databases()->sync($request->input('databases', []));
         $logicalServer->clusters()->sync($request->input('clusters', []));
 
-        if (Auth::user()->can('backup_edit')) {
-            // Delete previous Backups
-            Backup::query()->where('logical_server_id', $logicalServer->id)->forceDelete();
-
-            // Save Backups
-            $storageDeviceId = $request['storage_device_id'];
-            $backupFrequency = $request['backup_frequency'];
-            $backupCycle = $request['backup_cycle'];
-            $backupRetention = $request['backup_retention'];
-
-            if ($storageDeviceId !== null) {
-                for ($i = 0; $i < count($storageDeviceId); $i++) {
-                    $backup = new Backup;
-                    $backup->logical_server_id = $logicalServer->id;
-                    $backup->storage_device_id = $storageDeviceId[$i];
-                    $backup->backup_frequency = (int)$backupFrequency[$i];
-                    $backup->backup_cycle = (int)$backupCycle[$i];
-                    $backup->backup_retention = (int)$backupRetention[$i];
-                    $backup->save();
-                }
-            }
-        }
+        // Backups
+        $logicalServer->backups()->sync($request->input('backup_ids', []));
 
         return redirect()->route('admin.logical-servers.index');
     }
@@ -339,11 +295,11 @@ class LogicalServerController extends Controller
     {
         abort_if(Gate::denies('logical_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $logicalServer->load('physicalServers', 'applications', 'backups.storageDevice');
+        $logicalServer->load('physicalServers', 'applications', 'backups.storageDevices');
 
         $logicalServer->setRelation(
             'backups',
-            $logicalServer->backups->sortBy('storageDevice.name')
+            $logicalServer->backups->sortBy(fn ($b) => $b->storageDevices->first()?->name)
         );
 
         return view('admin.logicalServers.show', compact('logicalServer'));
@@ -383,4 +339,5 @@ class LogicalServerController extends Controller
 
         return array_unique($res);
     }
+
 }

@@ -34,12 +34,8 @@ beforeEach(function () {
 // ============================================================
 
 it('fills created_at when a backup is created via API', function () {
-    $logicalServer = LogicalServer::factory()->create();
-    $storageDevice = StorageDevice::factory()->create();
-
     $response = $this->postJson('/api/backups', [
-        'logical_server_id' => $logicalServer->id,
-        'storage_device_id' => $storageDevice->id,
+        'name'              => 'Daily backup',
         'backup_frequency'  => 1,
         'backup_cycle'      => 1,
         'backup_retention'  => 30,
@@ -59,38 +55,57 @@ it('fills created_at when a backup is created directly', function () {
 });
 
 // ============================================================
-// L'update via l'interface admin ne doit pas laisser
-// d'anciens enregistrements soft-deletés
+// Relations n-m : logicalServers et storageDevices
 // ============================================================
 
-it('replaces backups without leaving soft-deleted residue on admin update', function () {
+it('links a backup to a logical server and a storage device via API', function () {
+    $server = LogicalServer::factory()->create(['name' => 'WebServer']);
+    $device = StorageDevice::factory()->create(['name' => 'NAS-01']);
+
+    $response = $this->postJson('/api/backups', [
+        'name'               => 'WebServer NAS backup',
+        'backup_frequency'   => 1,
+        'backup_cycle'       => 1,
+        'backup_retention'   => 30,
+        'logical_server_ids' => [$server->id],
+        'storage_device_ids' => [$device->id],
+    ])->assertCreated();
+
+    $backup = Backup::findOrFail($response->json('id'));
+
+    expect($backup->logicalServers->pluck('id')->contains($server->id))->toBeTrue();
+    expect($backup->storageDevices->pluck('id')->contains($device->id))->toBeTrue();
+});
+
+// ============================================================
+// L'update via l'interface admin doit synchroniser les backups
+// ============================================================
+
+it('syncs backup links on admin update', function () {
     $this->actingAs($this->user);
 
     $logicalServer = LogicalServer::factory()->create(['name' => 'TestServer']);
-    $device        = StorageDevice::factory()->create();
+    $oldBackup     = Backup::factory()->create(['name' => 'Old Backup']);
+    $newBackup     = Backup::factory()->create(['name' => 'New Backup']);
 
-    // Backup initial
-    $old = Backup::factory()->create([
-        'logical_server_id' => $logicalServer->id,
-        'storage_device_id' => $device->id,
-        'backup_frequency'  => 2,
-    ]);
+    // Lier l'ancien backup au serveur
+    $logicalServer->backups()->attach($oldBackup->id);
 
-    // Mise à jour du serveur logique (remplace le backup)
+    // Mise à jour du serveur logique : on remplace par le nouveau backup
     $this->put(route('admin.logical-servers.update', $logicalServer), array_merge(
         $logicalServer->only(['name']),
-        [
-            'storage_device_id' => [$device->id],
-            'backup_frequency'  => [1],
-            'backup_cycle'      => [1],
-            'backup_retention'  => [30],
-        ]
+        ['backup_ids' => [$newBackup->id]]
     ))->assertRedirect();
 
-    // L'ancien enregistrement doit être définitivement supprimé (pas soft-deleted)
-    $this->assertDatabaseMissing('backups', ['id' => $old->id]);
+    $fresh = $logicalServer->fresh();
 
-    // Un seul backup actif doit exister pour ce serveur
-    expect(Backup::where('logical_server_id', $logicalServer->id)->count())->toBe(1);
-    expect(Backup::where('logical_server_id', $logicalServer->id)->first()->backup_frequency)->toBe(1);
+    // L'ancien backup est détaché
+    expect($fresh->backups->pluck('id')->contains($oldBackup->id))->toBeFalse();
+    // Le nouveau backup est attaché
+    expect($fresh->backups->pluck('id')->contains($newBackup->id))->toBeTrue();
+    // Un seul backup lié
+    expect($fresh->backups->count())->toBe(1);
+    // Les deux backups existent toujours en base (sync ne supprime pas)
+    $this->assertDatabaseHas('backups', ['id' => $oldBackup->id]);
+    $this->assertDatabaseHas('backups', ['id' => $newBackup->id]);
 });

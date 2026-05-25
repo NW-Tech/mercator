@@ -106,7 +106,7 @@ function organizeBpmnZOrder(graph: Graph) {
                 // ignoré volontairement
             }
             else {
-                console.log('organizeBpmnZOrder - unknown cell type', cell);
+                // unknown cell type — skip
             }
         }
     });

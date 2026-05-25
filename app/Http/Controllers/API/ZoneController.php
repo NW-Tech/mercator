@@ -7,10 +7,10 @@ use App\Http\Requests\MassStoreZoneRequest;
 use App\Http\Requests\MassUpdateZoneRequest;
 use App\Http\Requests\StoreZoneRequest;
 use App\Http\Requests\UpdateZoneRequest;
+use App\Models\Zone;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Models\Zone;
 use Symfony\Component\HttpFoundation\Response;
 
 class ZoneController extends APIController
@@ -53,6 +53,11 @@ class ZoneController extends APIController
     public function show(Zone $zone)
     {
         abort_if(Gate::denies('zone_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $zone['parentZones'] = $zone->parentZones()->pluck('id');
+        $zone['childZones']  = $zone->childZones()->pluck('id');
+        $zone['buildings']   = $zone->buildings()->pluck('id');
+        $zone['adminUsers']  = $zone->adminUsers()->pluck('id');
 
         return new JsonResource($zone);
     }
@@ -165,9 +170,7 @@ class ZoneController extends APIController
                 ->toArray();
             $attributes['attributes'] = implode(' ', (array) ($attributes['attributes'] ?? []));
 
-            if (! empty($attributes)) {
-                $zone->update($attributes);
-            }
+            $zone->update($attributes);
 
             if (array_key_exists('parentZones', $rawItem) && $parentZones !== null) {
                 $zone->parentZones()->sync($parentZones);

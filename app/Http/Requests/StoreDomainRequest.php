@@ -29,20 +29,20 @@ class StoreDomainRequest extends BaseFormRequest
             'domain_ctrl_cnt' => [
                 'nullable',
                 'integer',
-                'min:-2147483648',
-                'max:2147483647',
+                'min:0',
+                'max:999999',
             ],
             'user_count' => [
                 'nullable',
                 'integer',
-                'min:-2147483648',
-                'max:2147483647',
+                'min:0',
+                'max:999999',
             ],
             'machine_count' => [
                 'nullable',
                 'integer',
-                'min:-2147483648',
-                'max:2147483647',
+                'min:0',
+                'max:999999',
             ],
         ];
     }

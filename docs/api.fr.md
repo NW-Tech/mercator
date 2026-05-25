@@ -84,6 +84,7 @@ La liste des API se trouve dans le fichier /route/api.php
 - [/api/sites](./model.fr.md#sites)
 - [/api/buildings](./model.fr.md#batiments-salles)
 - [/api/bays](./model.fr.md#baies)
+- [/api/zones](./model.fr.md#zones-de-securite)
 - [/api/physical-servers](./model.fr.md#serveurs-physiques)
 - [/api/workstations](./model.fr.md#postes-de-travail)
 - [/api/storage-devices](./model.fr.md#infrastructures-de-stockage) (recommandé pour backups)

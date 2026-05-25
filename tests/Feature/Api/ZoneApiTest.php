@@ -72,6 +72,15 @@ it('creates a zone with scalar fields', function () {
     $this->assertDatabaseHas('zones', ['name' => 'Zone DMZ', 'type' => 'DMZ']);
 });
 
+it('creates a zone with attributes as a plain string', function () {
+    $this->postJson('/api/zones', [
+        'name'       => 'Zone String Attr',
+        'attributes' => 'ovni',
+    ])->assertCreated();
+
+    $this->assertDatabaseHas('zones', ['name' => 'Zone String Attr', 'attributes' => 'ovni']);
+});
+
 it('creates a zone with relations', function () {
     $parent   = Zone::factory()->create(['name' => 'Parent Zone']);
     $child    = Zone::factory()->create(['name' => 'Child Zone']);
@@ -127,6 +136,26 @@ it('shows a zone when permitted', function () {
     $this->getJson("/api/zones/{$zone->id}")
         ->assertOk()
         ->assertJsonFragment(['name' => 'Zone Visible']);
+});
+
+it('show includes relations', function () {
+    $parent   = Zone::factory()->create(['name' => 'Parent Zone']);
+    $child    = Zone::factory()->create(['name' => 'Child Zone']);
+    $building = Building::factory()->create();
+    $admin    = AdminUser::factory()->create();
+
+    $zone = Zone::factory()->create(['name' => 'Zone With Relations']);
+    $zone->parentZones()->sync([$parent->id]);
+    $zone->childZones()->sync([$child->id]);
+    $zone->buildings()->sync([$building->id]);
+    $zone->adminUsers()->sync([$admin->id]);
+
+    $data = $this->getJson("/api/zones/{$zone->id}")->assertOk()->json('data');
+
+    expect($data['parentZones'])->toContain($parent->id);
+    expect($data['childZones'])->toContain($child->id);
+    expect($data['buildings'])->toContain($building->id);
+    expect($data['adminUsers'])->toContain($admin->id);
 });
 
 // ============================================================

@@ -791,28 +791,20 @@
                         const li = this.closest('li');
                         const eventId = li.getAttribute('data-id');
 
-                        if (eventId) {
-                            fetch(`/admin/application-events/${eventId}`, {
-                                method: 'DELETE',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                                },
-                                body: JSON.stringify({ application_id: {{ $application->id }} })
+                        fetch(`/admin/application-events/${eventId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: new URLSearchParams({
+                                _method: 'DELETE',
+                                _token: '{{ csrf_token() }}'
                             })
-                            .then(resp => {
-                                if (!resp.ok) throw new Error();
-                                return resp.json();
-                            })
-                            .then(() => {
-                                li.remove();
-                                showToast('Évènement supprimé !', 'success');
-                            })
-                            .catch(error => {
-                                console.error('Erreur suppression événement :', error);
-                                showToast('Une erreur est survenue', 'danger');
-                            });
-                        }
+                        })
+                        .then(resp => {
+                            if (!resp.ok) throw new Error();
+                            li.remove();
+                            showToast('Évènement supprimé !', 'success');
+                        })
+                        .catch(() => showToast('Une erreur est survenue', 'danger'));
                     });
                 });
             });

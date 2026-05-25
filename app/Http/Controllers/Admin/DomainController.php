@@ -41,7 +41,7 @@ class DomainController extends Controller
 
     public function store(StoreDomainRequest $request)
     {
-        $domainAd = Domain::create($request->all());
+        $domainAd = Domain::query()->create($request->all());
         $domainAd->forestAds()->sync($request->input('forestAds', []));
 
         LogicalServer::whereIn('id', $request->input('logicalServers', []))

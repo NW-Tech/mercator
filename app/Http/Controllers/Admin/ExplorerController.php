@@ -11,6 +11,7 @@ use App\Models\Application;
 use App\Models\ApplicationBlock;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
+use App\Models\Backup;
 use App\Models\Bay;
 use App\Models\Building;
 use App\Models\Certificate;
@@ -713,6 +714,7 @@ class ExplorerController extends Controller
         $this->buildGateways();
         $this->buildExternalConnectedEntities();
         $this->buildLogicalServers();
+        $this->buildBackups();
         $this->buildLogicalSecurityDevices();
         $this->buildRouters();
         $this->buildCertificates();
@@ -989,12 +991,49 @@ class ExplorerController extends Controller
             LogicalServer::$prefix, PhysicalServer::$prefix,
             'logical_server_id', 'physical_server_id');
 
-        // Backups
-        if (Auth::user()->can('backup_access'))
-            $this->linkJoinTable('backups',
-                LogicalServer::$prefix, StorageDevice::$prefix,
-                'logical_server_id', 'storage_device_id');
+    }
 
+    private function buildBackups(): void
+    {
+        if (! Auth::user()->can('backup_access')) {
+            return;
+        }
+
+        $backups = DB::table('backups')
+            ->select('id', 'name', 'attributes')
+            ->whereNull('deleted_at')
+            ->get();
+
+        foreach ($backups as $backup) {
+            $this->addNode(
+                5,
+                $this->formatId(Backup::$prefix, $backup->id),
+                $backup->name,
+                '/images/backup.png',
+                'backups',
+                555,
+                null,
+                $backup->attributes
+            );
+        }
+
+        // Backup ↔ LogicalServer edges
+        $serverLinks = DB::table('backup_logical_server')->get();
+        foreach ($serverLinks as $link) {
+            $this->addLinkEdge(
+                $this->formatId(LogicalServer::$prefix, $link->logical_server_id),
+                $this->formatId(Backup::$prefix, $link->backup_id)
+            );
+        }
+
+        // Backup ↔ StorageDevice edges
+        $deviceLinks = DB::table('backup_storage_device')->get();
+        foreach ($deviceLinks as $link) {
+            $this->addLinkEdge(
+                $this->formatId(Backup::$prefix, $link->backup_id),
+                $this->formatId(StorageDevice::$prefix, $link->storage_device_id)
+            );
+        }
     }
 
     private function buildLogicalSecurityDevices(): void

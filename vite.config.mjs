@@ -55,9 +55,14 @@ export default defineConfig({
     ],
 
     resolve: {
+        dedupe: ['chart.js'],
         alias: {
             '@': '/resources/js',
             '@ts': path.resolve(__dirname, 'resources/ts'), // imports BPMN
+            '@sourcentis/chartjs-gauge': path.resolve(
+                __dirname,
+                'vendor/sourcentis/chartjs-gauge/js/index.js'
+            ),
         },
     },
 

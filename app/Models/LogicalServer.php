@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -135,9 +134,9 @@ class LogicalServer extends Model implements HasIconContract, HasPrefix
         return $this->belongsToMany(Container::class)->orderBy('name');
     }
 
-    /** @return HasMany<Backup, $this> */
-    public function backups(): HasMany
+    /** @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Backup, $this> */
+    public function backups(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Backup::class);
+        return $this->belongsToMany(Backup::class, 'backup_logical_server');
     }
 }

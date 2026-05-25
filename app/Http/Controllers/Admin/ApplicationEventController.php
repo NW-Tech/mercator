@@ -7,6 +7,7 @@ use App\Models\Application;
 use App\Models\ApplicationEvent;
 use Gate;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -59,22 +60,13 @@ class ApplicationEventController extends Controller
         ], 201);
     }
 
-    public function destroy(Request $request, int $id): JsonResponse
+    public function destroy(Request $request, int $id): RedirectResponse
     {
         abort_if(Gate::denies('application_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $request->validate([
-            'application_id' => ['required', 'integer', 'exists:applications,id'],
-        ]);
-
-        $application = Application::findOrFail($request->integer('application_id'));
-
-        $event = $application->events()->findOrFail($id);
-
+        $event = ApplicationEvent::query()->findOrFail($id);
         $event->delete();
 
-        return response()->json([
-            'events' => $application->events()->with('user')->orderBy('created_at', 'desc')->get(),
-        ]);
+        return redirect()->back();
     }
 }

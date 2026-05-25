@@ -246,6 +246,7 @@
             request()->is('admin/dhcp-servers*')||
             request()->is('admin/clusters*')||
             request()->is('admin/logical-servers*')||
+            request()->is('admin/backups*')||
             request()->is('admin/containers*')||
             request()->is('admin/logical-flows*')||
             request()->is('admin/vlans*')||
@@ -326,6 +327,13 @@
                        class="ps-4 {{ request()->is('admin/logical-servers*') ? 'active' : '' }}">
                         <i class="bi bi-list-columns"></i><span
                                 class="menu-text">{{ trans('cruds.logicalServer.title') }}</span>
+                    </a>
+                @endcan
+                @can('backup_access')
+                    <a href="{{ route('admin.backups.index') }}"
+                       class="ps-4 {{ request()->is('admin/backups*') ? 'active' : '' }}">
+                        <i class="bi bi-list-columns"></i><span
+                                class="menu-text">{{ trans('cruds.backup.title') }}</span>
                     </a>
                 @endcan
                 @can('container_access')

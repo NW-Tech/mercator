@@ -50,22 +50,7 @@ class StorageDeviceController extends Controller
 
         // Backups
         if (Auth::user()->can('backup_create')) {
-            $logicalServerId = $request['logical_server_id'];
-            $backupFrequency = $request['backup_frequency'];
-            $backupCycle     = $request['backup_cycle'];
-            $backupRetention = $request['backup_retention'];
-
-            if ($logicalServerId !== null) {
-                for ($i = 0; $i < count($logicalServerId); $i++) {
-                    $backup = new Backup;
-                    $backup->storage_device_id  = $storageDevice->id;
-                    $backup->logical_server_id  = $logicalServerId[$i];
-                    $backup->backup_frequency   = (int) $backupFrequency[$i];
-                    $backup->backup_cycle       = (int) $backupCycle[$i];
-                    $backup->backup_retention   = (int) $backupRetention[$i];
-                    $backup->save();
-                }
-            }
+            $this->syncInlineBackupsForDevice($storageDevice, $request);
         }
 
         return redirect()->route('admin.storage-devices.index');
@@ -82,7 +67,7 @@ class StorageDeviceController extends Controller
 
         $type_list = StorageDevice::select('type')->where('type', '<>', null)->distinct()->orderBy('type')->pluck('type');
 
-        $storageDevice->load('site', 'building', 'bay', 'backups');
+        $storageDevice->load('site', 'building', 'bay', 'backups.logicalServers');
 
         return view(
             'admin.storageDevices.edit',
@@ -95,26 +80,15 @@ class StorageDeviceController extends Controller
         $storageDevice->update($request->all());
 
         if (Auth::user()->can('backup_edit')) {
-            // Suppression des anciens backups pour ce storage device
-            Backup::query()->where('storage_device_id', $storageDevice->id)->delete();
-
-            // Sauvegarde des nouveaux backups
-            $logicalServerId = $request['logical_server_id'];
-            $backupFrequency = $request['backup_frequency'];
-            $backupCycle     = $request['backup_cycle'];
-            $backupRetention = $request['backup_retention'];
-
-            if ($logicalServerId !== null) {
-                for ($i = 0; $i < count($logicalServerId); $i++) {
-                    $backup = new Backup;
-                    $backup->storage_device_id  = $storageDevice->id;
-                    $backup->logical_server_id  = $logicalServerId[$i];
-                    $backup->backup_frequency   = (int) $backupFrequency[$i];
-                    $backup->backup_cycle       = (int) $backupCycle[$i];
-                    $backup->backup_retention   = (int) $backupRetention[$i];
-                    $backup->save();
+            // Detach and hard-delete orphaned backups linked only to this device
+            $storageDevice->backups()->each(function (Backup $backup) use ($storageDevice) {
+                $backup->storageDevices()->detach($storageDevice->id);
+                if ($backup->storageDevices()->doesntExist() && $backup->logicalServers()->doesntExist()) {
+                    $backup->forceDelete();
                 }
-            }
+            });
+
+            $this->syncInlineBackupsForDevice($storageDevice, $request);
         }
 
         return redirect()->route('admin.storage-devices.index');
@@ -143,5 +117,46 @@ class StorageDeviceController extends Controller
         StorageDevice::query()->whereIn('id', request('ids'))->delete();
 
         return response(null, Response::HTTP_NO_CONTENT);
+    }
+
+    private function syncInlineBackupsForDevice(StorageDevice $storageDevice, \Illuminate\Http\Request $request): void
+    {
+        $logicalServerIds = $request->input('logical_server_id', []);
+        $frequencies      = $request->input('backup_frequency', []);
+        $cycles           = $request->input('backup_cycle', []);
+        $retentions       = $request->input('backup_retention', []);
+
+        if (empty($logicalServerIds)) {
+            return;
+        }
+
+        $servers = LogicalServer::query()
+            ->whereIn('id', $logicalServerIds)
+            ->pluck('name', 'id');
+
+        foreach ($logicalServerIds as $i => $logicalServerId) {
+            $serverName = $servers[$logicalServerId] ?? $logicalServerId;
+            $name       = $storageDevice->name . ' → ' . $serverName;
+
+            $base      = mb_substr($name, 0, 240);
+            $candidate = $base;
+            $suffix    = 1;
+            while (Backup::query()->where('name', $candidate)->exists()) {
+                $candidate = $base . ' (' . $suffix++ . ')';
+            }
+
+            $backup = Backup::query()->create([
+                'name'             => $candidate,
+                'backup_frequency' => isset($frequencies[$i]) ? (int) $frequencies[$i] : null,
+                'backup_cycle'     => isset($cycles[$i])      ? (int) $cycles[$i]      : null,
+                'backup_retention' => isset($retentions[$i])  ? (int) $retentions[$i]  : null,
+            ]);
+
+            $backup->storageDevices()->attach($storageDevice->id);
+
+            if ($logicalServerId) {
+                $backup->logicalServers()->attach($logicalServerId);
+            }
+        }
     }
 }
