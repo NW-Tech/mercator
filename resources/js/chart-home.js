@@ -19,6 +19,10 @@ function createGaugeChart(ctx, value) {
             }]
         },
         options: {
+            animation: {
+                duration: 1400,
+                easing: 'easeInOutQuart',
+            },
             needle: {
                 radiusPercentage: 2,
                 widthPercentage: 3.2,
@@ -27,9 +31,7 @@ function createGaugeChart(ctx, value) {
             },
             valueLabel: {
                 display: true,
-                formatter: (value) => {
-                    return value + '%';
-                },
+                formatter: (value) => value + '%',
                 color: 'rgba(255, 255, 255, 1)',
                 backgroundColor: 'rgba(0, 0, 0, 1)',
                 borderRadius: 5,
@@ -66,6 +68,9 @@ const barChartConfig = {
         maintainAspectRatio: false,
         animation: {
             duration: 600,
+            onComplete: function (ctx) {
+                if (ctx.initial) this.update('none');
+            },
         },
 
         // Gestion du curseur au survol
@@ -246,6 +251,9 @@ var treeMapConfig = {
         title: {display: false},
         animation: {
             duration: 600,
+            onComplete: function (ctx) {
+                if (ctx.initial) this.update('none');
+            },
         },
 
         onClick: function (event, active) {
