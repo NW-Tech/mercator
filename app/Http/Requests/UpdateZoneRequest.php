@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Gate;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateZoneRequest extends FormRequest
@@ -18,7 +19,7 @@ class UpdateZoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => 'required|string|max:255',
+            'name'        => ['required', 'string', 'max:255', Rule::unique('zones', 'name')->ignore($this->route('zone')->id ?? $this->id)->whereNull('deleted_at')],
             'type'        => 'nullable|string|max:255',
             'attributes'  => 'nullable',
             'description' => 'nullable|string',

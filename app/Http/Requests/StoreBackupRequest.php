@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Gate;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class StoreBackupRequest extends BaseFormRequest
@@ -19,7 +20,7 @@ class StoreBackupRequest extends BaseFormRequest
     public function rules(): array
     {
         return [
-            'name'             => ['required', 'string', 'max:255', 'unique:backups,name'],
+            'name'             => ['required', 'string', 'max:255', Rule::unique('backups', 'name')->whereNull('deleted_at')],
             'type'             => ['nullable', 'string', 'max:100'],
             'description'      => ['nullable', 'string'],
             'backup_frequency' => ['nullable', 'integer', 'min:1', 'max:4'],

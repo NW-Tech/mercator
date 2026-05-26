@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Gate;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class UpdateBackupRequest extends BaseFormRequest
@@ -21,7 +22,7 @@ class UpdateBackupRequest extends BaseFormRequest
         $backupId = $this->route('backup')?->id;
 
         return [
-            'name'             => ['required', 'string', 'max:255', "unique:backups,name,{$backupId}"],
+            'name'             => ['required', 'string', 'max:255', Rule::unique('backups', 'name')->ignore($backupId)->whereNull('deleted_at')],
             'type'             => ['nullable', 'string', 'max:100'],
             'description'      => ['nullable', 'string'],
             'backup_frequency' => ['nullable', 'integer', 'min:1', 'max:4'],

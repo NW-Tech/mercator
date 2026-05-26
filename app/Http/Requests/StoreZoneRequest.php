@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Gate;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Symfony\Component\HttpFoundation\Response;
 
 class StoreZoneRequest extends FormRequest
@@ -18,7 +19,7 @@ class StoreZoneRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name'        => 'required|string|max:255|unique:zones,name',
+            'name'        => ['required', 'string', 'max:255', Rule::unique('zones', 'name')->whereNull('deleted_at')],
             'type'        => 'nullable|string|max:255',
             'attributes'  => 'nullable',
             'description' => 'nullable|string',
