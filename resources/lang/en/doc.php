@@ -18,12 +18,12 @@ return [
 
 <p>As Mercator is an open-source project, you can:</p>
 <ul>
-    <li>Report bugs or suggest improvements via our <a href='https://www.github.com/dbarzin/mercator'>GitHub repository</a>.</li>
-    <li>Participate in <a href='https://github.com/dbarzin/mercator/discussions'>discussions</a> and contribute to the project's evolution.</li>
-    <li>Develop new features and share your <a href='https://github.com/dbarzin/mercator/pulls'>contributions</a> with the community.</li>
+    <li>Report bugs or suggest improvements via our <a href='https://www.github.com/sourcentis/mercator'>GitHub repository</a>.</li>
+    <li>Participate in <a href='https://github.com/sourcentis/mercator/discussions'>discussions</a> and contribute to the project's evolution.</li>
+    <li>Develop new features and share your <a href='https://github.com/sourcentis/mercator/pulls'>contributions</a> with the community.</li>
 </ul>
 
-<p>For any questions or specific requests, feel free to contact us via <a href='https://www.sourcentis.com'>Sourcentis</a> or through our <a href='https://www.github.com/dbarzin'>GitHub repository</a>.</p>
+<p>For any questions or specific requests, feel free to contact us via <a href='https://www.sourcentis.com'>Sourcentis</a> or through our <a href='https://www.github.com/sourcentis'>GitHub repository</a>.</p>
 ",
     ],
     'guide' => [
