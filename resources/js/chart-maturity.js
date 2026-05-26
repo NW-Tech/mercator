@@ -24,9 +24,7 @@ function createGaugeChart(ctx, value) {
             },
             valueLabel: {
                 display: true,
-                formatter: (value) => {
-                    return value;
-                },
+                formatter: (value) => value + '%',
                 color: 'rgba(255, 255, 255, 1)',
                 backgroundColor: 'rgba(0, 0, 0, 1)',
                 borderRadius: 5,
@@ -36,6 +34,13 @@ function createGaugeChart(ctx, value) {
                 }
             },
             animation: {duration: 800, easing: "easeInOutQuart"},
+            plugins: {
+                datalabels: {
+                    formatter: function (value, context) {
+                        return null;
+                    }
+                }
+            }
         }
     });
 }

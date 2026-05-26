@@ -20,7 +20,7 @@ function createGaugeChart(ctx, value) {
         },
         options: {
             animation: {
-                duration: 1400,
+                duration: 800,
                 easing: 'easeInOutQuart',
             },
             needle: {
