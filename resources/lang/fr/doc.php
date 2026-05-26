@@ -18,12 +18,12 @@ return [
 
 <p>Mercator étant un projet open source, vous pouvez :</p>
 <ul>
-    <li>Signaler des bugs ou proposer des améliorations via notre dépôt <a href='https://www.github.com/dbarzin/mercator'>GitHub</a>.</li>
-    <li>Participer aux <a href='https://github.com/dbarzin/mercator/discussions'>discussions</a> et à l’évolution du projet.</li>
-    <li>Développer de nouvelles fonctionnalités et partager vos <a href='https://github.com/dbarzin/mercator/pulls'>contributions</a> avec la communauté.</li>
+    <li>Signaler des bugs ou proposer des améliorations via notre dépôt <a href='https://www.github.com/sourcentis/mercator'>GitHub</a>.</li>
+    <li>Participer aux <a href='https://github.com/sourcentis/mercator/discussions'>discussions</a> et à l’évolution du projet.</li>
+    <li>Développer de nouvelles fonctionnalités et partager vos <a href='https://github.com/sourcentis/mercator/pulls'>contributions</a> avec la communauté.</li>
 </ul>
 
-<p>Pour toute question ou demande spécifique, n’hésitez pas à nous contacter via <a href='https://www.sourcentis.com'>Sourcentis</a> ou sur notre dépôt  <a href='https://www.github.com/dbarzin'>GitHub</a>.</p>
+<p>Pour toute question ou demande spécifique, n’hésitez pas à nous contacter via <a href='https://www.sourcentis.com'>Sourcentis</a> ou sur notre dépôt  <a href='https://www.github.com/sourcentis'>GitHub</a>.</p>
 ",
     ],
     'guide' => [
