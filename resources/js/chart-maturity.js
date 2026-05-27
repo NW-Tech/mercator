@@ -33,7 +33,7 @@ function createGaugeChart(ctx, value) {
                     bottom: 10
                 }
             },
-            animation: {duration: 800, easing: "easeInOutQuart"},
+            animation: {duration: 1200, easing: "easeInOutQuart"},
             plugins: {
                 datalabels: {
                     formatter: function (value, context) {
