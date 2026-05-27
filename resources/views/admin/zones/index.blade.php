@@ -51,7 +51,7 @@
                                 <span class="badge badge-info">{{ $attribute }}</span>
                             @endforeach
                             </td>
-                            <td>{!! \Illuminate\Support\Str::limit(strip_tags($zone->description ?? ''), 80) !!}</td>
+                            <td>{!! $zone->description ?? '' !!}</td>
                             <td>
                             @foreach($zone->buildings as $building)
                                 <a href="{{ route('admin.buildings.show', $building->id) }}">{{ $building->name }}</a>{{ !$loop->last ? ', ' : '' }}
