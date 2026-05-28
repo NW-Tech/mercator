@@ -99,14 +99,21 @@ class ExplorerController extends Controller
             $this->edges = [];
             $this->subnetworks = Subnetwork::select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
 
-            $first = true;
-            $count = 0;
-            $this->nodeWriter = function (array $node) use (&$first, &$count): void {
+            $first      = true;
+            $count      = 0;
+            $attributes = [];
+            $this->nodeWriter = function (array $node) use (&$first, &$count, &$attributes): void {
                 if (!$first) {
                     echo ',';
                 }
                 $first = false;
                 echo json_encode($node, JSON_UNESCAPED_UNICODE);
+                // Collect unique, non-empty attribute tokens while streaming
+                if (!empty($node['attributes'])) {
+                    foreach (array_filter(array_map('trim', explode(' ', $node['attributes']))) as $attr) {
+                        $attributes[$attr] = true;
+                    }
+                }
                 // Flush every 200 nodes so the output buffer does not re-accumulate
                 // what we are trying to avoid keeping in the $nodes array.
                 if (++$count % 200 === 0) {
@@ -128,8 +135,11 @@ class ExplorerController extends Controller
 
             $this->nodeWriter = null;
 
+            ksort($attributes);
             echo '],"edges":';
             echo json_encode($this->edges, JSON_UNESCAPED_UNICODE);
+            echo ',"attributes":';
+            echo json_encode(array_keys($attributes), JSON_UNESCAPED_UNICODE);
             echo '}';
 
             if (ob_get_level() > 0) {
