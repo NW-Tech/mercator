@@ -229,8 +229,11 @@
                 loadingIndicator.style.display = 'none';
                 controls.style.display         = 'block';
 
-                // Charger les attributs APRÈS que les contrôles sont visibles
-                await loadAttributes();
+                // Populate attr-filter from the attributes already embedded in the response
+                (data.attributes ?? []).forEach(attr => {
+                    $('#attr-filter').append('<option value="' + attr + '">' + attr + '</option>');
+                });
+                $('#attr-filter').trigger('change');
 
                 console.log(`✓ Graphe chargé: ${data.nodes.length} nœuds, ${data.edges.length} liens`);
 
@@ -653,28 +656,6 @@
                 }
             }
             $('#node').val(null).trigger("change");
-        }
-
-        async function loadAttributes() {
-            try {
-                const response = await fetch('{{ route("admin.reports.explore.attributes") }}', {
-                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    credentials: 'same-origin'
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const attributes = await response.json();
-                attributes.forEach(attr => {
-                    $('#attr-filter').append('<option value="' + attr + '">' + attr + '</option>');
-                });
-                $('#attr-filter').trigger('change');
-
-            } catch (error) {
-                console.error('Erreur lors du chargement des attributs:', error);
-            }
         }
 
         // ─────────────────────────────────────────────

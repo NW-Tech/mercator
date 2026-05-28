@@ -254,20 +254,14 @@
         try {
             document.getElementById('loading-text').textContent = 'Chargement des données…';
 
-            const [graphResp, attrResp] = await Promise.all([
-                fetch('{{ route("admin.reports.explore.data") }}', {
-                    headers: {
-                        'Accept':           'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN':     document.querySelector('meta[name="csrf-token"]')?.content ?? '',
-                    },
-                    credentials: 'same-origin',
-                }),
-                fetch('{{ route("admin.reports.explore.attributes") }}', {
-                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    credentials: 'same-origin',
-                }),
-            ]);
+            const graphResp = await fetch('{{ route("admin.reports.explore.data") }}', {
+                headers: {
+                    'Accept':           'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN':     document.querySelector('meta[name="csrf-token"]')?.content ?? '',
+                },
+                credentials: 'same-origin',
+            });
 
             if (!graphResp.ok) throw new Error(`HTTP ${graphResp.status} — ${graphResp.statusText}`);
 
@@ -275,16 +269,13 @@
             allNodes = data.nodes ?? [];
             allEdges = data.edges ?? [];
 
-            if (attrResp.ok) {
-                const attributes = await attrResp.json();
-                attributes.forEach(attr => {
-                    const selected = PARAMS.attr.includes(attr);
-                    $('#attr-filter').append(
-                        `<option value="${attr}" ${selected ? 'selected' : ''}>${attr}</option>`
-                    );
-                });
-                $('#attr-filter').trigger('change');
-            }
+            (data.attributes ?? []).forEach(attr => {
+                const selected = PARAMS.attr.includes(attr);
+                $('#attr-filter').append(
+                    `<option value="${attr}" ${selected ? 'selected' : ''}>${attr}</option>`
+                );
+            });
+            $('#attr-filter').trigger('change');
 
             populateNodeSelector();
 
