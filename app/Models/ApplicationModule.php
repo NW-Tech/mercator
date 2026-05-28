@@ -55,16 +55,16 @@ class ApplicationModule extends Model implements HasPrefix, HasIconContract
         return ApplicationModuleFactory::new();
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function moduleSourceFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'module_source_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'module_source_id', 'id')->orderBy('name');
     }
 
-    /** @return HasMany<Flux, $this> */
+    /** @return HasMany<ApplicationFlow, $this> */
     public function moduleDestFluxes(): HasMany
     {
-        return $this->hasMany(Flux::class, 'module_dest_id', 'id')->orderBy('name');
+        return $this->hasMany(ApplicationFlow::class, 'module_dest_id', 'id')->orderBy('name');
     }
 
     /** @return BelongsToMany<ApplicationService, $this> */

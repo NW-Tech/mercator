@@ -9,6 +9,8 @@ use ReflectionMethod;
 
 class QueryEngineIntrospector
 {
+    private const EXCLUDED_MODELS = ['User', 'PasswordReset'];
+
     protected const MODEL_NAMESPACE = 'App\\Models\\';
 
     /**
@@ -70,11 +72,20 @@ class QueryEngineIntrospector
                 $result = $method->invoke($instance);
 
                 if ($result instanceof Relation) {
+                    $related = class_basename($result->getRelated());
+
+                    // Une relation pointant vers un modèle exclu ne doit être ni listée
+                    // ni traversable, sinon EXCLUDED_MODELS est contournable via
+                    // from:roles + fields:users.* (pivot Role::users()).
+                    if (in_array($related, self::EXCLUDED_MODELS, true)) {
+                        continue;
+                    }
+
                     $relations[] = [
                         'name'    => Str::snake($method->getName()),   // logical_servers
                         'method'  => $method->getName(),               // logicalServers (usage interne)
                         'type'    => class_basename($result),
-                        'related' => class_basename($result->getRelated()),
+                        'related' => $related,
                     ];
                 }
             } catch (\Throwable) {
@@ -139,7 +150,7 @@ class QueryEngineIntrospector
      */
     public static function modelToApiName(string $modelName): string
     {
-        return $modelName === 'MApplication'
+        return $modelName === 'Application'
             ? 'applications'
             : Str::plural(Str::snake($modelName, '-'));
     }
@@ -194,6 +205,10 @@ class QueryEngineIntrospector
                 continue;
             }
 
+            if (in_array($modelName, self::EXCLUDED_MODELS)) {
+                continue;
+            }
+
             $classes[] = $modelName;
         }
 
@@ -202,7 +217,7 @@ class QueryEngineIntrospector
 
     /**
      * Retourne les noms d'API (slugs) pour tous les modèles concrets.
-     * Ex : MApplication → applications, LogicalServer → logical-servers
+     * Ex : Application → applications, LogicalServer → logical-servers
      */
     public static function listModels(): array
     {

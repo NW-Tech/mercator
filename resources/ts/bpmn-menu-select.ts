@@ -401,7 +401,6 @@ export function setupBpmnMenuSelect(graph: AnyGraph) {
         } else if (isDataVertex(graph, vertex)) {
             elements = DATA_ELEMENTS;
         } else if (isActivitiesVertex(graph, vertex)) {
-            console.log("ACTIVITIES_ELEMENTS");
             elements = ACTIVITIES_ELEMENTS;
         } else {
             console.warn("[bpmn-menu-select] vertex non-process/non-state");
@@ -427,29 +426,22 @@ export function setupBpmnMenuSelect(graph: AnyGraph) {
 
     // Apply the selected item on vertex or edge
     const applySelection = (el: BpmnElementDef) => {
-        console.log("applySelection", el);
         const processVertex = getSelectedVertex(graph);
         const edge = getSingleSelectedEdge(graph);
         if (!processVertex && !edge) return;
 
-        // What have we chosen?
         if (objectSelect) {
-            console.log("applySelection objectSelect ", objectSelect);
-            // it was an object Select
             graph.batchUpdate(() => {
-                // Remove link ?
-                if (el.glyph==BPMN_ICONS.TRASH) {
+                if (el.glyph == BPMN_ICONS.TRASH) {
                     processVertex.value = null;
                     processVertex.url = null;
                     graph.refresh(processVertex);
                     removeBottomCenterBadge(graph, processVertex);
                     hideMenu();
-                }
-                else {
+                } else {
                     processVertex.value = el.name;
                     processVertex.url = el.url;
                     graph.refresh(processVertex);
-                    console.log("applySelection setSubProcessMarker ", processVertex);
                     setSubProcessMarker(graph, processVertex);
                     hideMenu();
                 }
@@ -737,8 +729,7 @@ export function setupBpmnMenuSelect(graph: AnyGraph) {
                     console.error("[bpmn-menu-select] Impossible de charger les objets du graph", error)
                 );
         }
-        else
-            console.log("[bpmn-menu-select] invalid object : ", vertex);
+        // else: unknown vertex type — no menu to open
     });
 
     // reposition si la fenêtre change

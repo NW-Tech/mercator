@@ -18,7 +18,7 @@ Mercator permet de visualiser les dépendances, d'identifier les actifs critique
 Reconnu pour sa pertinence opérationnelle et adopté par des organisations dans les secteurs de la santé, du secteur public et des infrastructures critiques, Mercator est l'outil Open Source de référence pour la gouvernance des systèmes d'information.
 
 
-📚 [Explorer la Documentation](https://dbarzin.github.io/mercator/) | 🔍 [Voir les Sources de l'Application](https://github.com/dbarzin/mercator/tree/master/app)
+📚 [Explorer la Documentation](https://sourcentis.github.io/mercator/) | 🔍 [Voir les Sources de l'Application](https://github.com/dbarzin/mercator/tree/master/app)
 
 📖 _Lire ceci dans d'autres langues :_ [Anglais](README.md)
 

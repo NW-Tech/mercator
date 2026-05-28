@@ -1,131 +1,84 @@
 // src/ts/bpmn-arrows.ts
+import { Cell, Geometry, Graph, InternalEvent, Point } from "@maxgraph/core";
 
-import {Cell, Geometry, Graph, InternalEvent, Point} from "@maxgraph/core";
-
-
-/*
-MaxGraph reprend les type de start et end Arrows: :
-
-    none	rien
-    block	flèche pleine
-    open	flèche ouverte
-    classic	flèche classique
-    oval	cercle
-    diamond	losange
-    thinDiamond	losange fin
-
-*/
-
-export function setAnnotationArrow(graph: Graph, edge: Cell) {
-    const model = graph.model;
-
-    model.beginUpdate();
-    try {
-        graph.setCellStyles?.("dashed", true, [edge]);
-        graph.setCellStyles?.("edgeStyle", "straightEdgeStyle", [edge]);
-        graph.setCellStyles?.("startArrow", "none", [edge]);
-        graph.setCellStyles?.("endArrow", "none", [edge]);
-    } finally {
-        model.endUpdate();
-    }
-}
-export function setAnnotationDirectionlArrow(graph: Graph, edge: Cell) {
-    const model = graph.model;
-
-    model.beginUpdate();
-    try {
-        graph.setCellStyles?.("dashed", true, [edge]);
-        graph.setCellStyles?.("edgeStyle", "straightEdgeStyle", [edge]);
-        graph.setCellStyles?.("startArrow", "none", [edge]);
-        graph.setCellStyles?.("endArrow", "classic", [edge]);
-    } finally {
-        model.endUpdate();
-    }
-}
-
-function setOrthogonalArrow(graph: Graph, edge: Cell) {
-    const model = graph.model;
-
-    model.beginUpdate();
-    try {
-        graph.setCellStyles?.("dashed", false, [edge]);
-        graph.setCellStyles?.("edgeStyle", "orthogonalEdgeStyle", [edge]);
-        graph.setCellStyles?.("startArrow", "none", [edge]);
-        graph.setCellStyles?.("endArrow", "classic", [edge]);
-    } finally {
-        model.endUpdate();
-    }
-}
-
-export function setMessageFlow(graph: Graph, edge: Cell) {
-    const model = graph.model;
-
-    model.beginUpdate();
-    try {
-        graph.batchUpdate(() => {
-            graph.setCellStyles("startArrow", "bpmnMessage", [edge]);
-            graph.setCellStyles("startFill", "1", [edge]);
-            graph.setCellStyles("startFillColor", "#FFFFFF", [edge]);
-            graph.setCellStyles("startStrokeColor", "#000000", [edge]);
-            graph.setCellStyles("startSize", "12", [edge]);
-            graph.setCellStyles("endFillColor", "#000000", [edge]);
-            graph.setCellStyles("dashed", true, [edge]);
-        });
-    } finally {
-        model.endUpdate();
-    }
-}
-
-export function setConversationFlow(graph: Graph, edge: Cell) {
-    const model = graph.model;
-
-    model.beginUpdate();
-    try {
-        graph.batchUpdate(() => {
-            edge.style.baseStyleNames = ["bpmnConversationLink"];
-        });
-    } finally {
-        model.endUpdate();
-    }
-}
-
-export function setSequenceFlow(graph: Graph, edge: Cell) {
+export function setAnnotationArrow(graph: Graph, edge: Cell): void {
     graph.batchUpdate(() => {
-        graph.setCellStyles("startArrow", null, [edge]);
-        graph.setCellStyles("startFill", "0", [edge]);
-        graph.setCellStyles("startFillColor", "#FFFFFF", [edge]);
-        graph.setCellStyles("startStrokeColor", "#000000", [edge]);
-        graph.setCellStyles("startSize", "12", [edge]);
-        graph.setCellStyles("strokeColor", "black", [edge]);
-        graph.setCellStyles("dashed", false, [edge]);
-        graph.setCellStyles("endFillColor", "#000000", [edge]);
+        graph.setCellStyles("dashed",     true,                [edge]);
+        graph.setCellStyles("edgeStyle",  "straightEdgeStyle", [edge]);
+        graph.setCellStyles("startArrow", "none",              [edge]);
+        graph.setCellStyles("endArrow",   "none",              [edge]);
     });
 }
 
-export function setConditionalFlow(graph: Graph, edge: Cell) {
+export function setAnnotationDirectionalArrow(graph: Graph, edge: Cell): void {
     graph.batchUpdate(() => {
-        graph.setCellStyles("startArrow", "diamond", [edge]);
-        graph.setCellStyles("startFill", "1", [edge]);
-        graph.setCellStyles("startFillColor", "#FFFFFF", [edge]);
-        graph.setCellStyles("startStrokeColor", "#000000", [edge]);
-        graph.setCellStyles("startSize", "1", [edge]);
-        graph.setCellStyles("dashed", false, [edge]);
-        graph.setCellStyles("endFillColor", "#FFFFFF", [edge]);
+        graph.setCellStyles("dashed",     true,                [edge]);
+        graph.setCellStyles("edgeStyle",  "straightEdgeStyle", [edge]);
+        graph.setCellStyles("startArrow", "none",              [edge]);
+        graph.setCellStyles("endArrow",   "classic",           [edge]);
     });
 }
 
-export function setDefaultFlow(graph: Graph, edge: Cell) {
+function setOrthogonalArrow(graph: Graph, edge: Cell): void {
     graph.batchUpdate(() => {
-        graph.setCellStyles("startArrow", "bpmnSlash", [edge]);
-        graph.setCellStyles("startSize", "12", [edge]);
-        graph.setCellStyles("dashed", false, [edge]);
-        graph.setCellStyles("endFillColor", "#000000", [edge]);
+        graph.setCellStyles("dashed",     false,                  [edge]);
+        graph.setCellStyles("edgeStyle",  "orthogonalEdgeStyle",  [edge]);
+        graph.setCellStyles("startArrow", "none",                 [edge]);
+        graph.setCellStyles("endArrow",   "classic",              [edge]);
     });
 }
 
-/**
- * Cherche la cellule icône enfant d'un edge (style bpmnEventCircleIcon)
- */
+export function setMessageFlow(graph: Graph, edge: Cell): void {
+    graph.batchUpdate(() => {
+        graph.setCellStyles("startArrow",      "bpmnMessage", [edge]);
+        graph.setCellStyles("startFill",       "1",           [edge]);
+        graph.setCellStyles("startFillColor",  "#FFFFFF",     [edge]);
+        graph.setCellStyles("startStrokeColor","#000000",     [edge]);
+        graph.setCellStyles("startSize",       "12",          [edge]);
+        graph.setCellStyles("endFillColor",    "#000000",     [edge]);
+        graph.setCellStyles("dashed",          true,          [edge]);
+    });
+}
+
+export function setConversationFlow(graph: Graph, edge: Cell): void {
+    graph.batchUpdate(() => {
+        edge.style.baseStyleNames = ["bpmnConversationLink"];
+    });
+}
+
+export function setSequenceFlow(graph: Graph, edge: Cell): void {
+    graph.batchUpdate(() => {
+        graph.setCellStyles("startArrow",      null,      [edge]);
+        graph.setCellStyles("startFill",       "0",       [edge]);
+        graph.setCellStyles("startFillColor",  "#FFFFFF", [edge]);
+        graph.setCellStyles("startStrokeColor","#000000", [edge]);
+        graph.setCellStyles("startSize",       "12",      [edge]);
+        graph.setCellStyles("strokeColor",     "black",   [edge]);
+        graph.setCellStyles("dashed",          false,     [edge]);
+        graph.setCellStyles("endFillColor",    "#000000", [edge]);
+    });
+}
+
+export function setConditionalFlow(graph: Graph, edge: Cell): void {
+    graph.batchUpdate(() => {
+        graph.setCellStyles("startArrow",      "diamond", [edge]);
+        graph.setCellStyles("startFill",       "1",       [edge]);
+        graph.setCellStyles("startFillColor",  "#FFFFFF", [edge]);
+        graph.setCellStyles("startStrokeColor","#000000", [edge]);
+        graph.setCellStyles("startSize",       "1",       [edge]);
+        graph.setCellStyles("dashed",          false,     [edge]);
+        graph.setCellStyles("endFillColor",    "#FFFFFF", [edge]);
+    });
+}
+
+export function setDefaultFlow(graph: Graph, edge: Cell): void {
+    graph.batchUpdate(() => {
+        graph.setCellStyles("startArrow",   "bpmnSlash", [edge]);
+        graph.setCellStyles("startSize",    "12",        [edge]);
+        graph.setCellStyles("dashed",       false,       [edge]);
+        graph.setCellStyles("endFillColor", "#000000",   [edge]);
+    });
+}
 
 function findEdgeChild(edge: Cell, styleName: string): Cell | null {
     return edge.children?.find(
@@ -136,43 +89,33 @@ function findEdgeChild(edge: Cell, styleName: string): Cell | null {
 export function setEventFlow(graph: Graph, edge: Cell, iconValue?: string): void {
     graph.batchUpdate(() => {
         const model = graph.getDataModel();
+        const d     = 40;
+        const geomAt = (x: number, y: number) => {
+            const g = new Geometry(0, 0, d, d);
+            g.relative = true;
+            g.x = x;
+            g.y = y;
+            g.offset = { x: -d / 2, y: -d / 2 } as any;
+            return g;
+        };
 
-        // 1. Style de l'edge
+        // Style de l'edge
         model.setStyle(edge, { baseStyleNames: ["bpmnEventFlow"] });
 
-        const d = 40;
-
-        // ── Cercle blanc (fond) ──────────────────────────────────────
+        // Cercle blanc (fond)
         let bgCell = findEdgeChild(edge, "bpmnEventCircleBg");
         if (!bgCell) {
-            bgCell = new Cell("", new Geometry(0, 0, d, d), { baseStyleNames: ["bpmnEventCircleBg"] });
+            bgCell = new Cell("", geomAt(-1, 0), { baseStyleNames: ["bpmnEventCircleBg"] });
             bgCell.vertex = true;
-
-            const g = bgCell.getGeometry()!;
-            g.relative = true;
-            g.x = -1;
-            g.y = 0;
-            g.offset = { x: -d / 2, y: -d / 2 } as any;
-            bgCell.setGeometry(g);
-
             model.add(edge, bgCell);
         }
 
-        // ── Icône (par-dessus le cercle blanc) ───────────────────────
+        // Icône (par-dessus le cercle)
         let iconCell = findEdgeChild(edge, "bpmnEventCircleIcon");
-
         if (iconValue !== undefined) {
             if (!iconCell) {
-                iconCell = new Cell(iconValue, new Geometry(0, 0, d, d), { baseStyleNames: ["bpmnEventCircleIcon"] });
+                iconCell = new Cell(iconValue, geomAt(-1, 0), { baseStyleNames: ["bpmnEventCircleIcon"] });
                 iconCell.vertex = true;
-
-                const g = iconCell.getGeometry()!;
-                g.relative = true;
-                g.x = -1;
-                g.y = 0;
-                g.offset = { x: -d / 2, y: -d / 2 } as any;
-                iconCell.setGeometry(g);
-
                 model.add(edge, iconCell);
             } else {
                 model.setValue(iconCell, iconValue);
@@ -181,44 +124,36 @@ export function setEventFlow(graph: Graph, edge: Cell, iconValue?: string): void
             model.remove(iconCell);
         }
 
-        // 2. Edge au premier plan
         graph.orderCells(false, [edge]);
     });
 }
 
-function getEdgeTerminal(edge: any, source: boolean) {
+function getEdgeTerminal(edge: any, source: boolean): any {
     return source ? edge?.source : edge?.target;
 }
 
-export function installEdgeRules(graph: Graph) {
-    graph.addListener(InternalEvent.CELL_CONNECTED, (_sender: any, evt: any) => {
+function hasStyle(cell: any, ...names: string[]): boolean {
+    const baseNames: string[] = cell?.style?.baseStyleNames ?? [];
+    return names.some(n => baseNames.includes(n));
+}
 
+export function installEdgeRules(graph: Graph): void {
+    graph.addListener(InternalEvent.CELL_CONNECTED, (_sender: any, evt: any) => {
         const edge = evt.getProperty?.("edge") ?? evt.getProperty?.("cell");
         if (!edge) return;
 
+        const src  = getEdgeTerminal(edge, true);
         const dest = getEdgeTerminal(edge, false);
-        if (!dest) return;
+        if (!src || !dest) return;
 
-        const src = getEdgeTerminal(edge, true);
-        if (!src) return;
-
-        if (
-            src.style.baseStyleNames.includes("data")||
-            dest.style.baseStyleNames.includes("data")||
-            src.style.baseStyleNames.includes("database")||
-            dest.style.baseStyleNames.includes("database"))
-            setAnnotationDirectionlArrow(graph, edge);
-        else if (
-            src.style.baseStyleNames.includes("bpmnDataObject")||
-            dest.style.baseStyleNames.includes("bpmnDataObject")||
-            src.style.baseStyleNames.includes("annotation")||
-            dest.style.baseStyleNames.includes("annotation")
-        )
+        if (hasStyle(src, "data", "database") || hasStyle(dest, "data", "database")) {
+            setAnnotationDirectionalArrow(graph, edge);
+        } else if (hasStyle(src, "bpmnDataObject", "annotation") || hasStyle(dest, "bpmnDataObject", "annotation")) {
             setAnnotationArrow(graph, edge);
-        else
+        } else {
             setOrthogonalArrow(graph, edge);
+        }
 
-        // met l'edge en arrière-plan
         graph.orderCells(true, [edge]);
     });
 }

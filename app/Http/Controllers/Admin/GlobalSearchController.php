@@ -18,14 +18,14 @@ class GlobalSearchController extends Controller
         'Task' => 'cruds.task.title',
         'Information' => 'cruds.information.title',
         'ApplicationBlock' => 'cruds.applicationBlock.title',
-        'MApplication' => 'cruds.application.title',
+        'Application' => 'cruds.application.title',
         'ApplicationService' => 'cruds.applicationService.title',
         'Database' => 'cruds.database.title',
-        'Flux' => 'cruds.flux.title',
+        'ApplicationFlow' => 'cruds.flux.title',
         'ZoneAdmin' => 'cruds.zoneAdmin.title',
         'Annuaire' => 'cruds.annuaire.title',
         'ForestAd' => 'cruds.forestAd.title',
-        'DomaineAd' => 'cruds.domaineAd.title',
+        'Domain' => 'cruds.domaine.title',
         'Network' => 'cruds.network.title',
         'Subnetwork' => 'cruds.subnetwork.title',
         'Gateway' => 'cruds.gateway.title',
@@ -93,18 +93,16 @@ class GlobalSearchController extends Controller
                 $parsedData['name'] = trans($translation);
                 $parsedData['fields'] = $fields;
                 $formattedFields = [];
-
-
+                
                 foreach ($fields as $field)
                     $formattedFields[$field] = Str::title(str_replace('_', ' ', $field));
 
                 $parsedData['fields_formated'] = $formattedFields;
 
-                // TODO: Fix me please (XXXX)
                 $parsedData['url'] = '/admin/'.
-                    ($model === 'MApplication' ? 'applications' : Str::plural(Str::snake($model, '-'))).
-                    '/'.$result->id;
-                // to got to edit : . '/edit'
+                     Str::plural(Str::snake($model, '-')).
+                    '/'.
+                    $result->id;
 
                 $searchableData[] = $parsedData;
             }

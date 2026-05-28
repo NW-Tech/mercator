@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -81,10 +80,10 @@ class LogicalServer extends Model implements HasIconContract, HasPrefix
         return LogicalServerFactory::new();
     }
 
-    /** @return BelongsToMany<MApplication, $this> */
+    /** @return BelongsToMany<Application, $this> */
     public function applications(): BelongsToMany
     {
-        return $this->belongsToMany(MApplication::class)->orderBy('name');
+        return $this->belongsToMany(Application::class)->orderBy('name');
     }
 
     /** @return BelongsToMany<PhysicalServer, $this> */
@@ -117,10 +116,10 @@ class LogicalServer extends Model implements HasIconContract, HasPrefix
         return $this->belongsToMany(Cluster::class);
     }
 
-    /** @return BelongsTo<DomaineAd, $this> */
+    /** @return BelongsTo<Domain, $this> */
     public function domain(): BelongsTo
     {
-        return $this->belongsTo(DomaineAd::class, 'domain_id');
+        return $this->belongsTo(Domain::class, 'domain_id');
     }
 
     /** @return BelongsToMany<Certificate, $this> */
@@ -135,9 +134,9 @@ class LogicalServer extends Model implements HasIconContract, HasPrefix
         return $this->belongsToMany(Container::class)->orderBy('name');
     }
 
-    /** @return HasMany<Backup, $this> */
-    public function backups(): HasMany
+    /** @return \Illuminate\Database\Eloquent\Relations\BelongsToMany<Backup, $this> */
+    public function backups(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
-        return $this->hasMany(Backup::class);
+        return $this->belongsToMany(Backup::class, 'backup_logical_server');
     }
 }

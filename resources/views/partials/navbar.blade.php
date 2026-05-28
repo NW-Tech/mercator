@@ -57,6 +57,12 @@
                                 </a>
                             </li>
                         @endcan
+                        @can('zone_access')
+                            <li><a class="dropdown-item" href="/admin/report/security_zones">
+                                    <i class="bi bi-diagram-3-fill"></i>{{ trans('panel.menu.security_zones') }}
+                                </a>
+                            </li>
+                        @endcan
                         @can('physical_link_access')
                             <li><a class="dropdown-item" href="/admin/report/network_infrastructure">
                                     <i class="bi bi-diagram-3-fill"></i>{{ trans('panel.menu.network_infrastructure') }}
@@ -128,11 +134,11 @@
                                 <i class="bi bi-book-fill"></i>{{ trans('panel.menu.guide') }}</a>
                         </li>
                         @if (Auth::user()->language==='fr')
-                        <li><a class="dropdown-item" target="_blank" href="https://dbarzin.github.io/mercator/fr/">
+                        <li><a class="dropdown-item" target="_blank" href="https://sourcentis.github.io/mercator/fr/">
                                 <i class="bi bi-book-fill"></i>{{ trans('panel.menu.doc') }}</a>
                         </li>
                         @else
-                        <li><a class="dropdown-item" target="_blank" href="https://dbarzin.github.io/mercator/">
+                        <li><a class="dropdown-item" target="_blank" href="https://sourcentis.github.io/mercator/">
                                 <i class="bi bi-book-fill"></i>{{ trans('panel.menu.doc') }}</a>
                         </li>
                         @endif

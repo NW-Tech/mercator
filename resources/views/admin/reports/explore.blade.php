@@ -229,8 +229,11 @@
                 loadingIndicator.style.display = 'none';
                 controls.style.display         = 'block';
 
-                // Charger les attributs APRÈS que les contrôles sont visibles
-                await loadAttributes();
+                // Populate attr-filter from the attributes already embedded in the response
+                (data.attributes ?? []).forEach(attr => {
+                    $('#attr-filter').append('<option value="' + attr + '">' + attr + '</option>');
+                });
+                $('#attr-filter').trigger('change');
 
                 console.log(`✓ Graphe chargé: ${data.nodes.length} nœuds, ${data.edges.length} liens`);
 
@@ -513,6 +516,7 @@
                         to,
                         smooth: getSmooth(from, to),
                         font:   FONT_OPTIONS,
+                        color:  { color: '#1a6496', highlight: '#2196F3' },
                         arrows: edge.bidirectional
                             ? { to: { enabled: true, type: 'arrow' }, from: { enabled: true, type: 'arrow' } }
                             : { to: { enabled: true, type: 'arrow' } }
@@ -532,12 +536,14 @@
                 } else if (edge.edgeType === 'LINK') {
                     if (exists(sourceNodeId, targetNodeId, null).length > 0) continue;
 
-                    console.log("add edge=", edge);
                     edges.add({
                         from:   sourceNodeId,
                         to:     targetNodeId,
-                        smooth: getSmooth(sourceNodeId, targetNodeId)
-                    });
+                        smooth: getSmooth(sourceNodeId, targetNodeId),
+                        color:  { color: '#000000', highlight: '#333333' },
+                        dashes: [3, 3],
+                        width:  2,
+                        });
 
                 } else {
                     console.error("Unknown edge type:", edge.edgeType);
@@ -650,28 +656,6 @@
                 }
             }
             $('#node').val(null).trigger("change");
-        }
-
-        async function loadAttributes() {
-            try {
-                const response = await fetch('{{ route("admin.reports.explore.attributes") }}', {
-                    headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
-                    credentials: 'same-origin'
-                });
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const attributes = await response.json();
-                attributes.forEach(attr => {
-                    $('#attr-filter').append('<option value="' + attr + '">' + attr + '</option>');
-                });
-                $('#attr-filter').trigger('change');
-
-            } catch (error) {
-                console.error('Erreur lors du chargement des attributs:', error);
-            }
         }
 
         // ─────────────────────────────────────────────

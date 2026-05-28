@@ -116,24 +116,24 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::delete('application-blocks-destroy', [Admin\ApplicationBlockController::class, 'massDestroy'])->name('application-blocks.massDestroy');
 
     // Applications
-    Route::resource('applications', Admin\MApplicationController::class);
-    Route::get('applications-clone/{id}', [Admin\MApplicationController::class, 'clone'])->name('applications.clone');
-    Route::delete('applications-destroy', [Admin\MApplicationController::class, 'massDestroy'])->name('applications.massDestroy');
+    Route::resource('applications', Admin\ApplicationController::class);
+    Route::get('applications-clone/{id}', [Admin\ApplicationController::class, 'clone'])->name('applications.clone');
+    Route::delete('applications-destroy', [Admin\ApplicationController::class, 'massDestroy'])->name('applications.massDestroy');
 
     // Application Services
     Route::resource('application-services', Admin\ApplicationServiceController::class);
     Route::delete('application-services-destroy', [Admin\ApplicationServiceController::class, 'massDestroy'])->name('application-services.massDestroy');
 
     // Application Events
-    Route::resource('application-events', Admin\MApplicationEventController::class);
+    Route::resource('application-events', Admin\ApplicationEventController::class);
 
     // Databases
     Route::resource('databases', Admin\DatabaseController::class);
     Route::delete('databases-destroy', [Admin\DatabaseController::class, 'massDestroy'])->name('databases.massDestroy');
 
-    // Fluxes
-    Route::resource('fluxes', Admin\FluxController::class);
-    Route::delete('fluxes-destroy', [Admin\FluxController::class, 'massDestroy'])->name('fluxes.massDestroy');
+    // Application Flows
+    Route::resource('application-flows', Admin\ApplicationFlowController::class)->parameters(['application-flows' => 'flow']);
+    Route::delete('application-flows-destroy', [Admin\ApplicationFlowController::class, 'massDestroy'])->name('application-flows.massDestroy');
 
     // Zone Admins
     Route::resource('zone-admins', Admin\ZoneAdminController::class);
@@ -147,9 +147,9 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::resource('forest-ads', Admin\ForestAdController::class);
     Route::delete('forest-ads-destroy', [Admin\ForestAdController::class, 'massDestroy'])->name('forest-ads.massDestroy');
 
-    // Domaine Ads
-    Route::resource('domaine-ads', Admin\DomaineAdController::class);
-    Route::delete('domaine-ads-destroy', [Admin\DomaineAdController::class, 'massDestroy'])->name('domaine-ads.massDestroy');
+    // Domain Ads
+    Route::resource('domains', Admin\DomainController::class);
+    Route::delete('domains-destroy', [Admin\DomainController::class, 'massDestroy'])->name('domains.massDestroy');
 
     // Admin User
     Route::resource('admin-users', Admin\AdminUserController::class);
@@ -198,8 +198,11 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     // Logical Servers
     Route::resource('logical-servers', Admin\LogicalServerController::class);
     Route::post('logical-servers-data', [Admin\LogicalServerController::class, 'getData'])->name('logical-servers.data');
-
     Route::delete('logical-servers-destroy', [Admin\LogicalServerController::class, 'massDestroy'])->name('logical-servers.massDestroy');
+
+    // Backups
+    Route::resource('backups', Admin\BackupController::class);
+    Route::delete('backups-destroy', [Admin\BackupController::class, 'massDestroy'])->name('backups.massDestroy');
 
     // Containers
     Route::resource('containers', Admin\ContainerController::class);
@@ -227,6 +230,10 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::resource('bays', Admin\BayController::class);
     Route::get('bays/{bay}/clone', [Admin\BayController::class, 'clone'])->name('bays.clone');
     Route::delete('bays-destroy', [Admin\BayController::class, 'massDestroy'])->name('bays.massDestroy');
+
+    // Zones
+    Route::resource('zones', Admin\ZoneController::class);
+    Route::delete('zones-destroy', [Admin\ZoneController::class, 'massDestroy'])->name('zones.massDestroy');
 
     // Physical Servers
     Route::resource('physical-servers', Admin\PhysicalServerController::class);
@@ -327,6 +334,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     Route::get('report/administration', [Report\AdministrationView::class, 'generate'])->name('report.view.administration');
     Route::get('report/physical_infrastructure', [Report\PhysicalInfrastructureView::class, 'generate'])->name('report.view.physical-infrastructure');
     Route::get('report/network_infrastructure', [Report\NetworkInfrastructureView::class, 'generate'])->name('report.view.network-infrastructure');
+    Route::get('report/security_zones', [Report\SecurityZoneView::class, 'generate'])->name('report.view.security-zones');
 
     Route::get('report/impacts', [Report\ImpactList::class, 'generateExcel'])->name('report.view.impacts');
     Route::get('report/rto', [Report\RTO::class, 'generateExcel'])->name('report.view.rto');
@@ -364,20 +372,20 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => ['web.prote
     // Reporting
     Route::put('report/cartography', [Admin\CartographyController::class, 'cartography'])->name('report.cartography');
     Route::get('report/entities', [Report\EntityList::class, 'generateExcel'])->name('report.entities');
-    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generateExcel'])->name('report.applicationsByBlocks');
+    Route::get('report/applicationsByBlocks', [Report\ApplicationList::class, 'generate'])->name('report.applicationsByBlocks');
     Route::get('report/directory', [Report\Directory::class, 'generateDocx'])->name('report.directory');
-    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generateExcel'])->name('report.logicalServers');
+    Route::get('report/logicalServers', [Report\LogicalServers::class, 'generate'])->name('report.logicalServers');
     Route::get('report/backups', [Report\BackupList::class, 'generateExcel'])->name('report.backups');
-    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generateExcel'])->name('report.securityNeeds');
-    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generateExcel'])->name('report.logicalServerConfigs');
-    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generateExcel'])->name('report.externalAccess');
-    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generateExcel'])->name('report.physicalInventory');
-    Route::get('report/vlans', [Report\VLANList::class, 'generateExcel'])->name('report.vlans');
-    Route::get('report/workstations', [Report\WorkstationList::class, 'generateExcel'])->name('report.workstations');
+    Route::get('report/securityNeeds', [Report\SecurityNeeds::class, 'generate'])->name('report.securityNeeds');
+    Route::get('report/logicalServerConfigs', [Report\LogicalServerConfigs::class, 'generate'])->name('report.logicalServerConfigs');
+    Route::get('report/externalAccess', [Report\ExternalAccess::class, 'generate'])->name('report.externalAccess');
+    Route::get('report/physicalInventory', [Report\PhysicalInventory::class, 'generate'])->name('report.physicalInventory');
+    Route::get('report/vlans', [Report\VLANList::class, 'generate'])->name('report.vlans');
+    Route::get('report/workstations', [Report\WorkstationList::class, 'generate'])->name('report.workstations');
     Route::get('report/cve', [Admin\CVEController::class, 'list'])->name('report.view.cve');
 
     // GDPR
-    Route::get('report/activityList', [Report\ActivityList::class, 'generateExcel'])->name('report.activityList');
+    Route::get('report/activityList', [Report\ActivityList::class, 'generate'])->name('report.activityList');
     Route::get('report/activityReport', [Report\ActivityReport::class, 'generateDocx'])->name('report.activityReport');
 
     // CPE

@@ -332,8 +332,10 @@
                             {{ trans('cruds.configuration.cve.provider_helper') }}
                         </span>
                     </div>
-
                 </div>
+                    <div class="card-footer">
+                        Last CPE-Sync : {{ $last_cpe_sync ?? "Never" }}
+                    </div>
             </div>
 
             <div class="form-group mt-3">

@@ -254,6 +254,14 @@ class QueryResolver
         $modelClass = get_class($builder->getModel());
         QueryEngineIntrospector::validateField($modelClass, $field);
 
+        // A column that is $hidden in output must not be usable as a filter
+        // predicate — prevents blind hash extraction via LIKE + meta.count oracle.
+        abort_if(
+            $this->isHidden(new $modelClass(), $field),
+            422,
+            "Field [{$field}] cannot be used as a filter predicate."
+        );
+
         if ($isOr) {
             match ($operator) {
                 'in'     => $builder->orWhereIn($field, (array) $value),

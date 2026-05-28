@@ -207,12 +207,13 @@
 
                                 {{-- Lignes des backups existants --}}
                                 @foreach($storageDevice->backups as $backup)
+                                @php($firstServer = $backup->logicalServers->first())
                                 <tr>
                                     <td>
                                         <select class="form-control select2" name="logical_server_id[]">
                                             <option value=""></option>
                                             @foreach($logicalServers as $id => $name)
-                                                <option value="{{ $id }}" {{ $backup->logical_server_id == $id ? 'selected' : '' }}>{{ $name }}</option>
+                                                <option value="{{ $id }}" {{ $firstServer?->id == $id ? 'selected' : '' }}>{{ $name }}</option>
                                             @endforeach
                                         </select>
                                     </td>

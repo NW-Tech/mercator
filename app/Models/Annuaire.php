@@ -56,7 +56,7 @@ class Annuaire extends Model implements HasPrefix, HasIconContract
     }
 
     /** @return BelongsTo<ZoneAdmin, $this> */
-    public function zone_admin(): BelongsTo
+    public function zoneAdmin(): BelongsTo
     {
         return $this->belongsTo(ZoneAdmin::class, 'zone_admin_id');
     }

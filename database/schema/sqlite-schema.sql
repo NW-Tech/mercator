@@ -3,61 +3,6 @@ CREATE TABLE IF NOT EXISTS "migrations"(
   "migration" varchar not null,
   "batch" integer not null
 );
-CREATE TABLE IF NOT EXISTS "oauth_auth_codes"(
-  "id" varchar not null,
-  "user_id" integer not null,
-  "client_id" integer not null,
-  "scopes" text,
-  "revoked" tinyint(1) not null,
-  "expires_at" datetime,
-  primary key("id")
-);
-CREATE INDEX "oauth_auth_codes_user_id_index" on "oauth_auth_codes"("user_id");
-CREATE TABLE IF NOT EXISTS "oauth_access_tokens"(
-  "id" varchar not null,
-  "user_id" integer,
-  "client_id" integer not null,
-  "name" varchar,
-  "scopes" text,
-  "revoked" tinyint(1) not null,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "expires_at" datetime,
-  primary key("id")
-);
-CREATE INDEX "oauth_access_tokens_user_id_index" on "oauth_access_tokens"(
-  "user_id"
-);
-CREATE TABLE IF NOT EXISTS "oauth_refresh_tokens"(
-  "id" varchar not null,
-  "access_token_id" varchar not null,
-  "revoked" tinyint(1) not null,
-  "expires_at" datetime,
-  primary key("id")
-);
-CREATE INDEX "oauth_refresh_tokens_access_token_id_index" on "oauth_refresh_tokens"(
-  "access_token_id"
-);
-CREATE TABLE IF NOT EXISTS "oauth_clients"(
-  "id" varchar NOT NULL,
-  "user_id" integer,
-  "name" varchar not null,
-  "secret" varchar,
-  "provider" varchar,
-  "redirect" text not null,
-  "personal_access_client" tinyint(1) not null,
-  "password_client" tinyint(1) not null,
-  "revoked" tinyint(1) not null,
-  "created_at" datetime,
-  "updated_at" datetime
-);
-CREATE INDEX "oauth_clients_user_id_index" on "oauth_clients"("user_id");
-CREATE TABLE IF NOT EXISTS "oauth_personal_access_clients"(
-  "id" integer primary key autoincrement not null,
-  "client_id" integer not null,
-  "created_at" datetime,
-  "updated_at" datetime
-);
 CREATE TABLE IF NOT EXISTS "activities"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
@@ -97,7 +42,10 @@ CREATE TABLE IF NOT EXISTS "application_modules"(
   "description" text,
   "created_at" datetime,
   "updated_at" datetime,
-  "deleted_at" datetime
+  "deleted_at" datetime,
+  "vendor" varchar,
+  "product" varchar,
+  "version" varchar
 );
 CREATE TABLE IF NOT EXISTS "application_services"(
   "id" integer primary key autoincrement not null,
@@ -126,7 +74,7 @@ CREATE TABLE IF NOT EXISTS "dnsservers"(
   "deleted_at" datetime,
   "address_ip" varchar
 );
-CREATE TABLE IF NOT EXISTS "domaine_ads"(
+CREATE TABLE IF NOT EXISTS "domains"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
   "description" text,
@@ -190,13 +138,6 @@ CREATE TABLE IF NOT EXISTS "macro_processuses"(
   "security_need_t" integer,
   "security_need_auth" integer
 );
-CREATE TABLE IF NOT EXISTS "mans"(
-  "id" integer primary key autoincrement not null,
-  "name" varchar not null,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime
-);
 CREATE TABLE IF NOT EXISTS "media"(
   "id" integer primary key autoincrement not null,
   "model_type" varchar not null,
@@ -254,7 +195,7 @@ CREATE TABLE IF NOT EXISTS "permissions"(
   "title" varchar,
   "created_at" datetime,
   "updated_at" datetime,
-  "deleted_at" datetime
+  "module" varchar
 );
 CREATE TABLE IF NOT EXISTS "roles"(
   "id" integer primary key autoincrement not null,
@@ -344,17 +285,17 @@ CREATE INDEX "application_module_id_fk_1492414" on "application_module_applicati
 CREATE INDEX "application_service_id_fk_1492414" on "application_module_application_service"(
   "application_service_id"
 );
-CREATE TABLE IF NOT EXISTS "application_service_m_application"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_application_service"(
+  "application_id" integer not null,
   "application_service_id" integer not null,
   foreign key("application_service_id") references "application_services"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "application_service_id_fk_1482585" on "application_service_m_application"(
+CREATE INDEX "application_service_id_fk_1482585" on "application_application_service"(
   "application_service_id"
 );
-CREATE INDEX "m_application_id_fk_1482585" on "application_service_m_application"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_1482585" on "application_application_service"(
+  "application_id"
 );
 CREATE TABLE IF NOT EXISTS "bay_wifi_terminal"(
   "wifi_terminal_id" integer not null,
@@ -395,58 +336,25 @@ CREATE INDEX "database_id_fk_1485570" on "database_information"("database_id");
 CREATE INDEX "information_id_fk_1485570" on "database_information"(
   "information_id"
 );
-CREATE TABLE IF NOT EXISTS "database_m_application"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_database"(
+  "application_id" integer not null,
   "database_id" integer not null,
   foreign key("database_id") references "databases"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "database_id_fk_1482586" on "database_m_application"(
-  "database_id"
+CREATE INDEX "database_id_fk_1482586" on "application_database"("database_id");
+CREATE INDEX "m_application_id_fk_1482586" on "application_database"(
+  "application_id"
 );
-CREATE INDEX "m_application_id_fk_1482586" on "database_m_application"(
-  "m_application_id"
-);
-CREATE TABLE IF NOT EXISTS "databases"(
-  "id" integer primary key autoincrement not null,
-  "name" varchar not null,
-  "description" text,
-  "responsible" varchar,
-  "type" varchar,
-  "security_need_c" integer,
-  "external" varchar,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "entity_resp_id" integer,
-  "security_need_i" integer,
-  "security_need_a" integer,
-  "security_need_t" integer,
-  "security_need_auth" integer,
-  foreign key("entity_resp_id") references "entities"("id") on delete NO ACTION on update NO ACTION
-);
-CREATE INDEX "entity_resp_fk_1485569" on "databases"("entity_resp_id");
-CREATE TABLE IF NOT EXISTS "domaine_ad_forest_ad"(
-  "forest_ad_id" integer not null,
-  "domaine_ad_id" integer not null,
-  foreign key("domaine_ad_id") references "domaine_ads"("id") on delete CASCADE on update NO ACTION,
-  foreign key("forest_ad_id") references "forest_ads"("id") on delete CASCADE on update NO ACTION
-);
-CREATE INDEX "domaine_ad_id_fk_1492084" on "domaine_ad_forest_ad"(
-  "domaine_ad_id"
-);
-CREATE INDEX "forest_ad_id_fk_1492084" on "domaine_ad_forest_ad"(
-  "forest_ad_id"
-);
-CREATE TABLE IF NOT EXISTS "entity_m_application"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_entity"(
+  "application_id" integer not null,
   "entity_id" integer not null,
   foreign key("entity_id") references "entities"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "entity_id_fk_1488611" on "entity_m_application"("entity_id");
-CREATE INDEX "m_application_id_fk_1488611" on "entity_m_application"(
-  "m_application_id"
+CREATE INDEX "entity_id_fk_1488611" on "application_entity"("entity_id");
+CREATE INDEX "m_application_id_fk_1488611" on "application_entity"(
+  "application_id"
 );
 CREATE TABLE IF NOT EXISTS "entity_process"(
   "process_id" integer not null,
@@ -456,7 +364,7 @@ CREATE TABLE IF NOT EXISTS "entity_process"(
 );
 CREATE INDEX "entity_id_fk_1627958" on "entity_process"("entity_id");
 CREATE INDEX "process_id_fk_1627958" on "entity_process"("process_id");
-CREATE TABLE IF NOT EXISTS "fluxes"(
+CREATE TABLE IF NOT EXISTS "application_flows"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
   "description" text,
@@ -475,8 +383,8 @@ CREATE TABLE IF NOT EXISTS "fluxes"(
   "bidirectional" tinyint(1),
   "nature" varchar,
   "attributes" varchar,
-  foreign key("application_dest_id") references "m_applications"("id") on delete NO ACTION on update NO ACTION,
-  foreign key("application_source_id") references "m_applications"("id") on delete NO ACTION on update NO ACTION,
+  foreign key("application_dest_id") references "applications"("id") on delete NO ACTION on update NO ACTION,
+  foreign key("application_source_id") references "applications"("id") on delete NO ACTION on update NO ACTION,
   foreign key("database_dest_id") references "databases"("id") on delete NO ACTION on update NO ACTION,
   foreign key("database_source_id") references "databases"("id") on delete NO ACTION on update NO ACTION,
   foreign key("module_dest_id") references "application_modules"("id") on delete NO ACTION on update NO ACTION,
@@ -484,16 +392,28 @@ CREATE TABLE IF NOT EXISTS "fluxes"(
   foreign key("service_dest_id") references "application_services"("id") on delete NO ACTION on update NO ACTION,
   foreign key("service_source_id") references "application_services"("id") on delete NO ACTION on update NO ACTION
 );
-CREATE INDEX "application_dest_fk_1485549" on "fluxes"("application_dest_id");
-CREATE INDEX "application_source_fk_1485545" on "fluxes"(
+CREATE INDEX "application_dest_fk_1485549" on "application_flows"(
+  "application_dest_id"
+);
+CREATE INDEX "application_source_fk_1485545" on "application_flows"(
   "application_source_id"
 );
-CREATE INDEX "database_dest_fk_1485552" on "fluxes"("database_dest_id");
-CREATE INDEX "database_source_fk_1485548" on "fluxes"("database_source_id");
-CREATE INDEX "module_dest_fk_1485551" on "fluxes"("module_dest_id");
-CREATE INDEX "module_source_fk_1485547" on "fluxes"("module_source_id");
-CREATE INDEX "service_dest_fk_1485550" on "fluxes"("service_dest_id");
-CREATE INDEX "service_source_fk_1485546" on "fluxes"("service_source_id");
+CREATE INDEX "database_dest_fk_1485552" on "application_flows"(
+  "database_dest_id"
+);
+CREATE INDEX "database_source_fk_1485548" on "application_flows"(
+  "database_source_id"
+);
+CREATE INDEX "module_dest_fk_1485551" on "application_flows"("module_dest_id");
+CREATE INDEX "module_source_fk_1485547" on "application_flows"(
+  "module_source_id"
+);
+CREATE INDEX "service_dest_fk_1485550" on "application_flows"(
+  "service_dest_id"
+);
+CREATE INDEX "service_source_fk_1485546" on "application_flows"(
+  "service_source_id"
+);
 CREATE TABLE IF NOT EXISTS "forest_ads"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
@@ -531,17 +451,17 @@ CREATE TABLE IF NOT EXISTS "lan_wan"(
 );
 CREATE INDEX "lan_id_fk_1490368" on "lan_wan"("lan_id");
 CREATE INDEX "wan_id_fk_1490368" on "lan_wan"("wan_id");
-CREATE TABLE IF NOT EXISTS "logical_server_m_application"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_logical_server"(
+  "application_id" integer not null,
   "logical_server_id" integer not null,
   foreign key("logical_server_id") references "logical_servers"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "logical_server_id_fk_1488616" on "logical_server_m_application"(
+CREATE INDEX "logical_server_id_fk_1488616" on "application_logical_server"(
   "logical_server_id"
 );
-CREATE INDEX "m_application_id_fk_1488616" on "logical_server_m_application"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_1488616" on "application_logical_server"(
+  "application_id"
 );
 CREATE TABLE IF NOT EXISTS "logical_server_physical_server"(
   "logical_server_id" integer not null,
@@ -555,16 +475,16 @@ CREATE INDEX "logical_server_id_fk_1657961" on "logical_server_physical_server"(
 CREATE INDEX "physical_server_id_fk_1657961" on "logical_server_physical_server"(
   "physical_server_id"
 );
-CREATE TABLE IF NOT EXISTS "m_application_process"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_process"(
+  "application_id" integer not null,
   "process_id" integer not null,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION,
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION,
   foreign key("process_id") references "processes"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "m_application_id_fk_1482573" on "m_application_process"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_1482573" on "application_process"(
+  "application_id"
 );
-CREATE INDEX "process_id_fk_1482573" on "m_application_process"("process_id");
+CREATE INDEX "process_id_fk_1482573" on "application_process"("process_id");
 CREATE TABLE IF NOT EXISTS "man_wan"(
   "wan_id" integer not null,
   "man_id" integer not null,
@@ -621,27 +541,6 @@ CREATE INDEX "physical_router_id_fk_1658250" on "physical_router_vlan"(
   "physical_router_id"
 );
 CREATE INDEX "vlan_id_fk_1658250" on "physical_router_vlan"("vlan_id");
-CREATE TABLE IF NOT EXISTS "physical_switches"(
-  "id" integer primary key autoincrement not null,
-  "name" varchar not null,
-  "description" text,
-  "type" varchar,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "site_id" integer,
-  "building_id" integer,
-  "bay_id" integer,
-  "vendor" varchar,
-  "product" varchar,
-  "version" varchar,
-  foreign key("bay_id") references "bays"("id") on delete NO ACTION on update NO ACTION,
-  foreign key("building_id") references "buildings"("id") on delete NO ACTION on update NO ACTION,
-  foreign key("site_id") references "sites"("id") on delete NO ACTION on update NO ACTION
-);
-CREATE INDEX "bay_fk_1485493" on "physical_switches"("bay_id");
-CREATE INDEX "building_fk_1485489" on "physical_switches"("building_id");
-CREATE INDEX "site_fk_1485488" on "physical_switches"("site_id");
 CREATE TABLE IF NOT EXISTS "relations"(
   "id" integer primary key autoincrement not null,
   "importance" integer,
@@ -755,47 +654,18 @@ CREATE INDEX "certificate_id_fk_9483453" on "certificate_logical_server"(
 CREATE INDEX "logical_server_id_fk_9483453" on "certificate_logical_server"(
   "logical_server_id"
 );
-CREATE TABLE IF NOT EXISTS "certificate_m_application"(
+CREATE TABLE IF NOT EXISTS "application_certificate"(
   "certificate_id" integer not null,
-  "m_application_id" integer not null,
+  "application_id" integer not null,
   foreign key("certificate_id") references "certificates"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "certificate_id_fk_4584393" on "certificate_m_application"(
+CREATE INDEX "certificate_id_fk_4584393" on "application_certificate"(
   "certificate_id"
 );
-CREATE INDEX "m_application_id_fk_4584393s" on "certificate_m_application"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_4584393s" on "application_certificate"(
+  "application_id"
 );
-CREATE TABLE IF NOT EXISTS "subnetworks"(
-  "id" integer primary key autoincrement not null,
-  "description" text,
-  "address" varchar,
-  "ip_allocation_type" varchar,
-  "responsible_exp" varchar,
-  "dmz" varchar,
-  "wifi" varchar,
-  "name" varchar not null,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "connected_subnets_id" integer,
-  "gateway_id" integer,
-  "zone" varchar,
-  "vlan_id" integer,
-  "network_id" integer,
-  "default_gateway" varchar,
-  foreign key("gateway_id") references gateways("id") on delete no action on update no action,
-  foreign key("connected_subnets_id") references subnetworks("id") on delete no action on update no action,
-  foreign key("vlan_id") references "vlans"("id") on delete NO ACTION on update NO ACTION,
-  foreign key("network_id") references "networks"("id") on delete NO ACTION on update NO ACTION
-);
-CREATE INDEX "connected_subnets_fk_1483256" on "subnetworks"(
-  "connected_subnets_id"
-);
-CREATE INDEX "gateway_fk_1492376" on "subnetworks"("gateway_id");
-CREATE INDEX "vlan_fk_6844934" on "subnetworks"("vlan_id");
-CREATE INDEX "network_fk_5476544" on "subnetworks"("network_id");
 CREATE TABLE IF NOT EXISTS "physical_routers"(
   "id" integer primary key autoincrement not null,
   "description" text,
@@ -817,36 +687,26 @@ CREATE TABLE IF NOT EXISTS "physical_routers"(
 CREATE INDEX "bay_fk_1485499" on "physical_routers"("bay_id");
 CREATE INDEX "building_fk_1485498" on "physical_routers"("building_id");
 CREATE INDEX "site_fk_1485497" on "physical_routers"("site_id");
-CREATE TABLE IF NOT EXISTS "cartographer_m_application"(
+CREATE TABLE IF NOT EXISTS "application_events"(
   "id" integer primary key autoincrement not null,
   "user_id" integer not null,
-  "m_application_id" integer not null,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  foreign key("user_id") references "users"("id"),
-  foreign key("m_application_id") references "m_applications"("id") on delete cascade
-);
-CREATE TABLE IF NOT EXISTS "m_application_events"(
-  "id" integer primary key autoincrement not null,
-  "user_id" integer not null,
-  "m_application_id" integer not null,
+  "application_id" integer not null,
   "message" text not null,
   "created_at" datetime,
   "updated_at" datetime,
   foreign key("user_id") references "users"("id"),
-  foreign key("m_application_id") references "m_applications"("id") on delete cascade
+  foreign key("application_id") references "applications"("id") on delete cascade
 );
-CREATE TABLE IF NOT EXISTS "m_application_workstation"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_workstation"(
+  "application_id" integer not null,
   "workstation_id" integer not null,
   foreign key("workstation_id") references "workstations"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "m_application_id_fk_1486547" on "m_application_workstation"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_1486547" on "application_workstation"(
+  "application_id"
 );
-CREATE INDEX "workstation_id_fk_1486547" on "m_application_workstation"(
+CREATE INDEX "workstation_id_fk_1486547" on "application_workstation"(
   "workstation_id"
 );
 CREATE TABLE IF NOT EXISTS "operations"(
@@ -926,6 +786,8 @@ CREATE TABLE IF NOT EXISTS "physical_links"(
   "network_switch_dest_id" integer,
   "logical_server_src_id" integer,
   "logical_server_dest_id" integer,
+  "type" varchar,
+  "color" varchar,
   foreign key("workstation_dest_id") references workstations("id") on delete cascade on update no action,
   foreign key("wifi_terminal_dest_id") references wifi_terminals("id") on delete cascade on update no action,
   foreign key("storage_device_dest_id") references storage_devices("id") on delete cascade on update no action,
@@ -1095,7 +957,12 @@ CREATE TABLE IF NOT EXISTS "data_processing"(
   "lawfulness_vital_interest" tinyint(1),
   "lawfulness_legal_obligation" tinyint(1),
   "lawfulness_contract" tinyint(1),
-  "lawfulness_consent" tinyint(1)
+  "lawfulness_consent" tinyint(1),
+  "data_source" text,
+  "data_collection_obligation" text,
+  "data_subject_rights" text,
+  "automated_decision_making" text,
+  "update_date" date
 );
 CREATE TABLE IF NOT EXISTS "data_processing_document"(
   "data_processing_id" integer not null,
@@ -1119,17 +986,17 @@ CREATE INDEX "data_processing_id_fk_5435435" on "data_processing_process"(
   "data_processing_id"
 );
 CREATE INDEX "process_id_fk_594358" on "data_processing_process"("process_id");
-CREATE TABLE IF NOT EXISTS "data_processing_m_application"(
+CREATE TABLE IF NOT EXISTS "application_data_processing"(
   "data_processing_id" integer not null,
-  "m_application_id" integer not null,
+  "application_id" integer not null,
   foreign key("data_processing_id") references "data_processing"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "data_processing_id_fk_6948435" on "data_processing_m_application"(
+CREATE INDEX "data_processing_id_fk_6948435" on "application_data_processing"(
   "data_processing_id"
 );
-CREATE INDEX "m_applications_id_fk_4384483" on "data_processing_m_application"(
-  "m_application_id"
+CREATE INDEX "m_applications_id_fk_4384483" on "application_data_processing"(
+  "application_id"
 );
 CREATE TABLE IF NOT EXISTS "data_processing_information"(
   "data_processing_id" integer not null,
@@ -1143,16 +1010,16 @@ CREATE INDEX "data_processing_id_fk_58305863" on "data_processing_information"(
 CREATE INDEX "information_id_fk_4384483" on "data_processing_information"(
   "information_id"
 );
-CREATE TABLE IF NOT EXISTS "security_control_m_application"(
+CREATE TABLE IF NOT EXISTS "application_security_control"(
   "security_control_id" integer not null,
-  "m_application_id" integer not null,
+  "application_id" integer not null,
   foreign key("security_control_id") references "security_controls"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "m_application_id_fk_5837573" on "security_control_m_application"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_5837573" on "application_security_control"(
+  "application_id"
 );
-CREATE INDEX "security_control_id_fk_5920381" on "security_control_m_application"(
+CREATE INDEX "security_control_id_fk_5920381" on "application_security_control"(
   "security_control_id"
 );
 CREATE TABLE IF NOT EXISTS "security_control_process"(
@@ -1167,16 +1034,16 @@ CREATE INDEX "process_id_fk_5837573" on "security_control_process"(
 CREATE INDEX "security_control_id_fk_54354353" on "security_control_process"(
   "security_control_id"
 );
-CREATE TABLE IF NOT EXISTS "m_application_physical_server"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_physical_server"(
+  "application_id" integer not null,
   "physical_server_id" integer not null,
   foreign key("physical_server_id") references "physical_servers"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "m_application_id_fk_5483543" on "m_application_physical_server"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_5483543" on "application_physical_server"(
+  "application_id"
 );
-CREATE INDEX "physical_server_id_fk_4543543" on "m_application_physical_server"(
+CREATE INDEX "physical_server_id_fk_4543543" on "application_physical_server"(
   "physical_server_id"
 );
 CREATE TABLE IF NOT EXISTS "document_logical_server"(
@@ -1191,16 +1058,16 @@ CREATE INDEX "logical_server_id_fk_43832473" on "document_logical_server"(
 CREATE INDEX "document_id_fk_1284334" on "document_logical_server"(
   "document_id"
 );
-CREATE TABLE IF NOT EXISTS "m_application_peripheral"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "application_peripheral"(
+  "application_id" integer not null,
   "peripheral_id" integer not null,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION,
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION,
   foreign key("peripheral_id") references "peripherals"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "m_application_id_fk_9878654" on "m_application_peripheral"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_9878654" on "application_peripheral"(
+  "application_id"
 );
-CREATE INDEX "peripheral_id_fk_6454564" on "m_application_peripheral"(
+CREATE INDEX "peripheral_id_fk_6454564" on "application_peripheral"(
   "peripheral_id"
 );
 CREATE TABLE IF NOT EXISTS "relation_values"(
@@ -1283,29 +1150,6 @@ CREATE TABLE IF NOT EXISTS "sites"(
   foreign key("icon_id") references "documents"("id") on update NO ACTION
 );
 CREATE INDEX "document_id_fk_129485" on "sites"("icon_id");
-CREATE TABLE IF NOT EXISTS "admin_users"(
-  "id" integer primary key autoincrement not null,
-  "user_id" varchar not null,
-  "firstname" varchar,
-  "lastname" varchar,
-  "type" varchar,
-  "description" text,
-  "domain_id" integer,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "icon_id" integer,
-  "attributes" varchar,
-  foreign key("domain_id") references domaine_ads("id") on delete cascade on update no action,
-  foreign key("icon_id") references "documents"("id") on update NO ACTION
-);
-CREATE INDEX "domain_id_fk_69385935" on "admin_users"("domain_id");
-CREATE UNIQUE INDEX "domain_id_user_id_unique" on "admin_users"(
-  "domain_id",
-  "user_id",
-  "deleted_at"
-);
-CREATE INDEX "document_id_fk_129487" on "admin_users"("icon_id");
 CREATE TABLE IF NOT EXISTS "audit_logs"(
   "id" integer primary key autoincrement not null,
   "description" varchar not null,
@@ -1324,7 +1168,8 @@ CREATE TABLE IF NOT EXISTS "graphs"(
   "content" text,
   "created_at" datetime,
   "updated_at" datetime,
-  "deleted_at" datetime
+  "deleted_at" datetime,
+  "class" integer
 );
 CREATE TABLE IF NOT EXISTS "processes"(
   "id" integer primary key autoincrement not null,
@@ -1375,31 +1220,31 @@ CREATE INDEX "container_id_fk_54933032" on "container_logical_server"(
 CREATE INDEX "logical_server_id_fk_4394832" on "container_logical_server"(
   "logical_server_id"
 );
-CREATE TABLE IF NOT EXISTS "container_m_application"(
+CREATE TABLE IF NOT EXISTS "application_container"(
   "container_id" integer not null,
-  "m_application_id" integer not null,
+  "application_id" integer not null,
   foreign key("container_id") references "containers"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "container_id_fk_549854345" on "container_m_application"(
+CREATE INDEX "container_id_fk_549854345" on "application_container"(
   "container_id"
 );
-CREATE INDEX "m_application_id_fk_344234340" on "container_m_application"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_344234340" on "application_container"(
+  "application_id"
 );
-CREATE TABLE IF NOT EXISTS "activity_m_application"(
-  "m_application_id" integer not null,
+CREATE TABLE IF NOT EXISTS "activity_application"(
+  "application_id" integer not null,
   "activity_id" integer not null,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION,
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION,
   foreign key("activity_id") references "activities"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "application_id_fk_0394834858" on "activity_m_application"(
-  "m_application_id"
+CREATE INDEX "application_id_fk_0394834858" on "activity_application"(
+  "application_id"
 );
-CREATE INDEX "process_id_fk_394823838" on "activity_m_application"(
+CREATE INDEX "process_id_fk_394823838" on "activity_application"(
   "activity_id"
 );
-CREATE TABLE IF NOT EXISTS "m_applications"(
+CREATE TABLE IF NOT EXISTS "applications"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
   "description" text,
@@ -1436,11 +1281,11 @@ CREATE TABLE IF NOT EXISTS "m_applications"(
   foreign key("application_block_id") references application_blocks("id") on delete no action on update no action,
   foreign key("entity_resp_id") references entities("id") on delete no action on update no action
 );
-CREATE INDEX "application_block_fk_1644592" on "m_applications"(
+CREATE INDEX "application_block_fk_1644592" on "applications"(
   "application_block_id"
 );
-CREATE INDEX "document_id_fk_4394343" on "m_applications"("icon_id");
-CREATE INDEX "entity_resp_fk_1488612" on "m_applications"("entity_resp_id");
+CREATE INDEX "document_id_fk_4394343" on "applications"("icon_id");
+CREATE INDEX "entity_resp_fk_1488612" on "applications"("entity_resp_id");
 CREATE TABLE IF NOT EXISTS "entities"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
@@ -1471,113 +1316,13 @@ CREATE TABLE IF NOT EXISTS "container_database"(
   foreign key("container_id") references "containers"("id") on delete cascade,
   primary key("database_id", "container_id")
 );
-CREATE TABLE IF NOT EXISTS "workstations"(
-  "id" integer primary key autoincrement not null,
-  "name" varchar not null,
-  "description" text,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "site_id" integer,
-  "building_id" integer,
-  "physical_switch_id" integer,
-  "type" varchar,
-  "operating_system" varchar,
-  "address_ip" varchar,
-  "cpu" varchar,
-  "memory" varchar,
-  "disk" integer,
-  "vendor" varchar,
-  "product" varchar,
-  "version" varchar,
-  "icon_id" integer,
-  "entity_id" integer,
-  "user_id" integer,
-  "other_user" varchar,
-  "status" varchar,
-  "manufacturer" varchar,
-  "model" varchar,
-  "serial_number" varchar,
-  "last_inventory_date" date,
-  "warranty_end_date" date,
-  "domain_id" integer,
-  "warranty" varchar,
-  "warranty_start_date" date,
-  "warranty_period" varchar,
-  "agent_version" varchar,
-  "update_source" varchar,
-  "network_id" integer,
-  "network_port_type" varchar,
-  "mac_address" varchar,
-  "purchase_date" date,
-  "fin_value" numeric,
-  foreign key("icon_id") references documents("id") on delete no action on update no action,
-  foreign key("building_id") references buildings("id") on delete no action on update no action,
-  foreign key("physical_switch_id") references physical_switches("id") on delete no action on update no action,
-  foreign key("site_id") references sites("id") on delete no action on update no action,
-  foreign key("entity_id") references "entities"("id"),
-  foreign key("user_id") references "admin_users"("id"),
-  foreign key("domain_id") references "domaine_ads"("id"),
-  foreign key("network_id") references "networks"("id")
-);
-CREATE INDEX "building_fk_1485333" on "workstations"("building_id");
-CREATE INDEX "document_id_fk_129483" on "workstations"("icon_id");
-CREATE INDEX "physical_switch_fk_0938434" on "workstations"(
-  "physical_switch_id"
-);
-CREATE INDEX "site_fk_1485332" on "workstations"("site_id");
-CREATE TABLE IF NOT EXISTS "admin_user_m_application"(
+CREATE TABLE IF NOT EXISTS "admin_user_application"(
   "admin_user_id" integer not null,
-  "m_application_id" integer not null,
+  "application_id" integer not null,
   foreign key("admin_user_id") references "admin_users"("id") on delete cascade,
-  foreign key("m_application_id") references "m_applications"("id") on delete cascade,
-  primary key("admin_user_id", "m_application_id")
+  foreign key("application_id") references "applications"("id") on delete cascade,
+  primary key("admin_user_id", "application_id")
 );
-CREATE TABLE IF NOT EXISTS "logical_flows"(
-  "id" integer primary key autoincrement not null,
-  "name" varchar,
-  "source_ip_range" varchar,
-  "dest_ip_range" varchar,
-  "source_port" varchar,
-  "dest_port" varchar,
-  "protocol" varchar,
-  "description" text,
-  "created_at" datetime,
-  "updated_at" datetime,
-  "deleted_at" datetime,
-  "router_id" integer,
-  "priority" integer,
-  "action" varchar,
-  "users" varchar,
-  "interface" varchar,
-  "schedule" varchar,
-  "logical_server_source_id" integer,
-  "peripheral_source_id" integer,
-  "physical_server_source_id" integer,
-  "storage_device_source_id" integer,
-  "workstation_source_id" integer,
-  "physical_security_device_source_id" integer,
-  "logical_server_dest_id" integer,
-  "peripheral_dest_id" integer,
-  "physical_server_dest_id" integer,
-  "storage_device_dest_id" integer,
-  "workstation_dest_id" integer,
-  "physical_security_device_dest_id" integer,
-  foreign key("router_id") references routers("id") on delete cascade on update no action,
-  foreign key("logical_server_source_id") references "logical_servers"("id") on delete cascade,
-  foreign key("peripheral_source_id") references "peripherals"("id") on delete cascade,
-  foreign key("physical_server_source_id") references "physical_servers"("id") on delete cascade,
-  foreign key("storage_device_source_id") references "storage_devices"("id") on delete cascade,
-  foreign key("workstation_source_id") references "workstations"("id") on delete cascade,
-  foreign key("physical_security_device_source_id") references "physical_security_devices"("id") on delete cascade,
-  foreign key("logical_server_dest_id") references "logical_servers"("id") on delete cascade,
-  foreign key("peripheral_dest_id") references "peripherals"("id") on delete cascade,
-  foreign key("physical_server_dest_id") references "physical_servers"("id") on delete cascade,
-  foreign key("storage_device_dest_id") references "storage_devices"("id") on delete cascade,
-  foreign key("workstation_dest_id") references "workstations"("id") on delete cascade,
-  foreign key("physical_security_device_dest_id") references "physical_security_devices"("id") on delete cascade
-);
-CREATE INDEX "router_id_fk_4382393" on "logical_flows"("router_id");
 CREATE TABLE IF NOT EXISTS "activity_impact"(
   "id" integer primary key autoincrement not null,
   "activity_id" integer not null,
@@ -1718,7 +1463,6 @@ CREATE TABLE IF NOT EXISTS "physical_servers"(
   "patching_group" varchar,
   "paching_frequency" integer,
   "next_update" date,
-  "cluster_id" integer,
   "icon_id" integer,
   foreign key("icon_id") references documents("id") on delete no action on update no action,
   foreign key("site_id") references sites("id") on delete no action on update no action,
@@ -1728,7 +1472,6 @@ CREATE TABLE IF NOT EXISTS "physical_servers"(
 );
 CREATE INDEX "bay_fk_1485324" on "physical_servers"("bay_id");
 CREATE INDEX "building_fk_1485323" on "physical_servers"("building_id");
-CREATE INDEX "cluster_id_fk_5438543" on "physical_servers"("cluster_id");
 CREATE INDEX "document_id_fk_5328384" on "physical_servers"("icon_id");
 CREATE INDEX "physical_switch_fk_8732342" on "physical_servers"(
   "physical_switch_id"
@@ -1755,16 +1498,16 @@ CREATE TABLE IF NOT EXISTS "routers"(
   "cluster_id" integer
 );
 CREATE INDEX "cluster_id_fk_4398834" on "routers"("cluster_id");
-CREATE TABLE IF NOT EXISTS "m_application_security_device"(
+CREATE TABLE IF NOT EXISTS "application_security_device"(
   "security_device_id" integer not null,
-  "m_application_id" integer not null,
+  "application_id" integer not null,
   foreign key("security_device_id") references "security_devices"("id") on delete CASCADE on update NO ACTION,
-  foreign key("m_application_id") references "m_applications"("id") on delete CASCADE on update NO ACTION
+  foreign key("application_id") references "applications"("id") on delete CASCADE on update NO ACTION
 );
-CREATE INDEX "m_application_id_fk_41923483" on "m_application_security_device"(
-  "m_application_id"
+CREATE INDEX "m_application_id_fk_41923483" on "application_security_device"(
+  "application_id"
 );
-CREATE INDEX "security_device_id_fk_304832731" on "m_application_security_device"(
+CREATE INDEX "security_device_id_fk_304832731" on "application_security_device"(
   "security_device_id"
 );
 CREATE TABLE IF NOT EXISTS "physical_security_devices"(
@@ -1807,9 +1550,341 @@ CREATE TABLE IF NOT EXISTS "security_devices"(
   "type" varchar,
   "attributes" varchar,
   "icon_id" integer,
+  "address_ip" varchar,
   foreign key("icon_id") references "documents"("id")
 );
 CREATE INDEX "document_id_fk_432938439" on "security_devices"("icon_id");
+CREATE TABLE IF NOT EXISTS "network_switch_vlan"(
+  "network_switch_id" integer not null,
+  "vlan_id" integer not null,
+  foreign key("network_switch_id") references "network_switches"("id") on delete cascade,
+  foreign key("vlan_id") references "vlans"("id") on delete cascade,
+  primary key("network_switch_id", "vlan_id")
+);
+CREATE INDEX "network_switch_vlan_network_switch_id_index" on "network_switch_vlan"(
+  "network_switch_id"
+);
+CREATE INDEX "network_switch_vlan_vlan_id_index" on "network_switch_vlan"(
+  "vlan_id"
+);
+CREATE TABLE IF NOT EXISTS "subnetworks"(
+  "id" integer primary key autoincrement not null,
+  "description" text,
+  "address" varchar,
+  "ip_allocation_type" varchar,
+  "responsible_exp" varchar,
+  "dmz" varchar,
+  "wifi" varchar,
+  "name" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "connected_subnets_id" integer,
+  "gateway_id" integer,
+  "zone" varchar,
+  "vlan_id" integer,
+  "network_id" integer,
+  "default_gateway" varchar,
+  "subnetwork_id" integer,
+  foreign key("network_id") references networks("id") on delete no action on update no action,
+  foreign key("vlan_id") references vlans("id") on delete no action on update no action,
+  foreign key("connected_subnets_id") references subnetworks("id") on delete no action on update no action,
+  foreign key("gateway_id") references gateways("id") on delete no action on update no action,
+  foreign key("subnetwork_id") references "subnetworks"("id") on delete set null
+);
+CREATE INDEX "connected_subnets_fk_1483256" on "subnetworks"(
+  "connected_subnets_id"
+);
+CREATE INDEX "gateway_fk_1492376" on "subnetworks"("gateway_id");
+CREATE INDEX "network_fk_5476544" on "subnetworks"("network_id");
+CREATE INDEX "vlan_fk_6844934" on "subnetworks"("vlan_id");
+CREATE INDEX "subnetworks_subnetwork_id_index" on "subnetworks"(
+  "subnetwork_id"
+);
+CREATE TABLE IF NOT EXISTS "oauth_device_codes"(
+  "id" varchar not null,
+  "user_id" integer,
+  "client_id" varchar not null,
+  "user_code" varchar not null,
+  "scopes" text not null,
+  "revoked" tinyint(1) not null,
+  "user_approved_at" datetime,
+  "last_polled_at" datetime,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_device_codes_user_id_index" on "oauth_device_codes"(
+  "user_id"
+);
+CREATE INDEX "oauth_device_codes_client_id_index" on "oauth_device_codes"(
+  "client_id"
+);
+CREATE UNIQUE INDEX "oauth_device_codes_user_code_unique" on "oauth_device_codes"(
+  "user_code"
+);
+CREATE TABLE IF NOT EXISTS "mercator_modules"(
+  "name" varchar not null,
+  "label" varchar not null,
+  "version" varchar not null,
+  "enabled" tinyint(1) not null default '0',
+  "created_at" datetime,
+  "updated_at" datetime,
+  primary key("name")
+);
+CREATE TABLE IF NOT EXISTS "databases"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "description" text,
+  "responsible" varchar,
+  "type" varchar,
+  "security_need_c" integer,
+  "external" varchar,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "entity_resp_id" integer,
+  "security_need_i" integer,
+  "security_need_a" integer,
+  "security_need_t" integer,
+  "security_need_auth" integer,
+  "icon_id" integer,
+  foreign key("entity_resp_id") references entities("id") on delete no action on update no action,
+  foreign key("icon_id") references "documents"("id")
+);
+CREATE INDEX "entity_resp_fk_1485569" on "databases"("entity_resp_id");
+CREATE TABLE IF NOT EXISTS "application_flow_information"(
+  "id" integer primary key autoincrement not null,
+  "flux_id" integer not null,
+  "information_id" integer not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("flux_id") references "application_flows"("id") on delete cascade,
+  foreign key("information_id") references "information"("id") on delete cascade
+);
+CREATE UNIQUE INDEX "flux_information_flux_id_information_id_unique" on "application_flow_information"(
+  "flux_id",
+  "information_id"
+);
+CREATE TABLE IF NOT EXISTS "oauth_clients"(
+  "id" varchar not null,
+  "user_id" integer,
+  "name" varchar not null,
+  "secret" varchar,
+  "provider" varchar,
+  "redirect" text not null,
+  "personal_access_client" integer not null,
+  "password_client" integer not null,
+  "revoked" integer not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_clients_user_id_index" on "oauth_clients"("user_id");
+CREATE TABLE IF NOT EXISTS "oauth_access_tokens"(
+  "id" varchar not null,
+  "user_id" integer,
+  "client_id" varchar not null,
+  "name" varchar,
+  "scopes" text,
+  "revoked" integer not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_access_tokens_user_id_index" on "oauth_access_tokens"(
+  "user_id"
+);
+CREATE TABLE IF NOT EXISTS "oauth_auth_codes"(
+  "id" varchar not null,
+  "user_id" integer not null,
+  "client_id" varchar not null,
+  "scopes" text,
+  "revoked" integer not null,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_auth_codes_user_id_index" on "oauth_auth_codes"("user_id");
+CREATE TABLE IF NOT EXISTS "oauth_refresh_tokens"(
+  "id" varchar not null,
+  "access_token_id" varchar not null,
+  "revoked" integer not null,
+  "expires_at" datetime,
+  primary key("id")
+);
+CREATE INDEX "oauth_refresh_tokens_access_token_id_index" on "oauth_refresh_tokens"(
+  "access_token_id"
+);
+CREATE TABLE IF NOT EXISTS "oauth_personal_access_clients"(
+  "id" integer primary key autoincrement not null,
+  "client_id" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime
+);
+CREATE TABLE IF NOT EXISTS "mans"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "description" text,
+  "parent_man_id" integer,
+  foreign key("parent_man_id") references "mans"("id") on delete SET NULL on update NO ACTION
+);
+CREATE INDEX "man_id_fk_4385454" on "mans"("parent_man_id");
+CREATE TABLE IF NOT EXISTS "physical_switches"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "description" text,
+  "type" varchar,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "site_id" integer,
+  "building_id" integer,
+  "bay_id" integer,
+  "vendor" varchar,
+  "product" varchar,
+  "version" varchar,
+  "icon_id" integer,
+  foreign key("site_id") references sites("id") on delete no action on update no action,
+  foreign key("building_id") references buildings("id") on delete no action on update no action,
+  foreign key("bay_id") references bays("id") on delete no action on update no action,
+  foreign key("icon_id") references "documents"("id")
+);
+CREATE INDEX "bay_fk_1485493" on "physical_switches"("bay_id");
+CREATE INDEX "building_fk_1485489" on "physical_switches"("building_id");
+CREATE INDEX "site_fk_1485488" on "physical_switches"("site_id");
+CREATE TABLE IF NOT EXISTS "logical_flows"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar,
+  "source_ip_range" varchar,
+  "dest_ip_range" varchar,
+  "source_port" varchar,
+  "dest_port" varchar,
+  "protocol" varchar,
+  "description" text,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "router_id" integer,
+  "priority" integer,
+  "action" varchar,
+  "users" varchar,
+  "interface" varchar,
+  "schedule" varchar,
+  "logical_server_source_id" integer,
+  "peripheral_source_id" integer,
+  "physical_server_source_id" integer,
+  "storage_device_source_id" integer,
+  "workstation_source_id" integer,
+  "physical_security_device_source_id" integer,
+  "logical_server_dest_id" integer,
+  "peripheral_dest_id" integer,
+  "physical_server_dest_id" integer,
+  "storage_device_dest_id" integer,
+  "workstation_dest_id" integer,
+  "physical_security_device_dest_id" integer,
+  "chain" varchar,
+  "subnetwork_source_id" integer,
+  "subnetwork_dest_id" integer,
+  "security_device_source_id" integer,
+  "security_device_dest_id" integer,
+  "cluster_source_id" integer,
+  "cluster_dest_id" integer,
+  foreign key("security_device_dest_id") references security_devices("id") on delete set null on update no action,
+  foreign key("security_device_source_id") references security_devices("id") on delete set null on update no action,
+  foreign key("physical_security_device_dest_id") references physical_security_devices("id") on delete cascade on update no action,
+  foreign key("workstation_dest_id") references workstations("id") on delete cascade on update no action,
+  foreign key("storage_device_dest_id") references storage_devices("id") on delete cascade on update no action,
+  foreign key("physical_server_dest_id") references physical_servers("id") on delete cascade on update no action,
+  foreign key("peripheral_dest_id") references peripherals("id") on delete cascade on update no action,
+  foreign key("logical_server_dest_id") references logical_servers("id") on delete cascade on update no action,
+  foreign key("physical_security_device_source_id") references physical_security_devices("id") on delete cascade on update no action,
+  foreign key("workstation_source_id") references workstations("id") on delete cascade on update no action,
+  foreign key("storage_device_source_id") references storage_devices("id") on delete cascade on update no action,
+  foreign key("physical_server_source_id") references physical_servers("id") on delete cascade on update no action,
+  foreign key("peripheral_source_id") references peripherals("id") on delete cascade on update no action,
+  foreign key("logical_server_source_id") references logical_servers("id") on delete cascade on update no action,
+  foreign key("router_id") references routers("id") on delete cascade on update no action,
+  foreign key("subnetwork_source_id") references subnetworks("id") on delete set null on update no action,
+  foreign key("subnetwork_dest_id") references subnetworks("id") on delete set null on update no action,
+  foreign key("cluster_source_id") references "clusters"("id") on delete set null,
+  foreign key("cluster_dest_id") references "clusters"("id") on delete set null
+);
+CREATE INDEX "logical_flows_subnetwork_dest_id_index" on "logical_flows"(
+  "subnetwork_dest_id"
+);
+CREATE INDEX "logical_flows_subnetwork_source_id_index" on "logical_flows"(
+  "subnetwork_source_id"
+);
+CREATE INDEX "router_id_fk_4382393" on "logical_flows"("router_id");
+CREATE TABLE IF NOT EXISTS "information_information"(
+  "information_id" integer not null,
+  "child_information_id" integer not null,
+  foreign key("information_id") references "information"("id") on delete cascade,
+  foreign key("child_information_id") references "information"("id") on delete cascade,
+  primary key("information_id", "child_information_id")
+);
+CREATE TABLE IF NOT EXISTS "backups"(
+  "id" integer primary key autoincrement not null,
+  "logical_server_id" integer not null,
+  "storage_device_id" integer not null,
+  "backup_frequency" integer,
+  "backup_cycle" integer,
+  "backup_retention" integer,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  foreign key("logical_server_id") references "logical_servers"("id") on delete cascade,
+  foreign key("storage_device_id") references "storage_devices"("id") on delete cascade
+);
+CREATE TABLE IF NOT EXISTS "application_module_entity"(
+  "application_module_id" integer not null,
+  "entity_id" integer not null,
+  foreign key("application_module_id") references "application_modules"("id") on delete cascade,
+  foreign key("entity_id") references "entities"("id") on delete cascade,
+  primary key("application_module_id", "entity_id")
+);
+CREATE TABLE IF NOT EXISTS "saved_queries"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "description" text,
+  "query" text not null,
+  "is_public" tinyint(1) not null default '0',
+  "user_id" integer,
+  "created_at" datetime,
+  "updated_at" datetime,
+  foreign key("user_id") references "users"("id") on delete set null
+);
+CREATE INDEX "saved_queries_user_id_is_public_index" on "saved_queries"(
+  "user_id",
+  "is_public"
+);
+CREATE TABLE IF NOT EXISTS "admin_users"(
+  "id" integer primary key autoincrement not null,
+  "user_id" varchar not null,
+  "firstname" varchar,
+  "lastname" varchar,
+  "type" varchar,
+  "description" text,
+  "domain_id" integer,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "icon_id" integer,
+  "attributes" varchar,
+  foreign key("icon_id") references documents("id") on delete no action on update no action,
+  foreign key("domain_id") references domains("id") on delete cascade on update no action,
+  foreign key("domain_id") references "domains"("id") on delete CASCADE on update NO ACTION
+);
+CREATE INDEX "document_id_fk_129487" on "admin_users"("icon_id");
+CREATE INDEX "domain_id_fk_69385935" on "admin_users"("domain_id");
+CREATE UNIQUE INDEX "domain_id_user_id_unique" on "admin_users"(
+  "domain_id",
+  "user_id",
+  "deleted_at"
+);
 CREATE TABLE IF NOT EXISTS "logical_servers"(
   "id" integer primary key autoincrement not null,
   "name" varchar not null,
@@ -1836,13 +1911,79 @@ CREATE TABLE IF NOT EXISTS "logical_servers"(
   "type" varchar,
   "active" tinyint(1),
   "icon_id" integer,
-  foreign key("domain_id") references domaine_ads("id") on delete set null on update no action,
-  foreign key("icon_id") references documents("id") on delete no action on update no action
+  foreign key("icon_id") references documents("id") on delete no action on update no action,
+  foreign key("domain_id") references domains("id") on delete set null on update no action,
+  foreign key("domain_id") references "domains"("id") on delete SET NULL on update NO ACTION
 );
 CREATE INDEX "cluster_id_fk_5435359" on "logical_servers"("cluster_id");
 CREATE INDEX "document_id_fk_51303394" on "logical_servers"("icon_id");
 CREATE INDEX "domain_id_fk_493844" on "logical_servers"("domain_id");
 CREATE INDEX "logical_servers_active" on "logical_servers"("active");
+CREATE TABLE IF NOT EXISTS "workstations"(
+  "id" integer primary key autoincrement not null,
+  "name" varchar not null,
+  "description" text,
+  "created_at" datetime,
+  "updated_at" datetime,
+  "deleted_at" datetime,
+  "site_id" integer,
+  "building_id" integer,
+  "physical_switch_id" integer,
+  "type" varchar,
+  "operating_system" varchar,
+  "address_ip" varchar,
+  "cpu" varchar,
+  "memory" varchar,
+  "disk" integer,
+  "vendor" varchar,
+  "product" varchar,
+  "version" varchar,
+  "icon_id" integer,
+  "entity_id" integer,
+  "user_id" integer,
+  "other_user" varchar,
+  "status" varchar,
+  "manufacturer" varchar,
+  "model" varchar,
+  "serial_number" varchar,
+  "last_inventory_date" date,
+  "warranty_end_date" date,
+  "domain_id" integer,
+  "warranty" varchar,
+  "warranty_start_date" date,
+  "warranty_period" varchar,
+  "agent_version" varchar,
+  "update_source" varchar,
+  "network_id" integer,
+  "network_port_type" varchar,
+  "mac_address" varchar,
+  "purchase_date" date,
+  "fin_value" numeric,
+  foreign key("network_id") references networks("id") on delete no action on update no action,
+  foreign key("domain_id") references domains("id") on delete no action on update no action,
+  foreign key("user_id") references admin_users("id") on delete no action on update no action,
+  foreign key("entity_id") references entities("id") on delete no action on update no action,
+  foreign key("site_id") references sites("id") on delete no action on update no action,
+  foreign key("physical_switch_id") references physical_switches("id") on delete no action on update no action,
+  foreign key("building_id") references buildings("id") on delete no action on update no action,
+  foreign key("icon_id") references documents("id") on delete no action on update no action,
+  foreign key("domain_id") references "domains"("id")
+);
+CREATE INDEX "building_fk_1485333" on "workstations"("building_id");
+CREATE INDEX "document_id_fk_129483" on "workstations"("icon_id");
+CREATE INDEX "physical_switch_fk_0938434" on "workstations"(
+  "physical_switch_id"
+);
+CREATE INDEX "site_fk_1485332" on "workstations"("site_id");
+CREATE TABLE IF NOT EXISTS "domain_forest_ad"(
+  "forest_ad_id" integer not null,
+  "domain_id" integer not null,
+  foreign key("forest_ad_id") references forest_ads("id") on delete cascade on update no action,
+  foreign key("domain_id") references domains("id") on delete cascade on update no action,
+  foreign key("domain_id") references "domains"("id") on delete CASCADE on update NO ACTION
+);
+CREATE INDEX "domaine_ad_id_fk_1492084" on "domain_forest_ad"("domain_id");
+CREATE INDEX "forest_ad_id_fk_1492084" on "domain_forest_ad"("forest_ad_id");
 
 INSERT INTO migrations VALUES(1,'2016_06_01_000001_create_oauth_auth_codes_table',1);
 INSERT INTO migrations VALUES(2,'2016_06_01_000002_create_oauth_access_tokens_table',1);
@@ -2073,3 +2214,36 @@ INSERT INTO migrations VALUES(226,'2025_10_27_095802_add_link_applications_secur
 INSERT INTO migrations VALUES(227,'2025_10_27_104704_add_fields_security_device',1);
 INSERT INTO migrations VALUES(228,'2025_10_30_081134_change_active_nullable_on_lservers',1);
 INSERT INTO migrations VALUES(229,'2025_11_01_123622_drop_unique_graphs_name_unique_on_graphs_table',1);
+INSERT INTO migrations VALUES(230,'2025_11_09_103559_add_network_switch_vlan',1);
+INSERT INTO migrations VALUES(231,'2025_11_10_090632_add_subnetwork_link',1);
+INSERT INTO migrations VALUES(232,'2024_06_01_000001_create_oauth_device_codes_table',2);
+INSERT INTO migrations VALUES(233,'2025_11_17_110452_add_graph_class',2);
+INSERT INTO migrations VALUES(234,'2025_11_21_123505_add_chain_to_logical_flow',2);
+INSERT INTO migrations VALUES(235,'2025_11_24_152357_create_mercator_modules_table',2);
+INSERT INTO migrations VALUES(236,'2025_11_30_123016_add_module_to_permissions_table',2);
+INSERT INTO migrations VALUES(237,'2025_12_03_105527_add_ip_to_security_devices',2);
+INSERT INTO migrations VALUES(238,'2025_12_03_111641_add_security_device_to_logical_flows',2);
+INSERT INTO migrations VALUES(239,'2025_12_04_135457_add_manage_module_role',2);
+INSERT INTO migrations VALUES(240,'2026_01_16_114842_add_icon_to_databases',2);
+INSERT INTO migrations VALUES(241,'2026_01_24_091900_add_information_flow_table',2);
+INSERT INTO migrations VALUES(242,'2026_02_13_134714_add_cpe_to_application_modules',2);
+INSERT INTO migrations VALUES(243,'2026_02_18_085500_add_type_color_to_physical_links',2);
+INSERT INTO migrations VALUES(244,'2026_03_02_000001_upgrade_oauth_clients_uuid',2);
+INSERT INTO migrations VALUES(245,'2026_03_03_184523_add_parent_man',2);
+INSERT INTO migrations VALUES(246,'2026_03_05_114042_add_icon_to_physical_switches',2);
+INSERT INTO migrations VALUES(247,'2026_03_11_134833_add_cluster_to_logical_flows',2);
+INSERT INTO migrations VALUES(248,'2026_03_11_175208_add_information_information',2);
+INSERT INTO migrations VALUES(249,'2026_03_22_121031_add_data_processing_fields',2);
+INSERT INTO migrations VALUES(250,'2026_03_30_095429_add_document_permissions',2);
+INSERT INTO migrations VALUES(251,'2026_04_05_180615_add_table_backups',2);
+INSERT INTO migrations VALUES(252,'2026_04_15_100554_add_application_module_entity',2);
+INSERT INTO migrations VALUES(253,'2026_04_17_211419_add_query_table',2);
+INSERT INTO migrations VALUES(254,'2026_05_03_184011_rename_m_applications_to_applications',3);
+INSERT INTO migrations VALUES(255,'2026_05_03_185943_rename_m_application_events_to_application_events',4);
+INSERT INTO migrations VALUES(256,'2026_05_03_192017_rename_m_application_id_in_application_events',5);
+INSERT INTO migrations VALUES(257,'2026_05_03_193002_rename_m_application_permissions',5);
+INSERT INTO migrations VALUES(258,'2026_05_03_230714_consolidate_application_permissions',5);
+INSERT INTO migrations VALUES(259,'2026_05_03_234356_drop_application_cartographer_table',6);
+INSERT INTO migrations VALUES(260,'2026_05_07_215942_rename_fluxes_to_application_flows',7);
+INSERT INTO migrations VALUES(261,'2026_05_08_120804_rename_flux_information_to_application_flow_information',8);
+INSERT INTO migrations VALUES(262,'2026_05_08_212557_rename_domaines_to_domains',8);

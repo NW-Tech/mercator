@@ -6,18 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyLogicalServerRequest;
 use App\Http\Requests\StoreLogicalServerRequest;
 use App\Http\Requests\UpdateLogicalServerRequest;
-use App\Services\IconUploadService;
-use Gate;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
+use App\Models\Application;
 use App\Models\Backup;
 use App\Models\Cluster;
 use App\Models\Database;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\LogicalServer;
-use App\Models\MApplication;
 use App\Models\PhysicalServer;
-use App\Models\StorageDevice;
+use App\Services\IconUploadService;
+use Gate;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Yajra\DataTables\DataTables;
@@ -51,16 +49,16 @@ class LogicalServerController extends Controller
         $result = DB::table('logical_servers as ls')
             ->select(
                 'ls.*',
-                'ma.id as m_application_id',
-                'ma.name as m_application_name',
+                'ma.id as application_id',
+                'ma.name as application_name',
                 'ps.id as physical_server_id',
                 'ps.name as physical_server_name',
                 'cl.id as cluster_id',
                 'cl.name as cluster_name',
             )
-            ->leftJoin('logical_server_m_application as lsma', 'ls.id', '=', 'lsma.logical_server_id')
-            ->leftJoin('m_applications as ma', function ($join): void {
-                $join->on('lsma.m_application_id', '=', 'ma.id')
+            ->leftJoin('application_logical_server as lsma', 'ls.id', '=', 'lsma.logical_server_id')
+            ->leftJoin('applications as ma', function ($join): void {
+                $join->on('lsma.application_id', '=', 'ma.id')
                     ->whereNull('ma.deleted_at');
             })
             ->leftJoin('logical_server_physical_server as lsps', 'ls.id', '=', 'lsps.logical_server_id')
@@ -104,13 +102,13 @@ class LogicalServerController extends Controller
                 $logicalServers->push($curLogicalServer);
             }
             // add application to list if not already in
-            if (($res->m_application_id !== null) && ! $curLogicalServer->applications->contains(function ($item) use ($res) {
-                return $item->id === $res->m_application_id;
+            if (($res->application_id !== null) && ! $curLogicalServer->applications->contains(function ($item) use ($res) {
+                return $item->id === $res->application_id;
             })) {
                 $curLogicalServer->applications->push(
                     (object) [
-                        'id' => $res->m_application_id,
-                        'name' => $res->m_application_name,
+                        'id' => $res->application_id,
+                        'name' => $res->application_name,
                     ]
                 );
             }
@@ -144,9 +142,9 @@ class LogicalServerController extends Controller
                 'configuration' => $logicalServer->configuration,
                 'address_ip' => $logicalServer->address_ip,
                 'applications' => $items->filter(function ($item) {
-                    return ! is_null($item->m_application_id);
-                })->unique('m_application_id')->map(function ($item) {
-                    return (object) ['id' => $item->m_application_id, 'name' => $item->m_application_name];
+                    return ! is_null($item->application_id);
+                })->unique('application_id')->map(function ($item) {
+                    return (object) ['id' => $item->application_id, 'name' => $item->application_name];
                 })->values(),
                 'clusters' => $items->filter(function ($item) {
                     return ! is_null($item->cluster_id);
@@ -170,11 +168,11 @@ class LogicalServerController extends Controller
 
         $physicalServers = PhysicalServer::query()->orderBy('name')->pluck('name', 'id');
         $databases = Database::query()->orderBy('name')->pluck('name', 'id');
-        $applications = MApplication::query()->orderBy('name')->pluck('name', 'id');
+        $applications = Application::query()->orderBy('name')->pluck('name', 'id');
         $clusters = Cluster::query()->orderBy('name')->pluck('name', 'id');
-        $domains = DomaineAd::query()->orderBy('name')->pluck('name', 'id');
+        $domains = Domain::query()->orderBy('name')->pluck('name', 'id');
         $icons = LogicalServer::query()->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
-        $storageDevices = StorageDevice::query()->orderBy('name')->pluck('name', 'id');
+        $backups = Backup::query()->orderBy('name')->pluck('name', 'id');
 
         // Lists
         $type_list = LogicalServer::query()->select('type')->whereNotNull('type')->distinct()->orderBy('type')->pluck('type');
@@ -192,7 +190,7 @@ class LogicalServerController extends Controller
                 'clusters',
                 'icons',
                 'physicalServers',
-                'storageDevices',
+                'backups',
                 'applications',
                 'databases',
                 'type_list',
@@ -224,24 +222,7 @@ class LogicalServerController extends Controller
         $logicalServer->clusters()->sync($request->input('clusters', []));
 
         // Backups
-        if (Auth::user()->can('backup_create')) {
-            $storageDeviceId = $request['storage_device_id'];
-            $backupFrequency = $request['backup_frequency'];
-            $backupCycle = $request['backup_cycle'];
-            $backupRetention = $request['backup_retention'];
-
-            if ($storageDeviceId !== null) {
-                for ($i = 0; $i < count($storageDeviceId); $i++) {
-                    $backup = new Backup;
-                    $backup->logical_server_id = $logicalServer->id;
-                    $backup->storage_device_id = $storageDeviceId[$i];
-                    $backup->backup_frequency = (int)$backupFrequency[$i];
-                    $backup->backup_cycle = (int)$backupCycle[$i];
-                    $backup->backup_retention = (int)$backupRetention[$i];
-                    $backup->save();
-                }
-            }
-        }
+        $logicalServer->backups()->sync($request->input('backup_ids', []));
 
         return redirect()->route('admin.logical-servers.index');
     }
@@ -252,11 +233,11 @@ class LogicalServerController extends Controller
 
         $physicalServers = PhysicalServer::query()->orderBy('name')->pluck('name', 'id');
         $databases = Database::query()->orderBy('name')->pluck('name', 'id');
-        $applications = MApplication::query()->orderBy('name')->pluck('name', 'id');
+        $applications = Application::query()->orderBy('name')->pluck('name', 'id');
         $clusters = Cluster::query()->orderBy('name')->pluck('name', 'id');
-        $domains = DomaineAd::query()->orderBy('name')->pluck('name', 'id');
+        $domains = Domain::query()->orderBy('name')->pluck('name', 'id');
         $icons = LogicalServer::query()->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
-        $storageDevices = StorageDevice::query()->orderBy('name')->pluck('name', 'id');
+        $backups = Backup::query()->orderBy('name')->pluck('name', 'id');
 
         // Lists
         $type_list = LogicalServer::query()->select('type')->whereNotNull('type')->distinct()->orderBy('type')->pluck('type');
@@ -266,11 +247,6 @@ class LogicalServerController extends Controller
 
         $logicalServer->load('physicalServers', 'applications', 'backups');
 
-        $logicalServer->setRelation(
-            'backups',
-            $logicalServer->backups->sortBy('storageDevice.name')
-        );
-
         return view(
             'admin.logicalServers.edit',
             compact(
@@ -278,7 +254,7 @@ class LogicalServerController extends Controller
                 'icons',
                 'clusters',
                 'physicalServers',
-                'storageDevices',
+                'backups',
                 'applications',
                 'databases',
                 'type_list',
@@ -309,28 +285,8 @@ class LogicalServerController extends Controller
         $logicalServer->databases()->sync($request->input('databases', []));
         $logicalServer->clusters()->sync($request->input('clusters', []));
 
-        if (Auth::user()->can('backup_edit')) {
-            // Delete previous Backups
-            Backup::query()->where('logical_server_id', $logicalServer->id)->delete();
-
-            // Save Backups
-            $storageDeviceId = $request['storage_device_id'];
-            $backupFrequency = $request['backup_frequency'];
-            $backupCycle = $request['backup_cycle'];
-            $backupRetention = $request['backup_retention'];
-
-            if ($storageDeviceId !== null) {
-                for ($i = 0; $i < count($storageDeviceId); $i++) {
-                    $backup = new Backup;
-                    $backup->logical_server_id = $logicalServer->id;
-                    $backup->storage_device_id = $storageDeviceId[$i];
-                    $backup->backup_frequency = (int)$backupFrequency[$i];
-                    $backup->backup_cycle = (int)$backupCycle[$i];
-                    $backup->backup_retention = (int)$backupRetention[$i];
-                    $backup->save();
-                }
-            }
-        }
+        // Backups
+        $logicalServer->backups()->sync($request->input('backup_ids', []));
 
         return redirect()->route('admin.logical-servers.index');
     }
@@ -339,11 +295,11 @@ class LogicalServerController extends Controller
     {
         abort_if(Gate::denies('logical_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $logicalServer->load('physicalServers', 'applications', 'backups.storageDevice');
+        $logicalServer->load('physicalServers', 'applications', 'backups.storageDevices');
 
         $logicalServer->setRelation(
             'backups',
-            $logicalServer->backups->sortBy('storageDevice.name')
+            $logicalServer->backups->sortBy(fn ($b) => $b->storageDevices->first()?->name)
         );
 
         return view('admin.logicalServers.show', compact('logicalServer'));
@@ -383,4 +339,5 @@ class LogicalServerController extends Controller
 
         return array_unique($res);
     }
+
 }

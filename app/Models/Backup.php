@@ -6,39 +6,38 @@ use App\Contracts\HasIconContract;
 use App\Factories\BackupFactory;
 use App\Traits\Auditable;
 use App\Traits\HasIcon;
+use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Backup extends Model implements HasIconContract
 {
-    use Auditable, HasIcon, HasFactory, SoftDeletes;
+    use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
 
     protected $table = 'backups';
 
+    public static string $prefix = 'BACKUP_';
+
     public static string $icon = '/images/backup.png';
 
-    public $incrementing = false;
-    public $timestamps = false;
-
     protected $fillable = [
-        'logical_server_id',
-        'storage_device_id',
+        'name',
+        'type',
+        'attributes',
+        'description',
         'backup_frequency',
         'backup_cycle',
         'backup_retention',
     ];
 
-    public static array $searchable = [
-    ];
+    public static array $searchable = ['name', 'type', 'attributes', 'description'];
 
     protected $casts = [
-        'logical_server_id' => 'integer',
-        'storage_device_id' => 'integer',
         'backup_frequency' => 'integer',
-        'backup_cycle' => 'integer',
+        'backup_cycle'     => 'integer',
         'backup_retention' => 'integer',
     ];
 
@@ -47,16 +46,15 @@ class Backup extends Model implements HasIconContract
         return BackupFactory::new();
     }
 
-    /** @return BelongsTo<LogicalServer, $this> */
-    // Relations
-    public function logicalServer() : BelongsTo
+    /** @return BelongsToMany<LogicalServer, $this> */
+    public function logicalServers(): BelongsToMany
     {
-        return $this->belongsTo(LogicalServer::class);
+        return $this->belongsToMany(LogicalServer::class, 'backup_logical_server');
     }
 
-    /** @return BelongsTo<StorageDevice, $this> */
-    public function storageDevice() : BelongsTo
+    /** @return BelongsToMany<StorageDevice, $this> */
+    public function storageDevices(): BelongsToMany
     {
-        return $this->belongsTo(StorageDevice::class);
+        return $this->belongsToMany(StorageDevice::class, 'backup_storage_device');
     }
 }

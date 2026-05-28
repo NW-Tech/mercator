@@ -1,43 +1,142 @@
 // src/bpmn-edit.ts
 import {
+    Cell,
+    Client,
     Graph,
-    RubberBandHandler,
     InternalEvent,
+    RubberBandHandler,
     UndoManager,
-    Client, Cell,
 } from '@maxgraph/core';
 import { applyGraphStyles } from './graph-styles';
 import { downloadSvg, embedFontInSvg, exportGraphToSvg } from "./bpmn-svg";
-import {addBPMNAnnotation, addBPMNGateway, addBPMNState, addBPMNTask} from "./bpmn-helpers";
+import { addBPMNAnnotation, addBPMNGateway, addBPMNState, addBPMNTask } from "./bpmn-helpers";
 
 export interface BpmnEditorContext {
     graph: Graph;
     undoManager: UndoManager;
 }
 
-export function initBpmnEditor(containerId = 'graph-container'): BpmnEditorContext {
-    console.log('🎨 Initialisation du graphe MaxGraph');
+// ── Drop helpers ───────────────────────────────────────────────────────────────
 
-    // À faire très tôt (avant création du Graph)
+type DropInserter = (graph: Graph, parent: Cell, x: number, y: number) => void;
+
+interface DropConfig {
+    inserter: DropInserter;
+    /** When true, drop into an underlying lane/activities group if one exists */
+    useLane: boolean;
+}
+
+function insertLane(graph: Graph, parent: Cell, x: number, y: number): void {
+    const v = graph.insertVertex({ parent, value: 'Lane', position: [x, y], size: [600, 150], style: { baseStyleNames: ['lane'] } });
+    graph.orderCells(true, [v]);
+}
+
+function insertActivities(graph: Graph, parent: Cell, x: number, y: number): void {
+    graph.insertVertex({ parent, value: '', position: [x, y], size: [300, 200], style: { baseStyleNames: ['activities'] } });
+}
+
+function insertData(graph: Graph, parent: Cell, x: number, y: number): void {
+    const v = graph.insertVertex({ parent, value: '', position: [x, y], size: [60, 80], style: { baseStyleNames: ['data'] } });
+    graph.insertVertex({ parent: v, value: '', position: [0, 0], size: [26, 26], style: { baseStyleNames: ['bpmnIcon'] } });
+}
+
+function insertConversation(graph: Graph, parent: Cell, x: number, y: number): void {
+    graph.insertVertex({ parent, value: '', position: [x, y], size: [40, 40], style: { baseStyleNames: ['conversation'] } });
+}
+
+const DROP_CONFIGS: Record<string, DropConfig> = {
+    'task-node':         { inserter: addBPMNTask,        useLane: true  },
+    'state-node':        { inserter: addBPMNState,       useLane: true  },
+    'gateway-node':      { inserter: addBPMNGateway,     useLane: true  },
+    'data-node':         { inserter: insertData,         useLane: true  },
+    'activities-node':   { inserter: insertActivities,   useLane: true  },
+    'annotation-node':   { inserter: addBPMNAnnotation,  useLane: false },
+    'lane-node':         { inserter: insertLane,         useLane: false },
+    'conversation-node': { inserter: insertConversation, useLane: false },
+};
+
+function isLaneOrActivities(cell: any): boolean {
+    const names: string[] = cell?.style?.baseStyleNames ?? [];
+    return names.includes('lane') || names.includes('activities');
+}
+
+function resolveDropTarget(
+    graph: Graph,
+    event: DragEvent,
+    useLane: boolean
+): { parent: Cell; x: number; y: number } {
+    const pt            = graph.getPointForEvent(event);
+    const defaultParent = graph.getDefaultParent();
+
+    if (!useLane) return { parent: defaultParent, x: pt.x, y: pt.y };
+
+    const dropCell  = graph.getCellAt(event.offsetX, event.offsetY) as any;
+    const laneCell  = isLaneOrActivities(dropCell) ? dropCell : null;
+    const parent    = laneCell ?? defaultParent;
+
+    let { x, y } = pt;
+
+    if (laneCell) {
+        const state = graph.getView()?.getState?.(laneCell) as any;
+        if (state?.origin) {
+            x -= state.origin.x;
+            y -= state.origin.y;
+        }
+        y = Math.max(y, 30); // empêche le drop dans l'en-tête de lane
+    }
+
+    return { parent, x, y };
+}
+
+function registerDragSource(btnId: string, nodeType: string): void {
+    document.getElementById(btnId)?.addEventListener('dragstart', (e: DragEvent) => {
+        e.dataTransfer?.setData('node-type', nodeType);
+    });
+}
+
+function installDropHandlers(graph: Graph, container: HTMLElement): void {
+    // Autoriser le drop sur le container
+    container.addEventListener('dragover', (e) => e.preventDefault());
+
+    // Enregistrer les sources de drag
+    registerDragSource('task-btn',         'task-node');
+    registerDragSource('state-btn',        'state-node');
+    registerDragSource('gateway-btn',      'gateway-node');
+    registerDragSource('data-btn',         'data-node');
+    registerDragSource('lane-btn',         'lane-node');
+    registerDragSource('activities-btn',   'activities-node');
+    registerDragSource('annotation-btn',   'annotation-node');
+    registerDragSource('conversation-btn', 'conversation-node');
+
+    container.addEventListener('drop', (event: DragEvent) => {
+        event.preventDefault();
+        const nodeType = event.dataTransfer?.getData('node-type');
+        if (!nodeType) return;
+
+        const config = DROP_CONFIGS[nodeType];
+        if (!config) return;
+
+        const { parent, x, y } = resolveDropTarget(graph, event, config.useLane);
+
+        graph.batchUpdate(() => config.inserter(graph, parent, x, y));
+    });
+}
+
+// ── Editor initialisation ──────────────────────────────────────────────────────
+
+export function initBpmnEditor(containerId = 'graph-container'): BpmnEditorContext {
     Client.imageBasePath = '/dist/images';
 
     const container = document.getElementById(containerId) as HTMLElement | null;
-    if (!container) {
-        throw new Error(`#${containerId} introuvable`);
-    }
+    if (!container) throw new Error(`#${containerId} introuvable`);
     container.tabIndex = 0;
 
     const graph = new Graph(container);
 
-    //=====================================================
-    // Grille
-    graph.gridSize = 10;
+    graph.gridSize    = 10;
     graph.gridEnabled = true;
 
-    // ⬇️  On applique les styles UNE FOIS ici
     applyGraphStyles(graph);
-
-    //=====================================================
 
     graph.setDropEnabled(true);
     graph.setPanning(true);
@@ -50,56 +149,25 @@ export function initBpmnEditor(containerId = 'graph-container'): BpmnEditorConte
     graph.setSplitEnabled(false);
     graph.setHtmlLabels(true);
 
-    // Sélection multiple
     new RubberBandHandler(graph);
 
-    // Undo manager
+    // Undo
     const undoManager = new UndoManager();
-
-    // 👇 flag de suspension (custom)
     (undoManager as any).__suspended = false;
 
-    const listener = (_sender: any, evt: any) => {
-        // 👇 si suspendu => on n'enregistre rien
+    const undoListener = (_sender: any, evt: any) => {
         if ((undoManager as any).__suspended) return;
-
         undoManager.undoableEditHappened(evt.getProperty('edit'));
     };
-    graph.getDataModel().addListener(InternalEvent.UNDO, listener);
-    graph.getView().addListener(InternalEvent.UNDO, listener);
+    graph.getDataModel().addListener(InternalEvent.UNDO, undoListener);
+    graph.getView().addListener(InternalEvent.UNDO, undoListener);
 
-
-    //=============================================================================
-    // Force l'édition du label d'un stateIcon
-
-    function isStateIconCell(graph: Graph, cell: Cell): boolean | undefined {
-        if (!cell) return false;
-
-        return cell.style.baseStyleNames?.includes("stateIcon");
-        /*
-        // Selon ton modèle: style objet (baseStyleNames) ou style calculé
-        const s = cell.style;
-        if (s && typeof s === "object" && Array.isArray(s.baseStyleNames)) {
-            return s.baseStyleNames.includes("stateIcon");
-        }
-
-        const computed = graph.getCellStyle?.(cell);
-        return !!computed && (
-            computed.baseStyleNames?.includes?.("stateIcon") ||
-            computed.styleName === "stateIcon"
-        );
-         */
-    }
-
-    graph.addListener(InternalEvent.DOUBLE_CLICK, (sender: any, evt: any) => {
+    // Double-clic sur icône d'état → édite le parent
+    graph.addListener(InternalEvent.DOUBLE_CLICK, (_sender: any, evt: any) => {
         const cell = evt.getProperty("cell");
         if (!cell) return;
-
-        // Hide the Menu
         hideMenu();
-
-        // Si on double-clique l'icône => on édite le parent
-        if (isStateIconCell(graph, cell)) {
+        if (cell.style?.baseStyleNames?.includes("stateIcon")) {
             const parent = cell.parent;
             if (parent) {
                 graph.startEditingAtCell(parent);
@@ -108,618 +176,86 @@ export function initBpmnEditor(containerId = 'graph-container'): BpmnEditorConte
         }
     });
 
-    /*
-    //==============================================================================
-    // Resize uniquement pour "lane", "annotation" et "process"
-    const baseIsCellResizable =
-        (graph as any).isCellResizable?.bind(graph) ?? ((_: any) => true);
-
-    (graph as any).isCellResizable = (cell: any) => {
-        const names= cell.getStyle().baseStyleNames;
-        console.log("NEVER CALLED !!!!!");
-        if (Array.isArray(names) &&
-            !names.includes("lane") &&
-            !names.includes("process") &&
-            !names.includes("annotation")
-        )
-            return false;
-        return baseIsCellResizable(cell);
-    };
-    */
-
-    //==============================================================================
-    // Move label uniquement pour "state", "arrow" et "condition"
-
+    // Déplacement du label uniquement pour "state" et "gateway"
     const baseIsLabelMovable = graph.isLabelMovable?.bind(graph);
-
     graph.isLabelMovable = (cell: any) => {
-        const baseStyleNames = cell?.style?.baseStyleNames;
-
-        const isMovable =
-            baseStyleNames?.includes('state') || baseStyleNames?.includes('gateway');
-
-        return isMovable
-            ? true
-            : baseIsLabelMovable
-                ? baseIsLabelMovable(cell)
-                : false;
+        const names = cell?.style?.baseStyleNames;
+        if (names?.includes('state') || names?.includes('gateway')) return true;
+        return baseIsLabelMovable ? baseIsLabelMovable(cell) : false;
     };
 
-    //==============================================================================
-    // bloque le drop sur les objets sauf "lane"
-
-    function hasLaneDestination(graph: any, destinations: any[]): boolean {
-        if (!destinations?.length) return false;
-
-        const model = graph.model;
-
-        for (const cell of destinations) {
-            if (!cell) continue;
-
-            // optionnel : on filtre les non-vertices si le modèle sait le faire
-            if (!cell.isVertex()) continue;
-
-            if (cell.style.baseStyleNames?.includes?.("lane"))
-                return true;
-
-        }
-
-        return false;
-    }
-
-    graph.getDropTarget = function (cells: any[], evt: MouseEvent, cell: any) {
-        // cells = cellules déplacées
-        // cell  = cellule sous la souris (destination potentielle)
-
-        if (hasLaneDestination(this, [cell])) {
-            return cell;   // autorisé → devient parent
-        }
-
-        return null;     // interdit → defaultParent
-    };
-
-    //==============================================================================
-
-    const isStateIcon = (cell: any) =>
-        cell?.style?.baseStyleNames?.includes?.('stateIcon') === true;
-
-    const isTaskIcon = (cell: any) =>
-        cell?.style?.baseStyleNames?.includes?.('bpmnIcon') === true;
-
-    const isBadgeIcon = (cell: any) =>
-        cell?.style?.baseStyleNames?.includes?.('bpmnBadge') === true;
-
-    /*
-    const oldIsCellMovable = graph.isCellMovable?.bind(graph);
-    graph.isCellMovable = (cell: any) => {
-        if (isStateIcon(cell) || isTaskIcon(cell)) return true;     // on ne déplace jamais l’icône
-        return oldIsCellMovable ? oldIsCellMovable(cell) : true;
-    };
-
-    const oldIsCellSelectable = graph.isCellSelectable?.bind(graph);
-    graph.isCellSelectable = (cell: any) => {
-        if (isStateIcon(cell) || isTaskIcon(cell)) return false;     // on ne sélectionne jamais l’icône
-        return oldIsCellSelectable ? oldIsCellSelectable(cell) : true;
-    };
-    */
-
-    //==============================================================================
-    // Interdit l’édition des cellules qui utilisent le style bpmnIcon
-    /* Pas nécessaire car pas de sélection possible
-    const prevIsCellEditable = graph.isCellEditable?.bind(graph);
-
-    (graph as any).isCellEditable = (cell: any) => {
-        const style = cell?.getStyle?.() ?? "";
-        if (typeof style === "string" && style.includes("bpmnIcon")) return false;
-        return prevIsCellEditable ? prevIsCellEditable(cell) : true;
-    };
-    */
-    //==============================================================================
-    // Pas de sélection des cellules qui utilisent le style bpmnIcon ou stateIcon
-
+    // Pas de sélection pour les icônes internes
     const prevIsCellSelectable = graph.isCellSelectable?.bind(graph);
-
     (graph as any).isCellSelectable = (cell: any) => {
         if (!cell) return false;
-        if (isStateIcon(cell) || isTaskIcon(cell) || isBadgeIcon(cell)) return false;
+        const names = cell?.style?.baseStyleNames ?? [];
+        if (names.includes('stateIcon') || names.includes('bpmnIcon') || names.includes('bpmnBadge')) return false;
         return prevIsCellSelectable ? prevIsCellSelectable(cell) : true;
     };
 
+    // Autoriser le drop uniquement dans les lanes
+    graph.getDropTarget = function (cells: any[], _evt: MouseEvent, cell: any) {
+        if (cell?.style?.baseStyleNames?.includes?.("lane")) return cell;
+        return null;
+    };
 
-    //==============================================================================
-    // Désactiver le dragover - nécessaire pour autoriser le drop
+    installDropHandlers(graph, container);
 
-    container.addEventListener('dragover', (event) => {
-        event.preventDefault();
-    });
-
-    //==============================================================================
-    // Drop task on the graph
-
-    const squareIcon = document.getElementById('task-btn');
-
-    squareIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'task-node');
-    });
-
-    container.addEventListener('drop', (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData('node-type') == 'task-node') {
-
-            // 1) Trouver la cellule sous la souris (en coordonnées container)
-            //    offsetX/offsetY marche bien si le listener est sur le container du graph
-            const dropCell = graph.getCellAt(event.offsetX, event.offsetY);
-
-            // 2) Vérifier si c'est une lane (selon ton style)
-            const isLaneCell = (cell: any) => {
-                if (!cell) return false;
-                return cell.style.baseStyleNames.includes("lane") ||
-                    cell.style.baseStyleNames.includes("activities");
-            };
-            const isLane = isLaneCell(dropCell) ? dropCell : null;
-
-            // 3) Parent cible: lane si lane, sinon parent par défaut
-            const parent = isLane ?? graph.getDefaultParent();
-
-            // 4) Position de drop (coordonnées "graph")
-            const pt = graph.getPointForEvent(event);
-
-            // 5) Si on insère dans une lane, il faut convertir la position en coordonnées locales du parent
-            //    (sinon l’enfant va se retrouver "décalé" parce que pt est en coordonnées globales)
-            let x = pt.x;
-            let y = pt.y;
-
-            if (isLane) {
-                const parentState = graph.getView()?.getState?.(isLane);
-                if (parentState?.origin) {
-                    x -= parentState.origin.x;
-                    y -= parentState.origin.y;
-                }
-
-                // Empêcher de dropper dans l’en-tête d’une lane
-                // TODO : pas pour activities !!!
-                y = Math.max(y, 30);
-            }
-
-            graph.batchUpdate(() => {
-                // Conteneur
-                addBPMNTask(graph, parent, x, y);
-            });
-        }
-    });
-
-    //==============================================================================
-    // Drop state on the graph
-
-    const stateIcon = document.getElementById('state-btn');
-
-    stateIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'state-node');
-    });
-
-    container.addEventListener("drop", (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData("node-type") !== "state-node") return;
-
-        // 1) Trouver la cellule sous la souris (en coordonnées container)
-        //    offsetX/offsetY marche bien si le listener est sur le container du graph
-        const dropCell = graph.getCellAt(event.offsetX, event.offsetY);
-
-        // 2) Vérifier si c'est une lane (selon ton style)
-        const isLaneCell = (cell: any) => {
-            if (!cell) return false;
-            return cell.style.baseStyleNames.includes("lane")||
-                cell.style.baseStyleNames.includes("activities");
-        };
-
-        const isLane = isLaneCell(dropCell) ? dropCell : null;
-
-        // 3) Parent cible: lane si lane, sinon parent par défaut
-        const parent = isLane ?? graph.getDefaultParent();
-
-        // 4) Position de drop (coordonnées "graph")
-        const pt = graph.getPointForEvent(event);
-
-        // 5) Si on insère dans une lane, il faut convertir la position en coordonnées locales du parent
-        //    (sinon l’enfant va se retrouver "décalé" parce que pt est en coordonnées globales)
-        let x = pt.x;
-        let y = pt.y;
-
-        if (isLane) {
-            const parentState = graph.getView()?.getState?.(isLane);
-            if (parentState?.origin) {
-                x -= parentState.origin.x;
-                y -= parentState.origin.y;
-            }
-
-            // Empêcher de dropper dans l’en-tête d’une lane
-            y = Math.max(y, 30);
-        }
-
-        graph.batchUpdate(() => {
-            addBPMNState(graph, parent, x, y);
-        });
-    });
-
-    //==============================================================================
-    // Drop gateway on the graph
-
-    const condIcon = document.getElementById('gateway-btn');
-
-    condIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'gateway-node');
-    });
-
-    container.addEventListener('drop', (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData('node-type') == 'gateway-node') {
-
-            // 1) Trouver la cellule sous la souris (en coordonnées container)
-            //    offsetX/offsetY marche bien si le listener est sur le container du graph
-            const dropCell = graph.getCellAt(event.offsetX, event.offsetY);
-
-            // 2) Vérifier si c'est une lane (selon ton style)
-            const isLaneCell = (cell: any) => {
-                if (!cell) return false;
-                return cell.style.baseStyleNames.includes("lane")||
-                    cell.style.baseStyleNames.includes("activities");
-            };
-
-            const isLane = isLaneCell(dropCell) ? dropCell : null;
-
-            // 3) Parent cible: lane si lane, sinon parent par défaut
-            const parent = isLane ?? graph.getDefaultParent();
-
-            // 4) Position de drop (coordonnées "graph")
-            const pt = graph.getPointForEvent(event);
-
-            // 5) Si on insère dans une lane, il faut convertir la position en coordonnées locales du parent
-            //    (sinon l’enfant va se retrouver "décalé" parce que pt est en coordonnées globales)
-            let x = pt.x;
-            let y = pt.y;
-
-            if (isLane) {
-                const parentState = graph.getView()?.getState?.(isLane);
-                if (parentState?.origin) {
-                    x -= parentState.origin.x;
-                    y -= parentState.origin.y;
-                }
-
-                // Empêcher de dropper dans l’en-tête d’une lane
-                y = Math.max(y, 30);
-            }
-
-            // Ajouter un nouveau nœud à l'emplacement du drop
-            graph.batchUpdate(() => {
-                addBPMNGateway(graph, parent, x, y);
-            });
-        }
-    });
-
-    //==============================================================================
-    // Drop data on the graph
-
-    const dataIcon = document.getElementById('data-btn');
-
-    dataIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'data-node');
-    });
-
-    container.addEventListener('drop', (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData('node-type') == 'data-node') {
-
-            // 1) Trouver la cellule sous la souris (en coordonnées container)
-            //    offsetX/offsetY marche bien si le listener est sur le container du graph
-            const dropCell = graph.getCellAt(event.offsetX, event.offsetY);
-
-            // 2) Vérifier si c'est une lane (selon ton style)
-            const isLaneCell = (cell: any) => {
-                if (!cell) return false;
-                return cell.style.baseStyleNames.includes("lane")||
-                    cell.style.baseStyleNames.includes("activities");
-            };
-
-            const isLane = isLaneCell(dropCell) ? dropCell : null;
-
-            // 3) Parent cible: lane si lane, sinon parent par défaut
-            const parent = isLane ?? graph.getDefaultParent();
-
-            // 4) Position de drop (coordonnées "graph")
-            const pt = graph.getPointForEvent(event);
-
-            // 5) Si on insère dans une lane, il faut convertir la position en coordonnées locales du parent
-            //    (sinon l’enfant va se retrouver "décalé" parce que pt est en coordonnées globales)
-            let x = pt.x;
-            let y = pt.y;
-
-            if (isLane) {
-                const parentState = graph.getView()?.getState?.(isLane);
-                if (parentState?.origin) {
-                    x -= parentState.origin.x;
-                    y -= parentState.origin.y;
-                }
-
-                // Empêcher de dropper dans l’en-tête d’une lane
-                y = Math.max(y, 30);
-            }
-
-            // Ajouter un nouveau nœud à l'emplacement du drop
-            graph.batchUpdate(() => {
-                const vertex = graph.insertVertex({
-                    parent,
-                    value: '',
-                    position: [x, y],
-                    size: [60, 80],
-                    style: { baseStyleNames: ['data'] },
-                });
-
-                const icon = graph.insertVertex({
-                    parent: vertex,
-                    value: "",
-                    position: [0, 0],
-                    size: [26, 26],
-                    style: { baseStyleNames: ["bpmnIcon"] },
-                });
-
-            });
-        }
-    });
-
-    //==============================================================================
-    // Drop Lane on the graph
-
-    const laneIcon = document.getElementById('lane-btn');
-
-    laneIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'lane-node');
-    });
-
-    container.addEventListener('drop', (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData('node-type') == 'lane-node') {
-            // Gets drop location point for vertex
-            const pt = graph.getPointForEvent(event);
-
-            // Ajouter un nouveau nœud à l'emplacement du drop
-            graph.batchUpdate(() => {
-
-                // Ajouter le carré
-                const parent = graph.getDefaultParent();
-
-                const vertex = graph.insertVertex({
-                    parent,
-                    value: 'Lane',
-                    position: [pt.x, pt.y],
-                    size: [600, 150],
-                    style: { baseStyleNames: ['lane'] },
-                });
-
-                // Mettre en arrière plan
-                graph.orderCells(true, [vertex]);
-            });
-        }
-    });
-
-    //==============================================================================
-    // Drop activities on the graph
-
-    const activitiesIcon = document.getElementById('activities-btn');
-
-    activitiesIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'activities-node');
-    });
-
-    container.addEventListener('drop', (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData('node-type') == 'activities-node') {
-
-            // 1) Trouver la cellule sous la souris (en coordonnées container)
-            //    offsetX/offsetY marche bien si le listener est sur le container du graph
-            const dropCell = graph.getCellAt(event.offsetX, event.offsetY);
-
-            // 2) Vérifier si c'est une lane (selon ton style)
-            const isLaneCell = (cell: any) => {
-                if (!cell) return false;
-                return cell.style.baseStyleNames.includes("lane");
-            };
-
-            const isLane = isLaneCell(dropCell) ? dropCell : null;
-
-            // 3) Parent cible: lane si lane, sinon parent par défaut
-            const parent = isLane ?? graph.getDefaultParent();
-
-            // 4) Position de drop (coordonnées "graph")
-            const pt = graph.getPointForEvent(event);
-
-            // 5) Si on insère dans une lane, il faut convertir la position en coordonnées locales du parent
-            //    (sinon l’enfant va se retrouver "décalé" parce que pt est en coordonnées globales)
-            let x = pt.x;
-            let y = pt.y;
-
-            if (isLane) {
-                const parentState = graph.getView()?.getState?.(isLane);
-                if (parentState?.origin) {
-                    x -= parentState.origin.x;
-                    y -= parentState.origin.y;
-                }
-
-                // Empêcher de dropper dans l’en-tête d’une lane
-                y = Math.max(y, 30);
-            }
-
-            // Ajouter un nouveau nœud à l'emplacement du drop
-            graph.batchUpdate(() => {
-                const vertex = graph.insertVertex({
-                    parent,
-                    value: '',
-                    position: [x, y],
-                    size: [300, 200],
-                    style: { baseStyleNames: ['activities'] },
-                });
-            });
-        }
-    });
-
-    //==============================================================================
-    // Drop annotation on the graph
-
-    const annotationIcon = document.getElementById('annotation-btn');
-
-    annotationIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'annotation-node');
-    });
-
-    container.addEventListener('drop', (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData('node-type') == 'annotation-node') {
-
-            // Gets drop location point for vertex
-            const pt = graph.getPointForEvent(event);
-
-            graph.batchUpdate(() => {
-                const parent = graph.getDefaultParent();
-                addBPMNAnnotation(graph, parent, pt.x, pt.y);
-            });
-
-        }
-    });
-
-
-    //==============================================================================
-    // Drop conversation on the graph
-
-    const conversationIcon = document.getElementById('conversation-btn');
-
-    conversationIcon?.addEventListener('dragstart', (event) => {
-        event.dataTransfer?.setData('node-type', 'conversation-node');
-    });
-
-    container.addEventListener('drop', (event) => {
-        event.preventDefault();
-
-        if (event.dataTransfer?.getData('node-type') == 'conversation-node') {
-
-            // Gets drop location point for vertex
-            const pt = graph.getPointForEvent(event);
-
-            graph.batchUpdate(() => {
-                const parent = graph.getDefaultParent();
-
-                // Conteneur
-                const vertex = graph.insertVertex({
-                    parent,
-                    value: "",                 // Pas de texte pour le conteneur
-                    position: [pt.x, pt.y],
-                    size: [40, 40],
-                    style: {baseStyleNames: ["conversation"]},
-                });
-            });
-
-        }
-    });
-
-    console.log('✅ Graphe MaxGraph initialisé');
     return { graph, undoManager };
 }
 
-export function wireEditorUi(graph: Graph, undoManager: UndoManager) {
+// ── UI wiring ──────────────────────────────────────────────────────────────────
 
+export function wireEditorUi(graph: Graph, undoManager: UndoManager): void {
     graph.container.addEventListener('pointerdown', () => {
         (graph.container as HTMLElement).focus();
     });
 
-
     document.getElementById('download-svg')?.addEventListener('click', async () => {
         const svg = exportGraphToSvg(graph);
-
         await embedFontInSvg(svg, {
-            fontUrl: "/vendor/mercator-bpmn/fonts/bpmn.ttf",
+            fontUrl:    "/vendor/mercator-bpmn/fonts/bpmn.ttf",
             fontFamily: "bpmn",
-            mime: "font/ttf",
+            mime:       "font/ttf",
         });
-
         downloadSvg(svg, "bpmn-export.svg");
     });
 
-    // Zoom
-    document.getElementById('zoom-in-btn')?.addEventListener('click', () => {
-        graph.zoomIn();
-        console.log('🔍 Zoom in');
-    });
+    document.getElementById('zoom-in-btn')?.addEventListener('click',  () => graph.zoomIn());
+    document.getElementById('zoom-out-btn')?.addEventListener('click', () => graph.zoomOut());
+    document.getElementById('fit-in-btn')?.addEventListener('click',   () => graph.center());
 
-    document.getElementById('zoom-out-btn')?.addEventListener('click', () => {
-        graph.zoomOut();
-        console.log('🔍 Zoom out');
-    });
-
-    document.getElementById('fit-in-btn')?.addEventListener('click', () => {
-        graph.center();
-        console.log('⬜ Vue ajustée');
-    });
-
-    // Boutons Undo/Redo
     const undoButton = document.getElementById('undoButton') as HTMLButtonElement | null;
     const redoButton = document.getElementById('redoButton') as HTMLButtonElement | null;
 
-    undoButton?.addEventListener('click', () => {
-        if (undoManager.canUndo()) {
-            undoManager.undo();
-        }
-    });
-
-    redoButton?.addEventListener('click', () => {
-        if (undoManager.canRedo()) {
-            undoManager.redo();
-        }
-    });
+    undoButton?.addEventListener('click', () => { if (undoManager.canUndo()) undoManager.undo(); });
+    redoButton?.addEventListener('click', () => { if (undoManager.canRedo()) undoManager.redo(); });
 
     graph.container.addEventListener('keydown', (event: KeyboardEvent) => {
-        // Si l'utilisateur tape dans un champ, ne touche à rien
-        // if (isTypingTarget(event)) return;
-
-        // Ctrl+Z => Undo
         if (event.ctrlKey && event.key.toLowerCase() === 'z') {
             event.preventDefault();
             event.stopPropagation();
-            undoManager.canUndo() && undoManager.undo();
+            if (undoManager.canUndo()) undoManager.undo();
             return;
         }
-
-        // Ctrl+Y => Redo
         if (event.ctrlKey && event.key.toLowerCase() === 'y') {
             event.preventDefault();
             event.stopPropagation();
-            undoManager.canRedo() && undoManager.redo();
+            if (undoManager.canRedo()) undoManager.redo();
             return;
         }
-
-        // Ctrl+A => select all
         if (event.ctrlKey && event.key.toLowerCase() === 'a') {
             event.preventDefault();
             event.stopPropagation();
             graph.selectAll();
             return;
         }
-
-        // Delete / Backspace => remove selection
         if (event.key === 'Delete' || event.key === 'Backspace') {
-            // Si l'utilisateur édite un label : laisse MaxGraph gérer la touche
             if (graph.isEditing()) return;
-
             event.preventDefault();
             event.stopPropagation();
-
             const cells = graph.getSelectionCells();
             if (!cells?.length) return;
-
             graph.getDataModel().beginUpdate();
             try {
                 graph.removeCells(cells, true);
@@ -728,92 +264,49 @@ export function wireEditorUi(graph: Graph, undoManager: UndoManager) {
             }
         }
     });
-
-    console.log('✅ UI d’édition câblée');
 }
 
-// Hide the action select menu
-export function hideMenu() {
-    const menuEl = document.getElementById("vertex-menu")!;
-    menuEl.classList.add("hidden");
+export function hideMenu(): void {
+    document.getElementById("vertex-menu")?.classList.add("hidden");
 }
 
-export function enableArrowKeyMovement(graph: Graph, step = 10) {
+export function enableArrowKeyMovement(graph: Graph, step = 10): void {
+    graph.container.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (graph.isEditing()) return;
 
-    function moveSelectedVertex(graph: Graph, dx: number, dy: number) {
+        let dx = 0;
+        let dy = 0;
+        switch (event.key) {
+            case 'ArrowUp':    dy = -step; break;
+            case 'ArrowDown':  dy =  step; break;
+            case 'ArrowLeft':  dx = -step; break;
+            case 'ArrowRight': dx =  step; break;
+            default: return;
+        }
+
+        hideMenu();
+        event.preventDefault();
+
         const cells = graph.getSelectionCells();
-
-        if (!cells || cells.length === 0) return;
+        if (!cells?.length) return;
 
         graph.batchUpdate(() => {
             for (const cell of cells) {
                 if (!cell?.isVertex?.()) continue;
-
                 const geo = cell.getGeometry();
                 if (!geo) continue;
-
-                // IMPORTANT : cloner la géométrie
                 const newGeo = geo.clone();
                 newGeo.translate(dx, dy);
-
                 graph.model.setGeometry(cell, newGeo);
             }
         });
-    }
-
-    graph.container.addEventListener('keydown', (event: KeyboardEvent) => {
-        // Si l'utilisateur édite un label : laisse MaxGraph gérer la touche
-        if (graph.isEditing()) return;
-
-
-        const step = 1;
-        switch (event.key) {
-            case 'ArrowUp':
-                hideMenu()
-                moveSelectedVertex(graph, 0, -step);
-                event.preventDefault();
-                break;
-            case 'ArrowDown':
-                hideMenu()
-                moveSelectedVertex(graph, 0, step);
-                event.preventDefault();
-                break;
-            case 'ArrowLeft':
-                hideMenu()
-                moveSelectedVertex(graph, -step, 0);
-                event.preventDefault();
-                break;
-            case 'ArrowRight':
-                hideMenu()
-                moveSelectedVertex(graph, step, 0);
-                event.preventDefault();
-                break;
-        }
     });
-
 }
 
-
-export function showStatus(message: string, duration = 2000) {
+export function showStatus(message: string, duration = 2000): void {
     const status = document.getElementById('status');
     if (!status) return;
-
     status.textContent = message;
     status.classList.add('show');
-
-    setTimeout(() => {
-        status.classList.remove('show');
-    }, duration);
+    setTimeout(() => status.classList.remove('show'), duration);
 }
-
-/* not used
-// Check taget is not an input, textarea or select
-function isTypingTarget(ev: KeyboardEvent): boolean {
-    const el = ev.target as HTMLElement | null;
-    if (!el) return false;
-
-    // Remonte au vrai champ si tu as des wrappers
-    const field = el.closest('input, textarea, select, [contenteditable="true"]') as HTMLElement | null;
-    return !!field;
-}
-*/

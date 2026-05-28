@@ -82,12 +82,6 @@ class PermissionsTableSeeder extends Seeder
                 ['id' => 66, 'title' => 'application_show'],
                 ['id' => 67, 'title' => 'application_delete'],
                 ['id' => 68, 'title' => 'application_access'],
-                ['id' => 69, 'title' => 'papplication_access'],
-                ['id' => 70, 'title' => 'm_application_create'],
-                ['id' => 71, 'title' => 'm_application_edit'],
-                ['id' => 72, 'title' => 'm_application_show'],
-                ['id' => 73, 'title' => 'm_application_delete'],
-                ['id' => 74, 'title' => 'm_application_access'],
                 ['id' => 75, 'title' => 'application_service_create'],
                 ['id' => 76, 'title' => 'application_service_edit'],
                 ['id' => 77, 'title' => 'application_service_show'],
@@ -339,7 +333,13 @@ class PermissionsTableSeeder extends Seeder
                 ['id' => '321', 'title' => 'query_edit'],
                 ['id' => '322', 'title' => 'query_show'],
                 ['id' => '323', 'title' => 'query_delete'],
-                ['id' => '324', 'title' => 'query_access']
+                ['id' => '324', 'title' => 'query_access'],
+                // Zone
+                ['id' => 325, 'title' => 'zone_create'],
+                ['id' => 326, 'title' => 'zone_edit'],
+                ['id' => 327, 'title' => 'zone_show'],
+                ['id' => 328, 'title' => 'zone_delete'],
+                ['id' => 329, 'title' => 'zone_access'],
             ]);
         }
     }

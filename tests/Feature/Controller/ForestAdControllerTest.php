@@ -54,7 +54,7 @@ describe('create', function () {
 
         $response->assertOk();
         $response->assertViewIs('admin.forestAds.create');
-        $response->assertViewHas(['zone_admins', 'domaines']);
+        $response->assertViewHas(['zone_admins', 'domains']);
     });
 
     test('denies access without permission', function () {
@@ -104,7 +104,7 @@ describe('edit', function () {
 
         $response->assertOk();
         $response->assertViewIs('admin.forestAds.edit');
-        $response->assertViewHas(['forestAd', 'zone_admins', 'domaines']);
+        $response->assertViewHas(['forestAd', 'zone_admins', 'domains']);
         $response->assertSee($name);
     });
 

@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyWorkstationRequest;
 use App\Http\Requests\StoreWorkstationRequest;
 use App\Http\Requests\UpdateWorkstationRequest;
-use App\Models\MApplication;
+use App\Models\Application;
 use App\Models\Workstation;
 use App\Services\IconUploadService;
 use Gate;
@@ -34,14 +34,14 @@ class WorkstationController extends Controller
         $sites = DB::table('sites')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = DB::table('buildings')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $entities = DB::table('entities')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-        $domains = DB::table('domaine_ads')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+        $domains = DB::table('domains')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $users = DB::table('admin_users')->select('id', 'user_id')->orderBy('user_id')->pluck('user_id', 'id')->prepend(trans('global.pleaseSelect'), '');
         $networks = DB::table('networks')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         // Get icons
         $icons = Workstation::select('icon_id')->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
 
-        $application_list = MApplication::orderBy('name')->pluck('name', 'id');
+        $application_list = Application::orderBy('name')->pluck('name', 'id');
 
         $type_list = Workstation::select('type')
             ->where('type', '<>', null)
@@ -136,14 +136,14 @@ class WorkstationController extends Controller
         $sites = DB::table('sites')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = DB::table('buildings')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $entities = DB::table('entities')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-        $domains = DB::table('domaine_ads')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+        $domains = DB::table('domains')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $users = DB::table('admin_users')->select('id', 'user_id')->orderBy('user_id')->pluck('user_id', 'id')->prepend(trans('global.pleaseSelect'), '');
         $networks = DB::table('networks')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         // Select icons
         $icons = Workstation::select('icon_id')->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
 
-        $application_list = MApplication::orderBy('name')->pluck('name', 'id');
+        $application_list = Application::orderBy('name')->pluck('name', 'id');
 
         $type_list = Workstation::select('type')
             ->where('type', '<>', null)
@@ -214,14 +214,14 @@ class WorkstationController extends Controller
         $sites = DB::table('sites')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = DB::table('buildings')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $entities = DB::table('entities')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
-        $domains = DB::table('domaine_ads')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
+        $domains = DB::table('domains')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $users = DB::table('admin_users')->select('id', 'user_id')->orderBy('user_id')->pluck('user_id', 'id')->prepend(trans('global.pleaseSelect'), '');
         $networks = DB::table('networks')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
         // Get icons
         $icons = Workstation::select('icon_id')->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
 
-        $application_list = MApplication::orderBy('name')->pluck('name', 'id');
+        $application_list = Application::orderBy('name')->pluck('name', 'id');
 
         $type_list = Workstation::select('type')
             ->where('type', '<>', null)

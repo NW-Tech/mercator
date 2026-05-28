@@ -84,7 +84,7 @@ class Subnetwork extends Model implements HasIconContract, HasPrefix
     }
 
     /** @return BelongsTo<Subnetwork, $this> */
-    public function connected_subnets(): BelongsTo
+    public function connectedSubnets(): BelongsTo
     {
         return $this->belongsTo(Subnetwork::class, 'connected_subnets_id');
     }

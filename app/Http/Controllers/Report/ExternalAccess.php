@@ -6,11 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Models\ExternalConnectedEntity;
 use Carbon\Carbon;
 use Gate;
+use Illuminate\Http\Request;
+use PhpOffice\PhpSpreadsheet\Writer\Exception;
 use Symfony\Component\HttpFoundation\Response;
 
 class ExternalAccess extends Controller
 {
-    public function generateExcel()
+    /**
+     * @throws Exception
+     */
+    public function generate(Request $request)
     {
         abort_if(Gate::denies('reports_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
@@ -75,11 +80,13 @@ class ExternalAccess extends Controller
             $row++;
         }
 
-        // $writer = new \PhpOffice\PhpSpreadsheet\Writer\Ods($spreadsheet);
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
-
-        // $path = storage_path('app/externalAccess-'. Carbon::today()->format('Ymd') .'.ods');
-        $path = storage_path('app/externalAccess-'.Carbon::today()->format('Ymd').'.xlsx');
+        if ($request->get("format") == "csv") {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Csv($spreadsheet);
+            $path = storage_path('app/externalAccess-'.Carbon::today()->format('Ymd').'.csv');
+        } else {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $path = storage_path('app/externalAccess-'.Carbon::today()->format('Ymd').'.xlsx');
+        }
 
         $writer->save($path);
 

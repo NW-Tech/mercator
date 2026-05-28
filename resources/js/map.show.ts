@@ -1,157 +1,146 @@
-import {Graph, GraphDataModel, InternalEvent, ModelXmlSerializer,} from '@maxgraph/core';
+import {
+    Graph,
+    GraphDataModel,
+    InternalEvent,
+    ModelXmlSerializer,
+} from '@maxgraph/core';
 
 //-----------------------------------------------------------------------
-// Import des plugins
-const plugins: GraphPluginConstructor[] = [];
+// Interfaces métier
 
-// Initialiser un graphique de base
-const container = document.getElementById('graph-container');
-const graph = new Graph(container,
-    new GraphDataModel(),
-    plugins);
-const model = graph.getDataModel();
-
-//-----------------------------------------------------------------------
-
-// Interface pour une arête (edge)
-interface Edge {
-    attachedNodeId: string;
-    name: string,
-    edgeType: string;
-    edgeDirection: string;
-    bidirectional: boolean;
-}
-
-// Interface pour un nœud (node)
-interface Node {
+interface MapNode {
     id: string;
     vue: string;
     label: string;
     image: string;
     type: string;
-    edges: Edge[];
 }
 
-// Map contenant les nœuds
-type NodeMap = Map<string, Node>;
+type NodeMap = Map<string, MapNode>;
 
 declare const _nodes: NodeMap;
 
 //-----------------------------------------------------------------------
-const defaultVertexStyle = graph.getStylesheet().getDefaultVertexStyle();
-defaultVertexStyle.cursor = 'pointer'; // Définit le curseur en main
+// Initialisation du graphe
 
-// reset expanded image
+const container = document.getElementById('graph-container') as HTMLDivElement | null;
+if (!container) {
+    throw new Error('#graph-container introuvable');
+}
+
+const graph = new Graph(container, new GraphDataModel());
+const model = graph.getDataModel();
+
+graph.setEnabled(false);
+InternalEvent.disableContextMenu(container);
+
+//-----------------------------------------------------------------------
+// Style des sommets
+
+graph.getStylesheet().getDefaultVertexStyle().cursor = 'pointer';
 graph.options.expandedImage = null;
 
 //-----------------------------------------------------------------------
-// Style des liens
+// Style des arêtes
 
-const style = graph.getStylesheet().getDefaultEdgeStyle();
-style.labelBackgroundColor = '#FFFFFF';
-style.strokeWidth = 2;
-style.rounded = true;
-style.entryPerimeter = false;
-//style.entryY = 0.25;
-//style.entryX = 0;
-// After move of "obstacles" nodes, move "finish" node - edge route will be recalculated
-style.edgeStyle = 'manhattanEdgeStyle';
-
-// -----------------------------------------------------------------------
-// Panning
-// Permettre le déplacement de la grille
-// graph.setPanning(true); // Active le panning global
-
-// Désactive le graphe
-graph.setEnabled(false);
-
-//-----------------------------------------------------------------------
-// Menu contextuel
-
-// Désactiver le menu contextuel par défaut :
-InternalEvent.disableContextMenu(container)
-
-// Ajouter un écouteur d'événements pour le clic droit
-graph.addListener('contextmenu', (evt) => {
-    console.log('click');
-    const cell = graph.getCellAt(evt.getProperty('event').clientX, evt.getProperty('event').clientY);
-    if (cell && graph.isVertex(cell)) {
-        // Afficher votre menu contextuel ici
-        console.log('Menu contextuel pour le vertex:', cell);
-        // Code pour afficher le menu contextuel
-    }
-});
+const edgeDefaultStyle = graph.getStylesheet().getDefaultEdgeStyle();
+edgeDefaultStyle.labelBackgroundColor = '#FFFFFF';
+edgeDefaultStyle.strokeWidth  = 2;
+edgeDefaultStyle.rounded      = true;
+edgeDefaultStyle.entryPerimeter = false;
+edgeDefaultStyle.edgeStyle    = 'manhattanEdgeStyle';
 
 //-------------------------------------------------------------------------
-// LOAD / SAVE
+// LOAD
 
-// Fonction pour charger le graphe
-export function loadGraph(xml: string) {
+export function loadGraph(xml: string): void {
     new ModelXmlSerializer(model).import(xml);
 }
 
-// Rendez la fonction loadGraph accessible globalement
 (window as any).loadGraph = loadGraph;
 
-//-------------------------------------------------------------------------
-// Fonction de téléchargement
-function downloadSVG() {
-    embedImagesInSVG(svgElement);
+//--------------------------------------------------------------------------
+// Navigation au clic sur un sommet
 
-    setTimeout(() => {
-        const serializer = new XMLSerializer();
-        const svgString = serializer.serializeToString(svgElement);
+graph.addListener(InternalEvent.CLICK, (_sender, evt) => {
+    const cell = evt.getProperty('cell');
+    if (!cell?.isVertex()) return;
 
-        // Créer un blob pour le fichier SVG
-        const blob = new Blob([svgString], {type: 'image/svg+xml;charset=utf-8'});
-        const url = URL.createObjectURL(blob);
+    const node = _nodes.get(cell.id as string);
+    if (!node) return;
 
-        // Créer un lien pour télécharger
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'graph_with_images.svg';
-        link.click();
+    const id = (cell.id as string).split('_').pop();
+    if (id === undefined) return;
 
-        // Nettoyage
-        URL.revokeObjectURL(url);
-    }, 1000); // Attendre la conversion des images
+    window.location.href = `/admin/${node.type}/${id}`;
+});
+
+//-----------------------------------------------------------------------
+// Curseur pointeur sur les sommets image
+
+graph.addMouseListener({
+    mouseMove(_sender, me) {
+        const cell = me.getCell();
+        const isImageVertex = cell?.isVertex() && (cell.style as any)?.image != null;
+        container!.style.cursor = isImageVertex ? 'pointer' : 'default';
+    },
+    mouseDown(_sender, _me) {},
+    mouseUp(_sender, _me)   {},
+});
+
+//---------------------------------------------------------------------------
+// Export SVG
+
+const svgElement = graph.container.querySelector('svg') as SVGSVGElement | null;
+
+async function embedImagesInSVG(svg: SVGSVGElement): Promise<void> {
+    const images = Array.from(svg.querySelectorAll('image'));
+    await Promise.all(images.map(async (img) => {
+        const href = img.getAttribute('xlink:href') ?? img.getAttribute('href');
+        if (!href || href.startsWith('data:')) return;
+        try {
+            const response = await fetch(href);
+            const blob     = await response.blob();
+            const dataUrl  = await new Promise<string>((resolve, reject) => {
+                const reader     = new FileReader();
+                reader.onloadend = () => resolve(reader.result as string);
+                reader.onerror   = reject;
+                reader.readAsDataURL(blob);
+            });
+            img.setAttribute('href', dataUrl);
+            img.removeAttribute('xlink:href');
+        } catch (err) {
+            console.error('Erreur embed image SVG', err);
+        }
+    }));
 }
 
-//--------------------------------------------------------------------------
-// Gestionnaire de clic
-
-graph.addListener(InternalEvent.CLICK, (sender, evt) => {
-    const cell = evt.getProperty('cell');
-    if (cell && cell.isVertex()) {
-        // console.log('Vertex cliqué :', cell.value);
-        // Ajoutez ici le code pour gérer le clic sur le vertex
-        const node = _nodes.get(cell.id);
-        // deleted ?
-        if (node == null)
-            return;
-        const id = cell.id.split("_").pop();
-        window.location.href = "/admin/" + node.type + "/" + id;
+async function downloadSVG(): Promise<void> {
+    if (!svgElement) {
+        alert('SVG introuvable');
+        return;
     }
-});
 
-//-----------------------------------------------------------------
-// Change le pointeur lorsque l'on est sur un Vertex
-graph.addMouseListener({
-    currentState: null,
-    mouseMove(sender, me) {
-        const cell = me.getCell();
-        if (cell && cell.isVertex() && (cell.style.image != null)) {
-            // Si la souris est sur un Vertex
-            graph.container.style.cursor = 'pointer';
-            this.currentState = graph.view.getState(cell);
-        } else {
-            // Rétablir le curseur par défaut
-            graph.container.style.cursor = 'default';
-            this.currentState = null;
-        }
-    },
-    mouseDown(sender, me) {
-    },
-    mouseUp(sender, me) {
-    },
-});
+    await embedImagesInSVG(svgElement);
+
+    const serializer = new XMLSerializer();
+    const svgString  = serializer.serializeToString(svgElement);
+    const blob       = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url        = URL.createObjectURL(blob);
+
+    const now = new Date();
+    const timestamp =
+        now.getFullYear() +
+        String(now.getMonth() + 1).padStart(2, '0') +
+        String(now.getDate()).padStart(2, '0') +
+        String(now.getHours()).padStart(2, '0') +
+        String(now.getMinutes()).padStart(2, '0');
+
+    const link    = document.createElement('a');
+    link.href     = url;
+    link.download = `graph-${timestamp}.svg`;
+    link.click();
+    URL.revokeObjectURL(url);
+}
+
+document.getElementById('download-btn')?.addEventListener('click', downloadSVG);

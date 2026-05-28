@@ -3,24 +3,22 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Gate;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use App\Models\Activity;
 use App\Models\Actor;
 use App\Models\AdminUser;
 use App\Models\Annuaire;
+use App\Models\Application;
 use App\Models\ApplicationBlock;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
+use App\Models\Backup;
 use App\Models\Bay;
 use App\Models\Building;
 use App\Models\Certificate;
 use App\Models\Cluster;
 use App\Models\Container;
 use App\Models\Database;
-use App\Models\DomaineAd;
+use App\Models\Domain;
 use App\Models\Entity;
 use App\Models\ExternalConnectedEntity;
 use App\Models\ForestAd;
@@ -31,7 +29,6 @@ use App\Models\LogicalFlow;
 use App\Models\LogicalServer;
 use App\Models\MacroProcessus;
 use App\Models\Man;
-use App\Models\MApplication;
 use App\Models\Network;
 use App\Models\NetworkSwitch;
 use App\Models\Operation;
@@ -54,14 +51,23 @@ use App\Models\Vlan;
 use App\Models\Wan;
 use App\Models\WifiTerminal;
 use App\Models\Workstation;
+use App\Models\Zone;
 use App\Models\ZoneAdmin;
+use Gate;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExplorerController extends Controller
 {
     private array $nodes = [];
     private array $edges = [];
+
+    // When set, addNode() writes directly to output instead of buffering in $nodes
+    private ?\Closure $nodeWriter = null;
 
     // Shared objects
     private Collection $subnetworks;
@@ -78,27 +84,82 @@ class ExplorerController extends Controller
     }
 
     /**
-     * API endpoint pour récupérer les données du graphe en JSON
+     * API endpoint — streams graph data as JSON without accumulating nodes in memory.
+     *
+     * Nodes are written to the output buffer one by one via $nodeWriter; edges are
+     * still buffered (they are lightweight) so they can be appended after the nodes
+     * array. getData() is unaffected: it leaves $nodeWriter null and keeps the old
+     * array-accumulation path, as GraphController / BPMNController rely on it.
      */
-    public function getGraphData(Request $request)
+    public function getGraphData(Request $request): StreamedResponse
     {
         abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        [$nodes, $edges] = $this->getData();
+        return response()->stream(function () {
+            $this->edges = [];
+            $this->subnetworks = Subnetwork::select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
 
-        return response()->json([
-            'nodes' => $nodes,
-            'edges' => $edges,
-        ], 200, [], JSON_UNESCAPED_UNICODE);
+            $first      = true;
+            $count      = 0;
+            $attributes = [];
+            $this->nodeWriter = function (array $node) use (&$first, &$count, &$attributes): void {
+                if (!$first) {
+                    echo ',';
+                }
+                $first = false;
+                echo json_encode($node, JSON_UNESCAPED_UNICODE);
+                // Collect unique, non-empty attribute tokens while streaming
+                if (!empty($node['attributes'])) {
+                    foreach (array_filter(array_map('trim', explode(' ', $node['attributes']))) as $attr) {
+                        $attributes[$attr] = true;
+                    }
+                }
+                // Flush every 200 nodes so the output buffer does not re-accumulate
+                // what we are trying to avoid keeping in the $nodes array.
+                if (++$count % 200 === 0) {
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                }
+            };
+
+            echo '{"nodes":[';
+
+            $this->buildPhysicalView();
+            $this->buildLogicalView();
+            $this->buildApplicationView();
+            $this->buildAdministrativeView();
+            $this->buildProcessView();
+            $this->buildEcosystemView();
+
+            $this->nodeWriter = null;
+
+            ksort($attributes);
+            echo '],"edges":';
+            echo json_encode($this->edges, JSON_UNESCAPED_UNICODE);
+            echo ',"attributes":';
+            echo json_encode(array_keys($attributes), JSON_UNESCAPED_UNICODE);
+            echo '}';
+
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+            flush();
+        }, 200, [
+            'Content-Type'     => 'application/json',
+            'X-Accel-Buffering' => 'no',
+        ]);
     }
+
 
     public function getAttributes(): \Illuminate\Http\JsonResponse
     {
         abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $tables = [
-            'm_applications', 'logical_servers', 'clusters', 'entities',
-            'buildings', 'physical_security_devices', 'relations', 'security_devices', 'fluxes',
+            'applications', 'logical_servers', 'clusters', 'entities',
+            'buildings', 'physical_security_devices', 'relations', 'security_devices', 'application_flows',
         ];
         $allAttributes = collect();
         foreach ($tables as $table) {
@@ -128,7 +189,7 @@ class ExplorerController extends Controller
     {
         $this->nodes = [];
         $this->edges = [];
-        $this->subnetworks = Subnetwork::all();
+        $this->subnetworks = Subnetwork::select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
 
         $this->buildPhysicalView();
         $this->buildLogicalView();
@@ -151,6 +212,7 @@ class ExplorerController extends Controller
         $this->buildSites();
         $this->buildBuildings();
         $this->buildBays();
+        $this->buildSecurityZones();
         $this->buildPhysicalServers();
         $this->buildPhones();
         $this->buildStorageDevices();
@@ -243,6 +305,51 @@ class ExplorerController extends Controller
         }
     }
 
+    private function buildSecurityZones(): void
+    {
+        $zones = DB::table('zones')
+            ->select('id', 'name', 'attributes')
+            ->whereNull('deleted_at')
+            ->get();
+
+        foreach ($zones as $zone) {
+            $this->addNode(
+                6,
+                $this->formatId(Zone::$prefix, $zone->id),
+                $zone->name,
+                Zone::$icon,
+                'zones',
+                613,
+                null,
+                $zone->attributes
+            );
+        }
+
+        // Zone-Zone (parent/child)
+        $links = DB::table('zone_zone as zz')
+                 ->join('zones as parent', 'parent.id', '=', 'zz.zone_id')
+                 ->join('zones as child', 'child.id', '=', 'zz.related_zone_id')
+                 ->whereNull('parent.deleted_at')
+                 ->whereNull('child.deleted_at')
+                 ->select('zz.zone_id', 'zz.related_zone_id')
+                 ->get();
+
+        foreach ($links as $link) {
+            $this->addFluxEdge(null, false,
+                $this->formatId(Zone::$prefix, $link->zone_id),
+                $this->formatId(Zone::$prefix, $link->related_zone_id)
+            );
+        }
+
+        $this->linkJoinTable('building_zone',
+            Zone::$prefix, Building::$prefix,
+            'zone_id', 'building_id');
+
+        $this->linkJoinTable('admin_user_zone',
+            Zone::$prefix, AdminUser::$prefix,
+            'zone_id', 'admin_user_id');
+    }
+
     private function buildPhysicalServers(): void
     {
         $servers = DB::table('physical_servers')
@@ -299,9 +406,9 @@ class ExplorerController extends Controller
                     $this->formatId(Workstation::$prefix, $workstation->id));
         }
 
-        $this->linkJoinTable('m_application_workstation',
-            MApplication::$prefix, Workstation::$prefix,
-            'm_application_id', 'workstation_id');
+        $this->linkJoinTable('application_workstation',
+            Application::$prefix, Workstation::$prefix,
+            'application_id', 'workstation_id');
     }
 
     private function buildPhones(): void
@@ -377,14 +484,14 @@ class ExplorerController extends Controller
             }
         }
 
-        // m_application_peripheral
-        $joins = DB::table('m_application_peripheral')
-            ->select('m_application_id', 'peripheral_id')
+        // application_peripheral
+        $joins = DB::table('application_peripheral')
+            ->select('application_id', 'peripheral_id')
             ->get();
 
         foreach ($joins as $join) {
             $this->addLinkEdge(
-                $this->formatId(MApplication::$prefix, $join->m_application_id),
+                $this->formatId(Application::$prefix, $join->application_id),
                 $this->formatId(Peripheral::$prefix, $join->peripheral_id));
         }
 
@@ -641,7 +748,7 @@ class ExplorerController extends Controller
     private function buildPhysicalLinks(): void
     {
         $links = PhysicalLink::all();
-
+        
         foreach ($links as $link) {
             $src = $link->sourceId();
             $dest = $link->destinationId();
@@ -666,6 +773,7 @@ class ExplorerController extends Controller
         $this->buildGateways();
         $this->buildExternalConnectedEntities();
         $this->buildLogicalServers();
+        $this->buildBackups();
         $this->buildLogicalSecurityDevices();
         $this->buildRouters();
         $this->buildCertificates();
@@ -693,6 +801,11 @@ class ExplorerController extends Controller
 
     private function buildSubnetworks(): void
     {
+        // Sort once before iterating so linkDeviceToSubnetworks() matches the most specific subnet first
+        $this->subnetworks = $this->subnetworks->sortByDesc(
+            fn($subnet) => ExplorerController::getMaskLength($subnet->address)
+        );
+
         foreach ($this->subnetworks as $subnetwork) {
             $this->addNode(
                 5,
@@ -702,11 +815,6 @@ class ExplorerController extends Controller
                 'subnetworks', 510,
                 $subnetwork->address
             );
-
-            // Tri descending by subnet mask length
-            $this->subnetworks = $this->subnetworks->sortByDesc(function($subnet) {
-                return ExplorerController::getMaskLength($subnet->address);
-            });
 
             if ($subnetwork->subnetwork_id !== null) {
                 $this->addLinkEdge(
@@ -842,13 +950,13 @@ class ExplorerController extends Controller
         }
 
         // Container - Applications
-        $joins = DB::table('container_m_application')
-            ->select('container_id', 'm_application_id')
+        $joins = DB::table('application_container')
+            ->select('container_id', 'application_id')
             ->get();
         foreach ($joins as $join) {
             $this->addLinkEdge(
                 $this->formatId(Container::$prefix, $join->container_id),
-                $this->formatId(MApplication::$prefix, $join->m_application_id));
+                $this->formatId(Application::$prefix, $join->application_id));
         }
 
         // Container - Databases
@@ -905,6 +1013,7 @@ class ExplorerController extends Controller
 
     }
 
+
     private function buildLogicalServers(): void
     {
         $this->logicalServers = DB::table('logical_servers')
@@ -932,7 +1041,7 @@ class ExplorerController extends Controller
             if ($server->domain_id !== null) {
                 $this->addLinkEdge(
                     $this->formatId(LogicalServer::$prefix, $server->id),
-                    $this->formatId(DomaineAd::$prefix, $server->domain_id)
+                    $this->formatId(Domain::$prefix, $server->domain_id)
                 );
             }
         }
@@ -941,12 +1050,49 @@ class ExplorerController extends Controller
             LogicalServer::$prefix, PhysicalServer::$prefix,
             'logical_server_id', 'physical_server_id');
 
-        // Backups
-        if (Auth::user()->can('backup_access'))
-            $this->linkJoinTable('backups',
-                LogicalServer::$prefix, StorageDevice::$prefix,
-                'logical_server_id', 'storage_device_id');
+    }
 
+    private function buildBackups(): void
+    {
+        if (! Auth::user()->can('backup_access')) {
+            return;
+        }
+
+        $backups = DB::table('backups')
+            ->select('id', 'name', 'attributes')
+            ->whereNull('deleted_at')
+            ->get();
+
+        foreach ($backups as $backup) {
+            $this->addNode(
+                5,
+                $this->formatId(Backup::$prefix, $backup->id),
+                $backup->name,
+                '/images/backup.png',
+                'backups',
+                555,
+                null,
+                $backup->attributes
+            );
+        }
+
+        // Backup ↔ LogicalServer edges
+        $serverLinks = DB::table('backup_logical_server')->get();
+        foreach ($serverLinks as $link) {
+            $this->addLinkEdge(
+                $this->formatId(LogicalServer::$prefix, $link->logical_server_id),
+                $this->formatId(Backup::$prefix, $link->backup_id)
+            );
+        }
+
+        // Backup ↔ StorageDevice edges
+        $deviceLinks = DB::table('backup_storage_device')->get();
+        foreach ($deviceLinks as $link) {
+            $this->addLinkEdge(
+                $this->formatId(Backup::$prefix, $link->backup_id),
+                $this->formatId(StorageDevice::$prefix, $link->storage_device_id)
+            );
+        }
     }
 
     private function buildLogicalSecurityDevices(): void
@@ -976,9 +1122,9 @@ class ExplorerController extends Controller
             PhysicalSecurityDevice::$prefix, SecurityDevice::$prefix,
             'physical_security_device_id', 'security_device_id');
 
-        $this->linkJoinTable('m_application_security_device',
-            MApplication::$prefix, SecurityDevice::$prefix,
-            'm_application_id', 'security_device_id');
+        $this->linkJoinTable('application_security_device',
+            Application::$prefix, SecurityDevice::$prefix,
+            'application_id', 'security_device_id');
 
 
     }
@@ -1039,15 +1185,15 @@ class ExplorerController extends Controller
             Certificate::$prefix, LogicalServer::$prefix,
             'certificate_id', 'logical_server_id');
 
-        $this->linkJoinTable('certificate_m_application',
-            Certificate::$prefix, MApplication::$prefix,
-            'certificate_id', 'm_application_id');;
+        $this->linkJoinTable('application_certificate',
+            Certificate::$prefix, Application::$prefix,
+            'certificate_id', 'application_id');;
 
     }
 
     private function buildLogicalFlows(): void
     {
-        $flows = LogicalFlow::All();
+        $flows = LogicalFlow::all();
 
         foreach ($flows as $flow) {
             // \Log::Debug('flow: '.$flow->name);
@@ -1126,33 +1272,33 @@ class ExplorerController extends Controller
 
     private function buildApplicationFlows() : void {
         // Fluxes
-        $fluxes = DB::table('fluxes')->whereNull('deleted_at')->get();
-        foreach ($fluxes as $flux) {
-            if ($flux->application_source_id !== null) {
-                $src_id = $this->formatId(MApplication::$prefix, $flux->application_source_id);
-            } elseif ($flux->service_source_id !== null) {
-                $src_id = $this->formatId(ApplicationService::$prefix, $flux->service_source_id);
-            } elseif ($flux->module_source_id !== null) {
-                $src_id = $this->formatId(ApplicationModule::$prefix, $flux->module_source_id);
-            } elseif ($flux->database_source_id !== null) {
-                $src_id = $this->formatId(Database::$prefix, $flux->database_source_id);
+        $flows = DB::table('application_flows')->whereNull('deleted_at')->get();
+        foreach ($flows as $flow) {
+            if ($flow->application_source_id !== null) {
+                $src_id = $this->formatId(Application::$prefix, $flow->application_source_id);
+            } elseif ($flow->service_source_id !== null) {
+                $src_id = $this->formatId(ApplicationService::$prefix, $flow->service_source_id);
+            } elseif ($flow->module_source_id !== null) {
+                $src_id = $this->formatId(ApplicationModule::$prefix, $flow->module_source_id);
+            } elseif ($flow->database_source_id !== null) {
+                $src_id = $this->formatId(Database::$prefix, $flow->database_source_id);
             } else {
                 continue;
             }
 
-            if ($flux->application_dest_id !== null) {
-                $dest_id = $this->formatId(MApplication::$prefix, $flux->application_dest_id);
-            } elseif ($flux->service_dest_id !== null) {
-                $dest_id = $this->formatId(ApplicationService::$prefix, $flux->service_dest_id);
-            } elseif ($flux->module_dest_id !== null) {
-                $dest_id = $this->formatId(ApplicationModule::$prefix, $flux->module_dest_id);
-            } elseif ($flux->database_dest_id !== null) {
-                $dest_id = $this->formatId(Database::$prefix, $flux->database_dest_id);
+            if ($flow->application_dest_id !== null) {
+                $dest_id = $this->formatId(Application::$prefix, $flow->application_dest_id);
+            } elseif ($flow->service_dest_id !== null) {
+                $dest_id = $this->formatId(ApplicationService::$prefix, $flow->service_dest_id);
+            } elseif ($flow->module_dest_id !== null) {
+                $dest_id = $this->formatId(ApplicationModule::$prefix, $flow->module_dest_id);
+            } elseif ($flow->database_dest_id !== null) {
+                $dest_id = $this->formatId(Database::$prefix, $flow->database_dest_id);
             } else {
                 continue;
             }
 
-            $this->addFluxEdge($flux->nature, $flux->bidirectional ?? false, $src_id, $dest_id);
+            $this->addFluxEdge($flow->nature, $flow->bidirectional ?? false, $src_id, $dest_id);
         }
     }
 
@@ -1176,7 +1322,7 @@ class ExplorerController extends Controller
 
     private function buildApplications(): void
     {
-        $applications = DB::table('m_applications')
+        $applications = DB::table('applications')
             ->select('id', 'name', 'icon_id', 'application_block_id', 'attributes')
             ->whereNull('deleted_at')
             ->get();
@@ -1184,7 +1330,7 @@ class ExplorerController extends Controller
         foreach ($applications as $app) {
             $this->addNode(
                 3,
-                $this->formatId(MApplication::$prefix, $app->id),
+                $this->formatId(Application::$prefix, $app->id),
                 $app->name,
                 $this->getIcon($app->icon_id, '/images/application.png'),
                 'applications', 310,
@@ -1194,18 +1340,18 @@ class ExplorerController extends Controller
 
             if ($app->application_block_id !== null) {
                 $this->addLinkEdge(
-                    $this->formatId(MApplication::$prefix, $app->id),
+                    $this->formatId(Application::$prefix, $app->id),
                     $this->formatId(ApplicationBlock::$prefix, $app->application_block_id)
                 );
             }
         }
 
-        $this->linkJoinTable('application_service_m_application',
-            ApplicationService::$prefix, MApplication::$prefix,
-            'application_service_id', 'm_application_id');
-        $this->linkJoinTable('logical_server_m_application',
-            LogicalServer::$prefix, MApplication::$prefix,
-            'logical_server_id', 'm_application_id');
+        $this->linkJoinTable('application_application_service',
+            ApplicationService::$prefix, Application::$prefix,
+            'application_service_id', 'application_id');
+        $this->linkJoinTable('application_logical_server',
+            LogicalServer::$prefix, Application::$prefix,
+            'logical_server_id', 'application_id');
     }
 
 
@@ -1275,9 +1421,9 @@ class ExplorerController extends Controller
         $this->linkJoinTable('database_logical_server',
             Database::$prefix, LogicalServer::$prefix,
             'database_id', 'logical_server_id');
-        $this->linkJoinTable('database_m_application',
-            Database::$prefix, MApplication::$prefix,
-            'database_id', 'm_application_id');
+        $this->linkJoinTable('application_database',
+            Database::$prefix, Application::$prefix,
+            'database_id', 'application_id');
         $this->linkJoinTable('database_entity',
             Database::$prefix, Entity::$prefix,
             'database_id', 'entity_id');
@@ -1366,7 +1512,7 @@ class ExplorerController extends Controller
 
     private function buildDomains(): void
     {
-        $domains = DB::table('domaine_ads')
+        $domains = DB::table('domains')
             ->select('id', 'name')
             ->whereNull('deleted_at')
             ->get();
@@ -1374,16 +1520,16 @@ class ExplorerController extends Controller
         foreach ($domains as $domain) {
             $this->addNode(
                 4,
-                $this->formatId(DomaineAd::$prefix, $domain->id),
+                $this->formatId(Domain::$prefix, $domain->id),
                 $domain->name,
                 '/images/domain.png',
-                'domaine-ads', 460
+                'domains', 460
             );
         }
 
-        $this->linkJoinTable('domaine_ad_forest_ad',
-            DomaineAd::$prefix, ForestAd::$prefix,
-            'domaine_ad_id', 'forest_ad_id');
+        $this->linkJoinTable('domain_forest_ad',
+            Domain::$prefix, ForestAd::$prefix,
+            'domain_id', 'forest_ad_id');
     }
 
     private function buildAdminUsers(): void
@@ -1404,16 +1550,16 @@ class ExplorerController extends Controller
             if ($adminUser->domain_id !== null) {
                 $this->addLinkEdge(
                     $this->formatId(AdminUser::$prefix, $adminUser->id),
-                    $this->formatId(DomaineAd::$prefix, $adminUser->domain_id)
+                    $this->formatId(Domain::$prefix, $adminUser->domain_id)
                 );
             }
 
 
         }
 
-        $this->linkJoinTable('admin_user_m_application',
-            AdminUser::$prefix, MApplication::$prefix,
-            'admin_user_id', 'm_application_id');
+        $this->linkJoinTable('admin_user_application',
+            AdminUser::$prefix, Application::$prefix,
+            'admin_user_id', 'application_id');
     }
 
     /**
@@ -1531,9 +1677,9 @@ class ExplorerController extends Controller
             Activity::$prefix, Process::$prefix,
             'activity_id', 'process_id');
 
-        $this->linkJoinTable('activity_m_application',
-            Activity::$prefix, MApplication::$prefix,
-            'activity_id', 'm_application_id');
+        $this->linkJoinTable('activity_application',
+            Activity::$prefix, Application::$prefix,
+            'activity_id', 'application_id');
     }
 
     private function buildOperations(): void
@@ -1640,9 +1786,9 @@ class ExplorerController extends Controller
         $this->linkJoinTable('entity_process',
             Entity::$prefix, Process::$prefix,
             'entity_id', 'process_id');
-        $this->linkJoinTable('entity_m_application',
-            Entity::$prefix, MApplication::$prefix,
-            'entity_id', 'm_application_id');
+        $this->linkJoinTable('application_entity',
+            Entity::$prefix, Application::$prefix,
+            'entity_id', 'application_id');
     }
 
     private function buildRelations(): void
@@ -1680,16 +1826,22 @@ class ExplorerController extends Controller
      */
     private function addNode(int $vue, string $id, string $label, string $image, string $type, int $order, ?string $title = null, ?string $attributes = null): void
     {
-        $this->nodes[] = [
-            'vue' => $vue,
-            'id' => $id,
-            'label' => $label,
-            'image' => $image,
-            'type' => $type,
-            'order' => $order,
-            'title' => $title,
+        $node = [
+            'vue'        => $vue,
+            'id'         => $id,
+            'label'      => $label,
+            'image'      => $image,
+            'type'       => $type,
+            'order'      => $order,
+            'title'      => $title,
             'attributes' => $attributes,
         ];
+
+        if ($this->nodeWriter !== null) {
+            ($this->nodeWriter)($node);
+        } else {
+            $this->nodes[] = $node;
+        }
     }
 
     private function addEdge(?string $name, bool $bidirectional,

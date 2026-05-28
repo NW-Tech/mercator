@@ -1,0 +1,197 @@
+@extends('layouts.admin')
+
+@section('title')
+    {{ trans('cruds.flux.title_singular') }} {{ trans('global.list') }}
+@endsection
+
+@section('content')
+    @can('flux_create')
+        <div style="margin-bottom: 10px;" class="row">
+            <div class="col-lg-12">
+                <a id="btn-new" class="btn btn-success" href="{{ route('admin.application-flows.create') }}">
+                    {{ trans('global.add') }} {{ trans('cruds.flux.title_singular') }}
+                </a>
+            </div>
+        </div>
+    @endcan
+    <div class="card">
+        <div class="card-header">
+            {{ trans('cruds.flux.title_singular') }} {{ trans('global.list') }}
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table id="dataTable" class=" table table-bordered table-striped table-hover datatable">
+                    <thead>
+                    <tr>
+                        <th width="10">
+
+                        </th>
+                        <th>
+                            {{ trans('cruds.flux.fields.name') }}
+                        </th>
+                        <th>
+                            {{ trans('cruds.flux.fields.nature_short') }}
+                        </th>
+                        <th>
+                            {{ trans('cruds.flux.fields.attributes') }}
+                        </th>
+                        <th>
+                            {{ trans('cruds.flux.fields.description') }}
+                        </th>
+                        <th>
+                            {{ trans('cruds.flux.fields.source') }}
+                        </th>
+                        <th>
+                            {{ trans('cruds.flux.fields.destination') }}
+                        </th>
+                        <th>
+                            {{ trans('cruds.flux.fields.crypted') }}
+                        </th>
+                        <th>
+                            &nbsp;
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach($flows as $key => $flow)
+                        <tr data-entry-id="{{ $flow->id }}"
+
+                            @if(
+                                // no description
+                                ($flow->description==null)||
+                                // no source
+                                (
+                                  ($flow->applicationSource==null)&&
+                                  ($flow->serviceSource==null)&&
+                                  ($flow->moduleSource==null)&&
+                                  ($flow->databaseSource==null)
+                                )||
+                                // no destination
+                                (
+                                  ($flow->applicationDest==null)&&
+                                  ($flow->serviceDest==null)&&
+                                  ($flow->moduleDest==null)&&
+                                  ($flow->databaseDest==null)
+                                )
+                              )
+                                class="table-warning"
+                                @endif
+
+
+                        >
+                            <td>
+
+                            </td>
+                            <td>
+                                <a href="{{ route('admin.application-flows.show', $flow->id) }}">
+                                    {{ $flow->name ?? '' }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ $flow->nature }}
+                            </td>
+                            <td>
+                                @php
+                                    foreach(explode(" ",$flow->attributes) as $attribute)
+                                        echo "<span class='badge badge-info'>$attribute</span> ";
+                                @endphp
+                            </td>
+                            <td>
+                                {!! $flow->description ?? '' !!}
+                            </td>
+                            <td>
+                                @if ($flow->applicationSource!=null)
+                                    <a href="{{ route('admin.applications.show', $flow->application_source_id) }}">
+                                        {{ $flow->applicationSource->name }}
+                                        @endif
+                                        @if ($flow->serviceSource!=null)
+                                            <a href="{{ route('admin.application-services.show', $flow->service_source_id) }}">
+                                                {{ $flow->serviceSource->name }}
+                                            </a>
+                                        @endif
+                                        @if ($flow->moduleSource!=null)
+                                            <a href="{{ route('admin.application-modules.show', $flow->module_source_id) }}">
+                                                {{ $flow->moduleSource->name }}
+                                            </a>
+                                        @endif
+                                        @if ($flow->databaseSource!=null)
+                                            <a href="{{ route('admin.databases.show', $flow->database_source_id) }}">
+                                                {{ $flow->databaseSource->name }}
+                                            </a>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($flow->applicationDest!=null)
+                                    <a href="{{ route('admin.applications.show', $flow->application_dest_id) }}">
+                                        {{ $flow->applicationDest->name }}
+                                        @endif
+                                        @if ($flow->serviceDest!=null)
+                                            <a href="{{ route('admin.application-services.show', $flow->service_dest_id) }}">
+                                                {{ $flow->serviceDest->name }}
+                                            </a>
+                                        @endif
+                                        @if ($flow->moduleDest!=null)
+                                            <a href="{{ route('admin.application-modules.show', $flow->module_dest_id) }}">
+                                                {{ $flow->moduleDest->name }}
+                                            </a>
+                                        @endif
+                                        @if ($flow->databaseDest!=null)
+                                            <a href="{{ route('admin.databases.show', $flow->database_dest_id) }}">
+                                                {{ $flow->databaseDest->name }}
+                                            </a>
+                                @endif
+                            </td>
+                            <td>
+                                @if ($flow->crypted==0)
+                                    Non
+                                @elseif ($flow->crypted==1)
+                                    Oui
+                                @endif
+                            </td>
+                            <td nowrap>
+                                @can('flux_show')
+                                    <a class="btn btn-xs btn-primary"
+                                       href="{{ route('admin.application-flows.show', $flow->id) }}">
+                                        {{ trans('global.view') }}
+                                    </a>
+                                @endcan
+
+                                @can('flux_edit')
+                                    <a class="btn btn-xs btn-info" href="{{ route('admin.application-flows.edit', $flow->id) }}">
+                                        {{ trans('global.edit') }}
+                                    </a>
+                                @endcan
+
+                                @can('flux_delete')
+                                    <form action="{{ route('admin.application-flows.destroy', $flow->id) }}" method="POST"
+                                          onsubmit="return confirm('{{ trans('global.areYouSure') }}');"
+                                          style="display: inline-block;">
+                                        <input type="hidden" name="_method" value="DELETE">
+                                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                        <input type="submit" class="btn btn-xs btn-danger"
+                                               value="{{ trans('global.delete') }}">
+                                    </form>
+                                @endcan
+
+                            </td>
+
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+@endsection
+@section('scripts')
+    @parent
+    <script>
+        @include('partials.datatable', array(
+            'id' => '#dataTable',
+            'title' => trans("cruds.flux.title_singular"),
+            'URL' => route('admin.application-flows.massDestroy'),
+            'canDelete' => auth()->user()->can('flux_delete') ? true : false
+        ));
+    </script>
+@endsection
