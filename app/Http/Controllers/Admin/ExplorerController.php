@@ -59,6 +59,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExplorerController extends Controller
 {
@@ -82,17 +83,17 @@ class ExplorerController extends Controller
     /**
      * API endpoint pour récupérer les données du graphe en JSON
      */
-    public function getGraphData(Request $request)
+    public function getGraphData(Request $request): StreamedResponse
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        [$nodes, $edges] = $this->getData();
-
-        return response()->json([
-            'nodes' => $nodes,
-            'edges' => $edges,
-        ], 200, [], JSON_UNESCAPED_UNICODE);
+        return response()->stream(function () {
+            [$nodes, $edges] = $this->getData();
+            echo json_encode(
+                ['nodes' => $nodes, 'edges' => $edges],
+                JSON_UNESCAPED_UNICODE
+            );
+        }, 200, ['Content-Type' => 'application/json']);
     }
+
 
     public function getAttributes(): \Illuminate\Http\JsonResponse
     {
@@ -689,7 +690,7 @@ class ExplorerController extends Controller
     private function buildPhysicalLinks(): void
     {
         $links = PhysicalLink::all();
-
+        
         foreach ($links as $link) {
             $src = $link->sourceId();
             $dest = $link->destinationId();
