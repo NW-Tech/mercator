@@ -130,7 +130,7 @@ class ExplorerController extends Controller
     {
         $this->nodes = [];
         $this->edges = [];
-        $this->subnetworks = Subnetwork::all();
+        $this->subnetworks = Subnetwork::select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
 
         $this->buildPhysicalView();
         $this->buildLogicalView();
@@ -742,6 +742,11 @@ class ExplorerController extends Controller
 
     private function buildSubnetworks(): void
     {
+        // Sort once before iterating so linkDeviceToSubnetworks() matches the most specific subnet first
+        $this->subnetworks = $this->subnetworks->sortByDesc(
+            fn($subnet) => ExplorerController::getMaskLength($subnet->address)
+        );
+
         foreach ($this->subnetworks as $subnetwork) {
             $this->addNode(
                 5,
@@ -751,11 +756,6 @@ class ExplorerController extends Controller
                 'subnetworks', 510,
                 $subnetwork->address
             );
-
-            // Tri descending by subnet mask length
-            $this->subnetworks = $this->subnetworks->sortByDesc(function($subnet) {
-                return ExplorerController::getMaskLength($subnet->address);
-            });
 
             if ($subnetwork->subnetwork_id !== null) {
                 $this->addLinkEdge(
@@ -1134,7 +1134,7 @@ class ExplorerController extends Controller
 
     private function buildLogicalFlows(): void
     {
-        $flows = LogicalFlow::All();
+        $flows = LogicalFlow::all();
 
         foreach ($flows as $flow) {
             // \Log::Debug('flow: '.$flow->name);
