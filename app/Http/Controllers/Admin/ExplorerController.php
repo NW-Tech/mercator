@@ -66,6 +66,9 @@ class ExplorerController extends Controller
     private array $nodes = [];
     private array $edges = [];
 
+    // When set, addNode() writes directly to output instead of buffering in $nodes
+    private ?\Closure $nodeWriter = null;
+
     // Shared objects
     private Collection $subnetworks;
     private Collection $logicalServers;
@@ -81,17 +84,62 @@ class ExplorerController extends Controller
     }
 
     /**
-     * API endpoint pour récupérer les données du graphe en JSON
+     * API endpoint — streams graph data as JSON without accumulating nodes in memory.
+     *
+     * Nodes are written to the output buffer one by one via $nodeWriter; edges are
+     * still buffered (they are lightweight) so they can be appended after the nodes
+     * array. getData() is unaffected: it leaves $nodeWriter null and keeps the old
+     * array-accumulation path, as GraphController / BPMNController rely on it.
      */
     public function getGraphData(Request $request): StreamedResponse
     {
+        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         return response()->stream(function () {
-            [$nodes, $edges] = $this->getData();
-            echo json_encode(
-                ['nodes' => $nodes, 'edges' => $edges],
-                JSON_UNESCAPED_UNICODE
-            );
-        }, 200, ['Content-Type' => 'application/json']);
+            $this->edges = [];
+            $this->subnetworks = Subnetwork::select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
+
+            $first = true;
+            $count = 0;
+            $this->nodeWriter = function (array $node) use (&$first, &$count): void {
+                if (!$first) {
+                    echo ',';
+                }
+                $first = false;
+                echo json_encode($node, JSON_UNESCAPED_UNICODE);
+                // Flush every 200 nodes so the output buffer does not re-accumulate
+                // what we are trying to avoid keeping in the $nodes array.
+                if (++$count % 200 === 0) {
+                    if (ob_get_level() > 0) {
+                        ob_flush();
+                    }
+                    flush();
+                }
+            };
+
+            echo '{"nodes":[';
+
+            $this->buildPhysicalView();
+            $this->buildLogicalView();
+            $this->buildApplicationView();
+            $this->buildAdministrativeView();
+            $this->buildProcessView();
+            $this->buildEcosystemView();
+
+            $this->nodeWriter = null;
+
+            echo '],"edges":';
+            echo json_encode($this->edges, JSON_UNESCAPED_UNICODE);
+            echo '}';
+
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+            flush();
+        }, 200, [
+            'Content-Type'     => 'application/json',
+            'X-Accel-Buffering' => 'no',
+        ]);
     }
 
 
@@ -1768,16 +1816,22 @@ class ExplorerController extends Controller
      */
     private function addNode(int $vue, string $id, string $label, string $image, string $type, int $order, ?string $title = null, ?string $attributes = null): void
     {
-        $this->nodes[] = [
-            'vue' => $vue,
-            'id' => $id,
-            'label' => $label,
-            'image' => $image,
-            'type' => $type,
-            'order' => $order,
-            'title' => $title,
+        $node = [
+            'vue'        => $vue,
+            'id'         => $id,
+            'label'      => $label,
+            'image'      => $image,
+            'type'       => $type,
+            'order'      => $order,
+            'title'      => $title,
             'attributes' => $attributes,
         ];
+
+        if ($this->nodeWriter !== null) {
+            ($this->nodeWriter)($node);
+        } else {
+            $this->nodes[] = $node;
+        }
     }
 
     private function addEdge(?string $name, bool $bidirectional,
