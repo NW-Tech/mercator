@@ -23,7 +23,6 @@ class MassUpdateActivityRequest extends FormRequest
         $rules = [
             'items'   => ['required', 'array', 'min:1'],
             'items.*' => ['required', 'array'],
-            // l'id n'est pas dans UpdateActivityRequest (route model binding),
             'items.*.id' => ['required', 'integer', 'exists:activities,id'],
         ];
 
