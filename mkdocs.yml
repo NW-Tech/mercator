@@ -3,10 +3,10 @@ docs_dir: docs
 # Project information
 site_name: Mercator
 site_description: Mapping the Information System !
-site_url: https://dbarzin.githubs.io/mercator/
+site_url: https://sourcentis.github.io/mercator/
 
 # Repository
-repo_url: https://github.com/dbarzin/mercator
+repo_url: https://github.com/sourcentis/mercator
 edit_uri: edit/master/docs
 
 # Copyright
