@@ -60,6 +60,22 @@ Description des interfaces d'exploration et de dépendances.
 | **Recommencer**  | Bouton jaune     | ✅ | ✅ | Réinitialise entièrement le graphe                              |
 | **Afficher IP**  | Bouton gris      | ✅ |    | Affiche les adresses IP sur les assets réseau                   |
 
+## Représentation des liens
+
+Les types de liens sont représentés de cette manière:
+
+*   les liens de types **rattachement**: « A contient B » ou << à est dépendant de B >>
+    * Ils sont représentés par des **pointillés noirs**
+*   Les liens de types **flux**: « A échange avec B ».
+    * Ils sont représentés par des **flèches bleues**
+
+Exemple:
+
+| 🕸️ Exploration |  ⟁ Dépendances  |
+|:-:|:-:|
+| [<img src="/mercator/images/exploration_links.png" width="550">](images/exploration_links.png) | [<img src="/mercator/images/dependency_links.png" width="550">](images/dependency_links.png) |
+
+
 ---
 
 ## Filtre
