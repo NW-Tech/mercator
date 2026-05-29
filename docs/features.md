@@ -60,6 +60,22 @@ Description of the Exploration and Dependencies interfaces.
 | **Reset**        | Yellow button  | ✅ | ✅ | Completely resets the graph                                        |
 | **Show IP**      | Grey button    | ✅ |    | Displays IP addresses on network assets                            |
 
+## Links Representation
+
+Link types are represented as follows:
+
+*   **Attachment links**: "A contains B" or "A is dependent on B"
+    * They are represented by **black dotted lines**
+*   **Flow links**: "A exchanges with B"
+    * They are represented by **blue arrows**
+
+Example:
+
+| 🕸️ Exploration |  ⟁ Dependencies |
+|:-:|:-:|
+| [<img src="/mercator/images/exploration_links.png" width="550">](images/exploration_links.png) | [<img src="/mercator/images/dependency_links.png" width="550">](images/dependency_links.png) |
+
+
 ---
 
 ## Filter

@@ -25,7 +25,7 @@ class UpdateDomainRequest extends BaseFormRequest
                 'max:32',
                 'required',
                 Rule::unique('domains')
-                    ->ignore($this->route('domain')?->id ?? $this->id)
+                    ->ignore($this->route('domain')->id ?? $this->id)
                     ->whereNull('deleted_at'),
             ],
             'domain_ctrl_cnt' => [
