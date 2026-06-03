@@ -1,4 +1,6 @@
 docs_dir: docs
+exclude_docs: |
+  _helm_chart/
 
 # Project information
 site_name: Mercator
