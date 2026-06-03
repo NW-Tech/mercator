@@ -53,7 +53,7 @@ jobs:
           charts_dir: docs/_helm_chart
           skip_existing: true
           mark_as_latest: false
-          pages_branch: master
+          pages_branch: gh-pages
         env:
           CR_TOKEN: "${{secrets.GITHUB_TOKEN}}"
 

@@ -31,7 +31,9 @@ jobs:
         run: mkdocs build --clean
 
       - name: Add Helm index to site
-        run: cp index.yaml site/index.yaml
+        run: |
+          git fetch origin gh-pages
+          git show origin/gh-pages:index.yaml > site/index.yaml 2>/dev/null || true
 
       - name: Deploy to GitHub Pages
         run: |
