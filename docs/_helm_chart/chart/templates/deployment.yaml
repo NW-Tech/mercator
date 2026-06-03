@@ -131,60 +131,60 @@ spec:
             - name: MIX_PUSHER_APP_CLUSTER
               value: {{ .Values.pusher.app_cluster | quote }}
           {{- if .Values.keycloak.enabled }}
-          - name: KEYCLOAK
-            value: "enabled"
-          - name: KEYCLOAK_CLIENT_ID
-            value: {{ .Values.keycloak.client_id | quote }}
-          - name: KEYCLOAK_CLIENT_SECRET
-            value: {{ .Values.keycloak.client_secret | quote }}
-          - name: KEYCLOAK_REDIRECT_URI
-            value: {{ .Values.keycloak.redirect_uri | quote }}
-          - name: KEYCLOAK_BASE_URL
-            value: {{ .Values.keycloak.base_url | quote }}
-          - name: KEYCLOAK_REALM
-            value: {{ .Values.keycloak.realm | quote }}
+            - name: KEYCLOAK
+              value: "enabled"
+            - name: KEYCLOAK_CLIENT_ID
+              value: {{ .Values.keycloak.client_id | quote }}
+            - name: KEYCLOAK_CLIENT_SECRET
+              value: {{ .Values.keycloak.client_secret | quote }}
+            - name: KEYCLOAK_REDIRECT_URI
+              value: {{ .Values.keycloak.redirect_uri | quote }}
+            - name: KEYCLOAK_BASE_URL
+              value: {{ .Values.keycloak.base_url | quote }}
+            - name: KEYCLOAK_REALM
+              value: {{ .Values.keycloak.realm | quote }}
           {{- else }}
-          - name: KEYCLOAK
-            value: "disable"
+            - name: KEYCLOAK
+              value: "disable"
           {{- end }}
           {{- if .Values.ldap.enabled }}
-          - name: LDAP_TYPE
-            value: {{ .Values.ldap.type | quote }}
-          - name: LDAP_LOGGING
-            value: {{ .Values.ldap.logging }}
-          - name: LDAP_CONNECTION
-            value: {{ .Values.ldap.connection | quote }}
-          - name: LDAP_HOST
-            value: {{ .Values.ldap.host | quote }}
-          - name: LDAP_USERNAME
-            value: {{ .Values.ldap.username | quote }}
-          - name: LDAP_PASSWORD
-            value: {{ .Values.ldap.password | quote }}
-          - name: LDAP_PORT
-            value: {{ .Values.ldap.service.number | quote }}
-          - name: LDAP_BASE_DN
-            value: {{ .Values.ldap.base_dn | quote }}
-          - name: LDAP_TIMEOUT
-            value: {{ .Values.ldap.timeout | quote }}
-          - name: LDAP_SSL
-            value: {{ .Values.ldap.service.ssl }}
-          - name: LDAP_TLS
-            value: {{ .Values.ldap.service.tls }}
-          - name: LDAP_SCOPE
-            value: {{ .Values.ldap.scope | quote }}
-          - name: LDAP_GROUPS
-            value: {{ .Values.ldap.groups | quote }}
+            - name: LDAP_TYPE
+              value: {{ .Values.ldap.type | quote }}
+            - name: LDAP_LOGGING
+              value: {{ .Values.ldap.logging }}
+            - name: LDAP_CONNECTION
+              value: {{ .Values.ldap.connection | quote }}
+            - name: LDAP_HOST
+              value: {{ .Values.ldap.host | quote }}
+            - name: LDAP_USERNAME
+              value: {{ .Values.ldap.username | quote }}
+            - name: LDAP_PASSWORD
+              value: {{ .Values.ldap.password | quote }}
+            - name: LDAP_PORT
+              value: {{ .Values.ldap.service.number | quote }}
+            - name: LDAP_BASE_DN
+              value: {{ .Values.ldap.base_dn | quote }}
+            - name: LDAP_TIMEOUT
+              value: {{ .Values.ldap.timeout | quote }}
+            - name: LDAP_SSL
+              value: {{ .Values.ldap.service.ssl }}
+            - name: LDAP_TLS
+              value: {{ .Values.ldap.service.tls }}
+            - name: LDAP_SCOPE
+              value: {{ .Values.ldap.scope | quote }}
+            - name: LDAP_GROUPS
+              value: {{ .Values.ldap.groups | quote }}
           {{- end }}
-          - name: APP_DEBUG
-            value: {{ .Values.debug | quote }}
-          - name: APP_ENV
-            value: {{ .Values.environment | quote }}
-          - name: APP_KEY
-            value: {{ .Values.key | quote }}
-          - name: APP_URL
-            value: {{ .Values.reverse_proxy | quote }}
-          - name: USE_DEMO_DATA
-            value: {{ .Values.use_demo_data | quote }}
+            - name: APP_DEBUG
+              value: {{ .Values.debug | quote }}
+            - name: APP_ENV
+              value: {{ .Values.environment | quote }}
+            - name: APP_KEY
+              value: {{ .Values.key | quote }}
+            - name: APP_URL
+              value: {{ .Values.reverse_proxy | quote }}
+            - name: USE_DEMO_DATA
+              value: {{ .Values.use_demo_data | quote }}
 
           {{- with .Values.volumeMounts }}
           volumeMounts:
