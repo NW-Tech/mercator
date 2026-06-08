@@ -11,9 +11,13 @@
         </th>
         <td>
         @if ($withLink)
-        <a href="{{ route('admin.subnetworks.show', $subnetwork) }}">{{ $subnetwork->name }}</a>
+            @canShow($subnetwork)
+                <a href="{{ route('admin.subnetworks.show', $subnetwork) }}">{{ $subnetwork->name }}</a>
+            @elsecanShow
+                {{ $subnetwork->name }}
+            @endcanShow
         @else
-        {{ $subnetwork->name }}
+            {{ $subnetwork->name }}
         @endif
         </td>
     </tr>

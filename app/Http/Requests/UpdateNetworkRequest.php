@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Gate;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateNetworkRequest extends BaseFormRequest
 {
@@ -12,9 +10,7 @@ class UpdateNetworkRequest extends BaseFormRequest
 
     public function authorize() : bool
     {
-        abort_if(Gate::denies('network_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array

@@ -10,17 +10,19 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+        @can('explore_access')
         <a class="btn btn-success"
            href="{{ route('admin.report.explore') }}?node={{$physicalSecurityDevice->getUID()}}">
             {{ trans('global.explore') }}
         </a>
+        @endcan
 
-        @can('physical_security_device_edit')
+        @canEdit($physicalSecurityDevice)
             <a class="btn btn-info"
                href="{{ route('admin.physical-security-devices.edit', $physicalSecurityDevice->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('physical_security_device_delete')
             <form action="{{ route('admin.physical-security-devices.destroy', $physicalSecurityDevice->id) }}"

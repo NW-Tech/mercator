@@ -10,6 +10,7 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -92,5 +93,17 @@ class Relation extends Model implements HasPrefix, HasIconContract
     public function values(): HasMany
     {
         return $this->hasMany(RelationValue::class, 'relation_id', 'id')->orderBy('date_price');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query->whereNotNull('type')->whereNotNull('description');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel2(Builder $query): Builder
+    {
+        return $query->maturityLevel1()->where('importance', '>', 0);
     }
 }

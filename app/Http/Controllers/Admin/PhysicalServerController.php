@@ -26,7 +26,11 @@ class PhysicalServerController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('physical_server_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('physical_server_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\PhysicalServer::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $physicalServers = PhysicalServer::with('site', 'building', 'bay')
             ->when(request('search'), function ($q, $search) {
@@ -37,7 +41,8 @@ class PhysicalServerController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.physicalServers.index', compact('physicalServers'));
     }
@@ -142,7 +147,7 @@ class PhysicalServerController extends Controller
 
     public function edit(PhysicalServer $physicalServer)
     {
-        abort_if(Gate::denies('physical_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = Site::all()->sortBy('name')->pluck('name', 'id');
         $buildings = Building::all()->sortBy('name')->pluck('name', 'id');
@@ -179,6 +184,8 @@ class PhysicalServerController extends Controller
 
     public function update(UpdatePhysicalServerRequest $request, PhysicalServer $physicalServer)
     {
+        abort_if(Gate::denies('edit-object', $physicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save icon
         $this->iconUploadService->handle($request, $physicalServer);
 
@@ -195,7 +202,7 @@ class PhysicalServerController extends Controller
 
     public function show(PhysicalServer $physicalServer)
     {
-        abort_if(Gate::denies('physical_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalServer->load('site', 'building', 'bay', 'logicalServers');
 

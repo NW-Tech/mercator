@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$wan->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('wan_edit')
+
+    @endcan
+
+    @canEdit($wan)
         <a class="btn btn-info" href="{{ route('admin.wans.edit', $wan->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('wan_delete')
         <form action="{{ route('admin.wans.destroy', $wan->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

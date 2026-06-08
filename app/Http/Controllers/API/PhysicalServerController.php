@@ -43,7 +43,7 @@ class PhysicalServerController extends APIController
 
     public function show(PhysicalServer $physicalServer)
     {
-        abort_if(Gate::denies('physical_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalServer['applications'] = $physicalServer->applications()->pluck('id');
         $physicalServer['clusters'] = $physicalServer->clusters()->pluck('id');
@@ -54,7 +54,7 @@ class PhysicalServerController extends APIController
 
     public function update(UpdatePhysicalServerRequest $request, PhysicalServer $physicalServer)
     {
-        abort_if(Gate::denies('physical_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalServer->update($request->all());
 

@@ -57,25 +57,19 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.zone-admins.show', $zoneAdmin->id) }}">
-                                    {{ $zoneAdmin->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$zoneAdmin" />
                             </td>
                             <td>
                                 {!! $zoneAdmin->description ?? '' !!}
                             </td>
                             <td>
                                 @foreach($zoneAdmin->annuaires as $annuaire)
-                                    <a href="{{ route('admin.annuaires.show', $annuaire->id) }}">
-                                        {{ $annuaire->name }}
-                                    </a>{{ !$loop->last ? ',' : '' }}
+                                    <x-show-link :model="$annuaire" />{{ !$loop->last ? ',' : '' }}
                                 @endforeach
                             </td>
                             <td>
                                 @foreach($zoneAdmin->forestAds as $forestAd)
-                                    <a href="{{ route('admin.forest-ads.show', $forestAd->id) }}">
-                                        {{ $forestAd->name ?? '' }}
-                                    </a>{{ !$loop->last ? ',' : '' }}
+                                    <x-show-link :model="$forestAd" />{{ !$loop->last ? ',' : '' }}
                                 @endforeach
                             </td>
                             <td nowrap>
@@ -86,12 +80,12 @@
                                     </a>
                                 @endcan
 
-                                @can('zone_admin_edit')
+                                @canEdit($zoneAdmin)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.zone-admins.edit', $zoneAdmin->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('zone_admin_delete')
                                     <form action="{{ route('admin.zone-admins.destroy', $zoneAdmin->id) }}"

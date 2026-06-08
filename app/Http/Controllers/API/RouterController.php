@@ -37,14 +37,14 @@ class RouterController extends APIController
 
     public function show(Router $router)
     {
-        abort_if(Gate::denies('router_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $router), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($router);
     }
 
     public function update(UpdateRouterRequest $request, Router $router)
     {
-        abort_if(Gate::denies('router_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $router), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $router->update($request->all());
 

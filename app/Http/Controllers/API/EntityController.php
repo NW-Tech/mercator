@@ -37,7 +37,7 @@ class EntityController extends APIController
 
     public function show(Entity $entity)
     {
-        abort_if(Gate::denies('entity_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $entity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $entity['processes'] = $entity->processes()->pluck('id');
 
@@ -46,7 +46,7 @@ class EntityController extends APIController
 
     public function update(UpdateEntityRequest $request, Entity $entity)
     {
-        abort_if(Gate::denies('entity_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $entity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $entity->update($request->all());
 

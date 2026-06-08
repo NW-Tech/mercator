@@ -38,7 +38,7 @@ class ExternalConnectedEntityController extends APIController
 
     public function show(ExternalConnectedEntity $externalConnectedEntity)
     {
-        abort_if(Gate::denies('external_connected_entity_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $externalConnectedEntity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $externalConnectedEntity['subnetworks'] = $externalConnectedEntity->subnetworks()->pluck('id');
 
@@ -47,7 +47,7 @@ class ExternalConnectedEntityController extends APIController
 
     public function update(UpdateExternalConnectedEntityRequest $request, ExternalConnectedEntity $externalConnectedEntity)
     {
-        abort_if(Gate::denies('external_connected_entity_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $externalConnectedEntity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $externalConnectedEntity->update($request->all());
 

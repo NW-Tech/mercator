@@ -354,6 +354,31 @@ return [
             'storage_device_helper'   => 'Stockages associés à ce plan de sauvegarde',
         ],
     ],
+    'cartographer' => [
+        'title'          => 'Cartographie',
+        'title_singular' => 'Cartographie',
+        'my_objects' => [
+            'title'   => 'Mes objets cartographiés',
+            'empty'   => "Vous n'êtes cartographe d'aucun objet.",
+            'deleted' => 'objet supprimé',
+        ],
+        'description'    => 'Accès ciblé en lecture et modification sur des objets spécifiques de la cartographie, sans droits de création ni de suppression.',
+        'fields' => [
+            'type'        => "Type d'objet",
+            'type_helper' => "Classe du modèle cartographié",
+            'object'          => 'Objet',
+            'object_helper'   => 'Identifiant de l\'objet cartographié',
+            'user'            => 'Utilisateur',
+            'user_helper'     => 'Utilisateur autorisé (exclusif avec le rôle)',
+            'role'            => 'Rôle',
+            'role_helper'     => 'Rôle autorisé (exclusif avec l\'utilisateur)',
+            'last_updated'    => 'Dernière modification',
+        ],
+        'errors' => [
+            'user_or_role_required'   => 'Veuillez sélectionner un utilisateur ou un rôle.',
+            'user_and_role_exclusive' => 'Un utilisateur et un rôle ne peuvent pas être sélectionnés simultanément.',
+        ],
+    ],
     'certificate' => [
         'description' => "Un certificat électronique (aussi appelé certificat numérique ou certificat de clé publique) peut être vu comme une carte d'identité numérique. Il est utilisé principalement pour identifier et authentifier une personne physique ou morale, mais aussi pour chiffrer des échanges.",
         'fields' => [
@@ -1839,5 +1864,30 @@ return [
         'title' => "Zones d'administration",
         'title_short' => 'Zones',
         'title_singular' => "Zone d'administration",
+    ],
+    'notifications' => [
+        'tab_title'             => 'Cartographie',
+
+        'section_reminders'     => 'Rappels cartographes',
+        'reminders_enabled'     => 'Activer les rappels',
+        'reminder_from'         => 'Expéditeur',
+        'reminder_subject'      => 'Sujet du rappel',
+        'reminder_body'         => 'Corps du rappel',
+        'reminder_months'       => 'Pas de mise à jour depuis (mois)',
+        'reminder_every_days'   => 'Envoyer un rappel tous les (jours)',
+        'btn_test_reminder'     => 'Tester le rappel',
+        'last_reminder_sent'    => 'Dernier envoi des rappels',
+
+        'section_modification'  => 'Notifications de modification',
+        'modification_enabled'  => 'Activer les notifications de modification',
+        'modification_to'       => 'Destinataire',
+        'modification_subject'  => 'Sujet de la notification',
+        'modification_body'     => 'Corps de la notification',
+        'btn_test_modification' => 'Tester la notification',
+
+        'test_success'          => 'Email de test envoyé avec succès.',
+        'test_error'            => 'Échec de l\'envoi : :error',
+        'test_hint'             => 'Enregistrez avant de tester pour utiliser les valeurs actuelles.',
+        'save_success'          => 'Paramètres de notification enregistrés.',
     ],
 ];

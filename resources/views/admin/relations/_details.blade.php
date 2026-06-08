@@ -42,24 +42,34 @@
                 {{ $relation->responsible }}
             </td>
         </tr>
+        @canAccess(App\Models\Entity::class)
         <tr>
             <th>
                 {{ trans('cruds.relation.fields.source') }}
             </th>
             <td>
+                @canShow($relation->source)
                 <a href="{{ route('admin.entities.show', $relation->source_id) }}">
                 {{ $relation->source->name ?? '' }}
                 </a>
+                @elsecanShow
+                {{ $relation->source->name ?? '' }}
+                @endcanShow
             </td>
             <th>
                 {{ trans('cruds.relation.fields.destination') }}
             </th>
             <td colspan='4'>
+                @canShow($relation->destination)
                 <a href="{{ route('admin.entities.show', $relation->destination_id) }}">
                 {{ $relation->destination->name ?? '' }}
                 </a>
+                @elsecanShow
+                {{ $relation->destination->name ?? '' }}
+                @endcanShow
             </td>
         </tr>
+        @endcanAccess
 
         <tr>
             <th>

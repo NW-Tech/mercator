@@ -70,9 +70,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.databases.show', $database->id) }}">
-                                {{ $database->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$database" />
                             </td>
                             <td>
                                 {!! $database->description ?? '' !!}
@@ -82,9 +80,7 @@
                             </td>
                             <td>
                                 @foreach($database->informations as $information)
-                                    <a href="{{ route('admin.information.show', $information->id) }}">
-                                    {{ $information->name }}
-                                    </a>
+                                    <x-show-link :model="$information" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -93,9 +89,7 @@
 
                             <td>
                                 @foreach($database->applications as $application)
-                                    <a href="{{ route('admin.applications.show', $application->id) }}">
-                                    {{ $application->name }}
-                                    </a>
+                                    <x-show-link :model="$application" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -109,11 +103,11 @@
                                     </a>
                                 @endcan
 
-                                @can('database_edit')
+                                @canEdit($database)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.databases.edit', $database->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('database_delete')
                                     <form action="{{ route('admin.databases.destroy', $database->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

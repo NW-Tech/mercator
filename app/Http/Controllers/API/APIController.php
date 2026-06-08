@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\Relation;
@@ -18,9 +19,15 @@ abstract class APIController extends Controller
 {
     protected string $modelClass;
 
+    /**
+     * Retourne une query filtrée selon les droits de l'utilisateur courant :
+     * - permission _access → tous les objets
+     * - cartographe → seulement ses objets
+     * - aucun droit → aucun objet
+     */
     protected function newQuery(): Builder
     {
-        return $this->modelClass::query();
+        return Cartographer::scopedQueryByClass($this->modelClass);
     }
 
     protected function newModelInstance(): Model
@@ -253,7 +260,7 @@ abstract class APIController extends Controller
         // Auto-détection des relations
         $allowedIncludes = $this->getAllowedIncludes();
 
-        $queryBuilder = QueryBuilder::for($this->modelClass)
+        $queryBuilder = QueryBuilder::for($this->newQuery())
             ->allowedFilters($allowedFilters)
             ->allowedSorts($allowedSorts);
 

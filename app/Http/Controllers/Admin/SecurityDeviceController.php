@@ -22,7 +22,11 @@ class SecurityDeviceController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('security_device_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('security_device_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\SecurityDevice::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $securityDevices = SecurityDevice::query()
             ->when(request('search'), function ($q, $search) {
@@ -33,7 +37,8 @@ class SecurityDeviceController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.securityDevices.index', compact('securityDevices'));
     }
@@ -82,7 +87,7 @@ class SecurityDeviceController extends Controller
 
     public function edit(SecurityDevice $securityDevice)
     {
-        abort_if(Gate::denies('security_device_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $securityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSecurityDevices = PhysicalSecurityDevice::all()->sortBy('name')->pluck('name', 'id');
         $applications = Application::all()->sortBy('name')->pluck('name', 'id');
@@ -106,6 +111,8 @@ class SecurityDeviceController extends Controller
 
     public function update(UpdateSecurityDeviceRequest $request, SecurityDevice $securityDevice)
     {
+        abort_if(Gate::denies('edit-object', $securityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
 
         // Save icon
@@ -123,7 +130,7 @@ class SecurityDeviceController extends Controller
 
     public function show(SecurityDevice $securityDevice)
     {
-        abort_if(Gate::denies('security_device_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $securityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.securityDevices.show', compact('securityDevice'));
     }

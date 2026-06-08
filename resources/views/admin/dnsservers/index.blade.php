@@ -52,9 +52,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.dnsservers.show', $dnsserver->id) }}">
-                                {{ $dnsserver->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$dnsserver" />
                             </td>
                             <td>
                               {!! $dnsserver->description !!}
@@ -69,11 +67,11 @@
                                     </a>
                                 @endcan
 
-                                @can('dnsserver_edit')
+                                @canEdit($dnsserver)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.dnsservers.edit', $dnsserver->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('dnsserver_delete')
                                     <form action="{{ route('admin.dnsservers.destroy', $dnsserver->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

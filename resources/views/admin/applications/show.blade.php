@@ -10,14 +10,18 @@
             <a class="btn btn-default" href="{{ route('admin.applications.index') }}">
                 {{ trans('global.back_to_list') }}
             </a>
+
+            @can('explore_access')
             <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$application->getUID()}}">
                 {{ trans('global.explore') }}
             </a>
-            @if(auth()->user()->can('application_edit'))
+
+            @endcan
+            @canEdit($application)
                 <a class="btn btn-info" href="{{ route('admin.applications.edit', $application->id) }}">
                     {{ trans('global.edit') }}
                 </a>
-            @endif
+            @endcanEdit
 
             @can('application_create')
                 <a class="btn btn-warning" href="{{ route('admin.applications.clone', $application->id) }}">
@@ -68,9 +72,13 @@
                     </th>
                     <td>
                         @if ($application->entityResp!=null)
-                            <a href="{{ route('admin.entities.show', $application->entity_resp_id) }}">
+                            @canShow($application->entityResp)
+                                <a href="{{ route('admin.entities.show', $application->entity_resp_id) }}">
+                                    {{ $application->entityResp->name ?? '' }}
+                                </a>
+                            @elsecanShow
                                 {{ $application->entityResp->name ?? '' }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                     <th width="10%">
@@ -78,7 +86,7 @@
                     </th>
                     <td>
                         @foreach($application->entities as $entity)
-                            <a href="{{ route('admin.entities.show', $entity->id) }}">{{ $entity->name }}</a>
+                            @canShow($entity)<a href="{{ route('admin.entities.show', $entity->id) }}">{{ $entity->name }}</a>@elsecanShow{{ $entity->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -189,7 +197,7 @@
                     </th>
                     <td colspan="2">
                         @foreach($application->databases as $database)
-                            <a href="{{ route('admin.databases.show', $database->id) }}">{{ $database->name }}</a>
+                            @canShow($database)<a href="{{ route('admin.databases.show', $database->id) }}">{{ $database->name }}</a>@elsecanShow{{ $database->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -200,7 +208,7 @@
                     </th>
                     <td colspan="2">
                         @foreach($application->services as $service)
-                            <a href="{{ route('admin.application-services.show', $service->id) }}">{{ $service->name }}</a>
+                            @canShow($service)<a href="{{ route('admin.application-services.show', $service->id) }}">{{ $service->name }}</a>@elsecanShow{{ $service->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -446,7 +454,7 @@
                     </th>
                     <td>
                         @foreach($application->processes as $process)
-                            <a href="{{ route('admin.processes.show', $process->id) }}">{{ $process->name }}</a>
+                            @canShow($process)<a href="{{ route('admin.processes.show', $process->id) }}">{{ $process->name }}</a>@elsecanShow{{ $process->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -459,7 +467,7 @@
                     </th>
                     <td>
                         @foreach($application->activities as $activity)
-                            <a href="{{ route('admin.activities.show', $activity->id) }}">{{ $activity->name }}</a>
+                            @canShow($activity)<a href="{{ route('admin.activities.show', $activity->id) }}">{{ $activity->name }}</a>@elsecanShow{{ $activity->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -500,7 +508,7 @@
                 @foreach($application->applicationSourceFluxes->union($application->applicationDestFluxes) as $flow)
                 <tr>
                     <td>
-                        <a href="{{ route('admin.application-flows.show', $flow->id) }}">{{ $flow->name }}</a>
+                        @canShow($flow)<a href="{{ route('admin.application-flows.show', $flow->id) }}">{{ $flow->name }}</a>@elsecanShow{{ $flow->name }}@endcanShow
                     </td>
                     <td>
                        {{ $flow->nature }}
@@ -512,51 +520,83 @@
                     </td>
                     <td>
                         @if ($flow->applicationSource!=null)
-                            <a href="{{ route('admin.applications.show',$flow->applicationSource->id) }}">
+                            @canShow($flow->applicationSource)
+                                <a href="{{ route('admin.applications.show',$flow->applicationSource->id) }}">
+                                    {{ $flow->applicationSource->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->applicationSource->name }}
-                            </a>
+                            @endcanShow
                         @endif
                         @if($flow->serviceSource!=null)
-                            <a href="{{ route('admin.application-services.show', $flow->serviceSource->id) }}">
+                            @canShow($flow->serviceSource)
+                                <a href="{{ route('admin.application-services.show', $flow->serviceSource->id) }}">
+                                    {{ $flow->serviceSource->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->serviceSource->name }}
-                            </a>
+                            @endcanShow
                         @endif
                         @if ($flow->moduleSource!=null)
-                            <a href="{{ route('admin.application-modules.show', $flow->moduleSource->id) }}">
+                            @canShow($flow->moduleSource)
+                                <a href="{{ route('admin.application-modules.show', $flow->moduleSource->id) }}">
+                                    {{ $flow->moduleSource->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->moduleSource->name }}
-                            </a>
+                            @endcanShow
                         @endif
                         @if ($flow->databaseSource!=null)
-                            <a href="{{ route('admin.databases.show',$flow->databaseSource->id) }}">
+                            @canShow($flow->databaseSource)
+                                <a href="{{ route('admin.databases.show',$flow->databaseSource->id) }}">
+                                    {{ $flow->databaseSource->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->databaseSource->name }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                     <td>
                         @if ($flow->applicationDest!=null)
-                            <a href="{{ route('admin.applications.show',$flow->applicationDest->id) }}">
+                            @canShow($flow->applicationDest)
+                                <a href="{{ route('admin.applications.show',$flow->applicationDest->id) }}">
+                                    {{ $flow->applicationDest->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->applicationDest->name }}
-                            </a>
+                            @endcanShow
                         @endif
                         @if ($flow->serviceDest!=null)
-                            <a href="{{ route('admin.application-services.show', $flow->serviceDest->id) }}">
+                            @canShow($flow->serviceDest)
+                                <a href="{{ route('admin.application-services.show', $flow->serviceDest->id) }}">
+                                    {{ $flow->serviceDest->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->serviceDest->name }}
-                            </a>
+                            @endcanShow
                         @endif
                         @if ($flow->moduleDest!=null)
-                            <a href="{{ route('admin.application-modules.show', $flow->moduleDest->id) }}">
+                            @canShow($flow->moduleDest)
+                                <a href="{{ route('admin.application-modules.show', $flow->moduleDest->id) }}">
+                                    {{ $flow->moduleDest->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->moduleDest->name }}
-                            </a>
+                            @endcanShow
                         @endif
                         @if ($flow->databaseDest!=null)
-                            <a href="{{ route('admin.databases.show',$flow->databaseDest->id) }}">
+                            @canShow($flow->databaseDest)
+                                <a href="{{ route('admin.databases.show',$flow->databaseDest->id) }}">
+                                    {{ $flow->databaseDest->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $flow->databaseDest->name }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                     <td>
                         @foreach($flow->informations as $info)
-                            <a href="{{ route('admin.information.show',$info->id) }}">{{$info->name}}</a>
+                            @canShow($info)<a href="{{ route('admin.information.show',$info->id) }}">{{$info->name}}</a>@elsecanShow{{$info->name}}@endcanShow
                             @if (!$loop->last) , @endif
                         @endforeach
                     </td>
@@ -579,7 +619,7 @@
                     </th>
                     <td>
                         @foreach($application->logicalServers as $logical_server)
-                            <a href='{{ route("admin.logical-servers.show", $logical_server->id) }}'>{{ $logical_server->name }}</a>
+                            @canShow($logical_server)<a href='{{ route("admin.logical-servers.show", $logical_server->id) }}'>{{ $logical_server->name }}</a>@elsecanShow{{ $logical_server->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -592,7 +632,7 @@
                     </th>
                     <td>
                         @foreach($application->containers as $container)
-                            <a href='{{ route("admin.containers.show", $container->id) }}'>{{ $container->name }}</a>
+                            @canShow($container)<a href='{{ route("admin.containers.show", $container->id) }}'>{{ $container->name }}</a>@elsecanShow{{ $container->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -605,7 +645,7 @@
                     </th>
                     <td>
                         @foreach($application->securityDevices as $security_device)
-                            <a href='{{ route("admin.security-devices.show", $security_device->id) }}'>{{ $security_device->name }}</a>
+                            @canShow($security_device)<a href='{{ route("admin.security-devices.show", $security_device->id) }}'>{{ $security_device->name }}</a>@elsecanShow{{ $security_device->name }}@endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif

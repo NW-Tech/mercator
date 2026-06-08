@@ -8,7 +8,11 @@
         <th width="10%">{{ trans('cruds.application.fields.name') }}</th>
         <td>
         @if ($withLink)
-        <a href='{{ route("admin.applications.show", $application->id) }}'>{{ $application->name }}</a>
+            @canShow($application)
+            <a href='{{ route("admin.applications.show", $application->id) }}'>{{ $application->name }}</a>
+            @elsecanShow
+            {{ $application->name }}
+            @endcanShow
         @else
         {{ $application->name }}
         @endif
@@ -18,7 +22,11 @@
         </th>
         <td width="20%">
             @if ($application->applicationBlock!=null)
-                <a href='{{ route("admin.application-blocks.show", $application->applicationBlock->id) }}'>{{ $application->applicationBlock->name }}</a>
+                @canShow($application->applicationBlock)
+                    <a href='{{ route("admin.application-blocks.show", $application->applicationBlock->id) }}'>{{ $application->applicationBlock->name }}</a>
+                @elsecanShow
+                    {{ $application->applicationBlock->name }}
+                @endcanShow
             @endif
         </td>
         <th width="10%">

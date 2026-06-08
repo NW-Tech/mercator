@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\MassDestroySavedQueryRequest;
 use App\Http\Requests\StoreSavedQueryRequest;
 use App\Http\Requests\UpdateSavedQueryRequest;
+use App\Models\Cartographer;
 use App\Models\SavedQuery;
 use App\Services\QueryEngine\GraphResult;
 use App\Services\QueryEngine\QueryDslValidator;
@@ -14,6 +15,7 @@ use Gate;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -138,6 +140,13 @@ class QueryController extends Controller
 
         $dsl = QueryDslValidator::validate($request->all());
 
+        $denied = $this->collectDeniedModels($dsl);
+        if (! empty($denied)) {
+            return response()->json([
+                'message' => 'Accès refusé. Vous n\'avez pas le droit de consulter : ' . implode(', ', $denied) . '.',
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
         $result = $this->resolver->execute($dsl);
 
         $response = $result->toArray();
@@ -188,6 +197,80 @@ class QueryController extends Controller
     }
 
     // ─── Private ───────────────────────────────────────────────
+
+    /**
+     * Retourne les noms des modèles du DSL pour lesquels l'utilisateur
+     * n'a pas la permission _show.
+     */
+    private function collectDeniedModels(array $dsl): array
+    {
+        $denied = [];
+
+        foreach ($this->resolveInvolvedModelClasses($dsl) as $modelClass => $displayName) {
+            if (! $this->canShowModel($modelClass)) {
+                $denied[] = $displayName;
+            }
+        }
+
+        return $denied;
+    }
+
+    /**
+     * Collecte toutes les classes de modèles référencées par le DSL
+     * (clause FROM + chaque segment des chemins traverse).
+     *
+     * @return array<class-string, string>  FQCN → nom court affiché
+     */
+    private function resolveInvolvedModelClasses(array $dsl): array
+    {
+        $models = [];
+
+        try {
+            $fromClass = QueryEngineIntrospector::resolveModelClass($dsl['from']);
+            $models[$fromClass] = class_basename($fromClass);
+        } catch (\Throwable) {
+            return $models;
+        }
+
+        foreach ($dsl['traverse'] ?? [] as $traverseItem) {
+            $segments     = QueryResolver::normalizeSegments($traverseItem);
+            $currentClass = $fromClass;
+
+            foreach ($segments as $segment) {
+                try {
+                    $relations = QueryEngineIntrospector::getRelations($currentClass);
+                    $relDef    = collect($relations)->firstWhere('name', Str::snake($segment['name']));
+
+                    if (! $relDef) {
+                        break;
+                    }
+
+                    $relatedClass = QueryEngineIntrospector::resolveModelClassFromAny($relDef['related']);
+                    $models[$relatedClass] = class_basename($relatedClass);
+                    $currentClass = $relatedClass;
+                } catch (\Throwable) {
+                    break;
+                }
+            }
+        }
+
+        return $models;
+    }
+
+    /**
+     * Vérifie si l'utilisateur courant peut consulter ce type de modèle,
+     * soit via une permission de rôle (_show), soit en tant que cartographe.
+     */
+    private function canShowModel(string $modelClass): bool
+    {
+        $permission = Str::snake(class_basename($modelClass)) . '_show';
+
+        if (Gate::allows($permission)) {
+            return true;
+        }
+
+        return Cartographer::hasAnyFor(auth()->user(), $modelClass);
+    }
 
     private function authorizeOwner(SavedQuery $savedQuery): void
     {

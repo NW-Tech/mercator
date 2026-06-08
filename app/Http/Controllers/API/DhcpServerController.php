@@ -37,14 +37,14 @@ class DhcpServerController extends APIController
 
     public function show(DhcpServer $dhcpServer)
     {
-        abort_if(Gate::denies('dhcp_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $dhcpServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($dhcpServer);
     }
 
     public function update(UpdateDhcpServerRequest $request, DhcpServer $dhcpServer)
     {
-        abort_if(Gate::denies('dhcp_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $dhcpServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $dhcpServer->update($request->all());
         // $dhcpServer->roles()->sync($request->input('roles', []));

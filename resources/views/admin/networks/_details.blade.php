@@ -11,7 +11,11 @@
             </th>
             <td>
             @if ($withLink)
+            @canShow($network)
             <a href="{{ route('admin.networks.show', $network->id) }}">{{ $network->name }}</a>
+            @elsecanShow
+            {{ $network->name }}
+            @endcanShow
             @else
                 {{ $network->name }}
             @endif
@@ -99,20 +103,26 @@
 
             </td>
         </tr>
+        @canAccess(App\Models\Subnetwork::class)
         <tr>
             <th>
                 {{ trans('cruds.network.fields.subnetworks') }}
             </th>
             <td>
                 @foreach($network->subnetworks as $subnetwork)
-                    <a href="{{ route('admin.subnetworks.show', $subnetwork->id) }}">
+                    @canShow($subnetwork)
+                        <a href="{{ route('admin.subnetworks.show', $subnetwork->id) }}">
+                            {{ $subnetwork->name }}
+                        </a>
+                    @elsecanShow
                         {{ $subnetwork->name }}
-                    </a>
+                    @endcanShow
                     @if ($network->subnetworks->last()<>$subnetwork)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

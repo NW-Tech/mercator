@@ -35,7 +35,7 @@ class ActorController extends APIController
 
     public function show(Actor $actor): JsonResource
     {
-        abort_if(Gate::denies('actor_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $actor), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         // On encapsule le modèle dans une JsonResource pour rester cohérent
         return $this->asJsonResource($actor);
@@ -43,7 +43,7 @@ class ActorController extends APIController
 
     public function update(UpdateActorRequest $request, Actor $actor)
     {
-        abort_if(Gate::denies('actor_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $actor), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $actor->update($request->all());
 

@@ -109,7 +109,7 @@
 
 <div class="report-scroll-area">
 
-    @can('flux_access')
+    @canAccess(App\Models\ApplicationFlow::class)
         @if($flows->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -227,7 +227,7 @@
         @endif
     @endcan
 
-    @can('application_access')
+    @canAccess(App\Models\Application::class)
         @if($applications->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -375,7 +375,7 @@
         @endif
     @endcan
 
-    @can('application_service_access')
+    @canAccess(App\Models\ApplicationService::class)
         @if($applicationServices->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -446,7 +446,7 @@
         @endif
     @endcan
 
-    @can('application_module_access')
+    @canAccess(App\Models\ApplicationModule::class)
         @if($applicationModules->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -503,7 +503,7 @@
         @endif
     @endcan
 
-    @can('database_access')
+    @canAccess(App\Models\Database::class)
         @if($databases->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -620,27 +620,27 @@
     <script>
         let dotSrc = `
 digraph  {
-    @can('application_access')
+    @canAccess(App\Models\Application::class)
         @foreach($applications as $application)
         A{{ $application->id }} [label="{{ $application->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $application->icon_id === null ? '/images/application.png' : route('admin.documents.show', $application->icon_id) }}" href="#APPLICATION{{$application->id}}"]
     @endforEach
         @endcan
-        @can('application_service_access')
+        @canAccess(App\Models\ApplicationService::class)
         @foreach($applicationServices as $service)
         S{{ $service->id }} [label="{{ $service->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationservice.png" href="#SERVICE{{$service->id}}"]
     @endforeach
         @endcan
-        @can('application_module_access')
+        @canAccess(App\Models\ApplicationModule::class)
         @foreach($applicationModules as $module)
         M{{ $module->id }} [label="{{ $module->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationmodule.png" href="#MODULE{{$module->id}}"]
     @endforeach
         @endcan
-        @can('database_access')
+        @canAccess(App\Models\Database::class)
         @foreach($databases as $database)
         DB{{ $database->id }} [label="{{ $database->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/database.png" href="#DATABASE{{$database->id}}"]
     @endforeach
         @endcan
-        @can('flux_access')
+        @canAccess(App\Models\ApplicationFlow::class)
         @foreach($flows as $flow)
         @if ((($flow->database_source_id!=null)||($flow->module_source_id!=null)||($flow->service_source_id!=null)||($flow->application_source_id!=null))&&(($flow->database_dest_id!=null)||($flow->module_dest_id!=null)||($flow->service_dest_id!=null)||($flow->application_dest_id!=null)))
         @if ($flow->database_source_id!=null)

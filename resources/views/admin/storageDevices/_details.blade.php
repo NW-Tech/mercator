@@ -10,7 +10,11 @@
             </th>
             <td width="40%" colspan="2">
             @if ($withLink)
-            <a href="{{ route('admin.storage-devices.show', $storageDevice->id) }}">{{ $storageDevice->name }}</a>
+                @canShow($storageDevice)
+                <a href="{{ route('admin.storage-devices.show', $storageDevice->id) }}">{{ $storageDevice->name }}</a>
+                @elsecanShow
+                    {{ $storageDevice->name }}
+                @endcanShow
             @else
                 {{ $storageDevice->name }}
             @endif
@@ -38,15 +42,20 @@
                 {{ $storageDevice->address_ip }}
             </td>
         </tr>
+        @canAccessAny(App\Models\Site::class, App\Models\Building::class, App\Models\Bay::class)
         <tr>
             <th width="10%">
                 {{ trans('cruds.storageDevice.fields.site') }}
             </th>
             <td width="22%">
                 @if ($storageDevice->site!=null)
-                    <a href="{{ route('admin.sites.show', $storageDevice->site->id) }}">
-                    {{ $storageDevice->site->name ?? '' }}
-                    </a>
+                    @canShow($storageDevice->site)
+                        <a href="{{ route('admin.sites.show', $storageDevice->site->id) }}">
+                        {{ $storageDevice->site->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $storageDevice->site->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
             <th width="10%">
@@ -54,9 +63,13 @@
             </th>
             <td width="22%">
                 @if ($storageDevice->building!=null)
-                    <a href="{{ route('admin.buildings.show', $storageDevice->building->id) }}">
-                    {{ $storageDevice->building->name ?? '' }}
-                    </a>
+                    @canShow($storageDevice->building)
+                        <a href="{{ route('admin.buildings.show', $storageDevice->building->id) }}">
+                        {{ $storageDevice->building->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $storageDevice->building->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
             <th width="10%">
@@ -64,11 +77,16 @@
             </th>
             <td width="22%">
                 @if ($storageDevice->bay!=null)
-                    <a href="{{ route('admin.bays.show', $storageDevice->bay->id) }}">
-                    {{ $storageDevice->bay->name ?? '' }}
-                    </a>
+                    @canShow($storageDevice->bay)
+                        <a href="{{ route('admin.bays.show', $storageDevice->bay->id) }}">
+                        {{ $storageDevice->bay->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $storageDevice->bay->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
         </tr>
+        @endcanAccessAny
     </tbody>
 </table>

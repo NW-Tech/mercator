@@ -10,14 +10,20 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$phone->getUID()}}">
         {{ trans('global.explore') }}
     </a>
-    @can('phone_edit')
+
+
+    @endcan
+    @canEdit($phone)
         <a class="btn btn-info" href="{{ route('admin.phones.edit', $phone->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('peripheral_create')
         <a class="btn btn-warning" href="{{ route('admin.phones.clone', $phone->id) }}">

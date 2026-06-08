@@ -35,14 +35,14 @@ class AdminUserController extends APIController
 
     public function show(AdminUser $adminUser)
     {
-        abort_if(Gate::denies('admin_user_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $adminUser), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($adminUser);
     }
 
     public function update(UpdateAdminUserRequest $request, AdminUser $adminUser)
     {
-        abort_if(Gate::denies('admin_user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $adminUser), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $adminUser->update($request->all());
 

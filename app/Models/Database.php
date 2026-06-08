@@ -10,11 +10,13 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\Database
@@ -22,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Database extends Model implements HasIconContract, HasPrefix
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'databases';
 
@@ -111,5 +114,25 @@ class Database extends Model implements HasIconContract, HasPrefix
     public function containers(): BelongsToMany
     {
         return $this->belongsToMany(Container::class)->orderBy('name');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereNotNull('entity_resp_id')
+            ->whereNotNull('responsible')
+            ->whereNotNull('type');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel2(Builder $query): Builder
+    {
+        return $query->maturityLevel1()
+            ->whereNotNull('security_need_c')
+            ->whereNotNull('security_need_i')
+            ->whereNotNull('security_need_a')
+            ->whereNotNull('security_need_t');
     }
 }

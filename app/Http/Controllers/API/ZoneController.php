@@ -52,7 +52,7 @@ class ZoneController extends APIController
 
     public function show(Zone $zone)
     {
-        abort_if(Gate::denies('zone_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $zone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $zone['parentZones'] = $zone->parentZones()->pluck('id');
         $zone['childZones']  = $zone->childZones()->pluck('id');
@@ -64,7 +64,7 @@ class ZoneController extends APIController
 
     public function update(UpdateZoneRequest $request, Zone $zone)
     {
-        abort_if(Gate::denies('zone_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $zone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $data               = $request->except(['parentZones', 'childZones', 'buildings', 'adminUsers']);
         $data['attributes'] = implode(' ', (array) ($data['attributes'] ?? []));

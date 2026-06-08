@@ -50,13 +50,15 @@ class SecurityControlController extends Controller
 
     public function edit(SecurityControl $securityControl)
     {
-        abort_if(Gate::denies('security_control_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $securityControl), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.securityControls.edit', compact('securityControl'));
     }
 
     public function update(UpdateSecurityControlRequest $request, SecurityControl $securityControl)
     {
+        abort_if(Gate::denies('edit-object', $securityControl), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $securityControl->update($request->all());
 
         return redirect()->route('admin.security-controls.index');

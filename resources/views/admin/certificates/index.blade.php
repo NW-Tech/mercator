@@ -67,9 +67,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.certificates.show', $certificate->id) }}">
-                                {{ $certificate->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$certificate" />
                             </td>
                             <td>
                                 {!! $certificate->type ?? '' !!}
@@ -99,11 +97,11 @@
                                     </a>
                                 @endcan
 
-                                @can('certificate_edit')
+                                @canEdit($certificate)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.certificates.edit', $certificate->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('certificate_delete')
                                     <form action="{{ route('admin.certificates.destroy', $certificate->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

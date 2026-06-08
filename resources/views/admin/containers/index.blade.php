@@ -63,9 +63,7 @@
                             >
                             <td></td>
                             <td>
-                                <a href="{{ route('admin.containers.show', $container->id) }}">
-                                    {{ $container->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$container" />
                             </td>
                             <td>
                                 {!! $container->description ?? '' !!}
@@ -75,9 +73,7 @@
                             </td>
                             <td>
                               @foreach($container->logicalServers as $logicalServer)
-                                <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">
-                                  {{ $logicalServer->name }}
-                                </a>
+                                <x-show-link :model="$logicalServer" />
                                   @if(!$loop->last)
                                   ,
                                   @endif
@@ -85,9 +81,7 @@
                             </td>
                             <td>
                               @foreach($container->applications as $application)
-                                <a href="{{ route('admin.applications.show', $application->id) }}">
-                                  {{ $application->name }}
-                                </a>
+                                <x-show-link :model="$application" />
                                   @if(!$loop->last)
                                   ,
                                   @endif
@@ -95,9 +89,7 @@
                             </td>
                             <td>
                               @foreach($container->databases as $database)
-                                <a href="{{ route('admin.databases.show', $database->id) }}">
-                                  {{ $database->name }}
-                                </a>
+                                <x-show-link :model="$database" />
                                   @if(!$loop->last)
                                   ,
                                   @endif
@@ -110,11 +102,11 @@
                                     </a>
                                 @endcan
 
-                                @can('container_edit')
+                                @canEdit($container)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.containers.edit', $container->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('container_delete')
                                     <form action="{{ route('admin.containers.destroy', $container->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

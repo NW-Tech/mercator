@@ -69,9 +69,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.physical-switches.show', $physicalSwitch->id) }}">
-                                    {{ $physicalSwitch->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$physicalSwitch" />
                             </td>
                             <td>
                                 {!! $physicalSwitch->description ?? '' !!}
@@ -81,30 +79,22 @@
                             </td>
                             <td>
                                 @if($physicalSwitch->site!=null)
-                                    <a href="{{ route('admin.sites.show', $physicalSwitch->site->id) }}">
-                                        {{ $physicalSwitch->site->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalSwitch->site" />
                                 @endif
                             </td>
                             <td>
                                 @if($physicalSwitch->building!=null)
-                                    <a href="{{ route('admin.buildings.show', $physicalSwitch->building->id) }}">
-                                        {{ $physicalSwitch->building->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalSwitch->building" />
                                 @endif
                             </td>
                             <td>
                                 @if($physicalSwitch->bay!=null)
-                                    <a href="{{ route('admin.bays.show', $physicalSwitch->bay->id) }}">
-                                        {{ $physicalSwitch->bay->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalSwitch->bay" />
                                 @endif
                             </td>
                             <td>
                                 @foreach($physicalSwitch->networkSwitches as $networkSwitch)
-                                    <a href="{{ route('admin.network-switches.show', $networkSwitch->id) }}">
-                                        {{ $networkSwitch->name }}
-                                    </a>
+                                    <x-show-link :model="$networkSwitch" />
                                     @if (!$loop->last)
                                         ,
                                     @endif
@@ -118,12 +108,12 @@
                                     </a>
                                 @endcan
 
-                                @can('physical_switch_edit')
+                                @canEdit($physicalSwitch)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.physical-switches.edit', $physicalSwitch->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('physical_switch_delete')
                                     <form action="{{ route('admin.physical-switches.destroy', $physicalSwitch->id) }}"

@@ -75,9 +75,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.peripherals.show', $peripheral->id) }}">
-                                    {{ $peripheral->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$peripheral" />
                             </td>
                             <td>
                                 {{ $peripheral->domain ?? '' }}
@@ -111,12 +109,12 @@
                                     </a>
                                 @endcan
 
-                                @can('peripheral_edit')
+                                @canEdit($peripheral)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.peripherals.edit', $peripheral->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('peripheral_delete')
                                     <form action="{{ route('admin.peripherals.destroy', $peripheral->id) }}"

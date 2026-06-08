@@ -143,7 +143,7 @@
                     </div>
                     <div class="col-4">
                         <div class="form-group">
-                            <label for="entities">{{ trans('cruds.application.fields.entities') }}</label>
+                            <label class="label-maturity-2" for="entities">{{ trans('cruds.application.fields.entities') }}</label>
                             <select class="form-control select2 {{ $errors->has('entities') ? 'is-invalid' : '' }}"
                                     name="entities[]" id="entities" multiple>
                                 @foreach($entities as $id => $entity)

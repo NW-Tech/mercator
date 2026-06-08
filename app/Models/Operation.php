@@ -10,11 +10,13 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use App\Traits\HasCartographers;
 
 /**
  * App\Operation
@@ -22,6 +24,7 @@ use Illuminate\Support\Collection;
 class Operation extends Model implements HasPrefix, HasIconContract
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'operations';
 
@@ -86,6 +89,30 @@ class Operation extends Model implements HasPrefix, HasIconContract
             ->whereLike('content', '%"#'.$this->getUID().'"%')
             ->get()
         );
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query->whereNotNull('description');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel2(Builder $query): Builder
+    {
+        return $query->maturityLevel1()
+            ->whereExists(fn ($q) => $q
+                ->from('actor_operation')
+                ->whereColumn('actor_operation.operation_id', 'operations.id'));
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel3(Builder $query): Builder
+    {
+        return $query->maturityLevel2()
+            ->whereExists(fn ($q) => $q
+                ->from('operation_task')
+                ->whereColumn('operation_task.operation_id', 'operations.id'));
     }
 
 }

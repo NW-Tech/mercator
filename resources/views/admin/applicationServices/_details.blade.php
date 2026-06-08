@@ -24,20 +24,24 @@
                 {{ $applicationService->exposition }}
             </td>
         </tr>
+        @canAccess(App\Models\ApplicationModule::class)
         <tr>
             <th>
                 {{ trans('cruds.applicationService.fields.modules') }}
             </th>
             <td>
                 @foreach($applicationService->modules as $module)
-                    <a href="{{ route('admin.application-modules.show', $module->id) }}">
-                    {{ $module->name }}
-                    </a>
+                    @canShow($module)
+                        <a href="{{ route('admin.application-modules.show', $module->id) }}">{{ $module->name }}</a>
+                    @elsecanShow
+                        {{ $module->name }}
+                    @endcanShow
                     @if ($applicationService->modules->last()!=$module)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

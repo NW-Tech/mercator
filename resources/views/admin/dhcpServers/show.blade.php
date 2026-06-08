@@ -10,11 +10,11 @@
     <a class="btn btn-default" href="{{ route('admin.dhcp-servers.index') }}">
         {{ trans('global.back_to_list') }}
     </a>
-    @can('entity_edit')
+    @canEdit($dhcpServer)
         <a class="btn btn-info" href="{{ route('admin.dhcp-servers.edit', $dhcpServer->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('entity_delete')
         <form action="{{ route('admin.dhcp-servers.destroy', $dhcpServer->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

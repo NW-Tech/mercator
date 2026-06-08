@@ -162,7 +162,9 @@ node [shape=none labelloc="b"  width=1 height=1.1]
 
     @can('relation_show')
     @foreach($relations as $relation)
+    @if($entities->contains('id', $relation->source_id) && $entities->contains('id', $relation->destination_id))
     E{{ $relation->source_id }} -> E{{ $relation->destination_id }} [label=\"{{ $relation ->name }}\" href=\"#{{ $relation->getUID() }}\"]
+    @endif
     @endforEach
 @endcan
 }`;

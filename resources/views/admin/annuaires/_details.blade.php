@@ -10,7 +10,11 @@
             </th>
             <td>
             @if ($withLink)
+            @canShow($annuaire)
             <a href="{{ route('admin.annuaires.show', $annuaire->id) }}">{{ $annuaire->name }}</a>
+            @elsecanShow
+            {{ $annuaire->name }}
+            @endcanShow
             @else
                 {{ $annuaire->name }}
             @endif
@@ -32,17 +36,21 @@
                 {{ $annuaire->solution }}
             </td>
         </tr>
+        @canAccess(App\Models\ZoneAdmin::class)
         <tr>
             <th>
                 {{ trans('cruds.annuaire.fields.zone_admin') }}
             </th>
             <td>
                 @if ($annuaire->zoneAdmin!=null)
-                <a href="{{ route('admin.zone-admins.show', $annuaire->zoneAdmin->id) }}">
-                {{ $annuaire->zoneAdmin->name ?? '' }}
+                    @canShow($annuaire->zoneAdmin)
+                        <a href="{{ route('admin.zone-admins.show', $annuaire->zoneAdmin->id) }}">{{ $annuaire->zoneAdmin->name }}</a>
+                    @elsecanShow
+                        {{ $annuaire->zoneAdmin->name }}
+                    @endcanShow
                 @endif
-                </a>
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

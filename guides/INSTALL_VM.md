@@ -449,7 +449,7 @@ official documentation for details:
 
 ### Restore the administrator password
 
-    mysql mercator -e "update users set password=$(php -r "echo password_hash('n3w-p4sSw0rD.', PASSWORD_BCRYPT, ['cost' => 10]);") where id=1;"
+    mysql mercator -e "update users set password=\"$(php -r "echo password_hash('n3w-p4sSw0rD.', PASSWORD_BCRYPT, ['cost' => 10]);")\" where id=1;"
 
 ### PHP Memory
 

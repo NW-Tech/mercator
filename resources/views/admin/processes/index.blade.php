@@ -75,39 +75,29 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.processes.show', $process->id) }}">
-                                {{ $process->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$process" />
                             </td>
                             <td>
                                 {!! $process->description ?? '' !!}
                             </td>
                             <td>
-                                {!!
-                                    $process->operations->map(function ($operation) {
-                                        return '<a href="' . route('admin.operations.show', $operation->id) . '">' . $operation->name . '</a>';
-                                    })->implode(', ');
-                                !!}
+                                @foreach($process->operations as $operation)
+                                    <x-show-link :model="$operation" />@if(!$loop->last), @endif
+                                @endforeach
                             </td>
                             <td>
-                                {!!
-                                    $process->activities->map(function ($activity) {
-                                        return '<a href="' . route('admin.activities.show', $activity->id) . '">' . $activity->name . '</a>';
-                                    })->implode(', ');
-                                !!}
+                                @foreach($process->activities as $activity)
+                                    <x-show-link :model="$activity" />@if(!$loop->last), @endif
+                                @endforeach
                             </td>
                             <td>
-                                {!!
-                                    $process->information->map(function ($information) {
-                                        return '<a href="' . route('admin.information.show', $information->id) . '">' . $information->name . '</a>';
-                                    })->implode(', ');
-                                !!}
+                                @foreach($process->information as $info)
+                                    <x-show-link :model="$info" />@if(!$loop->last), @endif
+                                @endforeach
                             </td>
                             <td>
-                                @if ($process->macroprocess_id!=null)
-                                <a href="{{ route('admin.macro-processuses.show', $process->macroprocess_id) }}">
-                                {{ $process->macroProcess->name ?? '' }}
-                                </a>
+                                @if ($process->macroProcess !== null)
+                                    <x-show-link :model="$process->macroProcess" />
                                 @endif
                             </td>
                             <td>
@@ -120,11 +110,11 @@
                                     </a>
                                 @endcan
 
-                                @can('process_edit')
+                                @canEdit($process)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.processes.edit', $process->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('process_delete')
                                     <form action="{{ route('admin.processes.destroy', $process->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

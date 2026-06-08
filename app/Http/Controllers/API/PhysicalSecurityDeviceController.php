@@ -37,7 +37,7 @@ class PhysicalSecurityDeviceController extends APIController
 
     public function show(PhysicalSecurityDevice $physicalSecurityDevice)
     {
-        abort_if(Gate::denies('physical_security_device_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalSecurityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSecurityDevice['security_devices'] = $physicalSecurityDevice->securityDevices()->pluck('id');
         
@@ -46,7 +46,7 @@ class PhysicalSecurityDeviceController extends APIController
 
     public function update(UpdatePhysicalSecurityDeviceRequest $request, PhysicalSecurityDevice $physicalSecurityDevice)
     {
-        abort_if(Gate::denies('physical_security_device_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalSecurityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSecurityDevice->update($request->all());
 

@@ -10,11 +10,11 @@
         {{ trans('global.back_to_list') }}
     </a>
 
-    @can('entity_edit')
+    @canEdit($dnsserver)
         <a class="btn btn-info" href="{{ route('admin.dnsservers.edit', $dnsserver->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('entity_delete')
         <form action="{{ route('admin.dnsservers.destroy', $dnsserver->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

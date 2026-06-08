@@ -10,7 +10,11 @@
         </th>
         <td width="20%">
         @if($withLink)
+        @canShow($physicalSecurityDevice)
         <a href="{{ route('admin.physical-security-devices.show', $physicalSecurityDevice->id) }}">{{ $physicalSecurityDevice->name }}</a>
+        @elsecanShow
+        {{ $physicalSecurityDevice->name }}
+        @endcanShow
         @else
             {{ $physicalSecurityDevice->name }}
         @endif
@@ -55,28 +59,39 @@
             {{ $physicalSecurityDevice->address_ip }}
         </td>
     </tr>
+    @canAccess(App\Models\SecurityDevice::class)
     <tr>
         <th>
             {{ trans('cruds.physicalSecurityDevice.fields.security_devices') }}
         </th>
         <td colspan="5">
             @foreach($physicalSecurityDevice->securityDevices as $device)
-                <a href="{{ route('admin.security-devices.show', $device->id) }}">{{ $device->name }}</a>
+                @canShow($device)
+                    <a href="{{ route('admin.security-devices.show', $device->id) }}">{{ $device->name }}</a>
+                @elsecanShow
+                    {{ $device->name }}
+                @endcanShow
                 @if(!$loop->last)
                     ,
                 @endif
             @endforeach
         </td>
     </tr>
+    @endcanAccess
+    @canAccessAny(App\Models\Site::class, App\Models\Building::class, App\Models\Bay::class)
     <tr>
         <th width='10%'>
             {{ trans('cruds.physicalSecurityDevice.fields.site') }}
         </th>
         <td>
             @if($physicalSecurityDevice->site!=null)
-                <a href="{{ route('admin.sites.show', $physicalSecurityDevice->site->id) }}">
+                @canShow($physicalSecurityDevice->site)
+                    <a href="{{ route('admin.sites.show', $physicalSecurityDevice->site->id) }}">
+                        {{ $physicalSecurityDevice->site->name ?? '' }}
+                    </a>
+                @elsecanShow
                     {{ $physicalSecurityDevice->site->name ?? '' }}
-                </a>
+                @endcanShow
             @endif
         </td>
         <th width='10%'>
@@ -84,9 +99,13 @@
         </th>
         <td>
             @if($physicalSecurityDevice->building!=null)
-                <a href="{{ route('admin.buildings.show', $physicalSecurityDevice->building->id) }}">
+                @canShow($physicalSecurityDevice->building)
+                    <a href="{{ route('admin.buildings.show', $physicalSecurityDevice->building->id) }}">
+                        {{ $physicalSecurityDevice->building->name ?? '' }}
+                    </a>
+                @elsecanShow
                     {{ $physicalSecurityDevice->building->name ?? '' }}
-                </a>
+                @endcanShow
             @endif
         </td>
         <th width='10%'>
@@ -94,11 +113,16 @@
         </th>
         <td>
             @if($physicalSecurityDevice->bay!=null)
-                <a href="{{ route('admin.bays.show', $physicalSecurityDevice->bay->id) }}">
+                @canShow($physicalSecurityDevice->bay)
+                    <a href="{{ route('admin.bays.show', $physicalSecurityDevice->bay->id) }}">
+                        {{ $physicalSecurityDevice->bay->name ?? '' }}
+                    </a>
+                @elsecanShow
                     {{ $physicalSecurityDevice->bay->name ?? '' }}
-                </a>
+                @endcanShow
             @endif
         </td>
     </tr>
+    @endcanAccessAny
     </tbody>
 </table>

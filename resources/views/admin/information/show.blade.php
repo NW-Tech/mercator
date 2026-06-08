@@ -11,15 +11,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$information->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('information_edit')
+
+        @endcan
+
+        @canEdit($information)
             <a class="btn btn-info" href="{{ route('admin.information.edit', $information->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('information_delete')
             <form action="{{ route('admin.information.destroy', $information->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
@@ -142,7 +148,7 @@
                     </th>
                     <td width="40%">
                         @foreach($information->parents as $parent)
-                            <a href="{{ route('admin.information.show', $parent->id) }}">{{$parent->name}}</a>
+                            @canShow($parent)<a href="{{ route('admin.information.show', $parent->id) }}">{{$parent->name}}</a>@elsecanShow{{$parent->name}}@endcanShow
                             @if(!$loop->last), @endif
                         @endforeach
                     </td>
@@ -151,7 +157,7 @@
                     </th>
                     <td width="40%">
                         @foreach($information->children as $child)
-                            <a href="{{ route('admin.information.show', $child->id) }}">{{$child->name}}</a>
+                            @canShow($child)<a href="{{ route('admin.information.show', $child->id) }}">{{$child->name}}</a>@elsecanShow{{$child->name}}@endcanShow
                             @if(!$loop->last), @endif
                         @endforeach
                     </td>
@@ -162,9 +168,13 @@
                     </th>
                     <td colspan="3">
                         @foreach($information->processes as $process)
-                            <a href="{{ route('admin.processes.show', $process->id) }}">
-                            {{ $process->name }}
-                            </a>
+                            @canShow($process)
+                                <a href="{{ route('admin.processes.show', $process->id) }}">
+                                    {{ $process->name }}
+                                </a>
+                            @elsecanShow
+                                {{ $process->name }}
+                            @endcanShow
                             @if (!$loop->last)
                             ,
                             @endif

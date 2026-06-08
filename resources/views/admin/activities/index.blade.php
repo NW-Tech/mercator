@@ -70,16 +70,14 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.activities.show', $activity->id) }}">
-                                {{ $activity->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$activity" />
                             </td>
                             <td>
                                 {!! $activity->description !!}
                             </td>
                             <td>
                                 @foreach($activity->operations as $operation)
-                                    <a href="{{ route('admin.operations.show', $operation->id) }}">{{ $operation->name }}</a>
+                                    <x-show-link :model="$operation" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -87,7 +85,7 @@
                             </td>
                             <td>
                                 @foreach($activity->processes as $process)
-                                    <a href="{{ route('admin.processes.show', $process->id) }}">{{ $process->name }}</a>
+                                    <x-show-link :model="$process" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -100,11 +98,11 @@
                                     </a>
                                 @endcan
 
-                                @can('activity_edit')
+                                @canEdit($activity)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.activities.edit', $activity->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('activity_delete')
                                     <form action="{{ route('admin.activities.destroy', $activity->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

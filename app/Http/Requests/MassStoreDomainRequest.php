@@ -10,7 +10,7 @@ class MassStoreDomainRequest extends FormRequest
 {
     public function authorize()
     {
-        abort_if(Gate::denies('domaine_ad_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('domain_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return true;
     }

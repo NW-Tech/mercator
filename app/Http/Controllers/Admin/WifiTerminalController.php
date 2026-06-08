@@ -17,7 +17,11 @@ class WifiTerminalController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('wifi_terminal_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('wifi_terminal_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\WifiTerminal::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $wifiTerminals = WifiTerminal::query()
             ->when(request('search'), function ($q, $search) {
@@ -28,7 +32,8 @@ class WifiTerminalController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.wifiTerminals.index', compact('wifiTerminals'));
     }
@@ -81,7 +86,7 @@ class WifiTerminalController extends Controller
 
     public function edit(WifiTerminal $wifiTerminal)
     {
-        abort_if(Gate::denies('wifi_terminal_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $wifiTerminal), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = Site::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = Building::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
@@ -98,6 +103,8 @@ class WifiTerminalController extends Controller
 
     public function update(UpdateWifiTerminalRequest $request, WifiTerminal $wifiTerminal)
     {
+        abort_if(Gate::denies('edit-object', $wifiTerminal), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         if (! $request->has('type')) {
             $request->merge(['type' => '']);
         }
@@ -109,7 +116,7 @@ class WifiTerminalController extends Controller
 
     public function show(WifiTerminal $wifiTerminal)
     {
-        abort_if(Gate::denies('wifi_terminal_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $wifiTerminal), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $wifiTerminal->load('site', 'building');
 

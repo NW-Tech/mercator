@@ -10,15 +10,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$building->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('building_edit')
+
+        @endcan
+
+        @canEdit($building)
             <a class="btn btn-info" href="{{ route('admin.buildings.edit', $building->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('building_create')
             <a class="btn btn-warning" href="{{ route('admin.buildings.clone', $building->id) }}">

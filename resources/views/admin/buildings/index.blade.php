@@ -66,7 +66,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.buildings.show', $building->id) }}">{{ $building->name ?? '' }}</a>
+                                <x-show-link :model="$building" />
                             </td>
                             <td>
                                 {!! $building->description ?? '' !!}
@@ -85,23 +85,17 @@
                             </td>
                             <td>
                                 @if ($building->site!=null)
-                                    <a href="{{ route('admin.sites.show', $building->site_id) }}">
-                                        {{ $building->site->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$building->site" />
                                 @endif
                             </td>
                             <td>
                                 @if ($building->building!=null)
-                                    <a href="{{ route('admin.buildings.show', $building->building) }}">
-                                        {{ $building->building->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$building->building" />
                                 @endif
                             </td>
                             <td>
                                 @foreach($building->buildings as $b)
-                                    <a href="{{ route('admin.buildings.show', $b->id) }}">
-                                        {{ $b->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$b" />
                                     @if ($building->buildings->last()!=$b)
                                         ,
                                     @endif
@@ -115,12 +109,12 @@
                                     </a>
                                 @endcan
 
-                                @can('building_edit')
+                                @canEdit($building)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.buildings.edit', $building->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('building_delete')
                                     <form action="{{ route('admin.buildings.destroy', $building->id) }}" method="POST"

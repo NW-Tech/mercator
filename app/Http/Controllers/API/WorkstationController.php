@@ -37,7 +37,7 @@ class WorkstationController extends APIController
 
     public function show(Workstation $workstation)
     {
-        abort_if(Gate::denies('workstation_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $workstation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $workstation['applications'] = $workstation->applications()->pluck('id');
 
@@ -46,7 +46,7 @@ class WorkstationController extends APIController
 
     public function update(UpdateWorkstationRequest $request, Workstation $workstation)
     {
-        abort_if(Gate::denies('workstation_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $workstation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $workstation->update($request->all());
 

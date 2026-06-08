@@ -11,9 +11,13 @@
             </th>
             <td>
             @if($withLink)
-            <a href="{{ route('admin.workstations.show', $workstation->id) }}">
-                {{ $workstation->name }}
-             </a>
+                @canShow($workstation)
+                    <a href="{{ route('admin.workstations.show', $workstation->id) }}">
+                        {{ $workstation->name }}
+                    </a>
+                @elsecanShow
+                    {{ $workstation->name }}
+                @endcanShow
             @else
                 {{ $workstation->name }}
             @endif

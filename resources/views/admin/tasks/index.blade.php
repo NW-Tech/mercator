@@ -47,18 +47,14 @@
                          @if ($task->description===null) class="table-warning" @endif >
                             <td></td>
                             <td>
-                                <a href="{{ route('admin.tasks.show', $task->id) }}">
-                                {{ $task->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$task" />
                             </td>
                             <td>
                                 {!! $task->description ?? '' !!}
                             </td>
                             <td>
                                 @foreach($task->operations as $operation)
-                                    <a href="{{ route('admin.operations.show', $operation->id) }}">
-                                        {{ $operation->name }}
-                                    </a>
+                                    <x-show-link :model="$operation" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -71,11 +67,11 @@
                                     </a>
                                 @endcan
 
-                                @can('task_edit')
+                                @canEdit($task)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.tasks.edit', $task->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('task_delete')
                                     <form action="{{ route('admin.tasks.destroy', $task->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

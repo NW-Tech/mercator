@@ -10,7 +10,11 @@
             </th>
             <td>
             @if ($withLink)
+                @canShow($domain)
                 <a href="{{ route('admin.domains.show', $domain->id) }}">{{ $domain->name }}</a>
+                @elsecanShow
+                {{ $domain->name }}
+                @endcanShow
             @else
                 {{ $domain->name }}
             @endif
@@ -56,35 +60,47 @@
                 {{ $domain->relation_inter_domaine }}
             </td>
         </tr>
+        @canAccess(App\Models\ForestAd::class)
         <tr>
             <th>
                 {{ trans('cruds.forestAd.title') }}
             </th>
             <td>
                 @foreach($domain->forestAds as $forestAd)
-                    <a href="{{ route('admin.forest-ads.show', $forestAd->id) }}">
-                    {{ $forestAd->name }}
-                    </a>
+                    @canShow($forestAd)
+                        <a href="{{ route('admin.forest-ads.show', $forestAd->id) }}">
+                        {{ $forestAd->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $forestAd->name }}
+                    @endcanShow
                 @if (!$loop->last)
                 ,
                 @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\LogicalServer::class)
         <tr>
             <th>
                 {{ trans('cruds.logicalServer.title') }}
             </th>
             <td>
                 @foreach($domain->logicalServers as $logicalServer)
-                    <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">
-                    {{ $logicalServer->name }}
-                    </a>
+                    @canShow($logicalServer)
+                        <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">
+                        {{ $logicalServer->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $logicalServer->name }}
+                    @endcanShow
                     @if ($loop->last!=$logicalServer)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

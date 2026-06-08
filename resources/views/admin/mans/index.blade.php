@@ -54,33 +54,25 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.mans.show', $man->id) }}">
-                                {{ $man->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$man" />
                             </td>
                             <td>
                             {!! $man->description !!}
                             </td>
                             <td>
                                 @foreach($man->wans as $wan)
-                                <a href="{{ route('admin.wans.show', $wan) }}">
-                                {{ $wan->name  }}
-                                </a>
+                                <x-show-link :model="$wan" />
                                 @if(!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td>
                             @if($man->parentMan!==null)
-                                <a href="{{ route('admin.mans.show', $man->parentMan) }}">
-                                {{ $man->parentMan->name  }}
-                                </a>
+                                <x-show-link :model="$man->parentMan" />
                             @endif
                             </td>
                             <td>
                                 @foreach($man->lans as $lan)
-                                <a href="{{ route('admin.lans.show', $lan) }}">
-                                {{ $lan->name  }}
-                                </a>
+                                <x-show-link :model="$lan" />
                                 @if(!$loop->last), @endif
                                 @endforeach
                             </td>
@@ -91,11 +83,11 @@
                                     </a>
                                 @endcan
 
-                                @can('man_edit')
+                                @canEdit($man)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.mans.edit', $man->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('man_delete')
                                     <form action="{{ route('admin.mans.destroy', $man->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

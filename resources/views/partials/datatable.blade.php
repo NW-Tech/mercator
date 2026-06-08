@@ -186,6 +186,7 @@ table = $('{{ $id }}').DataTable({
           {
                 text: "{{ trans('global.datatables.delete') }}",
                 className: 'btn-danger',
+                // clickBlurs: false,
                 action:
                     function (e, dt, node, config) {
                       var ids = $.map(dt.rows({ selected: true }).nodes(), function (entry) {

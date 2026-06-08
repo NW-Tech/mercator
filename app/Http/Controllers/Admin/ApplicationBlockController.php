@@ -15,7 +15,11 @@ class ApplicationBlockController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('application_block_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('application_block_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\ApplicationBlock::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $applicationBlocks = ApplicationBlock::with('applications')
             ->when(request('search'), function ($q, $search) {
@@ -26,7 +30,8 @@ class ApplicationBlockController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.applicationBlocks.index', compact('applicationBlocks'));
     }
@@ -55,7 +60,7 @@ class ApplicationBlockController extends Controller
 
     public function edit(ApplicationBlock $applicationBlock)
     {
-        abort_if(Gate::denies('application_block_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $applicationBlock), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $applications = Application::query()
             ->select('id', 'name')
@@ -67,6 +72,8 @@ class ApplicationBlockController extends Controller
 
     public function update(UpdateApplicationBlockRequest $request, ApplicationBlock $applicationBlock)
     {
+        abort_if(Gate::denies('edit-object', $applicationBlock), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $applicationBlock->update($request->all());
 
         Application::where('application_block_id', $applicationBlock->id)
@@ -80,7 +87,7 @@ class ApplicationBlockController extends Controller
 
     public function show(ApplicationBlock $applicationBlock)
     {
-        abort_if(Gate::denies('application_block_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $applicationBlock), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $applicationBlock->load('applications');
 

@@ -89,7 +89,7 @@
 </div>
 
 <div class="report-scroll-area">
-    @can('site_access')
+    @canAccess(App\Models\Site::class)
         @if ($sites->count()>0)
             <br>
             <div class="card">
@@ -114,7 +114,7 @@
         @endif
     @endcan
 
-    @can('building_access')
+    @canAccess(App\Models\Building::class)
         @if ($buildings->count()>0)
             <br>
             <div class="card">
@@ -138,7 +138,7 @@
         @endif
     @endcan
 
-    @can('bay_access')
+    @canAccess(App\Models\Bay::class)
         @if ($bays->count()>0)
             <br>
             <div class="card">
@@ -162,7 +162,7 @@
         @endif
     @endcan
 
-    @can('physical_server_access')
+    @canAccess(App\Models\PhysicalServer::class)
         @if ($physicalServers->count()>0)
             <br>
             <div class="card">
@@ -186,7 +186,7 @@
         @endif
     @endcan
 
-    @can('workstation_access')
+    @canAccess(App\Models\Workstation::class)
         @if ($workstations->count()>0)
             <br>
             <div class="card">
@@ -210,7 +210,7 @@
         @endif
     @endcan
 
-    @can('storage_device_access')
+    @canAccess(App\Models\StorageDevice::class)
         @if ($storageDevices->count()>0)
             <br>
             <div class="card">
@@ -234,7 +234,7 @@
         @endif
     @endcan
 
-    @can('peripheral_access')
+    @canAccess(App\Models\Peripheral::class)
         @if ($peripherals->count()>0)
             <br>
             <div class="card">
@@ -258,7 +258,7 @@
         @endif
     @endcan
 
-    @can('phone_access')
+    @canAccess(App\Models\Phone::class)
         @if ($phones->count()>0)
             <br>
             <div class="card">
@@ -282,7 +282,7 @@
         @endif
     @endcan
 
-    @can('physical_switch_access')
+    @canAccess(App\Models\PhysicalSwitch::class)
         @if ($physicalSwitches->count()>0)
             <br>
             <div class="card">
@@ -306,7 +306,7 @@
         @endif
     @endcan
 
-    @can('physical_router_access')
+    @canAccess(App\Models\PhysicalRouter::class)
         @if ($physicalRouters->count()>0)
             <br>
             <div class="card">
@@ -330,7 +330,7 @@
         @endif
     @endcan
 
-    @can('wifi_terminal_access')
+    @canAccess(App\Models\WifiTerminal::class)
         @if ($wifiTerminals->count()>0)
             <br>
             <div class="card">
@@ -354,7 +354,7 @@
         @endif
     @endcan
 
-    @can('physical_security_device_access')
+    @canAccess(App\Models\PhysicalSecurityDevice::class)
         @if ($physicalSecurityDevices->count()>0)
             <br>
             <div class="card">
@@ -386,132 +386,136 @@
 <script>
 let dotSrc = `
 digraph  {
-@can('site_access')
+@canAccess(App\Models\Site::class)
 @if (!Session::get('building'))
 @foreach($sites as $site)
 S{{ $site->id }} [label="{{ $site->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $site->icon_id === null ? '/images/site.png' : route('admin.documents.show', $site->icon_id) }}" href="#{{$site->getUID()}}"]
 @endforEach
 @endif
 @endcan
-@can('building_access')
+@canAccess(App\Models\Building::class)
 @foreach($buildings as $building)
 B{{ $building->id }} [label="{{ $building->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $building->icon_id === null ? '/images/building.png' : route('admin.documents.show', $building->icon_id) }}" href="#{{$building->getUID()}}"]
 @if ($building->building_id!==null)
 @if ($buildings->contains('id', $building->building_id))
 B{{ $building->building_id }} -> B{{ $building->id }}
 @endif
-@elseif ((!Session::get('building')) && ($building->site_id!==null))
+@elseif ((!Session::get('building')) && ($building->site_id!==null) && $sites->contains('id', $building->site_id))
 S{{ $building->site_id }} -> B{{ $building->id }}
 @endif
 @foreach($building->roomBays as $bay)
+@if($bays->contains('id', $bay->id))
 B{{ $building->id }} -> BAY{{ $bay->id }}
+@endif
 @endforeach
-@can('workstation_access')
+@canAccess(App\Models\Workstation::class)
 @if ($building->workstations()->count()>=5)
 WG{{ $building->workstations()->first()->id }} [label="{{ $building->workstations()->count() }} {{ trans("cruds.workstation.title")}}" shape=none labelloc="b"  width=1 height=1.1 image="/images/workstation.png" href="#{{$workstation->getUID()}}"]
 B{{ $building->id }} -> WG{{ $building->workstations()->first()->id }}
 @else
 @foreach($building->workstations as $workstation)
+@if($workstations->contains('id', $workstation->id))
 W{{ $workstation->id }} [label="{{ $workstation->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $workstation->icon_id === null ? '/images/workstation.png' : route('admin.documents.show', $workstation->icon_id) }}" href="#{{$workstation->getUID()}}"]
 B{{ $building->id }} -> W{{ $workstation->id }}
+@endif
 @endforEach
 @endif
 @endcan
 @endforEach
 @endcan
-@can('bay_access')
+@canAccess(App\Models\Bay::class)
 @foreach($bays as $bay)
 BAY{{ $bay->id }} [label="{{ $bay->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/bay.png" href="#{{$bay->getUID()}}"]
 @endforeach
 @endcan
-@can('physical_server_access')
+@canAccess(App\Models\PhysicalServer::class)
 @foreach($physicalServers as $pServer)
 PSERVER{{ $pServer->id }} [label="{{ $pServer->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/server.png" href="#{{$pServer->getUID()}}"]
-@if ($pServer->bay!=null)
+@if ($pServer->bay!=null && $bays->contains('id', $pServer->bay->id))
 BAY{{ $pServer->bay->id }} -> PSERVER{{ $pServer->id }}
-@elseif ($pServer->building!=null)
+@elseif ($pServer->building!=null && $buildings->contains('id', $pServer->building->id))
 B{{ $pServer->building->id }} -> PSERVER{{ $pServer->id }}
-@elseif ($pServer->site!=null)
+@elseif ($pServer->site!=null && $sites->contains('id', $pServer->site->id))
 S{{ $pServer->site->id }} -> PSERVER{{ $pServer->id }}
 @endif
 @endforeach
 @endcan
-@can('storage_device_access')
+@canAccess(App\Models\StorageDevice::class)
 @foreach($storageDevices as $storageDevice)
 SD{{ $storageDevice->id }} [label="{{ $storageDevice->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/storage.png" href="#{{$storageDevice->getUID()}}"]
-@if ($storageDevice->bay!=null)
+@if ($storageDevice->bay!=null && $bays->contains('id', $storageDevice->bay->id))
 BAY{{ $storageDevice->bay->id }} -> SD{{ $storageDevice->id }}
-@elseif ($storageDevice->building!=null)
+@elseif ($storageDevice->building!=null && $buildings->contains('id', $storageDevice->building->id))
 B{{ $storageDevice->building->id }} -> SD{{ $storageDevice->id }}
-@elseif ($storageDevice->site!=null)
+@elseif ($storageDevice->site!=null && $sites->contains('id', $storageDevice->site->id))
 S{{ $storageDevice->site->id }} -> SD{{ $storageDevice->id }}
 @endif
 @endforeach
 @endcan
-@can('peripheral_access')
+@canAccess(App\Models\Peripheral::class)
 @foreach($peripherals as $peripheral)
 PER{{ $peripheral->id }} [label="{{ $peripheral->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $peripheral->icon_id === null ? '/images/peripheral.png' : route('admin.documents.show', $peripheral->icon_id) }}" href="#{{$peripheral->getUID()}}"]
-@if ($peripheral->bay!=null)
+@if ($peripheral->bay!=null && $bays->contains('id', $peripheral->bay->id))
 BAY{{ $peripheral->bay->id }} -> PER{{ $peripheral->id }}
-@elseif ($peripheral->building!=null)
+@elseif ($peripheral->building!=null && $buildings->contains('id', $peripheral->building->id))
 B{{ $peripheral->building->id }} -> PER{{ $peripheral->id }}
-@elseif ($peripheral->site!=null)
+@elseif ($peripheral->site!=null && $sites->contains('id', $peripheral->site->id))
 S{{ $peripheral->site->id }} -> PER{{ $peripheral->id }}
 @endif
 @endforeach
 @endcan
-@can('phone_access')
+@canAccess(App\Models\Phone::class)
 @foreach($phones as $phone)
 PHONE{{ $phone->id }} [label="{{ $phone->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/phone.png" href="#{{$phone->getUID()}}"]
-@if ($phone->building!=null)
+@if ($phone->building!=null && $buildings->contains('id', $phone->building->id))
 B{{ $phone->building->id }} -> PHONE{{ $phone->id }}
-@elseif ($phone->site!=null)
+@elseif ($phone->site!=null && $sites->contains('id', $phone->site->id))
 S{{ $phone->site->id }} -> PHONE{{ $phone->id }}
 @endif
 @endforeach
 @endcan
-@can('physical_switch_access')
+@canAccess(App\Models\PhysicalSwitch::class)
 @foreach($physicalSwitches as $switch)
 SWITCH{{ $switch->id }} [label="{{ $switch->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $switch->icon_id === null ? '/images/switch.png' : route('admin.documents.show', $switch->icon_id) }}"  href="#{{$switch->getUID()}}"]
-@if ($switch->bay!=null)
+@if ($switch->bay!=null && $bays->contains('id', $switch->bay->id))
 BAY{{ $switch->bay->id }} -> SWITCH{{ $switch->id }}
-@elseif ($switch->building!=null)
+@elseif ($switch->building!=null && $buildings->contains('id', $switch->building->id))
 B{{ $switch->building->id }} -> SWITCH{{ $switch->id }}
-@elseif ($switch->site!=null)
+@elseif ($switch->site!=null && $sites->contains('id', $switch->site->id))
 S{{ $switch->site->id }} -> SWITCH{{ $switch->id }}
 @endif
 @endforeach
 @endcan
-@can('physical_router_access')
+@canAccess(App\Models\PhysicalRouter::class)
 @foreach($physicalRouters as $router)
 ROUTER{{ $router->id }} [label="{{ $router->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/router.png" href="#{{$router->getUID()}}"]
-@if ($router->bay!=null)
+@if ($router->bay!=null && $bays->contains('id', $router->bay->id))
 BAY{{ $router->bay->id }} -> ROUTER{{ $router->id }}
-@elseif ($router->building!=null)
+@elseif ($router->building!=null && $buildings->contains('id', $router->building->id))
 B{{ $router->building->id }} -> ROUTER{{ $router->id }}
-@elseif ($router->site!=null)
+@elseif ($router->site!=null && $sites->contains('id', $router->site->id))
 S{{ $router->site->id }} -> ROUTER{{ $router->id }}
 @endif
 @endforeach
 @endcan
-@can('wifi_terminal_access')
+@canAccess(App\Models\WifiTerminal::class)
 @foreach($wifiTerminals as $wifiTerminal)
 WIFI{{ $wifiTerminal->id }} [label="{{ $wifiTerminal->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/wifi.png" href="#{{$wifiTerminal->getUID()}}"]
-@if ($wifiTerminal->building!=null)
+@if ($wifiTerminal->building!=null && $buildings->contains('id', $wifiTerminal->building->id))
 B{{ $wifiTerminal->building->id }} -> WIFI{{ $wifiTerminal->id }}
-@elseif ($wifiTerminal->site!=null)
+@elseif ($wifiTerminal->site!=null && $sites->contains('id', $wifiTerminal->site->id))
 S{{ $wifiTerminal->site->id }} -> WIFI{{ $wifiTerminal->id }}
 @endif
 @endforeach
 @endcan
-@can('physical_security_device_access')
+@canAccess(App\Models\PhysicalSecurityDevice::class)
 @foreach($physicalSecurityDevices as $physicalSecurityDevice)
 PSD{{ $physicalSecurityDevice->id }} [label="{{ $physicalSecurityDevice->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $physicalSecurityDevice->icon_id === null ? '/images/security.png' : route('admin.documents.show', $physicalSecurityDevice->icon_id) }}" href="#{{$physicalSecurityDevice->getUID()}}"]
-@if ($physicalSecurityDevice->bay!=null)
+@if ($physicalSecurityDevice->bay!=null && $bays->contains('id', $physicalSecurityDevice->bay->id))
 BAY{{ $physicalSecurityDevice->bay->id }} -> PSD{{ $physicalSecurityDevice->id }}
-@elseif ($physicalSecurityDevice->building!=null)
+@elseif ($physicalSecurityDevice->building!=null && $buildings->contains('id', $physicalSecurityDevice->building->id))
 B{{ $physicalSecurityDevice->building->id }} -> PSD{{ $physicalSecurityDevice->id }}
-@elseif ($physicalSecurityDevice->site!=null)
+@elseif ($physicalSecurityDevice->site!=null && $sites->contains('id', $physicalSecurityDevice->site->id))
 S{{ $physicalSecurityDevice->site->id }} -> PSD{{ $physicalSecurityDevice->id }}
 @endif
 @endforeach

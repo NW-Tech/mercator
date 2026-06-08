@@ -10,7 +10,11 @@
         </th>
         <td width="20%">
         @if($withLink)
+        @canShow($building)
         <a href="{{ route('admin.buildings.show', $building->id) }}">{{ $building->name }}</a>
+        @elsecanShow
+        {{ $building->name }}
+        @endcanShow
         @else
         {{ $building->name }}
         @endif
@@ -51,9 +55,13 @@
         </th>
         <td>
             @if ($building->site!=null)
-                <a href="{{ route('admin.sites.show', $building->site->id) }}">
+                @canShow($building->site)
+                    <a href="{{ route('admin.sites.show', $building->site->id) }}">
+                        {{ $building->site->name ?? '' }}
+                    </a>
+                @elsecanShow
                     {{ $building->site->name ?? '' }}
-                </a>
+                @endcanShow
             @endif
         </td>
         <th>
@@ -61,9 +69,13 @@
         </th>
         <td colspan="4">
             @if ($building->building!=null)
-                <a href="{{ route('admin.buildings.show', $building->building->id) }}">
+                @canShow($building->building)
+                    <a href="{{ route('admin.buildings.show', $building->building->id) }}">
+                        {{ $building->building->name ?? '' }}
+                    </a>
+                @elsecanShow
                     {{ $building->building->name ?? '' }}
-                </a>
+                @endcanShow
             @endif
         </td>
     </tr>
@@ -73,9 +85,13 @@
         </th>
         <td colspan="6">
             @foreach($building->buildings as $b)
-                <a href="{{ route('admin.buildings.show', $b->id) }}">
+                @canShow($b)
+                    <a href="{{ route('admin.buildings.show', $b->id) }}">
+                        {{ $b->name ?? '' }}
+                    </a>
+                @elsecanShow
                     {{ $b->name ?? '' }}
-                </a>
+                @endcanShow
                 @if (!$loop->last)
                     ,
                 @endif
@@ -88,15 +104,18 @@
         </th>
         <td colspan="6">
             @foreach($building->roomBays as $bay)
-                <a href="{{ route('admin.bays.show', $bay->id) }}">
+                @canShow($bay)
+                    <a href="{{ route('admin.bays.show', $bay->id) }}">
+                        {{ $bay->name ?? '' }}
+                    </a>
+                @elsecanShow
                     {{ $bay->name ?? '' }}
-                </a>
+                @endcanShow
                 @if ($building->roomBays->last()!=$bay)
                     ,
                 @endif
             @endforeach
         </td>
     </tr>
-
     </tbody>
 </table>

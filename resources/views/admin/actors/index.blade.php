@@ -58,9 +58,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.actors.show', $actor->id) }}">
-                                {{ $actor->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$actor" />
                             </td>
                             <td>
                                 {{ $actor->contact ?? '' }}
@@ -78,11 +76,11 @@
                                     </a>
                                 @endcan
 
-                                @can('actor_edit')
+                                @canEdit($actor)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.actors.edit', $actor->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('actor_delete')
                                     <form action="{{ route('admin.actors.destroy', $actor->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

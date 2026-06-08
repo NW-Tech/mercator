@@ -68,9 +68,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.workstations.show', $workstation->id) }}">
-                                    {{ $workstation->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$workstation" />
                             </td>
                             <td>
                                 {!! $workstation->type ?? '' !!}
@@ -83,23 +81,17 @@
                             </td>
                             <td>
                                 @if ($workstation->user!==null)
-                                    <a href="{{ route('admin.admin-users.show', $workstation->user->id) }}">
-                                        {{ $workstation->user->user_id ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$workstation->user" :label="$workstation->user->user_id ?? ''" />
                                 @endif
                             </td>
                             <td>
                                 @if ($workstation->site!=null)
-                                    <a href="{{ route('admin.sites.show', $workstation->site->id) }}">
-                                        {{ $workstation->site->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$workstation->site" />
                                 @endif
                             </td>
                             <td>
                                 @if ($workstation->building!=null)
-                                    <a href="{{ route('admin.buildings.show', $workstation->building->id) }}">
-                                        {{ $workstation->building->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$workstation->building" />
                                 @endif
                             </td>
                             <td nowrap>
@@ -110,12 +102,12 @@
                                     </a>
                                 @endcan
 
-                                @can('workstation_edit')
+                                @canEdit($workstation)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.workstations.edit', $workstation->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('workstation_delete')
                                     <form action="{{ route('admin.workstations.destroy', $workstation->id) }}"

@@ -86,7 +86,7 @@
 </div>
 
 <div class="report-scroll-area">
-    @can('site_access')
+    @canAccess(App\Models\Site::class)
         @if ($sites->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -110,7 +110,7 @@
         @endif
     @endcan
 
-    @can('building_access')
+    @canAccess(App\Models\Building::class)
         @if ($buildings->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -133,7 +133,7 @@
         @endif
     @endcan
 
-    @can('bay_access')
+    @canAccess(App\Models\Bay::class)
         @if ($bays->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -156,7 +156,7 @@
         @endif
     @endcan
 
-    @can('physical_server_access')
+    @canAccess(App\Models\PhysicalServer::class)
         @if ($physicalServers->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -179,7 +179,7 @@
         @endif
     @endcan
 
-    @can('workstation_access')
+    @canAccess(App\Models\Workstation::class)
         @if ((auth()->user()->granularity>=2)&&($workstations->count()>0))
             <div class="card mt-2">
                 <div class="card-header">
@@ -202,7 +202,7 @@
         @endif
     @endcan
 
-    @can('storage_device_access')
+    @canAccess(App\Models\StorageDevice::class)
         @if ($storageDevices->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -225,7 +225,7 @@
         @endif
     @endcan
 
-    @can('peripheral_access')
+    @canAccess(App\Models\Peripheral::class)
         @if ((auth()->user()->granularity>=2)&&($peripherals->count()>0))
             <div class="card mt-2">
                 <div class="card-header">
@@ -248,7 +248,7 @@
         @endif
     @endcan
 
-    @can('phone_access')
+    @canAccess(App\Models\Phone::class)
         @if ((auth()->user()->granularity>=2)&&($phones->count()>0))
             <div class="card mt-2">
                 <div class="card-header">
@@ -271,7 +271,7 @@
         @endif
     @endcan
 
-    @can('physical_switch_access')
+    @canAccess(App\Models\PhysicalSwitch::class)
         @if ($physicalSwitches->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -294,7 +294,7 @@
         @endif
     @endcan
 
-    @can('physical_router_access')
+    @canAccess(App\Models\PhysicalRouter::class)
         @if ($physicalRouters->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -317,7 +317,7 @@
         @endif
     @endcan
 
-    @can('wifi_terminal_access')
+    @canAccess(App\Models\WifiTerminal::class)
         @if ($wifiTerminals->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -340,7 +340,7 @@
         @endif
     @endcan
 
-    @can('physical_security_device_access')
+    @canAccess(App\Models\PhysicalSecurityDevice::class)
         @if ($physicalSecurityDevices->count()>0)
             <div class="card mt-2">
                 <div class="card-header">
@@ -363,7 +363,7 @@
         @endif
     @endcan
 
-    @can('physical_link_access')
+    @canAccess(App\Models\PhysicalLink::class)
         @if ($physicalLinks->count()>0)
             <div class="card mt-2">
                 <div class="card-header">

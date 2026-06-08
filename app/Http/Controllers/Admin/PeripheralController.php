@@ -23,7 +23,11 @@ class PeripheralController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('peripheral_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('peripheral_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Peripheral::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $peripherals = Peripheral::with(['site', 'building', 'bay', 'provider'])
             ->when(request('search'), function ($q, $search) {
@@ -34,7 +38,8 @@ class PeripheralController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.peripherals.index', compact('peripherals'));
     }
@@ -133,7 +138,7 @@ class PeripheralController extends Controller
 
     public function edit(Peripheral $peripheral)
     {
-        abort_if(Gate::denies('peripheral_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $peripheral), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = Site::all()->sortBy('name')->pluck('name', 'id');
         $buildings = Building::all()->sortBy('name')->pluck('name', 'id');
@@ -168,6 +173,8 @@ class PeripheralController extends Controller
 
     public function update(UpdatePeripheralRequest $request, Peripheral $peripheral)
     {
+        abort_if(Gate::denies('edit-object', $peripheral), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save icon
         $this->iconUploadService->handle($request, $peripheral);
 
@@ -182,7 +189,7 @@ class PeripheralController extends Controller
 
     public function show(Peripheral $peripheral)
     {
-        abort_if(Gate::denies('peripheral_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $peripheral), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $peripheral->load('site', 'building', 'bay');
 

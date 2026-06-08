@@ -68,9 +68,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.macro-processuses.show', $macroProcessus->id) }}">
-                                {{ $macroProcessus->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$macroProcessus" />
                             </td>
                             <td>
                                 {!! $macroProcessus->description ?? '' !!}
@@ -82,9 +80,7 @@
 
                             <td>
                                 @foreach($macroProcessus->processes as $process)
-                                    <a href="{{ route('admin.processes.show', $process->id) }}">
-                                        {{ $process->name }}
-                                    </a>
+                                    <x-show-link :model="$process" />
                                     @if(!$loop->last)
                                     ,
                                     @endif
@@ -98,11 +94,11 @@
                                     </a>
                                 @endcan
 
-                                @can('macro_processus_edit')
+                                @canEdit($macroProcessus)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.macro-processuses.edit', $macroProcessus->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('macro_processus_delete')
                                     <form action="{{ route('admin.macro-processuses.destroy', $macroProcessus->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

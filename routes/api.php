@@ -358,6 +358,12 @@ Route::middleware(['api.protected'])->group(function () {
     // Roles
     Route::resource('roles', API\RoleController::class);
 
+    // Cartographers
+    Route::post('cartographers/mass-store', [API\CartographerController::class, 'massStore'])->name('cartographers.mass-store');
+    Route::put('cartographers/mass-update', [API\CartographerController::class, 'massUpdate'])->name('cartographers.mass-update');
+    Route::delete('cartographers/mass-destroy', [API\CartographerController::class, 'massDestroy'])->name('cartographers.mass-destroy');
+    Route::resource('cartographers', API\CartographerController::class);
+
     // Queries
     Route::put('queries/mass-store', [API\QueryController::class, 'massStore'])->name('queries.mass-store');
     Route::put('queries/mass-update', [API\QueryController::class, 'massUpdate'])->name('queries.mass-update');

@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$annuaire->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('annuaire_edit')
+
+    @endcan
+
+    @canEdit($annuaire)
         <a class="btn btn-info" href="{{ route('admin.annuaires.edit', $annuaire->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('annuaire_edit')
         <form action="{{ route('admin.annuaires.destroy', $annuaire->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

@@ -10,9 +10,11 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\Network
@@ -20,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Network extends Model implements HasPrefix, HasIconContract
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'networks';
 
@@ -72,5 +75,19 @@ class Network extends Model implements HasPrefix, HasIconContract
     public function subnetworks(): HasMany
     {
         return $this->hasMany(Subnetwork::class, 'network_id', 'id')->orderBy('name');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereNotNull('protocol_type')
+            ->whereNotNull('responsible')
+            ->whereNotNull('responsible_sec')
+            ->whereNotNull('security_need_c')
+            ->whereNotNull('security_need_i')
+            ->whereNotNull('security_need_a')
+            ->whereNotNull('security_need_t');
     }
 }

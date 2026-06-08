@@ -10,7 +10,11 @@
             </th>
             <td>
             @if ($withLink)
+            @canShow($entity)
             <a href="{{ route('admin.entities.show', $entity->id) }}">{{ $entity->name }}</a>
+            @elsecanShow
+            {{ $entity->name }}
+            @endcanShow
             @else
                 {{ $entity->name }}
             @endif
@@ -26,7 +30,11 @@
             </th>
             <td>
                 @if ($entity->parentEntity!=null)
-                    <a href="{{ route('admin.entities.show', $entity->parentEntity->id) }}">{{ $entity->parentEntity->name }}</a>
+                    @canShow($entity->parentEntity)
+                        <a href="{{ route('admin.entities.show', $entity->parentEntity->id) }}">{{ $entity->parentEntity->name }}</a>
+                    @elsecanShow
+                        {{ $entity->parentEntity->name }}
+                    @endcanShow
                 @endif
             </td>
             <th width="10%">
@@ -37,19 +45,25 @@
             </td>
         </tr>
         @if ($entity->entities()->count()>0)
+        @canAccess(App\Models\Entity::class)
         <tr>
             <th>
                 {{ trans('cruds.entity.fields.subsidiaries') }}
             </th>
             <td colspan="7">
                 @foreach($entity->entities as $e)
-                    <a href="{{ route('admin.entities.show', $e->id) }}">{{ $e->name }}</a>
+                    @canShow($e)
+                        <a href="{{ route('admin.entities.show', $e->id) }}">{{ $e->name }}</a>
+                    @elsecanShow
+                        {{ $e->name }}
+                    @endcanShow
                     @if(!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
         @endif
         <tr>
             <th>
@@ -84,13 +98,24 @@
         </tr>
 
 
+        @canAccess(App\Models\Relation::class)
         <tr>
             <th>{{ trans('cruds.entity.fields.relations') }}</th>
             <td colspan="7">
                 @foreach ($entity->sourceRelations as $relation)
-                    <a href="/admin/relations/{{ $relation->id }}">{{ $relation->name }}</a>
+                    @canShow($relation)
+                        <a href="/admin/relations/{{ $relation->id }}">{{ $relation->name }}</a>
+                    @elsecanShow
+                        {{ $relation->name }}
+                    @endcanShow
                     ->
-                    <a href="/admin/entities/{{ $relation->destination_id }}">{{ $relation->destination->name ?? '' }}</a>
+                    @if ($relation->destination)
+                        @canShow($relation->destination)
+                            <a href="/admin/entities/{{ $relation->destination_id }}">{{ $relation->destination->name ?? '' }}</a>
+                        @elsecanShow
+                            {{ $relation->destination->name ?? '' }}
+                        @endcanShow
+                    @endif
                     @if (!$loop->last)
                     <br>
                     @endif
@@ -99,31 +124,53 @@
                 <br>
                 @endif
                 @foreach ($entity->destinationRelations as $relation)
-                    <a href="/admin/entities/{{ $relation->source_id }}">{{ $relation->source->name ?? '' }}</a>
+                    @if ($relation->source)
+                        @canShow($relation->source)
+                            <a href="/admin/entities/{{ $relation->source_id }}">{{ $relation->source->name ?? '' }}</a>
+                        @elsecanShow
+                            {{ $relation->source->name ?? '' }}
+                        @endcanShow
+                    @endif
                     <-
-                    <a href="/admin/relations/{{ $relation->id }}">{{ $relation->name }}</a>
+                    @canShow($relation)
+                        <a href="/admin/relations/{{ $relation->id }}">{{ $relation->name }}</a>
+                    @elsecanShow
+                        {{ $relation->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     <br>
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Process::class)
         <tr>
             <th>{{ trans('cruds.entity.fields.processes') }}</th>
             <td colspan="7">
                 @foreach ($entity->processes as $process)
-                    <a href="/admin/processes/{{ $process->id }}">{{ $process->name }}</a>
+                    @canShow($process)
+                        <a href="/admin/processes/{{ $process->id }}">{{ $process->name }}</a>
+                    @elsecanShow
+                        {{ $process->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccessAny(App\Models\Application::class, App\Models\Database::class)
         <tr>
             <th>{{ trans('cruds.entity.fields.exploits') }}</th>
             <td colspan="7">
                 @foreach($entity->respApplications as $application)
-                    <a href="/admin/applications/{{$application->id}}">{{$application->name}}</a>
+                    @canShow($application)
+                        <a href="/admin/applications/{{$application->id}}">{{$application->name}}</a>
+                    @elsecanShow
+                        {{$application->name}}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
@@ -135,12 +182,17 @@
                     ,<br>
                 @endif
                 @foreach($entity->databases as $database)
-                    <a href="/admin/databases/{{$database->id}}">{{$database->name}}</a>
+                    @canShow($database)
+                        <a href="/admin/databases/{{$database->id}}">{{$database->name}}</a>
+                    @elsecanShow
+                        {{$database->name}}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccessAny
     </tbody>
 </table>

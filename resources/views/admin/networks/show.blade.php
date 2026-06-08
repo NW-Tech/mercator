@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$network->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('network_edit')
+
+    @endcan
+
+    @canEdit($network)
         <a class="btn btn-info" href="{{ route('admin.networks.edit', $network->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('network_delete')
         <form action="{{ route('admin.networks.destroy', $network->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

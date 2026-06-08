@@ -11,7 +11,11 @@
             </th>
             <td>
             @if ($withLink)
+            @canShow($vlan)
             <a href=" {{ route('admin.vlans.show', $vlan) }}">{{ $vlan->name }}</a>
+            @elsecanShow
+            {{ $vlan->name }}
+            @endcanShow
             @else
                 {{ $vlan->name }}
             @endif
@@ -25,31 +29,43 @@
                 {!! $vlan->description !!}
             </td>
         </tr>
+        @canAccess(App\Models\Subnetwork::class)
         <tr>
             <th>
                 {{ trans('cruds.vlan.fields.subnetworks') }}
             </th>
             <td>
                 @foreach($vlan->subnetworks as $subnetwork)
+                @canShow($subnetwork)
                 <a href="/admin/subnetworks/{{ $subnetwork->id }}">{{ $subnetwork->name }}</a>
+                @elsecanShow
+                {{ $subnetwork->name }}
+                @endcanShow
                 @if (!$loop->last)
                 ,
                 @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\NetworkSwitch::class)
         <tr>
             <th>
                 {{ trans('cruds.vlan.fields.network_switches') }}
             </th>
             <td>
                 @foreach($vlan->networkSwitches as $networkSwitch)
+                @canShow($networkSwitch)
                 <a href="/admin/network-switches/{{ $networkSwitch->id }}">{{ $networkSwitch->name }}</a>
+                @elsecanShow
+                {{ $networkSwitch->name }}
+                @endcanShow
                 @if (!$loop->last)
                 ,
                 @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

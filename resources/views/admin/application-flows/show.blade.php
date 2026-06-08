@@ -10,18 +10,20 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+        @can('explore_access')
         <a class="btn btn-success"
            href="{{ route('admin.report.explore') }}?node={{$flow->sourceId()}},{{$flow->destId()}}">
             {{ trans('global.explore') }}
         </a>
+        @endcan
 
-        @can('flux_edit')
+        @canEdit($flow)
             <a class="btn btn-info" href="{{ route('admin.application-flows.edit', $flow->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
-        @can('flux_delete')
+        @can('application_flow_delete')
             <form action="{{ route('admin.application-flows.destroy', $flow->id) }}" method="POST"
                   onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
                 <input type="hidden" name="_method" value="DELETE">

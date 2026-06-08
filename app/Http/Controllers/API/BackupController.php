@@ -42,14 +42,14 @@ class BackupController extends APIController
 
     public function show(Backup $backup)
     {
-        abort_if(Gate::denies('backup_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $backup), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($backup->load('logicalServers', 'storageDevices'));
     }
 
     public function update(UpdateBackupRequest $request, Backup $backup)
     {
-        abort_if(Gate::denies('backup_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $backup), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $backup->update($request->validated());
 

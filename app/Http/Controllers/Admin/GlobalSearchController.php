@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -75,36 +76,37 @@ class GlobalSearchController extends Controller
 
         foreach ($this->models as $model => $translation) {
             $modelClass = 'App\\Models\\'.$model;
-            $query = $modelClass::query();
 
             $fields = property_exists($modelClass, 'searchable') ? $modelClass::$searchable : [];
 
             if (empty($fields))
                 continue;
 
-                foreach ($fields as $field)
-                $query->orWhere($field, 'LIKE', '%'.$this->escapeLike($term).'%');
+            $escaped = $this->escapeLike($term);
+            $results = Cartographer::scopedQueryByClass($modelClass)
+                ->where(function ($q) use ($fields, $escaped) {
+                    foreach ($fields as $field) {
+                        $q->orWhere($field, 'LIKE', '%'.$escaped.'%');
+                    }
+                })
+                ->take(100)
+                ->get();
 
-            $results = $query->take(100)->get();
+            $formattedFields = [];
+            foreach ($fields as $field) {
+                $formattedFields[$field] = Str::title(str_replace('_', ' ', $field));
+            }
 
             foreach ($results as $result) {
-                $parsedData['data'] = $result->only($fields);
-                $parsedData['model'] = $model;
-                $parsedData['name'] = trans($translation);
-                $parsedData['fields'] = $fields;
-                $formattedFields = [];
-                
-                foreach ($fields as $field)
-                    $formattedFields[$field] = Str::title(str_replace('_', ' ', $field));
-
-                $parsedData['fields_formated'] = $formattedFields;
-
-                $parsedData['url'] = '/admin/'.
-                     Str::plural(Str::snake($model, '-')).
-                    '/'.
-                    $result->id;
-
-                $searchableData[] = $parsedData;
+                $searchableData[] = [
+                    'instance'       => $result,
+                    'data'           => $result->only($fields),
+                    'model'          => $model,
+                    'name'           => trans($translation),
+                    'fields'         => $fields,
+                    'fields_formated' => $formattedFields,
+                    'url'            => '/admin/'.Str::plural(Str::snake($model, '-')).'/'.$result->getKey(),
+                ];
             }
         }
 

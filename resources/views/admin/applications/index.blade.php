@@ -25,7 +25,6 @@
                 <thead>
                     <tr>
                         <th width="10">
-
                         </th>
                         <th>
                             {{ trans('cruds.application.fields.name') }}
@@ -71,16 +70,6 @@
                                     ($application->applicationBlock==null)
                                     )
                                 )
-                                /*
-                                ||
-                                ((auth()->user()->granularity==3)&&
-                                    (
-                                    ($application->vendor==null)||
-                                    ($application->product==null)||
-                                    ($application->version==null)
-                                    )
-                                )
-                                */
                             )
                             class="table-warning"
                         @endif
@@ -89,9 +78,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.applications.show', $application->id) }}">
-                                    {{ $application->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$application" />
                             </td>
                             <td>
                                 {!! $application->description ?? '' !!}
@@ -101,16 +88,12 @@
                             </td>
                             <td>
                                 @if ($application->entityResp!=null)
-                                <a href="{{ route('admin.entities.show', $application->entityResp->id) }}">
-                                {{ $application->entityResp->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$application->entityResp" />
                                 @endif
                             </td>
                             <td>
                                 @if ($application->applicationBlock!=null)
-                                <a href="{{ route('admin.application-blocks.show', $application->applicationBlock->id) }}">
-                                {{ $application->applicationBlock->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$application->applicationBlock" />
                                 @endif
                             </td>
                             <td>
@@ -126,11 +109,11 @@
                                     </a>
                                 @endcan
 
-                                @if(auth()->user()->can('application_edit'))
+                                @canEdit($application)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.applications.edit', $application->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endif
+                                @endcanEdit
 
                                 @if(auth()->user()->can('application_delete'))
                                     <form action="{{ route('admin.applications.destroy', $application->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
@@ -158,8 +141,8 @@
     'id' => '#dataTable',
     'title' => trans("cruds.application.title_singular"),
     'URL' => route('admin.applications.massDestroy'),
-    'canDelete' => auth()->user()->can('application_delete') ? true : false,
+    'canDelete' => (bool) auth()->user()->can('application_delete'),
     'serverSidePagination' => true
-));
+    ));
 </script>
 @endsection

@@ -40,14 +40,14 @@ class DatabaseController extends APIController
 
     public function show(Database $database)
     {
-        abort_if(Gate::denies('database_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $database), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($database);
     }
 
     public function update(UpdateDatabaseRequest $request, Database $database)
     {
-        abort_if(Gate::denies('database_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $database), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $database->update($request->all());
 

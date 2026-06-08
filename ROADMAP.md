@@ -8,9 +8,8 @@ Changements prévus en 2026 et plus :
 
 - [x] Dessin de processus avec BPMN v2.0 (https://github.com/process-analytics)
 - [x] Langage de requête pour générer des listes ou des graphes ( https://github.com/dbarzin/mercator/issues/1768 et https://github.com/dbarzin/mercator/discussions/1767 )
-- [ ] Générer les cartographes dans la gestion des utilisateurs
+- [ ] Cartographes et gestion des utilisateurs https://github.com/sourcentis/mercator/discussions/2322
 - [ ] Lien avec Monarc : générer un modèle d'analyse de risques pour Monarc
-- [ ] Généraliser la notion de cartographe à tous les objets (cf.: https://laravel.com/docs/10.x/authorization)
 - [ ] Purge de la DB : https://github.com/dbarzin/mercator/discussions/1525
 - [ ] Utiliser un modèle de document pour les rapports
 - [ ] Identifier les chemins critiques
@@ -23,7 +22,7 @@ Changements prévus en 2026 et plus :
 
 - [x] Améliorer la documentation, notamment les niveaux de maturité pour chaque objet.
 - [x] Améliorer (et revoir) la documentation de l'API
-- [ ] Ajouter un lien entre une opération et une entité afin d'identifier l'identité qui réalise cette opération
+- [x] Ajouter un lien entre une opération et une entité afin d'identifier l'identité qui réalise cette opération
 - [ ] Restaurer les objets supprimés sur base des logs (ex: Flight::withTrashed()->where('id', 777)->restore(); )
 - [ ] Intégration des données de la cartographie dans syslog
 - [ ] Ajouter une vue de l'adressage réseau [Hilbert Map of IPv4 address space](

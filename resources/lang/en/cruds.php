@@ -350,6 +350,31 @@ return [
             'storage_device_helper'   => 'Storage devices associated with this backup plan',
         ],
     ],
+    'cartographer' => [
+        'title'          => 'Cartography',
+        'title_singular' => 'Cartography',
+        'my_objects' => [
+            'title'   => 'My mapped objects',
+            'empty'   => 'You are not a cartographer of any object.',
+            'deleted' => 'deleted object',
+        ],
+        'description'    => 'Targeted read and edit access on specific cartography objects, without create or delete rights.',
+        'fields' => [
+            'type'        => 'Object type',
+            'type_helper' => 'Class of the cartographied model',
+            'object'          => 'Object',
+            'object_helper'   => 'Identifier of the cartographied object',
+            'user'                     => 'User',
+            'user_helper'              => 'Authorised user (exclusive with role)',
+            'role'                     => 'Role',
+            'role_helper'              => 'Authorised role (exclusive with user)',
+            'last_updated'             => 'Last modified',
+        ],
+        'errors' => [
+            'user_or_role_required'   => 'Please select a user or a role.',
+            'user_and_role_exclusive' => 'A user and a role cannot be selected at the same time.',
+        ],
+    ],
     'certificate' => [
         'description' => 'An electronic certificate (also called a digital certificate or public key certificate) can be thought of as a digital identity card. It is mainly used to identify and authenticate a natural or legal person, but also to encrypt exchanges.',
         'fields' => [
@@ -1800,5 +1825,30 @@ return [
         'title' => 'Administration areas',
         'title_short' => 'Zones',
         'title_singular' => 'Administration area',
+    ],
+    'notifications' => [
+        'tab_title'             => 'Cartography',
+
+        'section_reminders'     => 'Cartographer reminders',
+        'reminders_enabled'     => 'Enable reminders',
+        'reminder_from'         => 'Sender',
+        'reminder_subject'      => 'Reminder subject',
+        'reminder_body'         => 'Reminder body',
+        'reminder_months'       => 'No update since (months)',
+        'reminder_every_days'   => 'Send a reminder every (days)',
+        'btn_test_reminder'     => 'Test reminder',
+        'last_reminder_sent'    => 'Last reminder sent',
+
+        'section_modification'  => 'Modification notifications',
+        'modification_enabled'  => 'Enable modification notifications',
+        'modification_to'       => 'Recipient',
+        'modification_subject'  => 'Notification subject',
+        'modification_body'     => 'Notification body',
+        'btn_test_modification' => 'Test notification',
+
+        'test_success'          => 'Test email sent successfully.',
+        'test_error'            => 'Failed to send: :error',
+        'test_hint'             => 'Save before testing to use the current values.',
+        'save_success'          => 'Notification settings saved.',
     ],
 ];

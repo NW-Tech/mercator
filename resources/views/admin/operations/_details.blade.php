@@ -11,7 +11,11 @@
             </th>
             <td>
             @if ($withLink)
+            @canShow($operation)
             <a href="{{ route('admin.operations.show', $operation->id) }}">{{ $operation->name }}</a>
+            @elsecanShow
+            {{ $operation->name }}
+            @endcanShow
             @else
             {{ $operation->name }}
             @endif
@@ -25,63 +29,87 @@
                 {!! $operation->description !!}
             </td>
         </tr>
+        @canAccess(App\Models\Process::class)
         <tr>
             <th>
                 {{ trans('cruds.operation.fields.process') }}
             </th>
             <td>
                 @if ($operation->process!=null)
-                    <a href="{{ route('admin.processes.show',$operation->process->id) }}">
+                    @canShow($operation->process)
+                        <a href="{{ route('admin.processes.show',$operation->process->id) }}">
+                            {{ $operation->process->name ?? '' }}
+                        </a>
+                    @elsecanShow
                         {{ $operation->process->name ?? '' }}
-                    </a>
+                    @endcanShow
                 @endif
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Activity::class)
         <tr>
             <th>
                 {{ trans('cruds.operation.fields.activities') }}
             </th>
             <td>
                 @foreach($operation->activities as $activity)
-                    <a href="{{ route('admin.activities.show', $activity->id) }}">
+                    @canShow($activity)
+                        <a href="{{ route('admin.activities.show', $activity->id) }}">
+                            {{ $activity->name }}
+                        </a>
+                    @elsecanShow
                         {{ $activity->name }}
-                    </a>
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Actor::class)
         <tr>
             <th>
                 {{ trans('cruds.operation.fields.actors') }}
             </th>
             <td>
                 @foreach($operation->actors as $actor)
-                    <a href="{{ route('admin.actors.show', $actor->id) }}">
+                    @canShow($actor)
+                        <a href="{{ route('admin.actors.show', $actor->id) }}">
+                            {{ $actor->name }}
+                        </a>
+                    @elsecanShow
                         {{ $actor->name }}
-                    </a>
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Task::class)
         <tr>
             <th>
                 {{ trans('cruds.operation.fields.tasks') }}
             </th>
             <td>
                 @foreach($operation->tasks as $task)
-                    <a href="{{ route('admin.tasks.show', $task->id) }}">
+                    @canShow($task)
+                        <a href="{{ route('admin.tasks.show', $task->id) }}">
+                            {{ $task->name }}
+                        </a>
+                    @elsecanShow
                         {{ $task->name }}
-                    </a>
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
         @if($operation->graphs()->count()>0)
         <tr>
             <th>
@@ -100,9 +128,13 @@
             </th>
             <td colspan="5" style="vertical-align: middle;">
                 @foreach($operation->graphs() as $graph)
-                    <a href="{{ route('admin.bpmn.show', $graph->id) }}">
-                    {{ $graph->name }}
-                    </a>
+                    @canShow($graph)
+                        <a href="{{ route('admin.bpmn.show', $graph->id) }}">
+                            {{ $graph->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $graph->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif

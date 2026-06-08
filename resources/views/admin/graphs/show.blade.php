@@ -11,11 +11,11 @@
         {{ trans('global.back_to_list') }}
     </a>
 
-    @can('graph_edit')
+    @canEdit($graph)
         <a class="btn btn-info" href="{{ route('admin.graphs.edit', $graph->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('graph_create')
         <a class="btn btn-warning" href="{{ route('admin.graphs.clone', $graph->id) }}">

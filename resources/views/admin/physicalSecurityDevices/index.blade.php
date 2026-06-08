@@ -67,9 +67,7 @@
                             <td>
                             </td>
                             <td>
-                                <a href="{{ route('admin.physical-security-devices.show', $physicalSecurityDevice->id) }}">
-                                    {{ $physicalSecurityDevice->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$physicalSecurityDevice" />
                             </td>
                             <td>
                                 {{ $physicalSecurityDevice->type ?? '' }}
@@ -88,23 +86,17 @@
                             </td>
                             <td>
                                 @if($physicalSecurityDevice->site!=null)
-                                    <a href="{{ route('admin.sites.show', $physicalSecurityDevice->site->id) }}">
-                                        {{ $physicalSecurityDevice->site->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalSecurityDevice->site" />
                                 @endif
                             </td>
                             <td>
                                 @if($physicalSecurityDevice->building!=null)
-                                    <a href="{{ route('admin.buildings.show', $physicalSecurityDevice->building->id) }}">
-                                        {{ $physicalSecurityDevice->building->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalSecurityDevice->building" />
                                 @endif
                             </td>
                             <td>
                                 @if($physicalSecurityDevice->bay!=null)
-                                    <a href="{{ route('admin.bays.show', $physicalSecurityDevice->bay->id) }}">
-                                        {{ $physicalSecurityDevice->bay->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalSecurityDevice->bay" />
                                 @endif
                             </td>
                             <td nowrap>
@@ -115,12 +107,12 @@
                                     </a>
                                 @endcan
 
-                                @can('physical_security_device_edit')
+                                @canEdit($physicalSecurityDevice)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.physical-security-devices.edit', $physicalSecurityDevice->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('physical_security_device_delete')
                                     <form action="{{ route('admin.physical-security-devices.destroy', $physicalSecurityDevice->id) }}"

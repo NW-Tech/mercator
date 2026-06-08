@@ -10,10 +10,12 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\PhysicalSwitch
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class PhysicalSwitch extends Model implements HasIconContract, HasPrefix
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'physical_switches';
 
@@ -80,6 +83,16 @@ class PhysicalSwitch extends Model implements HasIconContract, HasPrefix
     public function networkSwitches(): BelongsToMany
     {
         return $this->belongsToMany(NetworkSwitch::class)->orderBy('name');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('type')
+            ->whereNotNull('description')
+            ->whereNotNull('site_id')
+            ->whereNotNull('building_id');
     }
 
 }

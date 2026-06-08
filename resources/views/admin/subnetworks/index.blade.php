@@ -78,25 +78,19 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.subnetworks.show', $subnetwork->id) }}">
-                                    {{ $subnetwork->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$subnetwork" />
                             </td>
                             <td>
                                 {!! $subnetwork->description ?? '' !!}
                             </td>
                             <td>
                                 @if ($subnetwork->network!=null)
-                                    <a href="{{ route('admin.networks.show', $subnetwork->network->id) }}">
-                                        {{ $subnetwork->network->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$subnetwork->network" />
                                 @endif
                             </td>
                             <td>
                                 @if ($subnetwork->subnetwork!=null)
-                                    <a href="{{ route('admin.subnetworks.show', $subnetwork->subnetwork->id) }}">
-                                        {{ $subnetwork->subnetwork->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$subnetwork->subnetwork" />
                                 @endif
                             </td>
                             <td>
@@ -110,9 +104,7 @@
                             </td>
                             <td>
                                 @if ($subnetwork->vlan!=null)
-                                    <a href="{{ route('admin.vlans.show', $subnetwork->vlan->id) }}">
-                                        {{ $subnetwork->vlan->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$subnetwork->vlan" />
                                 @endif
                             </td>
                             <td>
@@ -126,12 +118,12 @@
                                     </a>
                                 @endcan
 
-                                @can('subnetwork_edit')
+                                @canEdit($subnetwork)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.subnetworks.edit', $subnetwork->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('subnetwork_delete')
                                     <form action="{{ route('admin.subnetworks.destroy', $subnetwork->id) }}"

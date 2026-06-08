@@ -62,9 +62,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.phones.show', $phone->id) }}">
-                                    {{ $phone->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$phone" />
                             </td>
                             <td>
                                 {{ $phone->type ?? '' }}
@@ -74,12 +72,12 @@
                             </td>
                             <td>
                                 @if ($phone->site!==null)
-                                    <a href="{{ route('admin.sites.show', $phone->site_id) }}">{{ $phone->site->name }}</a>
+                                    <x-show-link :model="$phone->site" />
                                 @endif
                             </td>
                             <td>
                                 @if ($phone->building!==null)
-                                    <a href="{{ route('admin.buildings.show', $phone->building_id) }}">{{ $phone->building->name }}</a>
+                                    <x-show-link :model="$phone->building" />
                                 @endif
                             </td>
                             <td nowrap>
@@ -90,11 +88,11 @@
                                     </a>
                                 @endcan
 
-                                @can('phone_edit')
+                                @canEdit($phone)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.phones.edit', $phone->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('phone_delete')
                                     <form action="{{ route('admin.phones.destroy', $phone->id) }}" method="POST"

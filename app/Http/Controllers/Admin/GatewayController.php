@@ -15,7 +15,11 @@ class GatewayController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('gateway_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('gateway_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Gateway::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $gateways = Gateway::query()
             ->when(request('search'), function ($q, $search) {
@@ -26,7 +30,8 @@ class GatewayController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.gateways.index', compact('gateways'));
     }
@@ -52,7 +57,7 @@ class GatewayController extends Controller
 
     public function edit(Gateway $gateway)
     {
-        abort_if(Gate::denies('gateway_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $gateway), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $subnetworks = Subnetwork::all()->sortBy('name')->pluck('name', 'id');
 
@@ -61,6 +66,8 @@ class GatewayController extends Controller
 
     public function update(UpdateGatewayRequest $request, Gateway $gateway)
     {
+        abort_if(Gate::denies('edit-object', $gateway), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $gateway->update($request->all());
 
         Subnetwork::where('gateway_id', $gateway->id)
@@ -74,7 +81,7 @@ class GatewayController extends Controller
 
     public function show(Gateway $gateway)
     {
-        abort_if(Gate::denies('gateway_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $gateway), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $gateway->load('subnetworks');
 

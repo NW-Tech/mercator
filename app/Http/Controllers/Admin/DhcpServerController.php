@@ -14,7 +14,11 @@ class DhcpServerController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('dhcp_server_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('dhcp_server_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\DhcpServer::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $dhcpServers = DhcpServer::query()
             ->when(request('search'), function ($q, $search) {
@@ -25,7 +29,8 @@ class DhcpServerController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.dhcpServers.index', compact('dhcpServers'));
     }
@@ -46,13 +51,15 @@ class DhcpServerController extends Controller
 
     public function edit(DhcpServer $dhcpServer)
     {
-        abort_if(Gate::denies('dhcp_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $dhcpServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.dhcpServers.edit', compact('dhcpServer'));
     }
 
     public function update(UpdateDhcpServerRequest $request, DhcpServer $dhcpServer)
     {
+        abort_if(Gate::denies('edit-object', $dhcpServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $dhcpServer->update($request->all());
 
         return redirect()->route('admin.dhcp-servers.index');
@@ -60,7 +67,7 @@ class DhcpServerController extends Controller
 
     public function show(DhcpServer $dhcpServer)
     {
-        abort_if(Gate::denies('dhcp_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $dhcpServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.dhcpServers.show', compact('dhcpServer'));
     }

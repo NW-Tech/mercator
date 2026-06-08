@@ -18,7 +18,11 @@ class SiteController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('site_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('site_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Site::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $sites = Site::with('buildings')
             ->when(request('search'), function ($q, $search) {
@@ -29,7 +33,8 @@ class SiteController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.sites.index', compact('sites'));
     }
@@ -74,7 +79,7 @@ class SiteController extends Controller
 
     public function edit(Site $site)
     {
-        abort_if(Gate::denies('site_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $site), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $icons = Site::select('icon_id')->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
 
@@ -83,6 +88,8 @@ class SiteController extends Controller
 
     public function update(UpdateSiteRequest $request, Site $site)
     {
+        abort_if(Gate::denies('edit-object', $site), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save icon
         $this->iconUploadService->handle($request, $site);
 
@@ -93,7 +100,7 @@ class SiteController extends Controller
 
     public function show(Site $site)
     {
-        abort_if(Gate::denies('site_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $site), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $site->load(
             'buildings',

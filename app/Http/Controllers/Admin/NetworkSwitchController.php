@@ -23,7 +23,11 @@ class NetworkSwitchController extends Controller
      */
     public function index()
     {
-        abort_if(Gate::denies('network_switch_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('network_switch_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\NetworkSwitch::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $networkSwitches = NetworkSwitch::query()
             ->when(request('search'), function ($q, $search) {
@@ -34,7 +38,8 @@ class NetworkSwitchController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.networkSwitches.index', compact('networkSwitches'));
     }
@@ -82,7 +87,7 @@ class NetworkSwitchController extends Controller
      */
     public function edit(NetworkSwitch $networkSwitch)
     {
-        abort_if(Gate::denies('network_switch_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $networkSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSwitches = PhysicalSwitch::query()->orderBy('name')->pluck('name', 'id');
         $vlans = Vlan::query()->orderBy('name')->pluck('name', 'id');
@@ -106,6 +111,8 @@ class NetworkSwitchController extends Controller
      */
     public function update(UpdateNetworkSwitchRequest $request, NetworkSwitch $networkSwitch)
     {
+        abort_if(Gate::denies('edit-object', $networkSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $networkSwitch->update($request->all());
         $networkSwitch->physicalSwitches()->sync($request->input('physicalSwitches', []));
         $networkSwitch->vlans()->sync($request->input('vlans', []));
@@ -115,7 +122,7 @@ class NetworkSwitchController extends Controller
 
     public function show(NetworkSwitch $networkSwitch)
     {
-        abort_if(Gate::denies('network_switch_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $networkSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.networkSwitches.show', compact('networkSwitch'));
     }

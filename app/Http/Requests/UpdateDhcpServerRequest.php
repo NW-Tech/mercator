@@ -3,9 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\IPList;
-use Gate;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateDhcpServerRequest extends BaseFormRequest
 {
@@ -14,9 +12,7 @@ class UpdateDhcpServerRequest extends BaseFormRequest
 
     public function authorize() : bool
     {
-        abort_if(Gate::denies('dhcp_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array

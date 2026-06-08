@@ -40,14 +40,13 @@ class ApplicationEventController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        abort_if(Gate::denies('application_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
         $request->validate([
             'application_id' => ['required', 'integer', 'exists:applications,id'],
             'message'          => ['required', 'string', 'max:2000'],
         ]);
 
         $application = Application::findOrFail($request->integer('application_id'));
+        abort_if(Gate::denies('edit-object', $application), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $event = new ApplicationEvent();
         $event->application()->associate($application);

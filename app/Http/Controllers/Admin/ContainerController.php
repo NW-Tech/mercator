@@ -20,7 +20,11 @@ class ContainerController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('container_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('container_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Container::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $containers = Container::query()
             ->when(request('search'), function ($q, $search) {
@@ -31,7 +35,8 @@ class ContainerController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.containers.index', compact('containers'));
     }
@@ -71,7 +76,7 @@ class ContainerController extends Controller
 
     public function edit(Container $container)
     {
-        abort_if(Gate::denies('container_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $container), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $icons = Container::select('icon_id')->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
         $type_list = Container::select('type')->where('type', '<>', null)->distinct()->orderBy('type')->pluck('type');
@@ -87,6 +92,8 @@ class ContainerController extends Controller
 
     public function update(UpdateContainerRequest $request, Container $container)
     {
+        abort_if(Gate::denies('edit-object', $container), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save icon
         $this->iconUploadService->handle($request, $container);
 
@@ -103,7 +110,7 @@ class ContainerController extends Controller
 
     public function show(Container $container)
     {
-        abort_if(Gate::denies('container_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $container), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $container->load('applications', 'logicalServers', 'databases');
 

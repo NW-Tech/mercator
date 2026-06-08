@@ -22,7 +22,11 @@ class ProcessController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('process_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('process_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Process::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $processes = Process::with('operations', 'activities', 'information', 'macroProcess')
             ->when(request('search'), function ($q, $search) {
@@ -33,7 +37,8 @@ class ProcessController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.processes.index', compact('processes'));
     }
@@ -78,7 +83,7 @@ class ProcessController extends Controller
 
     public function edit(Process $process)
     {
-        abort_if(Gate::denies('process_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $process), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $activities = Activity::orderBy('name')->pluck('name', 'id');
         $entities = Entity::orderBy('name')->pluck('name', 'id');
@@ -108,6 +113,8 @@ class ProcessController extends Controller
 
     public function update(UpdateProcessRequest $request, Process $process)
     {
+        abort_if(Gate::denies('edit-object', $process), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save icon
         $this->iconUploadService->handle($request, $process);
 
@@ -125,7 +132,7 @@ class ProcessController extends Controller
 
     public function show(Process $process)
     {
-        abort_if(Gate::denies('process_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $process), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $process->load('activities', 'entities', 'information', 'applications', 'macroProcess');
 

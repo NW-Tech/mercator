@@ -64,7 +64,7 @@
 
 <div class="report-scroll-area">
 
-    @can('zone_access')
+    @canAccess(App\Models\Zone::class)
         @if($zones->count() > 0)
         <br>
         <div class="card">
@@ -83,7 +83,7 @@
         @endif
     @endcan
 
-    @can('building_access')
+    @canAccess(App\Models\Building::class)
         @if($buildings->count() > 0)
         <br>
         <div class="card">
@@ -102,7 +102,7 @@
         @endif
     @endcan
 
-    @can('admin_user_access')
+    @canAccess(App\Models\AdminUser::class)
         @if($adminUsers->count() > 0)
         <br>
         <div class="card">
@@ -151,10 +151,14 @@ ZONE{{ $zone->id }} -> ZONE{{ $child->id }}
         @endif
     @endforeach
     @foreach($zone->buildings as $building)
+        @if($buildings->contains('id', $building->id))
 ZONE{{ $zone->id }} -> BUILD{{ $building->id }}
+        @endif
     @endforeach
     @foreach($zone->adminUsers as $adminUser)
+        @if($adminUsers->contains('id', $adminUser->id))
 ZONE{{ $zone->id }} -> AU{{ $adminUser->id }}
+        @endif
     @endforeach
 @endforeach
 }`;

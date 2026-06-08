@@ -28,15 +28,30 @@
                                     <div class="form-group">
                                         <label for="title">Filtre</label>
                                         <select class="form-control select2" id="filters" multiple>
+                                            @canAccessAny(\App\Models\Entity::class, \App\Models\Relation::class)
                                             <option value="1">{{ trans("cruds.report.cartography.ecosystem") }}</option>
+                                            @endcanAccessAny
+                                            @canAccessAny(\App\Models\Information::class, \App\Models\Process::class, \App\Models\MacroProcessus::class, \App\Models\Activity::class, \App\Models\Operation::class, \App\Models\Task::class, \App\Models\Actor::class)
                                             <option value="2">{{ trans("cruds.report.cartography.information_system") }}</option>
+                                            @endcanAccessAny
+                                            @canAccessAny(\App\Models\ApplicationBlock::class, \App\Models\Application::class, \App\Models\ApplicationService::class, \App\Models\ApplicationModule::class, \App\Models\Database::class)
                                             <option value="3">{{ trans("cruds.report.cartography.applications") }}</option>
+                                            @endcanAccessAny
+                                            @canAccessAny(\App\Models\ZoneAdmin::class, \App\Models\Annuaire::class, \App\Models\ForestAd::class, \App\Models\Domain::class, \App\Models\AdminUser::class)
                                             <option value="4">{{ trans("cruds.report.cartography.administration") }}</option>
+                                            @endcanAccessAny
+                                            @canAccessAny(\App\Models\Network::class, \App\Models\Subnetwork::class, \App\Models\NetworkSwitch::class, \App\Models\Gateway::class, \App\Models\ExternalConnectedEntity::class, \App\Models\Container::class, \App\Models\Cluster::class, \App\Models\LogicalServer::class, \App\Models\Backup::class, \App\Models\SecurityDevice::class, \App\Models\Router::class, \App\Models\Certificate::class, \App\Models\Vlan::class)
                                             <option value="5">{{ trans("cruds.report.cartography.logical_infrastructure") }}</option>
+                                            @endcanAccessAny
+                                            @canAccessAny(\App\Models\ApplicationFlow::class, \App\Models\LogicalFlow::class)
                                             <option value="9">{{ trans("cruds.flux.title") }}</option>
+                                            @endcanAccessAny
+                                            @canAccessAny(\App\Models\Site::class, \App\Models\Building::class, \App\Models\Bay::class, \App\Models\Zone::class, \App\Models\PhysicalServer::class, \App\Models\Workstation::class, \App\Models\Phone::class, \App\Models\Peripheral::class, \App\Models\StorageDevice::class, \App\Models\PhysicalSwitch::class, \App\Models\PhysicalRouter::class, \App\Models\WifiTerminal::class, \App\Models\PhysicalSecurityDevice::class, \App\Models\Wan::class, \App\Models\Man::class, \App\Models\Lan::class)
                                             <option value="6">{{ trans("cruds.report.cartography.physical_infrastructure") }}</option>
-                                            <option value="7">{{ trans("cruds.report.cartography.network_infrastructure") }}</option>
+                                            @endcanAccessAny
+                                            @canAccess(\App\Models\PhysicalLink::class)
                                             <option value="8">{{ trans("cruds.physicalLink.title") }}</option>
+                                            @endcanAccess
                                         </select>
                                         <span class="help-block">{{ trans("cruds.report.explorer.filter_helper") }}</span>
                                     </div>

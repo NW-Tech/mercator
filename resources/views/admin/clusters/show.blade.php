@@ -10,15 +10,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$cluster->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('cluster_edit')
+
+        @endcan
+
+        @canEdit($cluster)
             <a class="btn btn-info" href="{{ route('admin.clusters.edit', $cluster->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('cluster_delete')
             <form action="{{ route('admin.clusters.destroy', $cluster->id) }}" method="POST"

@@ -57,9 +57,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.routers.show', $router->id) }}">
-                                    {{ $router->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$router" />
                             </td>
                             <td>
                                 {{ $router->type ?? '' }}
@@ -69,9 +67,7 @@
                             </td>
                             <td>
                                 @foreach($router->physicalRouters as $physicalRouter)
-                                    <a href="{{ route('admin.physical-routers.show', $physicalRouter->id) }}">
-                                        {{ $physicalRouter->name }}
-                                    </a>
+                                    <x-show-link :model="$physicalRouter" />
                                     @if (!$loop->last)
                                         ,
                                     @endif
@@ -85,12 +81,12 @@
                                     </a>
                                 @endcan
 
-                                @can('router_edit')
+                                @canEdit($router)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.routers.edit', $router->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('router_delete')
                                     <form action="{{ route('admin.routers.destroy', $router->id) }}" method="POST"

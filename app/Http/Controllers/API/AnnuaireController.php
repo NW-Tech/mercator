@@ -35,14 +35,14 @@ class AnnuaireController extends APIController
 
     public function show(Annuaire $annuaire)
     {
-        abort_if(Gate::denies('annuaire_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $annuaire), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($annuaire);
     }
 
     public function update(UpdateAnnuaireRequest $request, Annuaire $annuaire)
     {
-        abort_if(Gate::denies('annuaire_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $annuaire), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $annuaire->update($request->all());
 

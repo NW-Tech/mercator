@@ -40,7 +40,7 @@ class LogicalServerController extends APIController
 
     public function show(LogicalServer $logicalServer)
     {
-        abort_if(Gate::denies('logical_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $logicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $logicalServer['physical_servers'] = $logicalServer->physicalServers()->pluck('id');
         $logicalServer['applications'] = $logicalServer->applications()->pluck('id');
@@ -53,7 +53,7 @@ class LogicalServerController extends APIController
 
     public function update(UpdateLogicalServerRequest $request, LogicalServer $logicalServer)
     {
-        abort_if(Gate::denies('logical_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $logicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $logicalServer->update($request->all());
         if ($request->has('physical_servers')) {

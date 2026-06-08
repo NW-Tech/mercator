@@ -23,7 +23,11 @@ class BayController extends Controller
      */
     public function index(): View
     {
-        abort_if(Gate::denies('bay_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('bay_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Bay::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $bays = Bay::query()->with('room')
             ->when(request('search'), function ($q, $search) {
@@ -34,7 +38,8 @@ class BayController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.bays.index', compact('bays'));
     }
@@ -99,7 +104,7 @@ class BayController extends Controller
      */
     public function edit(Bay $bay): View
     {
-        abort_if(Gate::denies('bay_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $bay), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $rooms = Building::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
@@ -117,6 +122,8 @@ class BayController extends Controller
      */
     public function update(UpdateBayRequest $request, Bay $bay): RedirectResponse
     {
+        abort_if(Gate::denies('edit-object', $bay), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $bay->update($request->all());
 
         return redirect()->route('admin.bays.index');
@@ -130,7 +137,7 @@ class BayController extends Controller
      */
     public function show(Bay $bay): View
     {
-        abort_if(Gate::denies('bay_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $bay), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $bay->load('room', 'physicalServers', 'storageDevices', 'peripherals', 'physicalSwitches', 'physicalRouters', 'physicalSecurityDevices');
 

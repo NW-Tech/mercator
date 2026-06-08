@@ -58,25 +58,19 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.forest-ads.show', $forestAd->id) }}">
-                                    {{ $forestAd->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$forestAd" />
                             </td>
                             <td>
                                 {!! $forestAd->description ?? '' !!}
                             </td>
                             <td>
                                 @if ($forestAd->zoneAdmin!=null)
-                                    <a href="{{ route('admin.zone-admins.show', $forestAd->zoneAdmin->id) }}">
-                                        {{ $forestAd->zoneAdmin->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$forestAd->zoneAdmin" />
                                 @endif
                             </td>
                             <td>
                                 @foreach($forestAd->domains as $domain)
-                                    <a href="{{ route('admin.domains.show', $domain->id) }}">
-                                        {{ $domain->name }}
-                                    </a>
+                                    <x-show-link :model="$domain" />
                                     @if ($forestAd->domains->last()!=$domain)
                                         ,
                                     @endif
@@ -90,12 +84,12 @@
                                     </a>
                                 @endcan
 
-                                @can('forest_ad_edit')
+                                @canEdit($forestAd)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.forest-ads.edit', $forestAd->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('forest_ad_delete')
                                     <form action="{{ route('admin.forest-ads.destroy', $forestAd->id) }}" method="POST"

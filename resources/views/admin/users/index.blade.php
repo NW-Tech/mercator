@@ -37,10 +37,10 @@
                             {{ trans('cruds.user.fields.email') }}
                         </th>
                         <th>
-                            {{ trans('cruds.user.fields.email_verified_at') }}
+                            {{ trans('cruds.user.fields.roles') }}
                         </th>
                         <th>
-                            {{ trans('cruds.user.fields.roles') }}
+                            {{ trans('cruds.cartographer.title') }}
                         </th>
                         <th>
                             &nbsp;
@@ -54,9 +54,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.users.show', $user->id) }}">
-                                    {{ $user->login ?? '' }}
-                                </a>
+                                <x-show-link :model="$user" :label="$user->login ?? ''" />
                             </td>
                             <td>
                                 {{ $user->name ?? '' }}
@@ -64,14 +62,35 @@
                             <td>
                                 {{ $user->email ?? '' }}
                             </td>
-                            <td>
-                                {{ $user->email_verified_at ?? '' }}
-                            </td>
-                            <td>
-                                @foreach($user->roles as $key => $item)
-                                    <span class="badge badge-info">{{ $item->title }}</span>
-                                @endforeach
-                            </td>
+                            <td>@php
+                              $cells = [];
+                              foreach($user->roles as $item) {
+                                  $component = new \App\View\Components\ShowLink($item, $item->title ?? '');
+                                  if ($component->url) {
+                                      $cells[] = '<a href="'.e($component->url).'">'.e($component->label).'</a>';
+                                  } else {
+                                      $cells[] = e($component->label);
+                                  }
+                              }
+                              echo implode(', ', $cells);
+                            @endphp</td>
+                            <td>@php
+                                  $cells = [];
+                                  foreach($user->cartographerEntries as $entry) {
+                                      if (!$entry->cartographiable) continue;
+                                      $showRoute = $routes[$entry->cartographiable_type] ?? null;
+                                      $label = $entry->cartographiable->name ?? '(id:'.$entry->cartographiable_id.')';
+                                      if ($showRoute) {
+                                          $href = route($showRoute, $entry->cartographiable_id);
+                                          $title = e($models[$entry->cartographiable_type] ?? '');
+                                          $cells[] = '<a href="'.e($href).'" class="badge bg-primary text-decoration-none me-1 mb-1"
+                              title="'.$title.'">'.e($label).'</a>';
+                                      } else {
+                                          $cells[] = '<span class="badge bg-secondary me-1 mb-1">'.e($label).'</span>';
+                                      }
+                                  }
+                                  echo implode(' ', $cells);
+                              @endphp</td>
                             <td nowrap>
                                 @can('user_show')
                                     <a class="btn btn-xs btn-primary" href="{{ route('admin.users.show', $user->id) }}">
@@ -79,11 +98,11 @@
                                     </a>
                                 @endcan
 
-                                @can('user_edit')
+                                @canEdit($user)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.users.edit', $user->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('user_delete')
                                     <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST"

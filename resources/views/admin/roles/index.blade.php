@@ -30,12 +30,9 @@
                         <th>
                             {{ trans('cruds.role.fields.title') }}
                         </th>
-                        <th>
-                            #
-                        </th>
-                        <th>
-                            &nbsp;
-                        </th>
+                        <th title="{{ trans('cruds.user.title') }}">#</th>
+                        <th>{{ trans('cruds.cartographer.title') }}</th>
+                        <th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -45,13 +42,26 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.roles.show', $role->id) }}">
-                                {{ $role->title ?? '' }}
-                                </a>
+                                <x-show-link :model="$role" :label="$role->title ?? ''" />
                             </td>
-                            <td>
-                                {{ $role->count ?? '' }}
-                            </td>
+                            <td>{{ $role->users_count }}</td>
+<td>@php
+      $cells = [];
+      foreach($role->cartographerEntries->sortBy('cartographiable_type') as $entry) {
+          if (!$entry->cartographiable) continue;
+          $showRoute = $routes[$entry->cartographiable_type] ?? null;
+          $label = $entry->cartographiable->name ?? '(id:'.$entry->cartographiable_id.')';
+          $title = e($models[$entry->cartographiable_type] ?? '');
+          if ($showRoute) {
+              $href = route($showRoute, $entry->cartographiable_id);
+              $cells[] = '<a href="'.e($href).'" class="badge bg-primary text-decoration-none"
+  title="'.$title.'">'.e($label).'</a>';
+          } else {
+              $cells[] = '<span class="badge bg-secondary me-1 mb-1" title="'.$title.'">'.e($label).'</span>';
+          }
+      }
+      echo implode(' ', $cells);
+  @endphp</td>
                             <td nowrap>
                                 @can('role_show')
                                     <a class="btn btn-xs btn-primary" href="{{ route('admin.roles.show', $role->id) }}">
@@ -59,11 +69,11 @@
                                     </a>
                                 @endcan
 
-                                @can('role_edit')
+                                @canEdit($role)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.roles.edit', $role->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('role_delete')
                                     <form action="{{ route('admin.roles.destroy', $role->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

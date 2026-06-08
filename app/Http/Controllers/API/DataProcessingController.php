@@ -38,7 +38,7 @@ class DataProcessingController extends APIController
 
     public function show(DataProcessing $dataProcessing)
     {
-        abort_if(Gate::denies('data_processing_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $dataProcessing), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $dataProcessing['processes']    = $dataProcessing->processes()->pluck('id');
         $dataProcessing['informations'] = $dataProcessing->informations()->pluck('id');
@@ -49,7 +49,7 @@ class DataProcessingController extends APIController
 
     public function update(UpdateDataProcessingRequest $request, DataProcessing $dataProcessing)
     {
-        abort_if(Gate::denies('data_processing_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $dataProcessing), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $dataProcessing->update($request->all());
         if ($request->has('processes'))

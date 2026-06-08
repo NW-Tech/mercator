@@ -11,7 +11,11 @@
             </th>
             <td>
             @if ($withLink)
-                <a href="{{ route('admin.dnsservers.show', $dnsserver) }}">{{ $dnsserver->name }}</a>
+                @canShow($dnsserver)
+                    <a href="{{ route('admin.dnsservers.show', $dnsserver) }}">{{ $dnsserver->name }}</a>
+                @elsecanShow
+                    {{ $dnsserver->name }}
+                @endcanShow
             @else
                 {{ $dnsserver->name }}
             @endif

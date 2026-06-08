@@ -63,9 +63,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.wifi-terminals.show', $wifiTerminal->id) }}">
-                                    {{ $wifiTerminal->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$wifiTerminal" />
                             </td>
                             <td>
                                 {{ $wifiTerminal->type ?? '' }}
@@ -75,12 +73,12 @@
                             </td>
                             <td>
                                 @if ($wifiTerminal->site!==null)
-                                    <a href="{{ route('admin.sites.show', $wifiTerminal->site_id) }}">{{ $wifiTerminal->site->name }}</a>
+                                    <x-show-link :model="$wifiTerminal->site" />
                                 @endif
                             </td>
                             <td>
                                 @if ($wifiTerminal->building!==null)
-                                    <a href="{{ route('admin.buildings.show', $wifiTerminal->building_id) }}">{{ $wifiTerminal->building->name }}</a>
+                                    <x-show-link :model="$wifiTerminal->building" />
                                 @endif
                             </td>
                             <td nowrap>
@@ -91,12 +89,12 @@
                                     </a>
                                 @endcan
 
-                                @can('wifi_terminal_edit')
+                                @canEdit($wifiTerminal)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.wifi-terminals.edit', $wifiTerminal->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('wifi_terminal_delete')
                                     <form action="{{ route('admin.wifi-terminals.destroy', $wifiTerminal->id) }}"

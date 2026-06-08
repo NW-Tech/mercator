@@ -26,7 +26,11 @@ class LogicalFlowController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('logical_flow_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('logical_flow_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\LogicalFlow::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $logicalFlows = LogicalFlow::with([
             'router',
@@ -55,7 +59,8 @@ class LogicalFlowController extends Controller
                 });
             })
             ->orderby('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.logicalFlows.index', compact('logicalFlows'));
     }
@@ -207,7 +212,7 @@ class LogicalFlowController extends Controller
 
     public function edit(LogicalFlow $logicalFlow)
     {
-        abort_if(Gate::denies('logical_flow_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $logicalFlow), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $routers = Router::query()->orderBy('name')->pluck('name', 'id');
 
@@ -265,6 +270,8 @@ class LogicalFlowController extends Controller
 
     public function update(UpdateLogicalFlowRequest $request, LogicalFlow $logicalFlow)
     {
+        abort_if(Gate::denies('edit-object', $logicalFlow), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $this->validate($request, [
                 'source_ip_range' => [
                     new Cidr,
@@ -340,7 +347,7 @@ class LogicalFlowController extends Controller
 
     public function show(LogicalFlow $logicalFlow)
     {
-        abort_if(Gate::denies('logical_flow_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $logicalFlow), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.logicalFlows.show', compact('logicalFlow'));
     }

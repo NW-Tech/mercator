@@ -40,14 +40,14 @@ class MacroProcessusController extends APIController
 
     public function show(MacroProcessus $macroProcessus)
     {
-        abort_if(Gate::denies('macro_processus_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $macroProcessus), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($macroProcessus);
     }
 
     public function update(UpdateMacroProcessusRequest $request, MacroProcessus $macroProcessus)
     {
-        abort_if(Gate::denies('macro_processus_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $macroProcessus), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $macroProcessus->update($request->all());
 

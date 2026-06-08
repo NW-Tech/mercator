@@ -10,9 +10,11 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\Annuaire *
@@ -20,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Annuaire extends Model implements HasPrefix, HasIconContract
 {
     use HasIcon, Auditable, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'annuaires';
 
@@ -59,5 +62,14 @@ class Annuaire extends Model implements HasPrefix, HasIconContract
     public function zoneAdmin(): BelongsTo
     {
         return $this->belongsTo(ZoneAdmin::class, 'zone_admin_id');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereNotNull('solution')
+            ->whereNotNull('zone_admin_id');
     }
 }

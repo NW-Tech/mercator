@@ -37,7 +37,7 @@ class CertificateController extends APIController
 
     public function show(Certificate $certificate)
     {
-        abort_if(Gate::denies('certificate_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $certificate), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $certificate['logical_servers'] = $certificate->logicalServers()->pluck('id');
         $certificate['applications'] = $certificate->applications()->pluck('id');
@@ -47,7 +47,7 @@ class CertificateController extends APIController
 
     public function update(UpdateCertificateRequest $request, Certificate $certificate)
     {
-        abort_if(Gate::denies('certificate_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $certificate), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $certificate->update($request->all());
 

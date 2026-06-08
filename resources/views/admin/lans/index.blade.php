@@ -51,9 +51,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.lans.show', $lan->id) }}">
-                                    {{ $lan->name }}
-                                </a>
+                                <x-show-link :model="$lan" />
                             </td>
                             <td>
                                 {!! $lan->description !!}
@@ -65,11 +63,11 @@
                                     </a>
                                 @endcan
 
-                                @can('lan_edit')
+                                @canEdit($lan)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.lans.edit', $lan->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('lan_delete')
                                     <form action="{{ route('admin.lans.destroy', $lan->id) }}" method="POST"

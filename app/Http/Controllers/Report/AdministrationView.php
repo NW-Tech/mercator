@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
 use App\Models\AdminUser;
@@ -28,12 +29,13 @@ class AdministrationView extends Controller
      */
     public function generate(): View
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([ZoneAdmin::class, Annuaire::class, ForestAd::class, Domain::class]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $zones = ZoneAdmin::All();
-        $annuaires = Annuaire::All();
-        $forests = ForestAd::All();
-        $domains = Domain::All();
+        $zones = Cartographer::scopedQuery(ZoneAdmin::query())->get();
+        $annuaires = Cartographer::scopedQuery(Annuaire::query())->get();
+        $forests = Cartographer::scopedQuery(ForestAd::query())->get();
+        $domains = Cartographer::scopedQuery(Domain::query())->get();
         $adminUsers = AdminUser::All();
 
         return view('admin/reports/administration')

@@ -15,7 +15,11 @@ class MacroProcessusController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('macro_processus_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('macro_processus_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\MacroProcessus::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         // $macroProcessuses = MacroProcessus::orderBy('name')->get();
         $macroProcessuses = MacroProcessus::with('processes')
@@ -27,7 +31,8 @@ class MacroProcessusController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.macroProcessuses.index', compact('macroProcessuses'));
     }
@@ -58,7 +63,7 @@ class MacroProcessusController extends Controller
 
     public function edit(MacroProcessus $macroProcessus)
     {
-        abort_if(Gate::denies('macro_processus_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $macroProcessus), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $processes = Process::orderBy('name')->pluck('name', 'id');
         // lists
@@ -74,6 +79,8 @@ class MacroProcessusController extends Controller
 
     public function update(UpdateMacroProcessusRequest $request, MacroProcessus $macroProcessus)
     {
+        abort_if(Gate::denies('edit-object', $macroProcessus), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $macroProcessus->update($request->all());
 
         // $macroProcessus->processes()->sync($request->input('processes', []));
@@ -88,7 +95,7 @@ class MacroProcessusController extends Controller
 
     public function show(MacroProcessus $macroProcessus)
     {
-        abort_if(Gate::denies('macro_processus_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $macroProcessus), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $macroProcessus->load('processes');
 

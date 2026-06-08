@@ -59,9 +59,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.gateways.show', $gateway->id) }}">
-                                    {{ $gateway->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$gateway" />
                             </td>
                             <td>
                                 {!! $gateway->description ?? '' !!}
@@ -80,12 +78,12 @@
                                     </a>
                                 @endcan
 
-                                @can('gateway_edit')
+                                @canEdit($gateway)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.gateways.edit', $gateway->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('gateway_delete')
                                     <form action="{{ route('admin.gateways.destroy', $gateway->id) }}" method="POST"

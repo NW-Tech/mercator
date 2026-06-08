@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\MassDestroyUserRequest;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use App\Models\Cartographer;
 use App\Models\Role;
 use App\Models\User;
 use Gate;
+use Illuminate\Support\Facades\Cache;
 use Symfony\Component\HttpFoundation\Response;
 
 class UsersController extends Controller
@@ -17,9 +19,11 @@ class UsersController extends Controller
     {
         abort_if(Gate::denies('user_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $users = User::all()->sortBy('id');
+        $users  = User::with(['roles', 'cartographerEntries.cartographiable'])->get()->sortBy('id');
+        $routes = Cartographer::cartographiableRoutesMap();
+        $models = Cartographer::cartographiableModelsList();
 
-        return view('admin.users.index', compact('users'));
+        return view('admin.users.index', compact('users', 'routes', 'models'));
     }
 
     public function create()
@@ -35,15 +39,15 @@ class UsersController extends Controller
     {
         $user = User::create($request->all());
 
-        // Save roles
         $user->roles()->sync($request->input('roles', []));
+        Cache::put('roles_last_update', now()->timestamp);
 
         return redirect()->route('admin.users.index');
     }
 
     public function edit(User $user)
     {
-        abort_if(Gate::denies('user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $user), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $roles = Role::all()->sortBy('title')->pluck('title', 'id');
 
@@ -54,9 +58,16 @@ class UsersController extends Controller
 
     public function update(UpdateUserRequest $request, User $user)
     {
-        $user->update($request->all());
+        abort_if(Gate::denies('edit-object', $user), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
+        $data = $request->all();
+        if (empty($data['password'])) {
+            unset($data['password']);
+        }
+        $user->update($data);
 
         $user->roles()->sync($request->input('roles', []));
+        Cache::put('roles_last_update', now()->timestamp);
 
         return redirect()->route('admin.users.index');
     }
@@ -65,9 +76,18 @@ class UsersController extends Controller
     {
         abort_if(Gate::denies('user_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $user->load('roles');
+        $user->load(['roles', 'cartographerEntries.cartographiable']);
 
-        return view('admin.users.show', compact('user'));
+        // Entrées via les rôles de l'utilisateur
+        $roleIds = $user->roles->pluck('id');
+        $roleCartographers = Cartographer::whereIn('role_id', $roleIds)
+            ->with(['cartographiable', 'role'])
+            ->get();
+
+        $routes = Cartographer::cartographiableRoutesMap();
+        $models = Cartographer::cartographiableModelsList();
+
+        return view('admin.users.show', compact('user', 'roleCartographers', 'routes', 'models'));
     }
 
     public function destroy(User $user)

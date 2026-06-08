@@ -10,10 +10,12 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use App\Traits\HasCartographers;
 
 /**
  * App\Actor
@@ -21,6 +23,7 @@ use Illuminate\Support\Collection;
 class Actor extends Model implements HasPrefix, HasIconContract
 {
     use HasIcon, Auditable, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'actors';
 
@@ -69,6 +72,15 @@ class Actor extends Model implements HasPrefix, HasIconContract
             ->whereLike('content', '%"#'.$this->getUID().'"%')
             ->get()
         );
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel2(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('contact')
+            ->whereNotNull('nature')
+            ->whereNotNull('type');
     }
 
 }

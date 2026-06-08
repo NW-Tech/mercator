@@ -48,9 +48,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.security-controls.show', $control->id) }}">
-                                {{ $control->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$control" />
                             </td>
                             <td>
                                 {!! $control->description ?? '' !!}
@@ -62,11 +60,11 @@
                                     </a>
                                 @endcan
 
-                                @can('security_control_edit')
+                                @canEdit($control)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.security-controls.edit', $control->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('security_control_delete')
                                     <form action="{{ route('admin.security-controls.destroy', $control->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

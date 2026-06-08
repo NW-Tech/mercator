@@ -35,14 +35,14 @@ class WifiTerminalController extends APIController
 
     public function show(WifiTerminal $wifiTerminal)
     {
-        abort_if(Gate::denies('wifi_terminal_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $wifiTerminal), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($wifiTerminal);
     }
 
     public function update(UpdateWifiTerminalRequest $request, WifiTerminal $wifiTerminal)
     {
-        abort_if(Gate::denies('wifi_terminal_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $wifiTerminal), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $wifiTerminal->update($request->all());
 

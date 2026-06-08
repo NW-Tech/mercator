@@ -6,7 +6,7 @@
 
 @section('content')
     <div class="form-group">
-        <a class="btn btn-default" href="{{ route('admin.audit-logs.index') }}">
+        <a class="btn btn-default" href="{{ Gate::allows('audit_log_access') ? route('admin.audit-logs.index') : route('admin.cartographer.list') }}">
             {{ trans('global.back_to_list') }}
         </a>
     </div>
@@ -116,7 +116,7 @@
         </div>
     </div>
     <div class="form-group">
-        <a id="btn-cancel" class="btn btn-default" href="{{ route('admin.audit-logs.index') }}">
+        <a id="btn-cancel" class="btn btn-default" href="{{ Gate::allows('audit_log_access') ? route('admin.audit-logs.index') : route('admin.cartographer.list') }}">
             {{ trans('global.back_to_list') }}
         </a>
     </div>

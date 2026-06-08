@@ -2,11 +2,26 @@
 
 namespace App\Http\Requests;
 
-// app/Http/Requests/BaseFormRequest.php
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Gate;
 
 abstract class BaseFormRequest extends FormRequest
 {
+    /**
+     * Autorise la modification si l'utilisateur a la permission _edit
+     * OU s'il est cartographe de l'objet passé en route model binding.
+     */
+    protected function authorizeEdit(): bool
+    {
+        foreach ($this->route()->parameters() as $param) {
+            if ($param instanceof \Illuminate\Database\Eloquent\Model) {
+                return Gate::allows('edit-object', $param);
+            }
+        }
+
+        return false;
+    }
+
     /**
      * Champs contenant du HTML riche (CKEditor)
      * À surcharger dans les FormRequest enfants

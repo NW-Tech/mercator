@@ -14,7 +14,11 @@ class LanController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('lan_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('lan_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Lan::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $lans = Lan::query()
             ->when(request('search'), function ($q, $search) {
@@ -25,7 +29,8 @@ class LanController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.lans.index', compact('lans'));
     }
@@ -46,13 +51,15 @@ class LanController extends Controller
 
     public function edit(Lan $lan)
     {
-        abort_if(Gate::denies('lan_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $lan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.lans.edit', compact('lan'));
     }
 
     public function update(UpdateLanRequest $request, Lan $lan)
     {
+        abort_if(Gate::denies('edit-object', $lan), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $lan->update($request->all());
 
         return redirect()->route('admin.lans.index');
@@ -60,7 +67,7 @@ class LanController extends Controller
 
     public function show(Lan $lan)
     {
-        abort_if(Gate::denies('lan_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $lan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $lan->load('mans', 'wans');
 

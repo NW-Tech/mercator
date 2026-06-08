@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Application;
+use App\Models\ApplicationBlock;
+use App\Models\ApplicationFlow;
+use App\Models\ApplicationModule;
+use App\Models\ApplicationService;
+use App\Models\Cartographer;
+use App\Models\Database;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use App\Models\ApplicationBlock;
-use App\Models\ApplicationModule;
-use App\Models\ApplicationService;
-use App\Models\Database;
-use App\Models\ApplicationFlow;
-use App\Models\Application;
 use Symfony\Component\HttpFoundation\Response;
 
 class ApplicationView extends Controller
@@ -29,7 +30,8 @@ class ApplicationView extends Controller
      */
     public function generate(Request $request): View
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([ApplicationBlock::class, Application::class, ApplicationService::class, ApplicationModule::class, Database::class, ApplicationFlow::class]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->applicationBlock == null) {
             $request->session()->put('applicationBlock', null);
@@ -55,15 +57,15 @@ class ApplicationView extends Controller
             }
         }
 
-        $all_applicationBlocks = ApplicationBlock::All()->sortBy('name');
+        $all_applicationBlocks = Cartographer::scopedQuery(ApplicationBlock::query())->orderBy('name')->get();
 
         if ($applicationBlock !== null) {
-            $applicationBlocks = ApplicationBlock::All()->sortBy('name')
+            $applicationBlocks = Cartographer::scopedQuery(ApplicationBlock::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applicationBlock) {
                     return $item->id === $applicationBlock;
                 });
 
-            $applications = Application::All()->sortBy('name')
+            $applications = Cartographer::scopedQuery(Application::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applicationBlock, $application) {
                     if ($application !== null) {
                         return $item->id === $application;
@@ -72,12 +74,12 @@ class ApplicationView extends Controller
                     return $item->application_block_id = $applicationBlock;
                 });
 
-            $all_applications = Application::All()->sortBy('name')
+            $all_applications = Cartographer::scopedQuery(Application::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applicationBlock) {
                     return $item->application_block_id === $applicationBlock;
                 });
 
-            $applications = Application::All()->sortBy('name')
+            $applications = Cartographer::scopedQuery(Application::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applicationBlock, $application) {
                     if ($application === null) {
                         return $item->application_block_id === $applicationBlock;
@@ -86,7 +88,7 @@ class ApplicationView extends Controller
                     return $item->id === $application;
                 });
 
-            $applicationServices = ApplicationService::All()->sortBy('name')
+            $applicationServices = Cartographer::scopedQuery(ApplicationService::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applications) {
                     foreach ($applications as $application) {
                         foreach ($application->services as $service) {
@@ -99,7 +101,7 @@ class ApplicationView extends Controller
                     return false;
                 });
 
-            $applicationModules = ApplicationModule::All()->sortBy('name')
+            $applicationModules = Cartographer::scopedQuery(ApplicationModule::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applicationServices) {
                     foreach ($applicationServices as $service) {
                         foreach ($service->modules as $module) {
@@ -112,7 +114,7 @@ class ApplicationView extends Controller
                     return false;
                 });
 
-            $databases = Database::All()->sortBy('name')
+            $databases = Cartographer::scopedQuery(Database::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applications) {
                     foreach ($applications as $application) {
                         foreach ($application->databases as $database) {
@@ -126,7 +128,7 @@ class ApplicationView extends Controller
                 });
 
             // TODO : improve me
-            $flows = ApplicationFlow::All()->sortBy('name')
+            $flows = Cartographer::scopedQuery(ApplicationFlow::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($applications, $applicationModules, $databases) {
                     foreach ($applications as $application) {
                         if ($item->application_source_id === $application->id) {
@@ -156,12 +158,12 @@ class ApplicationView extends Controller
                     return false;
                 });
         } else {
-            $applicationBlocks = ApplicationBlock::All()->sortBy('name');
-            $applications = Application::All()->sortBy('name');
-            $applicationServices = ApplicationService::All()->sortBy('name');
-            $applicationModules = ApplicationModule::All()->sortBy('name');
-            $databases = Database::All()->sortBy('name');
-            $flows = ApplicationFlow::All()->sortBy('name');
+            $applicationBlocks = Cartographer::scopedQuery(ApplicationBlock::query())->orderBy('name')->get();
+            $applications = Cartographer::scopedQuery(Application::query())->orderBy('name')->get();
+            $applicationServices = Cartographer::scopedQuery(ApplicationService::query())->orderBy('name')->get();
+            $applicationModules = Cartographer::scopedQuery(ApplicationModule::query())->orderBy('name')->get();
+            $databases = Cartographer::scopedQuery(Database::query())->orderBy('name')->get();
+            $flows = Cartographer::scopedQuery(ApplicationFlow::query())->orderBy('name')->get();
             $all_applications = null;
         }
 

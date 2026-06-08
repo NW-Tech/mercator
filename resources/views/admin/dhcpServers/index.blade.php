@@ -48,8 +48,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.dhcp-servers.show', $dhcpServer->id) }}">
-                                {{ $dhcpServer->name ?? '' }}
+                                <x-show-link :model="$dhcpServer" />
                             </td>
                             <td>
                                 {!! $dhcpServer->description !!}
@@ -64,11 +63,11 @@
                                     </a>
                                 @endcan
 
-                                @can('dhcp_server_edit')
+                                @canEdit($dhcpServer)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.dhcp-servers.edit', $dhcpServer->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('dhcp_server_delete')
                                     <form action="{{ route('admin.dhcp-servers.destroy', $dhcpServer->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

@@ -3,9 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\Cidr;
-use Gate;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateSubnetworkRequest extends BaseFormRequest
 {
@@ -13,9 +11,7 @@ class UpdateSubnetworkRequest extends BaseFormRequest
 
     public function authorize() : bool
     {
-        abort_if(Gate::denies('subnetwork_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array

@@ -11,7 +11,11 @@
             </th>
             <td colspan="3">
             @if($withLink)
+            @canShow($man)
             <a href="{{ route('admin.mans.show', $man) }}">{{ $man->name }}</a>
+            @elsecanShow
+            {{ $man->name }}
+            @endcanShow
             @else
             {{ $man->name }}
             @endif
@@ -25,13 +29,18 @@
             {!! $man->description !!}
             </td>
         </tr>
+        @canAccessAny(App\Models\Wan::class, App\Models\Man::class)
         <tr>
             <th>
             {{ trans('cruds.man.fields.wans') }}
             </th>
             <td width="40%">
                 @foreach($man->wans as $wan)
+                @canShow($wan)
                 <a href="{{ route('admin.wans.show', $wan) }}">{{ $wan->name }}</a>
+                @elsecanShow
+                {{ $wan->name }}
+                @endcanShow
                 @if(!$loop->last), @endif
                 @endforeach
 
@@ -41,20 +50,31 @@
             </th>
             <td width="40%">
             @if($man->parentMan!==null)
+            @canShow($man->parentMan)
             <a href="{{ route('admin.mans.show', $man->parentMan) }}">{{ $man->parentMan->name }}</a>
+            @elsecanShow
+            {{ $man->parentMan->name }}
+            @endcanShow
             @endif
             </td>
         </tr>
+        @endcanAccessAny
+        @canAccess(App\Models\Lan::class)
         <tr>
             <th>
                 {{ trans('cruds.man.fields.lans') }}
             </th>
             <td>
                 @foreach($man->lans as $lan)
+                @canShow($lan)
                 <a href="{{ route('admin.lans.show', $lan) }}">{{ $lan->name }}</a>
+                @elsecanShow
+                {{ $lan->name }}
+                @endcanShow
                 @if(!$loop->last), @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

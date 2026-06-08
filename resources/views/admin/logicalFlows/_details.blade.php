@@ -29,6 +29,7 @@
             {{ trans('cruds.logicalFlow.fields.router') }}
         </th>
     </tr>
+    @canAccess(App\Models\Router::class)
     <tr>
         <td>
             {{ $logicalFlow->chain }}
@@ -38,13 +39,18 @@
         </td>
         <td>
             @if ($logicalFlow->router !== null)
+                @canShow($logicalFlow->router)
                 <a href="{{ route('admin.routers.show', $logicalFlow->router->id) }}">
                     {{ $logicalFlow->router->name }}
                 </a>
+                @elsecanShow
+                    {{ $logicalFlow->router->name }}
+                @endcanShow
             @endif
         </td>
 
     </tr>
+    @endcanAccess
     <tr>
         <th width='10%'>
             {{ trans('cruds.logicalFlow.fields.priority') }}
@@ -84,51 +90,49 @@
                 {{ $logicalFlow->source_ip_range }}
             @elseif ($logicalFlow->logicalServerSource!==null)
                 {{ $logicalFlow->logicalServerSource->address_ip }}
-                (<a href="{{ route('admin.logical-servers.show',$logicalFlow->logicalServerSource->id) }}">
+                (@canShow($logicalFlow->logicalServerSource)<a href="{{ route('admin.logical-servers.show',$logicalFlow->logicalServerSource->id) }}">
                     {{ $logicalFlow->logicalServerSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->logicalServerSource->name }}@endcanShow)
             @elseif ($logicalFlow->peripheralSource!==null)
                 {{ $logicalFlow->peripheralSource->address_ip }}
-                (<a href="{{ route('admin.peripherals.show',$logicalFlow->peripheralSource->id) }}">
+                (@canShow($logicalFlow->peripheralSource)<a href="{{ route('admin.peripherals.show',$logicalFlow->peripheralSource->id) }}">
                     {{ $logicalFlow->peripheralSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->peripheralSource->name }}@endcanShow)
             @elseif ($logicalFlow->physicalServerSource!==null)
                 {{ $logicalFlow->physicalServerSource->address_ip }}
-                (<a href="{{ route('admin.physical-servers.show',$logicalFlow->physicalServerSource->id) }}">
+                (@canShow($logicalFlow->physicalServerSource)<a href="{{ route('admin.physical-servers.show',$logicalFlow->physicalServerSource->id) }}">
                     {{ $logicalFlow->physicalServerSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->physicalServerSource->name }}@endcanShow)
             @elseif ($logicalFlow->storageDeviceSource!==null)
                 {{ $logicalFlow->storageDeviceSource->address_ip }}
-                (<a href="{{ route('admin.storage-devices.show',$logicalFlow->storageDeviceSource->id) }}">
+                (@canShow($logicalFlow->storageDeviceSource)<a href="{{ route('admin.storage-devices.show',$logicalFlow->storageDeviceSource->id) }}">
                     {{ $logicalFlow->storageDeviceSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->storageDeviceSource->name }}@endcanShow)
             @elseif ($logicalFlow->workstationSource!==null)
                 {{ $logicalFlow->workstationSource->address_ip }}
-                (<a href="{{ route('admin.workstations.show',$logicalFlow->workstationSource->id) }}">
+                (@canShow($logicalFlow->workstationSource)<a href="{{ route('admin.workstations.show',$logicalFlow->workstationSource->id) }}">
                     {{ $logicalFlow->workstationSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->workstationSource->name }}@endcanShow)
             @elseif ($logicalFlow->physicalSecurityDeviceSource!==null)
                 {{ $logicalFlow->physicalSecurityDeviceSource->address_ip }}
-                (
-                <a href="{{ route('admin.physical-security-devices.show',$logicalFlow->physicalSecurityDeviceSource->id) }}">
+                (@canShow($logicalFlow->physicalSecurityDeviceSource)<a href="{{ route('admin.physical-security-devices.show',$logicalFlow->physicalSecurityDeviceSource->id) }}">
                     {{ $logicalFlow->physicalSecurityDeviceSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->physicalSecurityDeviceSource->name }}@endcanShow)
             @elseif ($logicalFlow->securityDeviceSource!==null)
                 {{ $logicalFlow->securityDeviceSource->address_ip }}
-                (
-                <a href="{{ route('admin.security-devices.show',$logicalFlow->securityDeviceSource->id) }}">
+                (@canShow($logicalFlow->securityDeviceSource)<a href="{{ route('admin.security-devices.show',$logicalFlow->securityDeviceSource->id) }}">
                     {{ $logicalFlow->securityDeviceSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->securityDeviceSource->name }}@endcanShow)
             @elseif ($logicalFlow->subnetworkSource!==null)
                 {{ $logicalFlow->subnetworkSource->address }}
-                (<a href="{{ route('admin.subnetworks.show',$logicalFlow->subnetworkSource->id) }}">
+                (@canShow($logicalFlow->subnetworkSource)<a href="{{ route('admin.subnetworks.show',$logicalFlow->subnetworkSource->id) }}">
                     {{ $logicalFlow->subnetworkSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->subnetworkSource->name }}@endcanShow)
             @elseif ($logicalFlow->clusterSource!==null)
                 {{ $logicalFlow->clusterSource->address }}
-                (<a href="{{ route('admin.clusters.show',$logicalFlow->clusterSource->id) }}">
+                (@canShow($logicalFlow->clusterSource)<a href="{{ route('admin.clusters.show',$logicalFlow->clusterSource->id) }}">
                     {{ $logicalFlow->clusterSource->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->clusterSource->name }}@endcanShow)
             @endif
         </td>
         <td>
@@ -139,51 +143,49 @@
                 {{ $logicalFlow->dest_ip_range }}
             @elseif ($logicalFlow->logicalServerDest!==null)
                 {{ $logicalFlow->logicalServerDest->address_ip }}
-                (<a href="{{ route('admin.logical-servers.show',$logicalFlow->logicalServerDest->id) }}">
+                (@canShow($logicalFlow->logicalServerDest)<a href="{{ route('admin.logical-servers.show',$logicalFlow->logicalServerDest->id) }}">
                     {{ $logicalFlow->logicalServerDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->logicalServerDest->name }}@endcanShow)
             @elseif ($logicalFlow->peripheralDest!==null)
                 {{ $logicalFlow->peripheralDest->address_ip }}
-                (<a href="{{ route('admin.peripherals.show',$logicalFlow->peripheralDest->id) }}">
+                (@canShow($logicalFlow->peripheralDest)<a href="{{ route('admin.peripherals.show',$logicalFlow->peripheralDest->id) }}">
                     {{ $logicalFlow->peripheralDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->peripheralDest->name }}@endcanShow)
             @elseif ($logicalFlow->physicalServerDest!==null)
                 {{ $logicalFlow->physicalServerDest->address_ip }}
-                (<a href="{{ route('admin.physical-servers.show',$logicalFlow->physicalServerDest->id) }}">
+                (@canShow($logicalFlow->physicalServerDest)<a href="{{ route('admin.physical-servers.show',$logicalFlow->physicalServerDest->id) }}">
                     {{ $logicalFlow->physicalServerDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->physicalServerDest->name }}@endcanShow)
             @elseif ($logicalFlow->storageDeviceDest!==null)
                 {{ $logicalFlow->storageDeviceDest->address_ip }}
-                (<a href="{{ route('admin.storage-devices.show',$logicalFlow->storageDeviceDest->id) }}">
+                (@canShow($logicalFlow->storageDeviceDest)<a href="{{ route('admin.storage-devices.show',$logicalFlow->storageDeviceDest->id) }}">
                     {{ $logicalFlow->storageDeviceDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->storageDeviceDest->name }}@endcanShow)
             @elseif ($logicalFlow->workstationDest!==null)
                 {{ $logicalFlow->workstationDest->address_ip }}
-                (<a href="{{ route('admin.workstations.show',$logicalFlow->workstationDest->id) }}">
+                (@canShow($logicalFlow->workstationDest)<a href="{{ route('admin.workstations.show',$logicalFlow->workstationDest->id) }}">
                     {{ $logicalFlow->workstationDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->workstationDest->name }}@endcanShow)
             @elseif ($logicalFlow->physicalSecurityDeviceDest!==null)
                 {{ $logicalFlow->physicalSecurityDeviceDest->address_ip }}
-                (
-                <a href="{{ route('admin.physical-security-devices.show',$logicalFlow->physicalSecurityDeviceDest->id) }}">
+                (@canShow($logicalFlow->physicalSecurityDeviceDest)<a href="{{ route('admin.physical-security-devices.show',$logicalFlow->physicalSecurityDeviceDest->id) }}">
                     {{ $logicalFlow->physicalSecurityDeviceDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->physicalSecurityDeviceDest->name }}@endcanShow)
             @elseif ($logicalFlow->securityDeviceDest!==null)
                 {{ $logicalFlow->securityDeviceDest->address_ip }}
-                (
-                <a href="{{ route('admin.security-devices.show',$logicalFlow->securityDeviceDest->id) }}">
+                (@canShow($logicalFlow->securityDeviceDest)<a href="{{ route('admin.security-devices.show',$logicalFlow->securityDeviceDest->id) }}">
                     {{ $logicalFlow->securityDeviceDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->securityDeviceDest->name }}@endcanShow)
             @elseif ($logicalFlow->subnetworkDest!==null)
                 {{ $logicalFlow->subnetworkDest->address }}
-                (<a href="{{ route('admin.subnetworks.show',$logicalFlow->subnetworkDest->id) }}">
+                (@canShow($logicalFlow->subnetworkDest)<a href="{{ route('admin.subnetworks.show',$logicalFlow->subnetworkDest->id) }}">
                     {{ $logicalFlow->subnetworkDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->subnetworkDest->name }}@endcanShow)
             @elseif ($logicalFlow->clusterDest!==null)
                 {{ $logicalFlow->clusterDest->address }}
-                (<a href="{{ route('admin.clusters.show',$logicalFlow->clusterDest->id) }}">
+                (@canShow($logicalFlow->clusterDest)<a href="{{ route('admin.clusters.show',$logicalFlow->clusterDest->id) }}">
                     {{ $logicalFlow->clusterDest->name }}
-                </a>)
+                </a>@elsecanShow{{ $logicalFlow->clusterDest->name }}@endcanShow)
             @endif
         </td>
         <td>

@@ -76,18 +76,14 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.external-connected-entities.show', $externalConnectedEntity->id) }}">
-                                    {{ $externalConnectedEntity->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$externalConnectedEntity" />
                             </td>
                             <td>
                                 {{ $externalConnectedEntity->type ?? '' }}
                             </td>
                             <td>
                                 @if ($externalConnectedEntity->entity!=null)
-                                    <a href="{{ route('admin.entities.show', $externalConnectedEntity->entity->id) }}">
-                                        {{ $externalConnectedEntity->entity->name }}
-                                    </a>
+                                    <x-show-link :model="$externalConnectedEntity->entity" />
                                 @endif
                             </td>
                             <td>
@@ -95,14 +91,12 @@
                             </td>
                             <td>
                                 @if($externalConnectedEntity->network!=null)
-                                    <a href="{{ route('admin.networks.show', $externalConnectedEntity->network->id) }}">
-                                        {{ $externalConnectedEntity->network->name }}
-                                    </a>
+                                    <x-show-link :model="$externalConnectedEntity->network" />
                                 @endif
                             </td>
                             <td>
                                 @foreach($externalConnectedEntity->subnetworks as $subnetwork)
-                                    <a href="{{ route('admin.subnetworks.show', $subnetwork->id) }}">{{ $subnetwork->name }} {{ $subnetwork->address!==null ? ('(' . $subnetwork->address . ')') : "" }}</a>
+                                    <x-show-link :model="$subnetwork" :label="$subnetwork->name . ($subnetwork->address !== null ? ' (' . $subnetwork->address . ')' : '')" />
                                     @if(!$loop->last)
                                         ,
                                     @endif
@@ -128,12 +122,12 @@
                                     </a>
                                 @endcan
 
-                                @can('external_connected_entity_edit')
+                                @canEdit($externalConnectedEntity)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.external-connected-entities.edit', $externalConnectedEntity->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('external_connected_entity_delete')
                                     <form action="{{ route('admin.external-connected-entities.destroy', $externalConnectedEntity->id) }}"

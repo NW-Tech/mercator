@@ -20,7 +20,11 @@ class WorkstationController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('workstation_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('workstation_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Workstation::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $workstations = Workstation::with('site', 'building')
             ->when(request('search'), function ($q, $search) {
@@ -31,7 +35,8 @@ class WorkstationController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.workstations.index', compact('workstations'));
     }
@@ -218,7 +223,7 @@ class WorkstationController extends Controller
 
     public function edit(Workstation $workstation)
     {
-        abort_if(Gate::denies('workstation_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $workstation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = DB::table('sites')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = DB::table('buildings')->select('id', 'name')->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
@@ -299,6 +304,8 @@ class WorkstationController extends Controller
 
     public function update(UpdateWorkstationRequest $request, Workstation $workstation)
     {
+        abort_if(Gate::denies('edit-object', $workstation), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save icon
         $this->iconUploadService->handle($request, $workstation);
 
@@ -310,7 +317,7 @@ class WorkstationController extends Controller
 
     public function show(Workstation $workstation)
     {
-        abort_if(Gate::denies('workstation_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $workstation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $workstation->load('site', 'building');
 

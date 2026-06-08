@@ -52,53 +52,35 @@
                 </thead>
                 <tbody>
                     @foreach($operations as $key => $operation)
-                        <tr data-entry-id="{{ $operation->id }}">
+                        <tr data-entry-id="{{ $operation->id }}"
+                         @if ($operation->description===null) class="table-warning" @endif >
                             <td>
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.operations.show', $operation->id) }}">
-                                {{ $operation->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$operation" />
                             </td>
                             <td>
                                 {!! $operation->description ?? '' !!}
                             </td>
                             <td>
                                 @if ($operation->process!=null)
-                                    <a href="{{ route('admin.processes.show',$operation->process->id) }}">
-                                        {{ $operation->process->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$operation->process" />
                                 @endif
                             </td>
                             <td>
                                 @foreach($operation->tasks as $task)
-                                    <a href="{{ route('admin.tasks.show', $task->id) }}">
-                                    {{ $task->name }}
-                                    @if (!$loop->last)
-                                    ,
-                                    @endif
-                                    </a>
+                                    <x-show-link :model="$task" />@if (!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td>
                                 @foreach($operation->actors as $actor)
-                                    <a href="{{ route('admin.actors.show', $actor->id) }}">
-                                        {{ $actor->name }}
-                                        @if (!$loop->last)
-                                        ,
-                                        @endif
-                                    </a>
+                                    <x-show-link :model="$actor" />@if (!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td>
                                 @foreach($operation->activities as $activity)
-                                    <a href="{{ route('admin.activities.show', $activity->id) }}">
-                                    {{ $activity->name }}
-                                    @if (!$loop->last)
-                                    ,
-                                    @endif
-                                    </a>
+                                    <x-show-link :model="$activity" />@if (!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td nowrap>
@@ -108,11 +90,11 @@
                                     </a>
                                 @endcan
 
-                                @can('operation_edit')
+                                @canEdit($operation)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.operations.edit', $operation->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('operation_delete')
                                     <form action="{{ route('admin.operations.destroy', $operation->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

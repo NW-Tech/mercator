@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -18,7 +19,10 @@ class ApplicationFlowView extends Controller
 {
     public function generate(Request $request)
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([
+            \App\Models\ApplicationFlow::class, \App\Models\Application::class, \App\Models\ApplicationBlock::class,
+        ]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         // Blocks
         if ($request->applicationBlocks == null) {
@@ -84,7 +88,7 @@ class ApplicationFlowView extends Controller
         $database_ids = collect($databases);
 
         // get all flows
-        $flows = ApplicationFlow::All()->sortBy('name');
+        $flows = Cartographer::scopedQuery(ApplicationFlow::query())->orderBy('name')->get();
 
         // Filter Flows
         $flows = $flows
@@ -157,23 +161,15 @@ class ApplicationFlowView extends Controller
         }
 
         // get objects
-        $applications = Application::All()
-            ->whereIn('id', $application_ids)
-            ->sortBy('name');
-        $applicationServices = ApplicationService::All()
-            ->whereIn('id', $service_ids)
-            ->sortBy('name');
-        $applicationModules = ApplicationModule::All()
-            ->whereIn('id', $module_ids)
-            ->sortBy('name');
-        $databases = Database::All()
-            ->whereIn('id', $database_ids)
-            ->sortBy('name');
+        $applications = Cartographer::scopedQuery(Application::query()->whereIn('id', $application_ids))->orderBy('name')->get();
+        $applicationServices = Cartographer::scopedQuery(ApplicationService::query()->whereIn('id', $service_ids))->orderBy('name')->get();
+        $applicationModules = Cartographer::scopedQuery(ApplicationModule::query()->whereIn('id', $module_ids))->orderBy('name')->get();
+        $databases = Cartographer::scopedQuery(Database::query()->whereIn('id', $database_ids))->orderBy('name')->get();
 
         // update lists
-        $all_applicationBlocks = ApplicationBlock::All()->sortBy('name')->pluck('name', 'id');
-        $all_applications = Application::All()->sortBy('name')->pluck('name', 'id');
-        $all_databases = Database::All()->sortBy('name')->pluck('name', 'id');
+        $all_applicationBlocks = Cartographer::scopedQuery(ApplicationBlock::query())->orderBy('name')->pluck('name', 'id');
+        $all_applications = Cartographer::scopedQuery(Application::query())->orderBy('name')->pluck('name', 'id');
+        $all_databases = Cartographer::scopedQuery(Database::query())->orderBy('name')->pluck('name', 'id');
 
         // return
         return view('admin/reports/application_flows')

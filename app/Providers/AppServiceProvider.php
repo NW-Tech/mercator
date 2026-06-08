@@ -6,11 +6,14 @@ use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Str;
 use LdapRecord\Container;
 
 class AppServiceProvider extends ServiceProvider
@@ -59,6 +62,57 @@ class AppServiceProvider extends ServiceProvider
                 Log::channel(config('ldap.logging.channel'))
             );
         }
+
+        // Observer: notify cartographers when they modify their own objects
+        foreach (array_keys(\App\Models\Cartographer::cartographiableRoutesMap()) as $modelClass) {
+            $modelClass::observe(\App\Observers\CartographerActivityObserver::class);
+        }
+
+        // Directives Blade cartographes
+        Blade::directive('canEdit', function (string $expression) {
+            return "<?php if(Gate::allows('edit-object', {$expression})): ?>";
+        });
+        Blade::directive('endcanEdit', function () {
+            return "<?php endif; ?>";
+        });
+
+        Blade::directive('canShow', function (string $expression) {
+            return "<?php if(Gate::allows('show-object', {$expression})): ?>";
+        });
+        Blade::directive('elsecanShow', function () {
+            return "<?php else: ?>";
+        });
+        Blade::directive('endcanShow', function () {
+            return "<?php endif; ?>";
+        });
+
+        Blade::directive('canDelete', function (string $expression) {
+            return "<?php if(Gate::allows(\\Illuminate\\Support\\Str::snake(class_basename({$expression}::class)) . '_delete')): ?>";
+        });
+        Blade::directive('endcanDelete', function () {
+            return "<?php endif; ?>";
+        });
+
+        Blade::directive('canAccess', function (string $expression) {
+            return "<?php if(\\App\\Models\\Cartographer::canAccess({$expression})): ?>";
+        });
+        Blade::directive('endcanAccess', function () {
+            return "<?php endif; ?>";
+        });
+
+        Blade::directive('canAccessAny', function (string $expression) {
+            return "<?php if(\\App\\Models\\Cartographer::canAccessAny([{$expression}])): ?>";
+        });
+        Blade::directive('endcanAccessAny', function () {
+            return "<?php endif; ?>";
+        });
+
+        Blade::directive('canAccessAll', function (string $expression) {
+            return "<?php if(\\App\\Models\\Cartographer::canAccessAll([{$expression}])): ?>";
+        });
+        Blade::directive('endcanAccessAll', function () {
+            return "<?php endif; ?>";
+        });
 
         RateLimiter::for('api', function (Request $request) {
             if ($request->user()?->isAdmin()) {

@@ -10,15 +10,17 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+    @can('explore_access')
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$storageDevice->getUID()}}">
         {{ trans('global.explore') }}
     </a>
+    @endcan
 
-    @can('storage_device_edit')
+    @canEdit($storageDevice)
         <a class="btn btn-info" href="{{ route('admin.storage-devices.edit', $storageDevice->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('storage_device_delete')
         <form action="{{ route('admin.storage-devices.destroy', $storageDevice->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
@@ -62,7 +64,12 @@
                                 <td>{{ $backup->name }}</td>
                                 <td>
                                     @foreach($backup->logicalServers as $server)
-                                        <a href="{{ route('admin.logical-servers.show', $server->id) }}">{{ $server->name }}</a>@if(!$loop->last), @endif
+                                        @canShow($server)
+                                            <a href="{{ route('admin.logical-servers.show', $server->id) }}">{{ $server->name }}</a>
+                                        @elsecanShow
+                                            {{ $server->name }}
+                                        @endcanShow
+                                        @if (!$loop->last), @endif
                                     @endforeach
                                 </td>
                                 <td>{{ $backup->backup_frequency ? trans("cruds.backup.frequencies.{$backup->backup_frequency}") : '' }}</td>

@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$zoneAdmin->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('zone_admin_edit')
+
+    @endcan
+
+    @canEdit($zoneAdmin)
         <a class="btn btn-info" href="{{ route('admin.zone-admins.edit', $zoneAdmin->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('zone_admin_edit')
         <form action="{{ route('admin.zone-admins.destroy', $zoneAdmin->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

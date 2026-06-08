@@ -67,7 +67,7 @@ class AdminUserController extends Controller
 
     public function edit(AdminUser $adminUser)
     {
-        abort_if(Gate::denies('admin_user_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $adminUser), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $type_list = AdminUser::select('type')->where('type', '<>', null)->distinct()->orderBy('type')->pluck('type');
         $domains = Domain::all()->sortBy('name')->pluck('name', 'id');
@@ -96,6 +96,8 @@ class AdminUserController extends Controller
 
     public function update(UpdateAdminUserRequest $request, AdminUser $adminUser)
     {
+        abort_if(Gate::denies('edit-object', $adminUser), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
         $adminUser->update($request->all());
 

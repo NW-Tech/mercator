@@ -16,7 +16,11 @@ class ManController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('man_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('man_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Man::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $mans = Man::query()
             ->with('wans', 'lans', 'parentMan')
@@ -28,7 +32,8 @@ class ManController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.mans.index', compact('mans'));
     }
@@ -57,7 +62,7 @@ class ManController extends Controller
 
     public function edit(Man $man)
     {
-        abort_if(Gate::denies('man_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $man), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $wans = Wan::query()->orderBy('name')->pluck('name', 'id');
         $lans = Lan::query()->orderBy('name')->pluck('name', 'id');
@@ -72,6 +77,8 @@ class ManController extends Controller
 
     public function update(UpdateManRequest $request, Man $man)
     {
+        abort_if(Gate::denies('edit-object', $man), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $man->update($request->all());
 
         $man->wans()->sync($request->input('wans', []));
@@ -82,7 +89,7 @@ class ManController extends Controller
 
     public function show(Man $man)
     {
-        abort_if(Gate::denies('man_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $man), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $man->load('lans', 'wans');
 

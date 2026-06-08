@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Gate;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateExternalConnectedEntityRequest extends BaseFormRequest
 {
@@ -12,9 +10,7 @@ class UpdateExternalConnectedEntityRequest extends BaseFormRequest
 
     public function authorize() : bool
     {
-        abort_if(Gate::denies('external_connected_entity_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array

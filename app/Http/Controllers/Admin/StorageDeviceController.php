@@ -20,7 +20,11 @@ class StorageDeviceController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('storage_device_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('storage_device_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\StorageDevice::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $storageDevices = StorageDevice::query()
             ->when(request('search'), function ($q, $search) {
@@ -31,7 +35,8 @@ class StorageDeviceController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.storageDevices.index', compact('storageDevices'));
     }
@@ -67,7 +72,7 @@ class StorageDeviceController extends Controller
 
     public function edit(StorageDevice $storageDevice)
     {
-        abort_if(Gate::denies('storage_device_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $storageDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = Site::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = Building::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
@@ -86,6 +91,8 @@ class StorageDeviceController extends Controller
 
     public function update(UpdateStorageDeviceRequest $request, StorageDevice $storageDevice)
     {
+        abort_if(Gate::denies('edit-object', $storageDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $storageDevice->update($request->all());
 
         if (Auth::user()->can('backup_edit')) {
@@ -105,7 +112,7 @@ class StorageDeviceController extends Controller
 
     public function show(StorageDevice $storageDevice)
     {
-        abort_if(Gate::denies('storage_device_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $storageDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $storageDevice->load('site', 'building', 'bay', 'backups');
 

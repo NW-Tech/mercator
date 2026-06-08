@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Gate;
 use Illuminate\Http\Request;
 use App\Models\DataProcessing;
@@ -18,7 +19,8 @@ class GDPRView extends Controller
     */
     public function generate(Request $request)
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([\App\Models\DataProcessing::class, \App\Models\MacroProcessus::class, \App\Models\Process::class]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->macroprocess == null) {
             $request->session()->put('macroprocess', null);
@@ -45,7 +47,7 @@ class GDPRView extends Controller
         }
 
         // All macroprocess with process having a data_processing
-        $all_macroprocess = MacroProcessus::query()
+        $all_macroprocess = Cartographer::scopedQuery(MacroProcessus::query()
             ->whereExists(function ($query): void {
                 $query->select('processes.id')
                     ->from('processes')
@@ -54,14 +56,12 @@ class GDPRView extends Controller
                     ->whereNull('data_processing.deleted_at')
                     ->whereRaw('macro_processuses.id = processes.macroprocess_id');
             })
-            ->orderBy('name')
-            ->get();
+            ->orderBy('name'))->get();
 
         if ($macroprocess !== null) {
-            $macroProcessuses = MacroProcessus::where('id', $macroprocess)
-                ->get();
+            $macroProcessuses = Cartographer::scopedQuery(MacroProcessus::where('id', $macroprocess))->get();
 
-            $all_process = Process::orderBy('name')
+            $all_process = Cartographer::scopedQuery(Process::orderBy('name')
                 ->where('macroprocess_id', $macroprocess)
                 ->whereExists(function ($query): void {
                     $query->select('data_processing_process.process_id')
@@ -69,25 +69,23 @@ class GDPRView extends Controller
                         ->join('data_processing', 'data_processing_process.data_processing_id', '=', 'data_processing.id')
                         ->whereNull('data_processing.deleted_at')
                         ->whereRaw('data_processing_process.process_id = processes.id');
-                })
-                ->get();
+                }))->get();
 
             if ($process !== null) {
                 // Data processing of this process
-                $dataProcessings = DataProcessing::query()
+                $dataProcessings = Cartographer::scopedQuery(DataProcessing::query()
                     ->whereExists(function ($query) use ($process): void {
                         $query->select('data_processing_id')
                             ->from('data_processing_process')
                             ->where('data_processing_process.process_id', $process)
                             ->whereRaw('data_processing_process.data_processing_id = data_processing.id');
                     })
-                    ->orderBy('name')
-                    ->get();
+                    ->orderBy('name'))->get();
 
-                $processes = Process::where('id', $process)->get();
+                $processes = Cartographer::scopedQuery(Process::where('id', $process))->get();
             } else {
                 // Data processing for this macroprocess
-                $dataProcessings = DataProcessing::query()
+                $dataProcessings = Cartographer::scopedQuery(DataProcessing::query()
                     ->whereExists(function ($query) use ($macroprocess): void {
                         $query->select('data_processing_id')
                             ->from('data_processing_process')
@@ -95,13 +93,12 @@ class GDPRView extends Controller
                             ->where('processes.macroprocess_id', $macroprocess)
                             ->whereRaw('data_processing_process.data_processing_id = data_processing.id');
                     })
-                    ->orderBy('name')
-                    ->get();
+                    ->orderBy('name'))->get();
                 $processes = $all_process;
             }
         } else {
             // only macroProcesses with data processisng
-            $macroProcessuses = MacroProcessus::orderBy('name')
+            $macroProcessuses = Cartographer::scopedQuery(MacroProcessus::orderBy('name')
                 ->whereExists(function ($query): void {
                     $query->select('processes.id')
                         ->from('processes')
@@ -109,11 +106,10 @@ class GDPRView extends Controller
                         ->join('data_processing', 'data_processing_process.data_processing_id', '=', 'data_processing.id')
                         ->whereNull('data_processing.deleted_at')
                         ->whereRaw('processes.macroprocess_id = macro_processuses.id');
-                })
-                ->get();
+                }))->get();
 
             // only process with data processisng
-            $processes = Process::query()
+            $processes = Cartographer::scopedQuery(Process::query()
                 ->whereExists(function ($query): void {
                     $query->select('data_processing_id')
                         ->from('data_processing_process')
@@ -121,28 +117,32 @@ class GDPRView extends Controller
                         ->whereNull('data_processing.deleted_at')
                         ->whereRaw('data_processing_process.process_id = processes.id');
                 })
-                ->orderBy('name')
-                ->get();
+                ->orderBy('name'))->get();
 
-            $dataProcessings = DataProcessing::query()
-                ->orderBy('name')
-                ->get();
+            $dataProcessings = Cartographer::scopedQuery(DataProcessing::query()
+                ->orderBy('name'))->get();
 
-            $all_process = Process::query()
+            $all_process = Cartographer::scopedQuery(Process::query()
                 ->orderBy('name')
                 ->where('macroprocess_id', $macroprocess)
                 ->whereExists(function ($query): void {
                     $query->select('data_processing_process.process_id')
                         ->from('data_processing_process')
                         ->whereRaw('data_processing_process.process_id = processes.id');
-                })
-                ->get();
+                }))->get();
         }
 
         // Select applications
-        $applications = Application::query()
+        $allowedAppIds = Cartographer::allowedIdsFor(auth()->user(), \App\Models\Application::class);
+        $appQuery = Application::query()
             ->join('application_data_processing', 'application_id', 'applications.id')
-            ->wherein('data_processing_id', $dataProcessings->pluck('id')->all())->get();
+            ->whereIn('data_processing_id', $dataProcessings->pluck('id')->all());
+        if ($allowedAppIds && !Gate::allows('application_access')) {
+            $appQuery->whereIn('applications.id', $allowedAppIds);
+        } elseif (!Gate::allows('application_access') && !$allowedAppIds) {
+            $appQuery->whereRaw('0 = 1');
+        }
+        $applications = $appQuery->get();
 
         return view('admin/reports/gdpr')
             ->with('all_macroprocess', $all_macroprocess)

@@ -73,9 +73,7 @@
                         <tr data-entry-id="{{ $log->id }}">
                             <td></td>
                             <td>
-                                <a href="{{ route('admin.audit-logs.show', $log->id) }}">
-                                    {{ $log->id }}
-                                </a>
+                                <a href="{{ route('admin.audit-logs.show', $log->id) }}">{{ $log->id }}</a>
                             </td>
                             <td>{{ $log->description }}</td>
                             <td>{{ Str::afterLast($log->subject_type, '\\') }}</td>
@@ -89,9 +87,13 @@
                             @endif
                             </td>
                             <td>
-                                <a href="{{ route('admin.users.show', $log->user_id) }}">
+                                @can('user_show')
+                                    <a href="{{ route('admin.users.show', $log->user_id) }}">
+                                        {{ $log->name }}
+                                    </a>
+                                @else
                                     {{ $log->name }}
-                                </a>
+                                @endcan
                             </td>
                             <td>{{ $log->host }}</td>
                             <td>{{ $log->created_at }}</td>

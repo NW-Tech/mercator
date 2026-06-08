@@ -35,14 +35,14 @@ class BuildingController extends APIController
 
     public function show(Building $building)
     {
-        abort_if(Gate::denies('building_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $building), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($building);
     }
 
     public function update(UpdateBuildingRequest $request, Building $building)
     {
-        abort_if(Gate::denies('building_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $building), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $building->update($request->all());
 

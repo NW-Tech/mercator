@@ -10,7 +10,11 @@
             </th>
             <td>
             @if($withLink)
+            @canShow($applicationBlock)
             <a href="{{ route('admin.application-blocks.show',$applicationBlock->id) }}">{{ $applicationBlock->name }}</a>
+            @elsecanShow
+            {{ $applicationBlock->name }}
+            @endcanShow
             @else
             {{ $applicationBlock->name }}
             @endif
@@ -32,18 +36,24 @@
                 {{ $applicationBlock->responsible }}
             </td>
         </tr>
+        @canAccess(App\Models\Application::class)
         <tr>
             <th>
-                Applications
+                {{ trans('cruds.applicationBlock.fields.applications') }}
             </th>
             <td>
                 @foreach($applicationBlock->applications as $key => $application)
-                    <a href="{{ route('admin.applications.show',$application->id) }}">{{ $application->name }}</a>
+                    @canShow($application)
+                        <a href="{{ route('admin.applications.show',$application->id) }}">{{ $application->name }}</a>
+                    @elsecanShow
+                        {{ $application->name }}
+                    @endcanShow
                     @if(!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

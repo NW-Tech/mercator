@@ -36,14 +36,14 @@ class NetworkController extends APIController
 
     public function show(Network $network)
     {
-        abort_if(Gate::denies('network_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $network), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($network);
     }
 
     public function update(UpdateNetworkRequest $request, Network $network)
     {
-        abort_if(Gate::denies('network_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $network), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $network->update($request->all());
         // syncs

@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$activity->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('activity_edit')
+
+    @endcan
+
+    @canEdit($activity)
         <a class="btn btn-info" href="{{ route('admin.activities.edit', $activity->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('activity_delete')
         <form action="{{ route('admin.activities.destroy', $activity->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

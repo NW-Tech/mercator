@@ -37,7 +37,7 @@ class ForestAdController extends APIController
 
     public function show(ForestAd $forestAd)
     {
-        abort_if(Gate::denies('forest_ad_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $forestAd), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $forestAd['domains'] = $forestAd->domains()->pluck('id');
 
@@ -46,7 +46,7 @@ class ForestAdController extends APIController
 
     public function update(UpdateForestAdRequest $request, ForestAd $forestAd)
     {
-        abort_if(Gate::denies('forest_ad_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $forestAd), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $forestAd->update($request->all());
 

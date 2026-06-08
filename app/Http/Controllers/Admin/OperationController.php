@@ -18,7 +18,11 @@ class OperationController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('operation_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('operation_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Operation::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $operations = Operation::with(['process', 'tasks', 'actors', 'activities'])
             ->when(request('search'), function ($q, $search) {
@@ -29,7 +33,8 @@ class OperationController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.operations.index', compact('operations'));
     }
@@ -61,7 +66,7 @@ class OperationController extends Controller
 
     public function edit(Operation $operation)
     {
-        abort_if(Gate::denies('operation_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $operation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $processes = Process::orderBy('name')->pluck('name', 'id');
         $actors = Actor::all()->sortBy('name')->pluck('name', 'id');
@@ -84,6 +89,8 @@ class OperationController extends Controller
 
     public function update(UpdateOperationRequest $request, Operation $operation)
     {
+        abort_if(Gate::denies('edit-object', $operation), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $operation->update($request->all());
         $operation->actors()->sync($request->input('actors', []));
         $operation->tasks()->sync($request->input('tasks', []));
@@ -94,7 +101,7 @@ class OperationController extends Controller
 
     public function show(Operation $operation)
     {
-        abort_if(Gate::denies('operation_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $operation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $operation->load('actors', 'tasks', 'activities');
 

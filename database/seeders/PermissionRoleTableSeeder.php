@@ -331,6 +331,12 @@ class PermissionRoleTableSeeder extends Seeder
                 ['role_id' => $adminRoleId, 'permission_id' => 327],
                 ['role_id' => $adminRoleId, 'permission_id' => 328],
                 ['role_id' => $adminRoleId, 'permission_id' => 329],
+                // Cartographers
+                ['role_id' => $adminRoleId, 'permission_id' => 330],
+                ['role_id' => $adminRoleId, 'permission_id' => 331],
+                ['role_id' => $adminRoleId, 'permission_id' => 332],
+                ['role_id' => $adminRoleId, 'permission_id' => 333],
+                ['role_id' => $adminRoleId, 'permission_id' => 334],
                 ]
             );
 

@@ -11,15 +11,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$wifiTerminal->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('wifi_terminal_edit')
+
+    @endcan
+
+    @canEdit($wifiTerminal)
         <a class="btn btn-info" href="{{ route('admin.wifi-terminals.edit', $wifiTerminal->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('vlan_create')
         <a class="btn btn-warning" href="{{ route('admin.wifi-terminals.clone', $wifiTerminal->id) }}">
@@ -103,7 +109,11 @@
                     </th>
                     <td width="30%">
                         @if ($wifiTerminal->site!==null)
-                            <a href="{{ route('admin.sites.show', $wifiTerminal->site_id) }}">{{ $wifiTerminal->site->name }}</a>
+                            @canShow($wifiTerminal->site)
+                                <a href="{{ route('admin.sites.show', $wifiTerminal->site_id) }}">{{ $wifiTerminal->site->name }}</a>
+                            @elsecanShow
+                                {{ $wifiTerminal->site->name }}
+                            @endcanShow
                         @endif
                     </td>
                     <th width="10%">
@@ -111,7 +121,11 @@
                     </th>
                     <td width="40%">
                         @if ($wifiTerminal->building!==null)
-                            <a href="{{ route('admin.buildings.show', $wifiTerminal->building_id) }}">{{ $wifiTerminal->building->name }}</a>
+                            @canShow($wifiTerminal->building)
+                                <a href="{{ route('admin.buildings.show', $wifiTerminal->building_id) }}">{{ $wifiTerminal->building->name }}</a>
+                            @elsecanShow
+                                {{ $wifiTerminal->building->name }}
+                            @endcanShow
                         @endif
                     </td>
                 </tr>

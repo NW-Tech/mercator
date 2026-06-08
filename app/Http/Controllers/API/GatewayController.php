@@ -40,14 +40,14 @@ class GatewayController extends APIController
 
     public function show(Gateway $gateway)
     {
-        abort_if(Gate::denies('gateway_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $gateway), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($gateway);
     }
 
     public function update(UpdateGatewayRequest $request, Gateway $gateway)
     {
-        abort_if(Gate::denies('gateway_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $gateway), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $gateway->update($request->all());
 

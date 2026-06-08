@@ -10,11 +10,11 @@
         {{ trans('global.back_to_list') }}
     </a>
 
-    @can('security_control_edit')
+    @canEdit($securityControl)
         <a class="btn btn-info" href="{{ route('admin.security-controls.edit', $securityControl->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('security_control_delete')
         <form action="{{ route('admin.security-controls.destroy', $securityControl->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

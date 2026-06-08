@@ -3,9 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\IPList;
-use Gate;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateRouterRequest extends BaseFormRequest
 {
@@ -13,9 +11,7 @@ class UpdateRouterRequest extends BaseFormRequest
 
     public function authorize() : bool
     {
-        abort_if(Gate::denies('router_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array

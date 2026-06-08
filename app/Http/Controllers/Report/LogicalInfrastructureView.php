@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use App\Models\Certificate;
 use App\Models\Cluster;
 use App\Models\Container;
@@ -42,7 +43,14 @@ class LogicalInfrastructureView extends Controller
      */
     public function generate(Request $request): View|RedirectResponse
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([
+            Network::class, Subnetwork::class, Gateway::class, Router::class,
+            NetworkSwitch::class, Cluster::class, LogicalServer::class, Certificate::class,
+            Container::class, ExternalConnectedEntity::class, Workstation::class, Phone::class,
+            PhysicalSecurityDevice::class, SecurityDevice::class, StorageDevice::class,
+            WifiTerminal::class, Peripheral::class, DhcpServer::class, Dnsserver::class, Vlan::class,
+        ]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->network == null) {
             $request->session()->put('network', null);
@@ -73,21 +81,19 @@ class LogicalInfrastructureView extends Controller
             $request->session()->put('show_ip', null);
         }
 
-        $all_networks = Network::query()->orderBy('name')->pluck('name', 'id');
+        $all_networks = Cartographer::scopedQuery(Network::query())->orderBy('name')->pluck('name', 'id');
         if ($network !== null) {
-            $all_subnetworks = Subnetwork::query()->orderBy('name')
-                ->where('network_id', '=', $network)->pluck('name', 'id');
+            $all_subnetworks = Cartographer::scopedQuery(Subnetwork::query()->where('network_id', '=', $network))->orderBy('name')->pluck('name', 'id');
 
-            $networks = Network::query()->orderBy('name')->where('id', '=', $network)->get();
+            $networks = Cartographer::scopedQuery(Network::query()->where('id', '=', $network))->orderBy('name')->get();
 
-            $externalConnectedEntities = ExternalConnectedEntity::query()
-                ->where('network_id', '=', $network)
+            $externalConnectedEntities = Cartographer::scopedQuery(ExternalConnectedEntity::query()
+                ->where('network_id', '=', $network))
                 ->orderBy('name')
                 ->get();
 
             if ($subnetwork === null) {
-                $subnetworks = Subnetwork::query()->orderBy('name')
-                    ->where('network_id', '=', $network)->get();
+                $subnetworks = Cartographer::scopedQuery(Subnetwork::query()->where('network_id', '=', $network))->orderBy('name')->get();
             } else {
                 $root = Subnetwork::query()->find($subnetwork);
                 if ($root !== null) {
@@ -114,7 +120,7 @@ class LogicalInfrastructureView extends Controller
             });
 
             // Get Gateways
-            $gateways = Gateway::query()->orderBy('name')->get()
+            $gateways = Cartographer::scopedQuery(Gateway::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach ($subnetworks as $subnetwork) {
                         if ($subnetwork->gateway_id === $item->id) {
@@ -126,13 +132,13 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get VLANS
-            $vlans = Vlan::query()->orderBy('name')->get()
+            $vlans = Cartographer::scopedQuery(Vlan::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     return $subnetworks->pluck('vlan_id')->contains($item->id);
                 });
 
             // Get NetworkSwitches
-            $networkSwitches = NetworkSwitch::query()->orderBy('name')->get()
+            $networkSwitches = Cartographer::scopedQuery(NetworkSwitch::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks, $vlans) {
                     if ($item->vlans()->count() > 0) {
                         foreach ($item->vlans as $v) {
@@ -154,7 +160,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get Workstations
-            $workstations = Workstation::query()->orderBy('name')->get()
+            $workstations = Cartographer::scopedQuery(Workstation::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach (explode(',', $item->address_ip) as $ip) {
                         foreach ($subnetworks as $subnetwork) {
@@ -168,7 +174,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get WifiTerminals
-            $wifiTerminals = WifiTerminal::query()->orderBy('name')->get()
+            $wifiTerminals = Cartographer::scopedQuery(WifiTerminal::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach (explode(',', $item->address_ip) as $ip) {
                         foreach ($subnetworks as $subnetwork) {
@@ -182,7 +188,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get Phones
-            $phones = Phone::query()->orderBy('name')->get()
+            $phones = Cartographer::scopedQuery(Phone::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach (explode(',', $item->address_ip) as $ip) {
                         foreach ($subnetworks as $subnetwork) {
@@ -196,7 +202,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get peripherals
-            $peripherals = Peripheral::query()->orderBy('name')->get()
+            $peripherals = Cartographer::scopedQuery(Peripheral::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach (explode(',', $item->address_ip) as $ip) {
                         foreach ($subnetworks as $subnetwork) {
@@ -210,7 +216,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get Physical Security Devices
-            $physicalSecurityDevices = PhysicalSecurityDevice::query()->orderBy('name')->get()
+            $physicalSecurityDevices = Cartographer::scopedQuery(PhysicalSecurityDevice::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach (explode(',', $item->address_ip) as $ip) {
                         foreach ($subnetworks as $subnetwork) {
@@ -224,7 +230,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get routers
-            $routers = Router::query()->orderBy('name')->get()
+            $routers = Cartographer::scopedQuery(Router::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach (explode(',', $item->ip_addresses) as $ip) {
                         foreach ($subnetworks as $subnetwork) {
@@ -238,7 +244,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get Security Devices
-            $securityDevices = SecurityDevice::query()->orderBy('name')->get()
+            $securityDevices = Cartographer::scopedQuery(SecurityDevice::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach ($subnetworks as $subnetwork) {
                         if ($subnetwork->contains($item->address_ip)) {
@@ -250,7 +256,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get StorageDevices
-            $storageDevices = StorageDevice::query()->orderBy('name')->get()
+            $storageDevices = Cartographer::scopedQuery(StorageDevice::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach ($subnetworks as $subnetwork) {
                         if ($subnetwork->contains($item->address_ip)) {
@@ -262,7 +268,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get DHCP Servers
-            $dhcpServers = DhcpServer::query()->orderBy('name')->get()
+            $dhcpServers = Cartographer::scopedQuery(DhcpServer::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach ($subnetworks as $subnetwork) {
                         foreach (explode(',', $item->address_ip) as $address) {
@@ -276,7 +282,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get DNS Servers
-            $dnsservers = Dnsserver::query()->orderBy('name')->get()
+            $dnsservers = Cartographer::scopedQuery(Dnsserver::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach ($subnetworks as $subnetwork) {
                         // foreach (explode(',', $item->address_ip) as $address) {
@@ -289,10 +295,10 @@ class LogicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $clusters = Cluster::query()->orderBy('name')->get();
+            $clusters = Cartographer::scopedQuery(Cluster::query())->orderBy('name')->get();
 
             // Get Logical serveurs
-            $logicalServers = LogicalServer::query()->orderBy('name')->get()
+            $logicalServers = Cartographer::scopedQuery(LogicalServer::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($subnetworks) {
                     foreach ($subnetworks as $subnetwork) {
                         foreach (explode(',', $item->address_ip) as $address) {
@@ -306,7 +312,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get Certificates
-            $certificates = Certificate::query()->with('logicalServers')->orderBy('name')->get()
+            $certificates = Cartographer::scopedQuery(Certificate::query()->with('logicalServers'))->orderBy('name')->get()
                 ->filter(function ($item) use ($logicalServers) {
                     foreach ($logicalServers as $logical_server) {
                         foreach ($logical_server->certificates as $cert) {
@@ -320,7 +326,7 @@ class LogicalInfrastructureView extends Controller
                 });
 
             // Get Containers
-            $containers = Container::query()->with('logicalServers')->orderBy('name')->get()
+            $containers = Cartographer::scopedQuery(Container::query()->with('logicalServers'))->orderBy('name')->get()
                 ->filter(function ($item) use ($logicalServers) {
                     foreach ($logicalServers as $logical_server) {
                         foreach ($logical_server->containers as $container) {
@@ -334,32 +340,32 @@ class LogicalInfrastructureView extends Controller
                 });
 
         } else {
-            $all_subnetworks = Subnetwork::query()->orderBy('name')->pluck('name', 'id');
+            $all_subnetworks = Cartographer::scopedQuery(Subnetwork::query())->orderBy('name')->pluck('name', 'id');
 
             // all
-            $networks = Network::query()->orderBy('name')->get();
-            $subnetworks = Subnetwork::query()->orderBy('name')->get();
+            $networks = Cartographer::scopedQuery(Network::query())->orderBy('name')->get();
+            $subnetworks = Cartographer::scopedQuery(Subnetwork::query())->orderBy('name')->get();
             $subnetworks = $subnetworks->sortByDesc(function($subnet) {
                 return $subnet->getMaskLength();
             });
-            $gateways = Gateway::query()->orderBy('name')->get();
-            $externalConnectedEntities = ExternalConnectedEntity::query()->orderBy('name')->get();
-            $networkSwitches = NetworkSwitch::query()->orderBy('name')->get();
-            $workstations = Workstation::query()->orderBy('name')->with('site','building')->get();
-            $wifiTerminals = WifiTerminal::query()->orderBy('name')->with('site','building')->get();
-            $phones = Phone::query()->orderBy('name')->with('site','building')->get();
-            $physicalSecurityDevices = PhysicalSecurityDevice::query()->orderBy('name')->with('site','building')->get();
-            $peripherals = Peripheral::query()->orderBy('name')->with('site','building','bay')->get();
-            $routers = Router::query()->orderBy('name')->get();
-            $securityDevices = SecurityDevice::query()->orderBy('name')->get();
-            $storageDevices = StorageDevice::query()->orderBy('name')->with('site','building','bay')->get();
-            $dhcpServers = DhcpServer::query()->orderBy('name')->get();
-            $dnsservers = Dnsserver::query()->orderBy('name')->get();
-            $clusters = Cluster::query()->orderBy('name')->get();
-            $logicalServers = LogicalServer::query()->orderBy('name')->get();
-            $containers = Container::query()->orderBy('name')->get();
-            $certificates = Certificate::query()->orderBy('name')->get();
-            $vlans = Vlan::query()->orderBy('name')->with('subnetworks')->get();
+            $gateways = Cartographer::scopedQuery(Gateway::query())->orderBy('name')->get();
+            $externalConnectedEntities = Cartographer::scopedQuery(ExternalConnectedEntity::query())->orderBy('name')->get();
+            $networkSwitches = Cartographer::scopedQuery(NetworkSwitch::query())->orderBy('name')->get();
+            $workstations = Cartographer::scopedQuery(Workstation::query()->with('site','building'))->orderBy('name')->get();
+            $wifiTerminals = Cartographer::scopedQuery(WifiTerminal::query()->with('site','building'))->orderBy('name')->get();
+            $phones = Cartographer::scopedQuery(Phone::query()->with('site','building'))->orderBy('name')->get();
+            $physicalSecurityDevices = Cartographer::scopedQuery(PhysicalSecurityDevice::query()->with('site','building'))->orderBy('name')->get();
+            $peripherals = Cartographer::scopedQuery(Peripheral::query()->with('site','building','bay'))->orderBy('name')->get();
+            $routers = Cartographer::scopedQuery(Router::query())->orderBy('name')->get();
+            $securityDevices = Cartographer::scopedQuery(SecurityDevice::query())->orderBy('name')->get();
+            $storageDevices = Cartographer::scopedQuery(StorageDevice::query()->with('site','building','bay'))->orderBy('name')->get();
+            $dhcpServers = Cartographer::scopedQuery(DhcpServer::query())->orderBy('name')->get();
+            $dnsservers = Cartographer::scopedQuery(Dnsserver::query())->orderBy('name')->get();
+            $clusters = Cartographer::scopedQuery(Cluster::query())->orderBy('name')->get();
+            $logicalServers = Cartographer::scopedQuery(LogicalServer::query())->orderBy('name')->get();
+            $containers = Cartographer::scopedQuery(Container::query())->orderBy('name')->get();
+            $certificates = Cartographer::scopedQuery(Certificate::query())->orderBy('name')->get();
+            $vlans = Cartographer::scopedQuery(Vlan::query()->with('subnetworks'))->orderBy('name')->get();
 
         }
 

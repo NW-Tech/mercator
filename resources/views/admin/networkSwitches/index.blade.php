@@ -60,18 +60,14 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.network-switches.show', $networkSwitch->id) }}">
-                                    {{ $networkSwitch->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$networkSwitch" />
                             </td>
                             <td>
                                 {!! $networkSwitch->description ?? '' !!}
                             </td>
                             <td>
                                 @foreach($networkSwitch->vlans as $vlan)
-                                    <a href="{{ route('admin.vlans.show', $vlan->id) }}">
-                                        {{ $vlan->name }}
-                                    </a>
+                                    <x-show-link :model="$vlan" />
                                     @if (!$loop->last)
                                         ,
                                     @endif
@@ -82,9 +78,7 @@
                             </td>
                             <td>
                                 @foreach($networkSwitch->physicalSwitches as $physicalSwitch)
-                                    <a href="{{ route('admin.physical-switches.show', $physicalSwitch->id) }}">
-                                        {{ $physicalSwitch->name }}
-                                    </a>
+                                    <x-show-link :model="$physicalSwitch" />
                                     @if (!$loop->last)
                                         ,
                                     @endif
@@ -98,12 +92,12 @@
                                     </a>
                                 @endcan
 
-                                @can('network_switch_edit')
+                                @canEdit($networkSwitch)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.network-switches.edit', $networkSwitch->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('network_switch_delete')
                                     <form action="{{ route('admin.network-switches.destroy', $networkSwitch->id) }}"

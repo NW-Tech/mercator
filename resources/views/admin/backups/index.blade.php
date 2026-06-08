@@ -43,7 +43,7 @@
                             @if($backup->description === null) class="table-warning" @endif>
                             <td></td>
                             <td>
-                                <a href="{{ route('admin.backups.show', $backup->id) }}">{{ $backup->name }}</a>
+                                <x-show-link :model="$backup" />
                             </td>
                             <td>{{ $backup->type }}</td>
                             <td>
@@ -61,21 +61,21 @@
                             <td>{{ $backup->backup_retention ? $backup->backup_retention . ' ' . trans('cruds.backup.retention_unit') : '' }}</td>
                             <td>
                                 @foreach($backup->logicalServers as $server)
-                                    <a href="{{ route('admin.logical-servers.show', $server->id) }}">{{ $server->name }}</a>@if(!$loop->last), @endif
+                                    <x-show-link :model="$server" />@if(!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td>
                                 @foreach($backup->storageDevices as $device)
-                                    <a href="{{ route('admin.storage-devices.show', $device->id) }}">{{ $device->name }}</a>@if(!$loop->last), @endif
+                                    <x-show-link :model="$device" />@if(!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td nowrap>
                                 @can('backup_show')
                                     <a class="btn btn-xs btn-primary" href="{{ route('admin.backups.show', $backup->id) }}">{{ trans('global.view') }}</a>
                                 @endcan
-                                @can('backup_edit')
+                                @canEdit($backup)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.backups.edit', $backup->id) }}">{{ trans('global.edit') }}</a>
-                                @endcan
+                                @endcanEdit
                                 @can('backup_delete')
                                     <form action="{{ route('admin.backups.destroy', $backup->id) }}" method="POST"
                                           onsubmit="return confirm('{{ trans('global.areYouSure') }}');"

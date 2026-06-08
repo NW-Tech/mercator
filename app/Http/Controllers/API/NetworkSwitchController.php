@@ -56,7 +56,7 @@ class NetworkSwitchController extends APIController
      */
     public function show(NetworkSwitch $networkSwitch)
     {
-        abort_if(Gate::denies('network_switch_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $networkSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $networkSwitch['physical_switches'] = $networkSwitch->physicalSwitches()->pluck('id');
 
@@ -71,7 +71,7 @@ class NetworkSwitchController extends APIController
      */
     public function update(UpdateNetworkSwitchRequest $request, NetworkSwitch $networkSwitch)
     {
-        abort_if(Gate::denies('network_switch_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $networkSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $networkSwitch->update($request->all());
 

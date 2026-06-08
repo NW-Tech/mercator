@@ -35,7 +35,11 @@ class LogicalServerController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('logical_server_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('logical_server_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\LogicalServer::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $logicalServers = LogicalServer::with('applications:id,name', 'physicalServers:id,name', 'clusters:id,name')
         ->when(request('search'), function ($q, $search) {
@@ -46,7 +50,8 @@ class LogicalServerController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.logicalServers.index', compact('logicalServers'));
     }
@@ -118,7 +123,7 @@ class LogicalServerController extends Controller
 
     public function edit(LogicalServer $logicalServer)
     {
-        abort_if(Gate::denies('logical_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $logicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalServers = PhysicalServer::query()->orderBy('name')->pluck('name', 'id');
         $databases = Database::query()->orderBy('name')->pluck('name', 'id');
@@ -157,7 +162,7 @@ class LogicalServerController extends Controller
 
     public function update(UpdateLogicalServerRequest $request, LogicalServer $logicalServer)
     {
-        abort_if(Gate::denies('logical_server_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $logicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
         $request['active'] = $request->has('active');
@@ -182,7 +187,7 @@ class LogicalServerController extends Controller
 
     public function show(LogicalServer $logicalServer)
     {
-        abort_if(Gate::denies('logical_server_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $logicalServer), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $logicalServer->load('physicalServers', 'applications', 'backups.storageDevices');
 

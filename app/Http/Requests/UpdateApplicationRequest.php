@@ -2,18 +2,14 @@
 
 namespace App\Http\Requests;
 
-use Gate;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateApplicationRequest extends BaseFormRequest
 {
     protected array $htmlFields = ['description'];
     public function authorize() : bool
     {
-        abort_if(Gate::denies('application_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array

@@ -58,9 +58,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.admin-users.show', $user->id) }}">
-                                    {{ $user->user_id ?? '' }}
-                                </a>
+                                <x-show-link :model="$user" :label="$user->user_id ?? ''" />
                             </td>
                             <td>
                                 {{ $user->lastname ?? '' }}
@@ -88,12 +86,12 @@
                                     </a>
                                 @endcan
 
-                                @can('admin_user_edit')
+                                @canEdit($user)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.admin-users.edit', $user->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('admin_user_delete')
                                     <form action="{{ route('admin.admin-users.destroy', $user->id) }}" method="POST"

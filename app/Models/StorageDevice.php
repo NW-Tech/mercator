@@ -11,9 +11,11 @@ use App\Traits\HasUniqueIdentifier;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\StorageDevice
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class StorageDevice extends Model implements HasIconContract, HasPrefix
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'storage_devices';
 
@@ -85,5 +88,14 @@ class StorageDevice extends Model implements HasIconContract, HasPrefix
     protected function serializeDate(DateTimeInterface $date): string
     {
         return $date->format('Y-m-d H:i:s');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereNotNull('site_id')
+            ->whereNotNull('building_id');
     }
 }

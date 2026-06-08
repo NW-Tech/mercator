@@ -59,9 +59,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.networks.show', $network->id) }}">
-                                    {{ $network->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$network" />
                             </td>
                             <td>
                                 {!! $network->description ?? '' !!}
@@ -140,12 +138,12 @@
                                     </a>
                                 @endcan
 
-                                @can('network_edit')
+                                @canEdit($network)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.networks.edit', $network->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('network_delete')
                                     <form action="{{ route('admin.networks.destroy', $network->id) }}" method="POST"

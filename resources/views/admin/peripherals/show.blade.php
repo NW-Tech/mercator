@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$peripheral->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('peripheral_edit')
+
+    @endcan
+
+    @canEdit($peripheral)
         <a class="btn btn-info" href="{{ route('admin.peripherals.edit', $peripheral->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('peripheral_create')
         <a class="btn btn-warning" href="{{ route('admin.peripherals.clone', $peripheral->id) }}">
@@ -59,9 +65,13 @@
                     </th>
                     <td>
                         @if($peripheral->provider!=null)
-                            <a href="{{ route('admin.entities.show', $peripheral->provider->id) }}">
+                            @canShow($peripheral->provider)
+                                <a href="{{ route('admin.entities.show', $peripheral->provider->id) }}">
+                                    {{ $peripheral->provider->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $peripheral->provider->name }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                     <th width="10%">
@@ -88,9 +98,13 @@
                     </th>
                     <td>
                         @foreach($peripheral->applications as $application)
-                            <a href="{{ route('admin.applications.show', $application->id) }}">
-                            {{ $application->name }}
-                            </a>
+                            @canShow($application)
+                                <a href="{{ route('admin.applications.show', $application->id) }}">
+                                    {{ $application->name }}
+                                </a>
+                            @elsecanShow
+                                {{ $application->name }}
+                            @endcanShow
                             @if(!$loop->last), @endif
                         @endforeach
                     </td>
@@ -162,9 +176,13 @@
                     </th>
                     <td width="23%">
                         @if($peripheral->site!=null)
-                            <a href="{{ route('admin.sites.show', $peripheral->site->id) }}">
-                            {{ $peripheral->site->name }}
-                            </a>
+                            @canShow($peripheral->site)
+                                <a href="{{ route('admin.sites.show', $peripheral->site->id) }}">
+                                    {{ $peripheral->site->name }}
+                                </a>
+                            @elsecanShow
+                                {{ $peripheral->site->name }}
+                            @endcanShow
                         @endif
                     </td>
                     <th width="10%">
@@ -172,9 +190,13 @@
                     </th>
                     <td  width="23%">
                         @if($peripheral->building!=null)
-                            <a href="{{ route('admin.buildings.show', $peripheral->building->id) }}">
+                            @canShow($peripheral->building)
+                                <a href="{{ route('admin.buildings.show', $peripheral->building->id) }}">
+                                    {{ $peripheral->building->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $peripheral->building->name }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                     <th width="10%">
@@ -182,9 +204,13 @@
                     </th>
                     <td width="23%">
                         @if($peripheral->bays!=null)
-                            <a href="{{ route('admin.bays.show', $peripheral->bay->id) }}">
+                            @canShow($peripheral->bay)
+                                <a href="{{ route('admin.bays.show', $peripheral->bay->id) }}">
+                                    {{ $peripheral->bay->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $peripheral->bay->name }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                 </tr>

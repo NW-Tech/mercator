@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$physicalSwitch->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('physical_switch_edit')
+
+    @endcan
+
+    @canEdit($physicalSwitch)
         <a class="btn btn-info" href="{{ route('admin.physical-switches.edit', $physicalSwitch->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('physical_switch_create')
         <a class="btn btn-warning" href="{{ route('admin.physical-switches.clone', $physicalSwitch->id) }}">

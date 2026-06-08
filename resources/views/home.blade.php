@@ -65,6 +65,17 @@
 @endsection
 
 @section('scripts')
+@php
+use App\Models\Cartographer;
+$gi        = 0;
+$gdprIdx   = Cartographer::canAccessAny([\App\Models\DataProcessing::class, \App\Models\SecurityControl::class])                                                                                                                                                                                                                                                                                                                                    ? $gi++ : -1;
+$ecIdx     = Cartographer::canAccessAny([\App\Models\Entity::class, \App\Models\Relation::class])                                                                                                                                                                                                                                                                                                                                                   ? $gi++ : -1;
+$metierIdx = Cartographer::canAccessAny([\App\Models\MacroProcessus::class, \App\Models\Process::class, \App\Models\Activity::class, \App\Models\Operation::class, \App\Models\Task::class, \App\Models\Actor::class, \App\Models\Information::class])                                                                                                                                                                                               ? $gi++ : -1;
+$appIdx    = Cartographer::canAccessAny([\App\Models\ApplicationBlock::class, \App\Models\Application::class, \App\Models\ApplicationService::class, \App\Models\ApplicationModule::class, \App\Models\Database::class, \App\Models\ApplicationFlow::class])                                                                                                                                                                                         ? $gi++ : -1;
+$adminIdx  = Cartographer::canAccessAny([\App\Models\ZoneAdmin::class, \App\Models\Annuaire::class, \App\Models\ForestAd::class, \App\Models\Domain::class])                                                                                                                                                                                                                                                                                        ? $gi++ : -1;
+$infraIdx  = Cartographer::canAccessAny([\App\Models\Network::class, \App\Models\Subnetwork::class, \App\Models\Gateway::class, \App\Models\ExternalConnectedEntity::class, \App\Models\NetworkSwitch::class, \App\Models\Router::class, \App\Models\SecurityDevice::class, \App\Models\Cluster::class, \App\Models\LogicalServer::class, \App\Models\Container::class, \App\Models\Vlan::class, \App\Models\Certificate::class])                   ? $gi++ : -1;
+$physIdx   = Cartographer::canAccessAny([\App\Models\Site::class, \App\Models\Building::class, \App\Models\Bay::class, \App\Models\Zone::class, \App\Models\PhysicalServer::class, \App\Models\Workstation::class, \App\Models\Phone::class, \App\Models\Peripheral::class, \App\Models\StorageDevice::class, \App\Models\PhysicalSwitch::class, \App\Models\PhysicalRouter::class, \App\Models\Wan::class, \App\Models\Man::class, \App\Models\Lan::class]) ? $gi++ : -1;
+@endphp
 <script>
 window.chartData = {
 maturity1: {{ $maturity1  }},
@@ -73,516 +84,371 @@ maturity3: {{ $maturity3  }},
 barChart: {
   mode: 'single',
   labels: [
-      "{!! trans('cruds.menu.gdpr.title_short') !!}",
-      "{!! trans('cruds.menu.ecosystem.title_short') !!}",
-      "{!! trans('cruds.menu.metier.title_short') !!}",
-      "{!! trans('cruds.menu.application.title_short') !!}",
-      "{!! trans('cruds.menu.administration.title_short') !!}",
-      "{!! trans('cruds.menu.logical_infrastructure.title_short') !!}",
-      "{!! trans('cruds.menu.physical_infrastructure.title_short') !!}",
+      @if($gdprIdx   >= 0) "{!! trans('cruds.menu.gdpr.title_short') !!}", @endif
+      @if($ecIdx     >= 0) "{!! trans('cruds.menu.ecosystem.title_short') !!}", @endif
+      @if($metierIdx >= 0) "{!! trans('cruds.menu.metier.title_short') !!}", @endif
+      @if($appIdx    >= 0) "{!! trans('cruds.menu.application.title_short') !!}", @endif
+      @if($adminIdx  >= 0) "{!! trans('cruds.menu.administration.title_short') !!}", @endif
+      @if($infraIdx  >= 0) "{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", @endif
+      @if($physIdx   >= 0) "{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", @endif
       ],
   datasets: [
-  @can('data_processing_access')
-  {
-    label: "{!! trans('cruds.dataProcessing.title') !!}",
-    data: [ {!! $data_processing !!}, 0, 0, 0, 0, 0, 0],
-    value: {!! $data_processing !!},
-    url: "/admin/data-processings"
-  },
-  @endcan
-  @can('security_control_access')
-  {
-    label: "{!! trans('cruds.securityControl.title_short') !!}",
-    data: [{!! $security_controls !!}, 0, 0, 0, 0, 0, 0],
-    value: {!! $security_controls !!},
-    url: "/admin/security-controls"
-  },
-  @endcan
-  @can('entity_access')
-  {
-    label: "{!! trans('cruds.entity.title') !!}",
-    data: [ 0, {!! $entities !!}, 0, 0, 0, 0, 0],
-    value: {!! $entities !!},
-    url: "/admin/entities"
-  } ,
-  @endcan
-  @can('relation_access')
-  {
-    label: "{!! trans('cruds.relation.title') !!}",
-    data: [0, {!! $relations !!}, 0, 0, 0, 0, 0],
-    value: {!! $relations !!},
-    url: "/admin/relations"
-  },
-  @endcan
-  @can('macro_processus_access')
-  {
-    label: "{!! trans('cruds.macroProcessus.title') !!}",
-    data: [ 0, 0, {!! $macroProcessuses !!}, 0, 0, 0, 0],
-    value: {!! $macroProcessuses !!},
-    url: "/admin/macro-processuses"
-  },
-  @endcan
-  @can('process_access')
-  {
-    label: "{!! trans('cruds.process.title') !!}",
-    data: [ 0, 0, {!! $processes !!}, 0, 0, 0, 0],
-    value: {!! $processes !!},
-    url: "/admin/processes"
-  },
-  @endcan
-  @can('activity_access')
-  {
-    label: "{!! trans('cruds.activity.title') !!}",
-    data: [ 0, 0, {!! $activities !!}, 0, 0, 0, 0],
-    value: {!! $activities !!},
-    url: "/admin/activities"
-  },
-  @endcan
-  @can('operation_access')
-  {
-    label: "{!! trans('cruds.operation.title') !!}",
-    data: [ 0, 0, {!! $operations !!}, 0, 0, 0, 0],
-    value: {!! $operations !!},
-    url: "/admin/operations"
-  },
-  @endcan
-  @can('task_access')
-  {
-    label: "{!! trans('cruds.task.title') !!}",
-    data: [ 0, 0, {!! $tasks !!}, 0, 0, 0, 0],
-    value: {!! $tasks !!},
-    url: "admin/tasks"
-  },
-  @endcan
-  @can('actor_access')
-  {
-    label: "{!! trans('cruds.actor.title') !!}",
-    data: [ 0, 0, {!! $actors !!}, 0, 0, 0, 0],
-    value: {!! $actors !!},
-    url: "/admin/actors"
-  },
-  @endcan
-  @can('information_access')
-  {
-    label: "{!! trans('cruds.information.title') !!}",
-    data: [ 0, 0, {!! $informations !!}, 0, 0, 0, 0],
-    value: {!! $informations !!},
-    url: "/admin/information"
-  },
-  @endcan
-  @can('application_block_access')
-  {
-    label: "{!! trans('cruds.applicationBlock.title') !!}",
-    data: [ 0, 0, 0, {!! $applicationBlocks !!}, 0, 0, 0],
-    value: {!! $applicationBlocks !!},
-    url: "/admin/application-blocks"
-  },
-  @endcan
-  @can('application_access')
-  {
-    label: "{!! trans('cruds.application.title') !!}",
-    data: [ 0, 0, 0, {!! $applications !!}, 0, 0, 0],
-    value: {!! $applications !!},
-    url: "/admin/applications"
-  },
-  @endcan
-  @can('application_service_access')
-  {
-    label: "{!! trans('cruds.applicationService.title_short') !!}",
-    data: [0, 0, 0, {!! $applicationServices !!}, 0, 0, 0],
-    value: {!! $applicationServices !!},
-    url: "/admin/application-services"
-  },
-  @endcan
-  @can('application_module_access')
-  {
-    label: "{!! trans('cruds.applicationModule.title_short') !!}",
-    data: [0, 0, 0, {!! $applicationModules !!}, 0, 0, 0],
-    value: {!! $applicationModules !!},
-    url: "/admin/application-modules"
-  },
-  @endcan
-  @can('database_access')
-  {
-    label: "{!! trans('cruds.database.title') !!}",
-    data: [0, 0, 0, {!! $databases !!}, 0, 0, 0],
-    value: {!! $databases !!},
-    url: "/admin/databases"
-  },
-  @endcan
-  @can('flux_access')
-  {
-    label: "{!! trans('cruds.flux.title') !!}",
-    data: [ 0, 0, 0, {!! $flows !!}, 0, 0, 0],
-    value: {!! $flows !!},
-    url: "/admin/application-flows",
-  },
-  @endcan
-  @can('zone_admin_access')
-  {
-    label: "{!! trans('cruds.zoneAdmin.title_short') !!}",
-    data: [ 0, 0, 0, 0, {!!$zones_ad!!}, 0, 0],
-    value: {!!$zones_ad!!},
-    url: "/admin/zone-admins"
-  },
-  @endcan
-  @can('annuaire_access')
-  {
-    label: "{!! trans('cruds.annuaire.title_short') !!}",
-    data: [ 0, 0, 0, 0, {!!$annuaires!!}, 0, 0],
-    value: {!!$annuaires!!},
-    url: "/admin/annuaires"
-  },
-  @endcan
-  @can('forest_ad_access')
-  {
-    label: "{!! trans('cruds.forestAd.title_short') !!}",
-    data: [ 0, 0, 0, 0, {!!$forests!!}, 0, 0],
-    value: {!!$forests!!},
-    url: "/admin/forest-ads"
-  },
-  @endcan
-  @can('domaine_ad_access')
-  {
-    label: "{!! trans('cruds.domaine.title_short') !!}",
-    data: [ 0, 0, 0, 0, {!!$domains!!}, 0, 0],
-    value:  {!!$domains!!},
-    url: "/admin/domains"
-  },
-  @endcan
-  @can('network_access')
-  {
-    label: "{!! trans('cruds.network.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $networks !!}, 0],
-    value: {!! $networks !!},
-    url: "/admin/networks"
-  },
-  @endcan
-  @can('subnetwork_access')
-  {
-    label: "{!! trans('cruds.subnetwork.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $subnetworks !!}, 0],
-    value: {!! $subnetworks !!},
-    url: "/admin/subnetworks"
-  },
-  @endcan
-  @can('gateway_access')
-  {
-    label: "{!! trans('cruds.gateway.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $gateways !!}, 0],
-    value: {!! $gateways !!},
-    url: "/admin/gateways"
-  },
-  @endcan
-  @can('external_connected_entity_access')
-  {
-    label: "{!! trans('cruds.externalConnectedEntity.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $externalConnectedEntities !!}, 0],
-    value: {!! $externalConnectedEntities !!},
-    url: "/admin/external-connected-entities"
-  },
-  @endcan
-  @can('network_switch_access')
-  {
-    label: "{!! trans('cruds.networkSwitch.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $switches !!}, 0],
-    value: {!! $switches !!},
-    url: "/admin/network-switches"
-  },
-  @endcan
-  @can('router_access')
-  {
-    label: "{!! trans('cruds.router.title_short') !!}",
-    data: [0, 0, 0, 0, 0, {!! $routers !!}, 0],
-    value: {!! $routers !!},
-    url: "/admin/routers"
-  },
-  @endcan
-  @can('security_device_access')
-  {
-    label: "{!! trans('cruds.securityDevice.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $securityDevices !!}, 0],
-    value: {!! $securityDevices !!},
-    url: "/admin/security-devices"
-  },
-  @endcan
-  @can('cluster_access')
-  {
-  label: "{!! trans('cruds.cluster.title_short') !!}",
-  data: [0, 0, 0, 0, 0, {!! $clusters !!}, 0],
-  value: {!! $clusters !!},
-  url: "/admin/clusters"
-  },
-  @endcan
-  @can('logical_server_access')
-  {
-    label: "{!! trans('cruds.logicalServer.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $logicalServers !!}, 0],
-    value: {!! $logicalServers !!},
-    url: "/admin/logical-servers"
-  },
-  @endcan
-  @can('container_access')
-  {
-    label: "{!! trans('cruds.container.title') !!}",
-    data: [0, 0, 0, 0, 0, {!! $containers !!}, 0],
-    value: {!! $containers !!},
-    url: "/admin/containers"
-  },
-  @endcan
-  @can('certificate_access')
-  {
-    label: "{!! trans('cruds.certificate.title_short') !!}",
-    data: [0, 0, 0, 0, 0, {!! $certificates !!}, 0],
-    value: {!! $certificates !!},
-    url: "/admin/certificates"
-  },
-  @endcan
-  @can('site_access')
-  {
-    label: "{!! trans('cruds.site.title') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $sites !!}],
-    value: {!! $sites !!},
-    url: "/admin/sites"
-  },
-  @endcan
-  @can('building_access')
-  {
-    label: "{!! trans('cruds.building.title') !!}",
-    data: [ 0, 0, 0, 0, 0, 0, {!! $buildings !!}],
-    value: {!! $buildings !!},
-    url: "/admin/buildings"
-  },
-  @endcan
-  @can('bay_access')
-  {
-    label: "{!! trans('cruds.bay.title') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $bays !!}],
-    value: {!! $bays !!},
-    url: "/admin/bays"
-  },
-  @endcan
-  @can('zone_access')
-  {
-    label: "{!! trans('cruds.zone.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $zones !!}],
-    value: {!! $zones !!},
-    url: "/admin/zones"
-  },
-  @endcan
-  @can('physical_server_access')
-  {
-    label: "{!! trans('cruds.physicalServer.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $physicalServers !!}],
-    value: {!! $physicalServers !!},
-    url: "/admin/physical-servers"
-  },
-  @endcan
-  @can('workstation_access')
-  {
-    label: "{!! trans('cruds.workstation.title') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $workstations !!}],
-    value: {!! $workstations !!},
-    url: "/admin/workstations"
-  },
-  @endcan
-  @can('peripheral_access')
-  {
-    label: "{!! trans('cruds.peripheral.title') !!}",
-    data: [ 0, 0, 0, 0, 0, 0, {!! $peripherals !!}],
-    value: {!! $peripherals !!},
-    url: "/admin/peripherals"
-  },
-  @endcan
-  @can('storage_device_access')
-  {
-    label: "{!! trans('cruds.storageDevice.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $storageDevices !!}],
-    value: {!! $storageDevices !!},
-    url: "/admin/storage-devices"
-  },
-  @endcan
-  @can('physical_switch_access')
-  {
-    label: "{!! trans('cruds.physicalSwitch.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $physicalSwitchs !!}],
-    value: {!! $physicalSwitchs !!},
-    url: "/admin/physical-switches"
-  },
-  @endcan
-  @can('physical_router_access')
-  {
-    label: "{!! trans('cruds.physicalRouter.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $physicalRouters !!}],
-    value: {!! $physicalRouters !!},
-    url: "/admin/physical-routers"
-  },
-  @endcan
-  @can('phone_access')
-  {
-    label: "{!! trans('cruds.phone.title') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $phones !!}],
-    value: {!! $phones !!},
-    url: "/admin/phones"
-  },
-  @endcan
-  @can('wifi_terminal_access')
-  {
-    label: "{!! trans('cruds.wifiTerminal.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $wifiTerminals !!}],
-    value: {!! $wifiTerminals !!},
-    url: "/admin/wifi-terminals"
-  },
-  @endcan
-  @can('physical_security_device_access')
-  {
-    label: "{!! trans('cruds.physicalSecurityDevice.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $securityDevices !!}],
-    value: {!! $securityDevices !!},
-    url: "/admin/physical-security-devices"
-  },
-  @endcan
-  @can('wan_access')
-  {
-    label: "{!! trans('cruds.wan.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $wans !!}],
-    value: {!! $wans !!},
-    url: "/admin/wans"
-  },
-  @endcan
-  @can('man_access')
-  {
-    label: "{!! trans('cruds.man.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $mans !!}],
-    value: {!! $mans !!},
-    url: "/admin/mans"
-  },
-  @endcan
-  @can('lan_access')
-  {
-    label: "{!! trans('cruds.lan.title_short') !!}",
-    data: [0, 0, 0, 0, 0, 0, {!! $lans !!}],
-    value: {!! $lans !!},
-    url: "/admin/lans"
-  },
-  @endcan
-  @can('vlan_access')
-  {
-    label: "{!! trans('cruds.vlan.title_short') !!}",
-    data: [ 0, 0, 0, 0, 0, {!! $vlans !!}, 0],
-    value: {!! $vlans !!},
-    url: "/admin/vlans"
-  }
-  @endcan
+  @canAccess(\App\Models\DataProcessing::class)
+  @php $d = array_fill(0, $gi, 0); if ($gdprIdx >= 0) $d[$gdprIdx] = $data_processing; @endphp
+  { label: "{!! trans('cruds.dataProcessing.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $data_processing !!}, url: "/admin/data-processings" },
+  @endcanAccess
+  @canAccess(\App\Models\SecurityControl::class)
+  @php $d = array_fill(0, $gi, 0); if ($gdprIdx >= 0) $d[$gdprIdx] = $security_controls; @endphp
+  { label: "{!! trans('cruds.securityControl.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $security_controls !!}, url: "/admin/security-controls" },
+  @endcanAccess
+  @canAccess(\App\Models\Entity::class)
+  @php $d = array_fill(0, $gi, 0); if ($ecIdx >= 0) $d[$ecIdx] = $entities; @endphp
+  { label: "{!! trans('cruds.entity.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $entities !!}, url: "/admin/entities" },
+  @endcanAccess
+  @canAccess(\App\Models\Relation::class)
+  @php $d = array_fill(0, $gi, 0); if ($ecIdx >= 0) $d[$ecIdx] = $relations; @endphp
+  { label: "{!! trans('cruds.relation.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $relations !!}, url: "/admin/relations" },
+  @endcanAccess
+  @canAccess(\App\Models\MacroProcessus::class)
+  @php $d = array_fill(0, $gi, 0); if ($metierIdx >= 0) $d[$metierIdx] = $macroProcessuses; @endphp
+  { label: "{!! trans('cruds.macroProcessus.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $macroProcessuses !!}, url: "/admin/macro-processuses" },
+  @endcanAccess
+  @canAccess(\App\Models\Process::class)
+  @php $d = array_fill(0, $gi, 0); if ($metierIdx >= 0) $d[$metierIdx] = $processes; @endphp
+  { label: "{!! trans('cruds.process.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $processes !!}, url: "/admin/processes" },
+  @endcanAccess
+  @canAccess(\App\Models\Activity::class)
+  @php $d = array_fill(0, $gi, 0); if ($metierIdx >= 0) $d[$metierIdx] = $activities; @endphp
+  { label: "{!! trans('cruds.activity.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $activities !!}, url: "/admin/activities" },
+  @endcanAccess
+  @canAccess(\App\Models\Operation::class)
+  @php $d = array_fill(0, $gi, 0); if ($metierIdx >= 0) $d[$metierIdx] = $operations; @endphp
+  { label: "{!! trans('cruds.operation.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $operations !!}, url: "/admin/operations" },
+  @endcanAccess
+  @canAccess(\App\Models\Task::class)
+  @php $d = array_fill(0, $gi, 0); if ($metierIdx >= 0) $d[$metierIdx] = $tasks; @endphp
+  { label: "{!! trans('cruds.task.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $tasks !!}, url: "/admin/tasks" },
+  @endcanAccess
+  @canAccess(\App\Models\Actor::class)
+  @php $d = array_fill(0, $gi, 0); if ($metierIdx >= 0) $d[$metierIdx] = $actors; @endphp
+  { label: "{!! trans('cruds.actor.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $actors !!}, url: "/admin/actors" },
+  @endcanAccess
+  @canAccess(\App\Models\Information::class)
+  @php $d = array_fill(0, $gi, 0); if ($metierIdx >= 0) $d[$metierIdx] = $informations; @endphp
+  { label: "{!! trans('cruds.information.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $informations !!}, url: "/admin/information" },
+  @endcanAccess
+  @canAccess(\App\Models\ApplicationBlock::class)
+  @php $d = array_fill(0, $gi, 0); if ($appIdx >= 0) $d[$appIdx] = $applicationBlocks; @endphp
+  { label: "{!! trans('cruds.applicationBlock.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $applicationBlocks !!}, url: "/admin/application-blocks" },
+  @endcanAccess
+  @canAccess(\App\Models\Application::class)
+  @php $d = array_fill(0, $gi, 0); if ($appIdx >= 0) $d[$appIdx] = $applications; @endphp
+  { label: "{!! trans('cruds.application.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $applications !!}, url: "/admin/applications" },
+  @endcanAccess
+  @canAccess(\App\Models\ApplicationService::class)
+  @php $d = array_fill(0, $gi, 0); if ($appIdx >= 0) $d[$appIdx] = $applicationServices; @endphp
+  { label: "{!! trans('cruds.applicationService.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $applicationServices !!}, url: "/admin/application-services" },
+  @endcanAccess
+  @canAccess(\App\Models\ApplicationModule::class)
+  @php $d = array_fill(0, $gi, 0); if ($appIdx >= 0) $d[$appIdx] = $applicationModules; @endphp
+  { label: "{!! trans('cruds.applicationModule.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $applicationModules !!}, url: "/admin/application-modules" },
+  @endcanAccess
+  @canAccess(\App\Models\Database::class)
+  @php $d = array_fill(0, $gi, 0); if ($appIdx >= 0) $d[$appIdx] = $databases; @endphp
+  { label: "{!! trans('cruds.database.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $databases !!}, url: "/admin/databases" },
+  @endcanAccess
+  @canAccess(\App\Models\ApplicationFlow::class)
+  @php $d = array_fill(0, $gi, 0); if ($appIdx >= 0) $d[$appIdx] = $flows; @endphp
+  { label: "{!! trans('cruds.flux.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $flows !!}, url: "/admin/application-flows" },
+  @endcanAccess
+  @canAccess(\App\Models\ZoneAdmin::class)
+  @php $d = array_fill(0, $gi, 0); if ($adminIdx >= 0) $d[$adminIdx] = $zones_ad; @endphp
+  { label: "{!! trans('cruds.zoneAdmin.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!!$zones_ad!!}, url: "/admin/zone-admins" },
+  @endcanAccess
+  @canAccess(\App\Models\Annuaire::class)
+  @php $d = array_fill(0, $gi, 0); if ($adminIdx >= 0) $d[$adminIdx] = $annuaires; @endphp
+  { label: "{!! trans('cruds.annuaire.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!!$annuaires!!}, url: "/admin/annuaires" },
+  @endcanAccess
+  @canAccess(\App\Models\ForestAd::class)
+  @php $d = array_fill(0, $gi, 0); if ($adminIdx >= 0) $d[$adminIdx] = $forests; @endphp
+  { label: "{!! trans('cruds.forestAd.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!!$forests!!}, url: "/admin/forest-ads" },
+  @endcanAccess
+  @canAccess(\App\Models\Domain::class)
+  @php $d = array_fill(0, $gi, 0); if ($adminIdx >= 0) $d[$adminIdx] = $domains; @endphp
+  { label: "{!! trans('cruds.domaine.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!!$domains!!}, url: "/admin/domains" },
+  @endcanAccess
+  @canAccess(\App\Models\Network::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $networks; @endphp
+  { label: "{!! trans('cruds.network.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $networks !!}, url: "/admin/networks" },
+  @endcanAccess
+  @canAccess(\App\Models\Subnetwork::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $subnetworks; @endphp
+  { label: "{!! trans('cruds.subnetwork.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $subnetworks !!}, url: "/admin/subnetworks" },
+  @endcanAccess
+  @canAccess(\App\Models\Gateway::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $gateways; @endphp
+  { label: "{!! trans('cruds.gateway.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $gateways !!}, url: "/admin/gateways" },
+  @endcanAccess
+  @canAccess(\App\Models\ExternalConnectedEntity::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $externalConnectedEntities; @endphp
+  { label: "{!! trans('cruds.externalConnectedEntity.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $externalConnectedEntities !!}, url: "/admin/external-connected-entities" },
+  @endcanAccess
+  @canAccess(\App\Models\NetworkSwitch::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $switches; @endphp
+  { label: "{!! trans('cruds.networkSwitch.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $switches !!}, url: "/admin/network-switches" },
+  @endcanAccess
+  @canAccess(\App\Models\Router::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $routers; @endphp
+  { label: "{!! trans('cruds.router.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $routers !!}, url: "/admin/routers" },
+  @endcanAccess
+  @canAccess(\App\Models\SecurityDevice::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $securityDevices; @endphp
+  { label: "{!! trans('cruds.securityDevice.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $securityDevices !!}, url: "/admin/security-devices" },
+  @endcanAccess
+  @canAccess(\App\Models\Cluster::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $clusters; @endphp
+  { label: "{!! trans('cruds.cluster.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $clusters !!}, url: "/admin/clusters" },
+  @endcanAccess
+  @canAccess(\App\Models\LogicalServer::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $logicalServers; @endphp
+  { label: "{!! trans('cruds.logicalServer.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $logicalServers !!}, url: "/admin/logical-servers" },
+  @endcanAccess
+  @canAccess(\App\Models\Container::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $containers; @endphp
+  { label: "{!! trans('cruds.container.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $containers !!}, url: "/admin/containers" },
+  @endcanAccess
+  @canAccess(\App\Models\Certificate::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $certificates; @endphp
+  { label: "{!! trans('cruds.certificate.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $certificates !!}, url: "/admin/certificates" },
+  @endcanAccess
+  @canAccess(\App\Models\Vlan::class)
+  @php $d = array_fill(0, $gi, 0); if ($infraIdx >= 0) $d[$infraIdx] = $vlans; @endphp
+  { label: "{!! trans('cruds.vlan.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $vlans !!}, url: "/admin/vlans" },
+  @endcanAccess
+  @canAccess(\App\Models\Site::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $sites; @endphp
+  { label: "{!! trans('cruds.site.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $sites !!}, url: "/admin/sites" },
+  @endcanAccess
+  @canAccess(\App\Models\Building::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $buildings; @endphp
+  { label: "{!! trans('cruds.building.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $buildings !!}, url: "/admin/buildings" },
+  @endcanAccess
+  @canAccess(\App\Models\Bay::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $bays; @endphp
+  { label: "{!! trans('cruds.bay.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $bays !!}, url: "/admin/bays" },
+  @endcanAccess
+  @canAccess(\App\Models\Zone::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $zones; @endphp
+  { label: "{!! trans('cruds.zone.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $zones !!}, url: "/admin/zones" },
+  @endcanAccess
+  @canAccess(\App\Models\PhysicalServer::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $physicalServers; @endphp
+  { label: "{!! trans('cruds.physicalServer.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $physicalServers !!}, url: "/admin/physical-servers" },
+  @endcanAccess
+  @canAccess(\App\Models\Workstation::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $workstations; @endphp
+  { label: "{!! trans('cruds.workstation.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $workstations !!}, url: "/admin/workstations" },
+  @endcanAccess
+  @canAccess(\App\Models\Peripheral::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $peripherals; @endphp
+  { label: "{!! trans('cruds.peripheral.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $peripherals !!}, url: "/admin/peripherals" },
+  @endcanAccess
+  @canAccess(\App\Models\StorageDevice::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $storageDevices; @endphp
+  { label: "{!! trans('cruds.storageDevice.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $storageDevices !!}, url: "/admin/storage-devices" },
+  @endcanAccess
+  @canAccess(\App\Models\PhysicalSwitch::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $physicalSwitchs; @endphp
+  { label: "{!! trans('cruds.physicalSwitch.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $physicalSwitchs !!}, url: "/admin/physical-switches" },
+  @endcanAccess
+  @canAccess(\App\Models\PhysicalRouter::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $physicalRouters; @endphp
+  { label: "{!! trans('cruds.physicalRouter.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $physicalRouters !!}, url: "/admin/physical-routers" },
+  @endcanAccess
+  @canAccess(\App\Models\Phone::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $phones; @endphp
+  { label: "{!! trans('cruds.phone.title') !!}", data: [{{ implode(', ', $d) }}], value: {!! $phones !!}, url: "/admin/phones" },
+  @endcanAccess
+  @canAccess(\App\Models\WifiTerminal::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $wifiTerminals; @endphp
+  { label: "{!! trans('cruds.wifiTerminal.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $wifiTerminals !!}, url: "/admin/wifi-terminals" },
+  @endcanAccess
+  @canAccess(\App\Models\PhysicalSecurityDevice::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $securityDevices; @endphp
+  { label: "{!! trans('cruds.physicalSecurityDevice.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $securityDevices !!}, url: "/admin/physical-security-devices" },
+  @endcanAccess
+  @canAccess(\App\Models\Wan::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $wans; @endphp
+  { label: "{!! trans('cruds.wan.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $wans !!}, url: "/admin/wans" },
+  @endcanAccess
+  @canAccess(\App\Models\Man::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $mans; @endphp
+  { label: "{!! trans('cruds.man.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $mans !!}, url: "/admin/mans" },
+  @endcanAccess
+  @canAccess(\App\Models\Lan::class)
+  @php $d = array_fill(0, $gi, 0); if ($physIdx >= 0) $d[$physIdx] = $lans; @endphp
+  { label: "{!! trans('cruds.lan.title_short') !!}", data: [{{ implode(', ', $d) }}], value: {!! $lans !!}, url: "/admin/lans" }
+  @endcanAccess
 ]},
 treemap: {}
 }
 
-// Remove some dataset
-@cannot("physicalinfrastructure_access")
-    window.chartData.barChart.labels.splice(6, 1);
-    for (let j = 0; j < window.chartData.barChart.datasets.length; j++)
-        window.chartData.barChart.datasets[j].data.splice(6, 1);
-@endcan
-
-@cannot("infrastructure_access")
-    window.chartData.barChart.labels.splice(5, 1);
-    for (let j = 0; j < window.chartData.barChart.datasets.length; j++)
-        window.chartData.barChart.datasets[j].data.splice(5, 1);
-@endcan
-
-@cannot("administration_access")
-    window.chartData.barChart.labels.splice(4, 1);
-    for (let j = 0; j < window.chartData.barChart.datasets.length; j++)
-        window.chartData.barChart.datasets[j].data.splice(4, 1);
-@endcan
-
-@cannot("application_access")
-    window.chartData.barChart.labels.splice(3, 1);
-    for (let j = 0; j < window.chartData.barChart.datasets.length; j++)
-        window.chartData.barChart.datasets[j].data.splice(3, 1);
-@endcan
-
-@cannot("metier_access")
-    window.chartData.barChart.labels.splice(2, 1);
-    for (let j = 0; j < window.chartData.barChart.datasets.length; j++)
-        window.chartData.barChart.datasets[j].data.splice(2, 1);
-@endcan
-
-@cannot("ecosystem_access")
-    window.chartData.barChart.labels.splice(1, 1);
-    for (let j = 0; j < window.chartData.barChart.datasets.length; j++)
-        window.chartData.barChart.datasets[j].data.splice(1, 1);
-@endcan
-
-@cannot("gdpr_access")
-    window.chartData.barChart.labels.splice(0, 1);
-    for (let j = 0; j < window.chartData.barChart.datasets.length; j++)
-        window.chartData.barChart.datasets[j].data.splice(0, 1);
-@endcan
-
 var topTags = [
-    @can("gdpr_access")
+    @canAccessAny(\App\Models\DataProcessing::class, \App\Models\SecurityControl::class)
+    @canAccess(\App\Models\DataProcessing::class)
     {group:"{!! trans('cruds.menu.gdpr.title_short') !!}", tag:"{!! trans('cruds.dataProcessing.title') !!}", num:{!! $data_processing !!}, url: "/admin/data-processings" },
+    @endcanAccess
+    @canAccess(\App\Models\SecurityControl::class)
     {group:"{!! trans('cruds.menu.gdpr.title_short') !!}", tag:"{!! trans('cruds.securityControl.title_short') !!}", num:{!! $security_controls !!}, url: "/admin/security-controls" },
-    @endcan
-    @can("ecosystem_access")
+    @endcanAccess
+    @endcanAccessAny
+    @canAccessAny(\App\Models\Entity::class, \App\Models\Relation::class)
+    @canAccess(\App\Models\Entity::class)
     {group:"{!! trans('cruds.menu.ecosystem.title_short') !!}", tag:"{!! trans('cruds.entity.title') !!}", num:{!! $entities !!}, url: "/admin/entities" },
+    @endcanAccess
+    @canAccess(\App\Models\Relation::class)
     {group:"{!! trans('cruds.menu.ecosystem.title_short') !!}", tag:"{!! trans('cruds.relation.title') !!}", num:{!! $relations !!}, url: "/admin/relations" },
-    @endcan
-    @can("metier_access")
+    @endcanAccess
+    @endcanAccessAny
+    @canAccessAny(\App\Models\MacroProcessus::class, \App\Models\Process::class, \App\Models\Activity::class, \App\Models\Operation::class, \App\Models\Task::class, \App\Models\Actor::class, \App\Models\Information::class)
+    @canAccess(\App\Models\MacroProcessus::class)
     {group:"{!! trans('cruds.menu.metier.title_short') !!}", tag:"{!! trans('cruds.macroProcessus.title') !!}", num: {!! $macroProcessuses !!}, url: "/admin/macro-processuses" },
+    @endcanAccess
+    @canAccess(\App\Models\Process::class)
     {group:"{!! trans('cruds.menu.metier.title_short') !!}", tag:"{!! trans('cruds.process.title') !!}", num:{!! $processes !!}, url: "/admin/processes" },
+    @endcanAccess
+    @canAccess(\App\Models\Activity::class)
     {group:"{!! trans('cruds.menu.metier.title_short') !!}", tag:"{!! trans('cruds.activity.title') !!}", num:{!! $activities !!}, url: "/admin/activities" },
+    @endcanAccess
+    @canAccess(\App\Models\Operation::class)
     {group:"{!! trans('cruds.menu.metier.title_short') !!}", tag:"{!! trans('cruds.operation.title') !!}", num:{!! $operations !!}, url: "/admin/operations" },
+    @endcanAccess
+    @canAccess(\App\Models\Task::class)
     {group:"{!! trans('cruds.menu.metier.title_short') !!}", tag:"{!! trans('cruds.task.title') !!}", num:{!! $tasks !!}, url: "/admin/tasks" },
+    @endcanAccess
+    @canAccess(\App\Models\Actor::class)
     {group:"{!! trans('cruds.menu.metier.title_short') !!}", tag:"{!! trans('cruds.actor.title') !!}", num:{!! $actors !!}, url: "/admin/actors" },
+    @endcanAccess
+    @canAccess(\App\Models\Information::class)
     {group:"{!! trans('cruds.menu.metier.title_short') !!}", tag:"{!! trans('cruds.information.title') !!}", num:{!! $informations !!}, url: "/admin/information" },
-    @endcan
-    @can("application_access")
+    @endcanAccess
+    @endcanAccessAny
+    @canAccessAny(\App\Models\ApplicationBlock::class, \App\Models\Application::class, \App\Models\ApplicationService::class, \App\Models\ApplicationModule::class, \App\Models\Database::class, \App\Models\ApplicationFlow::class)
+    @canAccess(\App\Models\ApplicationBlock::class)
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.applicationBlock.title') !!}" , num:{!! $applicationBlocks !!}, url: "/admin/application-blocks" },
+    @endcanAccess
+    @canAccess(\App\Models\Application::class)
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.application.title') !!}", num:{!! $applications !!}, url: "/admin/applications" },
+    @endcanAccess
+    @canAccess(\App\Models\ApplicationService::class)
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.applicationService.title_short') !!}" , num:{!! $applicationServices !!}, url: "/admin/application-services" },
+    @endcanAccess
+    @canAccess(\App\Models\ApplicationModule::class)
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.applicationModule.title_short') !!}" , num:{!! $applicationModules !!}, url: "/admin/application-modules" },
+    @endcanAccess
+    @canAccess(\App\Models\Database::class)
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.database.title') !!}" , num:{!! $databases !!}, url: "/admin/databases" },
+    @endcanAccess
+    @canAccess(\App\Models\ApplicationFlow::class)
     {group:"{!! trans('cruds.menu.application.title') !!}", tag:"{!! trans('cruds.flux.title') !!}" , num:{!! $flows !!}, url: "/admin/application-flows" },
-    @endcan
-    @can("administration_access")
+    @endcanAccess
+    @endcanAccessAny
+    @canAccessAny(\App\Models\ZoneAdmin::class, \App\Models\Annuaire::class, \App\Models\ForestAd::class, \App\Models\Domain::class)
+    @canAccess(\App\Models\ZoneAdmin::class)
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.zoneAdmin.title_short') !!}" , num:{!!$zones_ad!!}, url: "/admin/zone-admins" },
+    @endcanAccess
+    @canAccess(\App\Models\Annuaire::class)
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.annuaire.title_short') !!}" , num:{!!$annuaires!!}, url: "/admin/annuaires" },
+    @endcanAccess
+    @canAccess(\App\Models\ForestAd::class)
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.forestAd.title_short') !!}" , num:{!!$forests!!}, url: "/admin/forest-ads" },
+    @endcanAccess
+    @canAccess(\App\Models\Domain::class)
     {group:"{!! trans('cruds.menu.administration.title_short') !!}", tag:"{!! trans('cruds.domaine.title_short') !!}" , num:{!!$domains!!}, url: "/admin/domains" },
-    @endcan
-    @can("infrastructure_access")
+    @endcanAccess
+    @endcanAccessAny
+    @canAccessAny(\App\Models\Network::class, \App\Models\Subnetwork::class, \App\Models\Gateway::class, \App\Models\ExternalConnectedEntity::class, \App\Models\NetworkSwitch::class, \App\Models\Router::class, \App\Models\SecurityDevice::class, \App\Models\Cluster::class, \App\Models\LogicalServer::class, \App\Models\Container::class, \App\Models\Vlan::class, \App\Models\Certificate::class)
+    @canAccess(\App\Models\Network::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.network.title') !!}" , num:{!! $networks !!}, url: "/admin/networks" },
+    @endcanAccess
+    @canAccess(\App\Models\Subnetwork::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.subnetwork.title_short') !!}" , num:{!! $subnetworks !!}, url: "/admin/subnetworks" },
+    @endcanAccess
+    @canAccess(\App\Models\Gateway::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.gateway.title_short') !!}" , num:{!! $gateways !!}, url: "/admin/gateways" },
+    @endcanAccess
+    @canAccess(\App\Models\ExternalConnectedEntity::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.externalConnectedEntity.title_short') !!}" , num:{!! $externalConnectedEntities !!}, url: "/admin/external-connected-entities" },
+    @endcanAccess
+    @canAccess(\App\Models\NetworkSwitch::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.networkSwitch.title_short') !!}" , num:{!! $switches !!}, url: "/admin/network-switches" },
+    @endcanAccess
+    @canAccess(\App\Models\Router::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.router.title_short') !!}" , num:{!! $routers !!}, url: "/admin/routers" },
+    @endcanAccess
+    @canAccess(\App\Models\SecurityDevice::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.securityDevice.title_short') !!}" , num:{!! $securityDevices !!}, url: "/admin/security-devices" },
+    @endcanAccess
+    @canAccess(\App\Models\Cluster::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.cluster.title_short') !!}" , num:{!! $clusters !!}, url: "/admin/clusters" },
+    @endcanAccess
+    @canAccess(\App\Models\LogicalServer::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.logicalServer.title_short') !!}" , num:{!! $logicalServers !!}, url: "/admin/logical-servers" },
+    @endcanAccess
+    @canAccess(\App\Models\Container::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.container.title') !!}" , num:{!! $containers !!}, url: "/admin/containers" },
+    @endcanAccess
+    @canAccess(\App\Models\Vlan::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.vlan.title_short') !!}" , num:{!! $vlans !!}, url: "/admin/vlans" },
+    @endcanAccess
+    @canAccess(\App\Models\Certificate::class)
     {group:"{!! trans('cruds.menu.logical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.certificate.title_short') !!}" , num:{!! $certificates !!}, url: "/admin/certificates" },
-    @endcan
-    @can("physicalinfrastructure_access")
+    @endcanAccess
+    @endcanAccessAny
+    @canAccessAny(\App\Models\Site::class, \App\Models\Building::class, \App\Models\Bay::class, \App\Models\Zone::class, \App\Models\PhysicalServer::class, \App\Models\Workstation::class, \App\Models\Phone::class, \App\Models\Peripheral::class, \App\Models\StorageDevice::class, \App\Models\PhysicalSwitch::class, \App\Models\PhysicalRouter::class, \App\Models\Wan::class, \App\Models\Man::class, \App\Models\Lan::class)
+    @canAccess(\App\Models\Site::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.site.title') !!}" , num: {!! $sites !!}, url: "/admin/sites" },
+    @endcanAccess
+    @canAccess(\App\Models\Building::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.building.title') !!}" , num:{!! $buildings !!}, url: "/admin/buildings" },
+    @endcanAccess
+    @canAccess(\App\Models\Bay::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.bay.title') !!}" , num:{!! $bays !!}, url: "/admin/bays" },
+    @endcanAccess
+    @canAccess(\App\Models\Zone::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.zone.title_short') !!}" , num:{!! $zones !!}, url: "/admin/zones" },
+    @endcanAccess
+    @canAccess(\App\Models\PhysicalServer::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.physicalServer.title_short') !!}", num:{!! $physicalServers !!}, url: "/admin/physical-servers" },
+    @endcanAccess
+    @canAccess(\App\Models\Workstation::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.workstation.title') !!}" , num:{!! $workstations !!}, url: "/admin/workstations" },
+    @endcanAccess
+    @canAccess(\App\Models\Phone::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.phone.title') !!}" , num:{!! $phones !!}, url: "/admin/phones" },
+    @endcanAccess
+    @canAccess(\App\Models\Peripheral::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.peripheral.title') !!}" , num:{!! $peripherals !!}, url: "/admin/peripherals" },
+    @endcanAccess
+    @canAccess(\App\Models\StorageDevice::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.storageDevice.title_short') !!}" , num:{!! $storageDevices !!}, url: "/admin/storage-devices" },
+    @endcanAccess
+    @canAccess(\App\Models\PhysicalSwitch::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.physicalSwitch.title_short') !!}" , num:{!! $physicalSwitchs !!}, url: "/admin/physical-switches" },
+    @endcanAccess
+    @canAccess(\App\Models\PhysicalRouter::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.physicalRouter.title_short') !!}" , num:{!! $physicalRouters !!}, url: "/admin/physical-routers" },
+    @endcanAccess
+    @canAccess(\App\Models\Wan::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.wan.title_short') !!}" , num:{!! $wans !!}, url: "/admin/wans" },
+    @endcanAccess
+    @canAccess(\App\Models\Man::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.man.title_short') !!}" , num:{!! $mans !!}, url: "/admin/mans" },
+    @endcanAccess
+    @canAccess(\App\Models\Lan::class)
     {group:"{!! trans('cruds.menu.physical_infrastructure.title_short') !!}", tag:"{!! trans('cruds.lan.title_short') !!}" , num:{!! $lans !!}, url: "/admin/lans" },
-    @endcan
+    @endcanAccess
+    @endcanAccessAny
   ];
 
 </script>

@@ -36,14 +36,14 @@ class SecurityControlController extends APIController
 
     public function show(SecurityControl $securityControl)
     {
-        abort_if(Gate::denies('security_control_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $securityControl), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($securityControl);
     }
 
     public function update(UpdateSecurityControlRequest $request, SecurityControl $securityControl)
     {
-        abort_if(Gate::denies('security_control_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $securityControl), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $securityControl->update($request->all());
 

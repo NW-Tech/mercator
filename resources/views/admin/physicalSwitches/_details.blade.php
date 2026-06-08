@@ -10,7 +10,11 @@
             </th>
             <td>
             @if ($withLink)
+            @canShow($physicalSwitch)
             <a href="{{ route('admin.physical-switches.show', $physicalSwitch->id) }}">{{ $physicalSwitch->name }}</a>
+            @elsecanShow
+            {{ $physicalSwitch->name }}
+            @endcanShow
             @else
             {{ $physicalSwitch->name }}
             @endif
@@ -37,15 +41,20 @@
                 @endif
             </td>
         </tr>
+        @canAccessAny(App\Models\Site::class, App\Models\Building::class, App\Models\Bay::class)
         <tr>
             <th>
                 {{ trans('cruds.physicalSwitch.fields.site') }}
             </th>
             <td colspan="3">
                 @if ($physicalSwitch->site!=null)
-                    <a href="{{ route('admin.sites.show', $physicalSwitch->site->id) }}">
-                    {{ $physicalSwitch->site->name ?? '' }}
-                    </a>
+                    @canShow($physicalSwitch->site)
+                        <a href="{{ route('admin.sites.show', $physicalSwitch->site->id) }}">
+                        {{ $physicalSwitch->site->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $physicalSwitch->site->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
         </tr>
@@ -55,9 +64,13 @@
             </th>
             <td colspan="3">
                 @if ($physicalSwitch->building!=null)
-                    <a href="{{ route('admin.buildings.show', $physicalSwitch->building->id) }}">
-                    {{ $physicalSwitch->building->name ?? '' }}
-                    </a>
+                    @canShow($physicalSwitch->building)
+                        <a href="{{ route('admin.buildings.show', $physicalSwitch->building->id) }}">
+                        {{ $physicalSwitch->building->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $physicalSwitch->building->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
         </tr>
@@ -67,26 +80,37 @@
             </th>
             <td colspan="3">
                 @if ($physicalSwitch->bay!=null)
-                    <a href="{{ route('admin.bays.show', $physicalSwitch->bay->id) }}">
-                    {{ $physicalSwitch->bay->name ?? '' }}
-                    </a>
+                    @canShow($physicalSwitch->bay)
+                        <a href="{{ route('admin.bays.show', $physicalSwitch->bay->id) }}">
+                        {{ $physicalSwitch->bay->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $physicalSwitch->bay->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
         </tr>
+        @endcanAccessAny
+        @canAccess(App\Models\NetworkSwitch::class)
         <tr>
             <th>
                 {{ trans('cruds.physicalSwitch.fields.network_switches') }}
             </th>
             <td colspan="3">
                 @foreach($physicalSwitch->networkSwitches as $networkSwitch)
-                    <a href="{{ route('admin.network-switches.show', $networkSwitch->id) }}">
-                    {{ $networkSwitch->name }}
-                    </a>
+                    @canShow($networkSwitch)
+                        <a href="{{ route('admin.network-switches.show', $networkSwitch->id) }}">
+                        {{ $networkSwitch->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $networkSwitch->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

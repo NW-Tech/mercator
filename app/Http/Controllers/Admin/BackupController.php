@@ -16,7 +16,11 @@ class BackupController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('backup_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('backup_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Backup::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $backups = Backup::with('logicalServers', 'storageDevices')
             
@@ -28,7 +32,8 @@ class BackupController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.backups.index', compact('backups'));
     }
@@ -65,7 +70,7 @@ class BackupController extends Controller
 
     public function edit(Backup $backup)
     {
-        abort_if(Gate::denies('backup_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $backup), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $logicalServers = LogicalServer::query()->orderBy('name')->pluck('name', 'id');
         $storageDevices = StorageDevice::query()->orderBy('name')->pluck('name', 'id');
@@ -85,6 +90,8 @@ class BackupController extends Controller
 
     public function update(UpdateBackupRequest $request, Backup $backup)
     {
+        abort_if(Gate::denies('edit-object', $backup), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
 
         $backup->update($request->all());
@@ -97,7 +104,7 @@ class BackupController extends Controller
 
     public function show(Backup $backup)
     {
-        abort_if(Gate::denies('backup_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $backup), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $backup->load('logicalServers', 'storageDevices');
 

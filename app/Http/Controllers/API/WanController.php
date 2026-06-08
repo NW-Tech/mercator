@@ -38,7 +38,7 @@ class WanController extends APIController
 
     public function show(Wan $wan)
     {
-        abort_if(Gate::denies('wan_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $wan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $wan['mans'] = $wan->mans()->pluck('id');
         $wan['lans'] = $wan->lans()->pluck('id');
@@ -48,7 +48,7 @@ class WanController extends APIController
 
     public function update(UpdateWanRequest $request, Wan $wan)
     {
-        abort_if(Gate::denies('wan_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $wan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $wan->update($request->all());
 

@@ -10,9 +10,13 @@
         </th>
         <td width="50%">
         @if($withLink)
-        <a href="{{ route('admin.physical-servers.show', $physicalServer) }}">{{ $physicalServer->name }}</a>
+            @canShow($physicalServer)
+                <a href="{{ route('admin.physical-servers.show', $physicalServer) }}">{{ $physicalServer->name }}</a>
+            @elsecanShow
+                {{ $physicalServer->name }}
+            @endcanShow
         @else
-        {{ $physicalServer->name }}
+            {{ $physicalServer->name }}
         @endif
         </td>
         <th width="10%">

@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-    @can('flux_create')
+    @can('application_flow_create')
         <div style="margin-bottom: 10px;" class="row">
             <div class="col-lg-12">
                 <a id="btn-new" class="btn btn-success" href="{{ route('admin.application-flows.create') }}">
@@ -84,9 +84,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.application-flows.show', $flow->id) }}">
-                                    {{ $flow->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$flow" />
                             </td>
                             <td>
                                 {{ $flow->nature }}
@@ -102,44 +100,30 @@
                             </td>
                             <td>
                                 @if ($flow->applicationSource!=null)
-                                    <a href="{{ route('admin.applications.show', $flow->application_source_id) }}">
-                                        {{ $flow->applicationSource->name }}
-                                        @endif
-                                        @if ($flow->serviceSource!=null)
-                                            <a href="{{ route('admin.application-services.show', $flow->service_source_id) }}">
-                                                {{ $flow->serviceSource->name }}
-                                            </a>
-                                        @endif
-                                        @if ($flow->moduleSource!=null)
-                                            <a href="{{ route('admin.application-modules.show', $flow->module_source_id) }}">
-                                                {{ $flow->moduleSource->name }}
-                                            </a>
-                                        @endif
-                                        @if ($flow->databaseSource!=null)
-                                            <a href="{{ route('admin.databases.show', $flow->database_source_id) }}">
-                                                {{ $flow->databaseSource->name }}
-                                            </a>
+                                    <x-show-link :model="$flow->applicationSource" />
+                                @endif
+                                @if ($flow->serviceSource!=null)
+                                    <x-show-link :model="$flow->serviceSource" />
+                                @endif
+                                @if ($flow->moduleSource!=null)
+                                    <x-show-link :model="$flow->moduleSource" />
+                                @endif
+                                @if ($flow->databaseSource!=null)
+                                    <x-show-link :model="$flow->databaseSource" />
                                 @endif
                             </td>
                             <td>
                                 @if ($flow->applicationDest!=null)
-                                    <a href="{{ route('admin.applications.show', $flow->application_dest_id) }}">
-                                        {{ $flow->applicationDest->name }}
-                                        @endif
-                                        @if ($flow->serviceDest!=null)
-                                            <a href="{{ route('admin.application-services.show', $flow->service_dest_id) }}">
-                                                {{ $flow->serviceDest->name }}
-                                            </a>
-                                        @endif
-                                        @if ($flow->moduleDest!=null)
-                                            <a href="{{ route('admin.application-modules.show', $flow->module_dest_id) }}">
-                                                {{ $flow->moduleDest->name }}
-                                            </a>
-                                        @endif
-                                        @if ($flow->databaseDest!=null)
-                                            <a href="{{ route('admin.databases.show', $flow->database_dest_id) }}">
-                                                {{ $flow->databaseDest->name }}
-                                            </a>
+                                    <x-show-link :model="$flow->applicationDest" />
+                                @endif
+                                @if ($flow->serviceDest!=null)
+                                    <x-show-link :model="$flow->serviceDest" />
+                                @endif
+                                @if ($flow->moduleDest!=null)
+                                    <x-show-link :model="$flow->moduleDest" />
+                                @endif
+                                @if ($flow->databaseDest!=null)
+                                    <x-show-link :model="$flow->databaseDest" />
                                 @endif
                             </td>
                             <td>
@@ -150,20 +134,20 @@
                                 @endif
                             </td>
                             <td nowrap>
-                                @can('flux_show')
+                                @can('application_flow_show')
                                     <a class="btn btn-xs btn-primary"
                                        href="{{ route('admin.application-flows.show', $flow->id) }}">
                                         {{ trans('global.view') }}
                                     </a>
                                 @endcan
 
-                                @can('flux_edit')
+                                @canEdit($flow)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.application-flows.edit', $flow->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
-                                @can('flux_delete')
+                                @can('application_flow_delete')
                                     <form action="{{ route('admin.application-flows.destroy', $flow->id) }}" method="POST"
                                           onsubmit="return confirm('{{ trans('global.areYouSure') }}');"
                                           style="display: inline-block;">
@@ -193,7 +177,7 @@
             'id' => '#dataTable',
             'title' => trans("cruds.flux.title_singular"),
             'URL' => route('admin.application-flows.massDestroy'),
-            'canDelete' => auth()->user()->can('flux_delete') ? true : false,
+            'canDelete' => auth()->user()->can('application_flow_delete') ? true : false,
     'serverSidePagination' => true
 ));
     </script>

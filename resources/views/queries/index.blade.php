@@ -35,12 +35,14 @@
                     </thead>
                     <tbody>
                         @foreach($queries as $q)
+                        @php $isOwner = auth()->id() === $q->user_id; @endphp
                         <tr data-entry-id="{{ $q->id }}"
                             data-name="{{ e($q->name) }}"
                             data-query-dsl='{{ json_encode($q->query ?? [], JSON_HEX_APOS | JSON_HEX_TAG) }}'
                             data-url-show="{{ route('admin.queries.show', $q->id) }}"
                             data-url-edit="{{ route('admin.queries.edit', $q->id) }}"
-                            data-url-destroy="{{ route('admin.queries.destroy', $q->id) }}">
+                            data-url-destroy="{{ route('admin.queries.destroy', $q->id) }}"
+                            data-is-owner="{{ $isOwner ? '1' : '0' }}">
                             <td></td>
                             <td>
                                 <a href="{{ route('admin.queries.show', $q->id) }}"
@@ -72,24 +74,26 @@
                                 @endif
                             </td>
                             <td class="text-end text-nowrap">
-                                @can('query_edit')
-                                    <a class="btn btn-xs btn-info"
-                                       href="{{ route('admin.queries.edit', $q->id) }}">
-                                        {{ trans('global.edit') }}
-                                    </a>
-                                @endcan
-                                @can('query_delete')
-                                    <form action="{{ route('admin.queries.destroy', $q->id) }}"
-                                          method="POST"
-                                          onsubmit="return confirm('{{ trans('global.areYouSure') }}');"
-                                          style="display:inline-block;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-xs btn-danger">
-                                            {{ trans('global.delete') }}
-                                        </button>
-                                    </form>
-                                @endcan
+                                @if($isOwner)
+                                    @can('query_edit')
+                                        <a class="btn btn-xs btn-info"
+                                           href="{{ route('admin.queries.edit', $q->id) }}">
+                                            {{ trans('global.edit') }}
+                                        </a>
+                                    @endcan
+                                    @can('query_delete')
+                                        <form action="{{ route('admin.queries.destroy', $q->id) }}"
+                                              method="POST"
+                                              onsubmit="return confirm('{{ trans('global.areYouSure') }}');"
+                                              style="display:inline-block;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-xs btn-danger">
+                                                {{ trans('global.delete') }}
+                                            </button>
+                                        </form>
+                                    @endcan
+                                @endif
                             </td>
                         </tr>
                         @endforeach
@@ -227,10 +231,17 @@ document.addEventListener('DOMContentLoaded', function () {
         // console.log('query-editor :', editor, '| valeur avant load :', editor?.value);
 
         // Mise à jour panneau
+        const isOwner = row.dataset.isOwner === '1';
         panelTitle.textContent = row.dataset.name;
-        if (btnPanelEdit)     btnPanelEdit.href          = row.dataset.urlEdit;
+        if (btnPanelEdit) {
+            btnPanelEdit.href  = row.dataset.urlEdit;
+            btnPanelEdit.style.display = isOwner ? '' : 'none';
+        }
         if (btnPanelShow)     btnPanelShow.href           = row.dataset.urlShow;
-        if (formPanelDestroy) formPanelDestroy.action     = row.dataset.urlDestroy;
+        if (formPanelDestroy) {
+            formPanelDestroy.action     = row.dataset.urlDestroy;
+            formPanelDestroy.style.display = isOwner ? '' : 'none';
+        }
         panelActions.classList.remove('d-none');
         panelActions.classList.add('show');
 

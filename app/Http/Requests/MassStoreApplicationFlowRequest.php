@@ -10,7 +10,7 @@ class MassStoreApplicationFlowRequest extends FormRequest
 {
     public function authorize()
     {
-        abort_if(Gate::denies('flux_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('application_flow_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return true;
     }

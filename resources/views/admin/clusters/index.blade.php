@@ -60,9 +60,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.clusters.show', $cluster->id) }}">
-                                    {{ $cluster->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$cluster" />
                             </td>
                             <td>
                                 {!! $cluster->type ?? '' !!}
@@ -75,9 +73,7 @@
                             </td>
                             <td>
                                 @foreach($cluster->logicalServers as $logicalServer)
-                                    <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">
-                                        {{ $logicalServer->name }}
-                                    </a>
+                                    <x-show-link :model="$logicalServer" />
                                     @if(!$loop->last)
                                         ,
                                     @endif
@@ -86,9 +82,7 @@
                                     ,
                                 @endif
                                 @foreach($cluster->routers as $router)
-                                    <a href="{{ route('admin.routers.show', $router->id) }}">
-                                        {{ $router->name }}
-                                    </a>
+                                    <x-show-link :model="$router" />
                                     @if(!$loop->last)
                                         ,
                                     @endif
@@ -96,9 +90,7 @@
                             </td>
                             <td>
                                 @foreach($cluster->physicalServers as $physicalServer)
-                                    <a href="{{ route('admin.physical-servers.show', $physicalServer->id) }}">
-                                        {{ $physicalServer->name }}
-                                    </a>
+                                    <x-show-link :model="$physicalServer" />
                                     @if(!$loop->last)
                                         ,
                                     @endif
@@ -113,12 +105,12 @@
                                     </a>
                                 @endcan
 
-                                @can('cluster_edit')
+                                @canEdit($cluster)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.clusters.edit', $cluster->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('cluster_delete')
                                     <form action="{{ route('admin.clusters.destroy', $cluster->id) }}" method="POST"

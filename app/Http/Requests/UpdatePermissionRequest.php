@@ -2,17 +2,14 @@
 
 namespace App\Http\Requests;
 
-use Gate;
 use Illuminate\Foundation\Http\FormRequest;
-use Symfony\Component\HttpFoundation\Response;
+use App\Http\Requests\BaseFormRequest;
 
-class UpdatePermissionRequest extends FormRequest
+class UpdatePermissionRequest extends BaseFormRequest
 {
-    public function authorize()
+    public function authorize(): bool
     {
-        abort_if(Gate::denies('permission_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules()

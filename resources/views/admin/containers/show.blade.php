@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$container->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('container_edit')
+
+    @endcan
+
+    @canEdit($container)
         <a class="btn btn-info" href="{{ route('admin.containers.edit', $container->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('site_delete')
         <form action="{{ route('admin.containers.destroy', $container->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">
@@ -54,9 +60,13 @@
                     </th>
                     <td>
                         @foreach($container->logicalServers as $server)
-                            <a href="{{ route('admin.logical-servers.show', $server->id) }}">
-                            {{ $server->name ?? '' }}
-                            </a>
+                            @canShow($server)
+                                <a href="{{ route('admin.logical-servers.show', $server->id) }}">
+                                    {{ $server->name ?? '' }}
+                                </a>
+                            @elsecanShow
+                                {{ $server->name ?? '' }}
+                            @endcanShow
                             @if ($container->logicalServers->last()!=$server)
                             ,
                             @endif
@@ -80,9 +90,13 @@
                     </th>
                     <td width="40%">
                         @foreach($container->applications as $application)
-                            <a href="{{ route('admin.applications.show', $application->id) }}">
-                            {{ $application->name ?? '' }}
-                            </a>
+                            @canShow($application)
+                                <a href="{{ route('admin.applications.show', $application->id) }}">
+                                    {{ $application->name ?? '' }}
+                                </a>
+                            @elsecanShow
+                                {{ $application->name ?? '' }}
+                            @endcanShow
                             @if ($container->applications->last()!=$application)
                             ,
                             @endif
@@ -93,9 +107,13 @@
                     </th>
                     <td width="40%">
                         @foreach($container->databases as $database)
-                            <a href="{{ route('admin.databases.show', $database->id) }}">
-                            {{ $database->name ?? '' }}
-                            </a>
+                            @canShow($database)
+                                <a href="{{ route('admin.databases.show', $database->id) }}">
+                                    {{ $database->name ?? '' }}
+                                </a>
+                            @elsecanShow
+                                {{ $database->name ?? '' }}
+                            @endcanShow
                             @if ($container->databases->last()!=$database)
                             ,
                             @endif

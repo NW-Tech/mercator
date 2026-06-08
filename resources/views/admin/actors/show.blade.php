@@ -11,15 +11,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$actor->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('actor_edit')
+
+        @endcan
+
+        @canEdit($actor)
             <a class="btn btn-info" href="{{ route('admin.actors.edit', $actor->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('entity_delete')
             <form action="{{ route('admin.actors.destroy', $actor->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

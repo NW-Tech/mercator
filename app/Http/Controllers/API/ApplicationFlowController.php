@@ -19,14 +19,14 @@ class ApplicationFlowController extends APIController
 
     public function index(Request $request)
     {
-        abort_if(Gate::denies('flux_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('application_flow_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return $this->indexResource($request);
     }
 
     public function store(StoreApplicationFlowRequest $request)
     {
-        abort_if(Gate::denies('flux_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('application_flow_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $flow = ApplicationFlow::query()->create($request->all());
 
@@ -35,14 +35,14 @@ class ApplicationFlowController extends APIController
 
     public function show(ApplicationFlow $flow)
     {
-        abort_if(Gate::denies('flux_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $flow), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($flow);
     }
 
     public function update(UpdateApplicationFlowRequest $request, ApplicationFlow $flow)
     {
-        abort_if(Gate::denies('flux_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $flow), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $flow->update($request->all());
 
@@ -51,7 +51,7 @@ class ApplicationFlowController extends APIController
 
     public function destroy(ApplicationFlow $flow)
     {
-        abort_if(Gate::denies('flux_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('application_flow_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $flow->delete();
 
@@ -60,7 +60,7 @@ class ApplicationFlowController extends APIController
 
     public function massDestroy(MassDestroyApplicationFlowRequest $request)
     {
-        abort_if(Gate::denies('flux_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('application_flow_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         ApplicationFlow::whereIn('id', $request->input('ids', []))->delete();
 

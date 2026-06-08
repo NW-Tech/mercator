@@ -10,11 +10,11 @@
             {{ trans('global.back_to_list') }}
         </a>
 
-        @can('data_processing_edit')
+        @canEdit($dataProcessing)
             <a class="btn btn-info" href="{{ route('admin.data-processings.edit', $dataProcessing->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('data_processing_delete')
             <form action="{{ route('admin.data-processings.destroy', $dataProcessing->id) }}" method="POST"
@@ -201,7 +201,7 @@
         </th>
         <td colspan='3'>
             @foreach($dataProcessing->processes as $process)
-                <a href="{{ route('admin.processes.show', $process->id) }}">{{ $process->name }}</a>
+                @canShow($process)<a href="{{ route('admin.processes.show', $process->id) }}">{{ $process->name }}</a>@elsecanShow{{ $process->name }}@endcanShow
                 @if (!$loop->last)
                     ,
                 @endif
@@ -215,7 +215,7 @@
         </th>
         <td colspan='3'>
             @foreach($dataProcessing->applications as $application)
-                <a href="{{ route('admin.applications.show', $application->id) }}">{{ $application->name }}</a>
+                @canShow($application)<a href="{{ route('admin.applications.show', $application->id) }}">{{ $application->name }}</a>@elsecanShow{{ $application->name }}@endcanShow
                 @if (!$loop->last)
                     ,
                 @endif
@@ -229,7 +229,7 @@
         </th>
         <td colspan='3'>
             @foreach($dataProcessing->informations as $information)
-                <a href="{{ route('admin.information.show', $information->id) }}">{{ $information->name }}</a>
+                @canShow($information)<a href="{{ route('admin.information.show', $information->id) }}">{{ $information->name }}</a>@elsecanShow{{ $information->name }}@endcanShow
                 @if (!$loop->last)
                     ,
                 @endif

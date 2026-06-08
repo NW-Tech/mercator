@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\LogicalFlow
@@ -18,6 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class LogicalFlow extends Model implements HasPrefix
 {
     use Auditable, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'logical_flows';
 

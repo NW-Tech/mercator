@@ -21,13 +21,14 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 uses(TestCase::class, RefreshDatabase::class)
-    ->in('Feature/Api', 'Feature/Controller', 'Feature/View', 'Feature/Security');
+    ->in('Feature/Api', 'Feature/Controller', 'Feature/View', 'Feature/Security', 'Feature/Cartographer');
 
 // Grouper automatiquement certains dossiers
 uses()->group('api')->in('Feature/Api');
 uses()->group('console')->in('Feature/Console');
 uses()->group('controller')->in('Feature/Controller');
 uses()->group('security')->in('Feature/Security');
+uses()->group('cartographer')->in('Feature/Cartographer');
 
 /*
 |--------------------------------------------------------------------------

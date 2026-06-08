@@ -36,14 +36,14 @@ class ActivityController extends APIController
 
     public function show(Activity $activity) : JsonResource
     {
-        abort_if(Gate::denies('activity_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $activity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return $this->asJsonResource($activity);
     }
 
     public function update(UpdateActivityRequest $request, Activity $activity)
     {
-        abort_if(Gate::denies('activity_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $activity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $activity->update($request->all());
 

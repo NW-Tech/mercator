@@ -15,7 +15,11 @@ class NetworkController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('network_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('network_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Network::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $networks = Network::query()
             ->when(request('search'), function ($q, $search) {
@@ -26,7 +30,8 @@ class NetworkController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.networks.index', compact('networks'));
     }
@@ -50,7 +55,7 @@ class NetworkController extends Controller
 
     public function edit(Network $network)
     {
-        abort_if(Gate::denies('network_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $network), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $subnetworks = Subnetwork::all()->sortBy('name')->pluck('name', 'id');
 
@@ -61,6 +66,8 @@ class NetworkController extends Controller
 
     public function update(UpdateNetworkRequest $request, Network $network)
     {
+        abort_if(Gate::denies('edit-object', $network), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $network->update($request->all());
 
         // Subnetwork::where('network_id', $network->id)->update(['network_id' => null]);
@@ -71,7 +78,7 @@ class NetworkController extends Controller
 
     public function show(Network $network)
     {
-        abort_if(Gate::denies('network_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $network), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $network->load('subnetworks');
 

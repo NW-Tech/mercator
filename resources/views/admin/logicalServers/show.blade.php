@@ -10,15 +10,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$logicalServer->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('logical_server_edit')
+
+        @endcan
+
+        @canEdit($logicalServer)
             <a class="btn btn-info" href="{{ route('admin.logical-servers.edit', $logicalServer->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('logical_server_delete')
             <form action="{{ route('admin.logical-servers.destroy', $logicalServer->id) }}" method="POST"
@@ -56,9 +62,13 @@
                     </th>
                     <td width="40%">
                         @foreach($logicalServer->applications as $application)
-                            <a href="{{ route('admin.applications.show', $application->id) }}">
+                            @canShow($application)
+                                <a href="{{ route('admin.applications.show', $application->id) }}">
+                                    {{ $application->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $application->name }}
-                            </a>
+                            @endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -69,9 +79,13 @@
                     </th>
                     <td width="40%">
                         @foreach($logicalServer->databases as $database)
-                            <a href="{{ route('admin.databases.show', $database->id) }}">
+                            @canShow($database)
+                                <a href="{{ route('admin.databases.show', $database->id) }}">
+                                    {{ $database->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $database->name }}
-                            </a>
+                            @endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -95,9 +109,13 @@
                     </th>
                     <td>
                         @if ($logicalServer->domain_id!==null)
-                            <a href="{{ route('admin.domains.show', $logicalServer->domain_id) }}">
+                            @canShow($logicalServer->domain)
+                                <a href="{{ route('admin.domains.show', $logicalServer->domain_id) }}">
+                                    {{ $logicalServer->domain->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $logicalServer->domain->name }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                 </tr>
@@ -118,9 +136,13 @@
                     </th>
                     <td>
                         @foreach($logicalServer->physicalServers as $server)
-                            <a href="{{ route('admin.physical-servers.show', $server->id) }}">
+                            @canShow($server)
+                                <a href="{{ route('admin.physical-servers.show', $server->id) }}">
+                                    {{ $server->name }}
+                                </a>
+                            @elsecanShow
                                 {{ $server->name }}
-                            </a>
+                            @endcanShow
                             @if(!$loop->last)
                                 ,
                             @endif
@@ -154,7 +176,12 @@
                                 <td>{{ $backup->name }}</td>
                                 <td>
                                     @foreach($backup->storageDevices as $device)
-                                        <a href="{{ route('admin.storage-devices.show', $device->id) }}">{{ $device->name }}</a>@if(!$loop->last), @endif
+                                        @canShow($device)
+                                            <a href="{{ route('admin.storage-devices.show', $device->id) }}">{{ $device->name }}</a>
+                                        @elsecanShow
+                                            {{ $device->name }}
+                                        @endcanShow
+                                        @if(!$loop->last), @endif
                                     @endforeach
                                 </td>
                                 <td>{{ $backup->backup_frequency ? trans("cruds.backup.frequencies.{$backup->backup_frequency}") : '' }}</td>

@@ -94,13 +94,9 @@
                             </td>
                             <td>
                             @if ($patch->type === "SRV")
-                                <a href="{{ route('admin.logical-servers.show', $patch->id) }}">
-                                {{ $patch->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$patch" />
                             @else
-                            <a href="{{ route('admin.applications.show', $patch->id) }}">
-                                {{ $patch->name ?? '' }}
-                            </a>
+                            <x-show-link :model="$patch" />
                             @endif
                             </td>
                             <td>
@@ -115,9 +111,7 @@
                             <td>
                             @if ($patch->type==="SRV")
                               @foreach($patch->applications as $application)
-                                <a href="{{ route('admin.applications.show', $application->id) }}">
-                                  {{ $application->name }}
-                                </a>
+                                <x-show-link :model="$application" />
                                   @if(!$loop->last)
                                   ,
                                   @endif

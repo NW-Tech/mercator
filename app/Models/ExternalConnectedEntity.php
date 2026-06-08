@@ -10,10 +10,12 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\ExternalConnectedEntity
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ExternalConnectedEntity extends Model implements HasIconContract, HasPrefix
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'external_connected_entities';
 
@@ -83,5 +86,11 @@ class ExternalConnectedEntity extends Model implements HasIconContract, HasPrefi
     public function documents(): BelongsToMany
     {
         return $this->belongsToMany(Document::class);
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel2(Builder $query): Builder
+    {
+        return $query->whereNotNull('type')->whereNotNull('contacts');
     }
 }

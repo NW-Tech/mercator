@@ -84,7 +84,7 @@
     </div>
 </div>
 <div class="report-scroll-area">
-@can('application_block_access')
+@canAccess(App\Models\ApplicationBlock::class)
     @if ($applicationBlocks->count()>0)
         <br>
         <div class="card">
@@ -109,7 +109,7 @@
     @endif
 @endcan
 
-@can('application_access')
+@canAccess(App\Models\Application::class)
     @if ($applications->count()>0)
         <br>
         <div class="card">
@@ -134,7 +134,7 @@
     @endif
 @endcan
 
-@can('application_service_access')
+@canAccess(App\Models\ApplicationService::class)
     @if ($applicationServices->count()>0)
         <br>
         <div class="card">
@@ -159,7 +159,7 @@
     @endif
 @endcan
 
-@can('application_module_access')
+@canAccess(App\Models\ApplicationModule::class)
     @if ($applicationModules->count()>0)
         <br>
         <div class="card">
@@ -184,7 +184,7 @@
     @endif
 @endcan
 
-@can('database_access')
+@canAccess(App\Models\Database::class)
     @if ($databases->count()>0)
         <br>
         <div class="card">
@@ -209,7 +209,7 @@
     @endif
 @endcan
 
-@can('flux_access')
+@canAccess(App\Models\ApplicationFlow::class)
     @if ($flows->count()>0)
         <br>
         <div class="card">
@@ -241,52 +241,47 @@
 @vite(['resources/js/graphviz.js'])
 <script>
 const dotSrc = `digraph  {
-@can('application_block_access')
-    @foreach($applicationBlocks as $ab)
-    AB{{ $ab->id }} [label="{{ $ab->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationblock.png" href="#{{$ab->getUID()}}"]
-    @endforeach
-@endcan
 
-@can('application_access')
-    @foreach($applications as $application)
-    A{{ $application->id }} [label="{{ $application->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $application->icon_id === null ? '/images/application.png' : route('admin.documents.show', $application->icon_id) }}" href="#{{$application->getUID()}}"]
-    @can('application_service_access')
-    @foreach($application->services as $service)
-        A{{ $application->id }} -> AS{{ $service->id}}
-    @endforeach
-    @endcan
-    @can('database_access')
-    @foreach($application->databases as $database)
-        A{{ $application->id }} -> DB{{ $database->id}}
-    @endforeach
-    @endcan
-    @can('application_block_access')
-    @if ($application->application_block_id!=null)
-        AB{{ $application->application_block_id }} -> A{{ $application->id}}
+@foreach($applicationBlocks as $ab)
+AB{{ $ab->id }} [label="{{ $ab->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationblock.png" href="#{{$ab->getUID()}}"]
+@endforeach
+
+@foreach($applications as $application)
+A{{ $application->id }} [label="{{ $application->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $application->icon_id === null ? '/images/application.png' : route('admin.documents.show', $application->icon_id) }}" href="#{{$application->getUID()}}"]
+
+@foreach($application->services as $service)
+    @if($applicationServices->contains('id', $service->id))
+    A{{ $application->id }} -> AS{{ $service->id}}
     @endif
-    @endcan
-    @endforeach
-@endcan
-@can('application_service_access')
-    @foreach($applicationServices as $service)
-    AS{{ $service->id }} [label="{{ $service->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationservice.png" href="#{{$service->getUID()}}"]
-    @can('application_module_access')
-    @foreach($service->modules as $module)
-        AS{{ $service->id }} -> M{{$module->id}}
-    @endforeach
-    @endcan
-    @endforeach
-@endcan
-@can('application_module_access')
-    @foreach($applicationModules as $module)
-    M{{ $module->id }} [label="{{ $module->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationmodule.png" href="#{{$module->getUID()}}"]
-    @endforeach
-@endcan
-@can('database_access')
-    @foreach($databases as $database)
-    DB{{ $database->id }} [label="{{ $database->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $database->icon_id === null ? '/images/database.png' : route('admin.documents.show', $database->icon_id) }}" href="#{{$database->getUID()}}"]
-    @endforeach
-@endcan
+@endforeach
+
+@foreach($application->databases as $database)
+    @if($databases->contains('id', $database->id))
+    A{{ $application->id }} -> DB{{ $database->id}}
+    @endif
+@endforeach
+
+@if ($application->application_block_id!=null && $applicationBlocks->contains('id', $application->application_block_id))
+    AB{{ $application->application_block_id }} -> A{{ $application->id}}
+@endif
+
+@foreach($applicationServices as $service)
+AS{{ $service->id }} [label="{{ $service->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationservice.png" href="#{{$service->getUID()}}"]
+@foreach($service->modules as $module)
+    @if($applicationModules->contains('id', $module->id))
+    AS{{ $service->id }} -> M{{$module->id}}
+    @endif
+@endforeach
+@endforeach
+@endforeach
+
+@foreach($applicationModules as $module)
+M{{ $module->id }} [label="{{ $module->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/applicationmodule.png" href="#{{$module->getUID()}}"]
+@endforeach
+
+@foreach($databases as $database)
+DB{{ $database->id }} [label="{{ $database->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $database->icon_id === null ? '/images/database.png' : route('admin.documents.show', $database->icon_id) }}" href="#{{$database->getUID()}}"]
+@endforeach
 }`;
 
 document.addEventListener('graphvizReady', () => {
@@ -301,14 +296,14 @@ document.addEventListener('graphvizReady', () => {
                 { path: "/images/applicationservice.png", width: "64px", height: "64px" },
                 { path: "/images/applicationmodule.png",  width: "64px", height: "64px" },
                 { path: "/images/database.png",           width: "64px", height: "64px" },
-                @can('application_access')
+                @canAccess(App\Models\Application::class)
                 @foreach($applications as $application)
                 @if ($application->icon_id !== null)
                 { path: "{{ route('admin.documents.show', $application->icon_id) }}", width: "64px", height: "64px" },
                 @endif
                 @endforeach
                 @endcan
-                @can('database_access')
+                @canAccess(App\Models\Database::class)
                 @foreach($databases as $database)
                 @if ($database->icon_id !== null)
                 { path: "{{ route('admin.documents.show', $database->icon_id) }}", width: "64px", height: "64px" },

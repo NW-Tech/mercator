@@ -55,7 +55,7 @@
 </div>
 
 <div class="report-scroll-area">
-    @can('zone_admin_access')
+    @canAccess(App\Models\ZoneAdmin::class)
         @if ($zones->count()>0)
             <br>
             <div class="card">
@@ -80,7 +80,7 @@
         @endif
     @endcan
 
-    @can('annuaire_access')
+    @canAccess(App\Models\Annuaire::class)
         @if ($annuaires->count()>0)
             <br>
             <div class="card">
@@ -105,7 +105,7 @@
         @endif
     @endcan
 
-    @can('forest_ad_access')
+    @canAccess(App\Models\ForestAd::class)
         @if ($forests->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -129,7 +129,7 @@
         @endif
     @endcan
 
-    @can('domaine_ad_access')
+    @canAccess(App\Models\Domain::class)
         @if ($domains->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -151,7 +151,7 @@
             </div>
         @endif
     @endcan
-    @can('admin_user_access')
+    @canAccess(App\Models\AdminUser::class)
         @if ($adminUsers->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -185,10 +185,14 @@ digraph  {
 @foreach($zones as $zone)
 Z{{ $zone->id }} [label="{{ $zone->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/zoneadmin.png" href="#{{$zone->getUID()}}"]
 @foreach($zone->annuaires as $annuaire)
+@if($annuaires->contains('id', $annuaire->id))
 Z{{ $zone->id }} -> A{{$annuaire->id}}
+@endif
 @endforeach
 @foreach($zone->forestAds as $forest)
+@if($forests->contains('id', $forest->id))
 Z{{ $zone->id }} -> F{{$forest->id}}
+@endif
 @endforeach
 @endforEach
 @foreach($annuaires as $annuaire)
@@ -197,15 +201,17 @@ A{{ $annuaire->id }} [label="{{ $annuaire->name }}" shape=none labelloc="b"  wid
 @foreach($forests as $forest)
 F{{ $forest->id }} [label="{{ $forest->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/ldap.png" href="#{{$forest->getUID()}}"]
 @foreach($forest->domains as $domain)
+@if($domains->contains('id', $domain->id))
 F{{ $forest->id }} -> D{{ $domain->id }}
+@endif
 @endforeach
 @endforeach
 @foreach($domains as $domain)
 D{{ $domain->id }} [label="{{ $domain->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/domain.png" href="#{{$domain->getUID()}}"]
 @endforeach
-@can('admin_user_access')
+@canAccess(App\Models\AdminUser::class)
 @foreach($adminUsers as $user)
-@if ($user->domain_id!==null)
+@if ($user->domain_id!==null && $domains->contains('id', $user->domain_id))
 U{{$user->id}} [label="{{ $user->user_id }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/user.png" href="#{{$user->getUID()}}"]
 D{{$user->domain_id}} -> U{{$user->id}}
 @endif

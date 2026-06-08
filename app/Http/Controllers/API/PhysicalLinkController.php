@@ -36,14 +36,14 @@ class PhysicalLinkController extends APIController
 
     public function show(PhysicalLink $physicalLink)
     {
-        abort_if(Gate::denies('physical_link_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalLink), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($physicalLink);
     }
 
     public function update(UpdatePhysicalLinkRequest $request, PhysicalLink $physicalLink)
     {
-        abort_if(Gate::denies('physical_link_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalLink), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalLink->update($request->all());
 

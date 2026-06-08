@@ -17,7 +17,11 @@ class PhoneController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('phone_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('phone_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Phone::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $phones = Phone::query()
             ->when(request('search'), function ($q, $search) {
@@ -28,7 +32,8 @@ class PhoneController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.phones.index', compact('phones'));
     }
@@ -81,7 +86,7 @@ class PhoneController extends Controller
 
     public function edit(Phone $phone)
     {
-        abort_if(Gate::denies('phone_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $phone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = Site::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = Building::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
@@ -98,6 +103,8 @@ class PhoneController extends Controller
 
     public function update(UpdatePhoneRequest $request, Phone $phone)
     {
+        abort_if(Gate::denies('edit-object', $phone), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $phone->update($request->all());
 
         return redirect()->route('admin.phones.index');
@@ -105,7 +112,7 @@ class PhoneController extends Controller
 
     public function show(Phone $phone)
     {
-        abort_if(Gate::denies('phone_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $phone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $phone->load('site', 'building');
 

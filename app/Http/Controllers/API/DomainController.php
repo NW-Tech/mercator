@@ -19,14 +19,14 @@ class DomainController extends APIController
 
     public function index(Request $request)
     {
-        abort_if(Gate::denies('domaine_ad_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('domain_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return $this->indexResource($request);
     }
 
     public function store(StoreDomainRequest $request)
     {
-        abort_if(Gate::denies('domaine_ad_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('domain_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         /** @var Domain $domain */
         $domain = Domain::create($request->all());
@@ -40,14 +40,14 @@ class DomainController extends APIController
 
     public function show(Domain $domain)
     {
-        abort_if(Gate::denies('domaine_ad_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $domain), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($domain);
     }
 
     public function update(UpdateDomainRequest $request, Domain $domain)
     {
-        abort_if(Gate::denies('domaine_ad_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $domain), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $domain->update($request->all());
 
@@ -60,7 +60,7 @@ class DomainController extends APIController
 
     public function destroy(Domain $domain)
     {
-        abort_if(Gate::denies('domaine_ad_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('domain_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $domain->delete();
 
@@ -69,7 +69,7 @@ class DomainController extends APIController
 
     public function massDestroy(MassDestroyDomainRequest $request)
     {
-        abort_if(Gate::denies('domaine_ad_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('domain_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         Domain::whereIn('id', $request->input('ids', []))->delete();
 
@@ -78,7 +78,7 @@ class DomainController extends APIController
 
     public function massStore(MassStoreDomainRequest $request)
     {
-        // L’authorize() du FormRequest gère déjà domaine_ad_create
+        // L’authorize() du FormRequest gère déjà domain_create
         $data       = $request->validated();
         $createdIds = [];
 
@@ -113,7 +113,7 @@ class DomainController extends APIController
 
     public function massUpdate(MassUpdateDomainRequest $request)
     {
-        // L’authorize() du FormRequest gère déjà domaine_ad_edit
+        // L’authorize() du FormRequest gère déjà domain_edit
         $data     = $request->validated();
         $model    = new Domain();
         $fillable = $model->getFillable();

@@ -36,14 +36,14 @@ class RelationController extends APIController
 
     public function show(Relation $relation)
     {
-        abort_if(Gate::denies('relation_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $relation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($relation);
     }
 
     public function update(UpdateRelationRequest $request, Relation $relation)
     {
-        abort_if(Gate::denies('relation_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $relation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $relation->update($request->all());
 

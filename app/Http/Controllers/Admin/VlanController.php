@@ -17,7 +17,11 @@ class VlanController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('vlan_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('vlan_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Vlan::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $vlans = Vlan::with('subnetworks')
             ->when(request('search'), function ($q, $search) {
@@ -28,7 +32,8 @@ class VlanController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.vlans.index', compact('vlans'));
     }
@@ -78,6 +83,8 @@ class VlanController extends Controller
 
     public function update(UpdateVlanRequest $request, Vlan $vlan)
     {
+        abort_if(Gate::denies('edit-object', $vlan), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $vlan->update($request->all());
 
         DB::table('subnetworks')
@@ -93,7 +100,7 @@ class VlanController extends Controller
 
     public function edit(Vlan $vlan)
     {
-        abort_if(Gate::denies('vlan_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $vlan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $vlan->load('subnetworks');
 
@@ -104,7 +111,7 @@ class VlanController extends Controller
 
     public function show(Vlan $vlan)
     {
-        abort_if(Gate::denies('vlan_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $vlan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $vlan->load('subnetworks');
 

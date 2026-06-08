@@ -36,14 +36,14 @@ class SubnetworkController extends APIController
 
     public function show(Subnetwork $subnetwork)
     {
-        abort_if(Gate::denies('subnetwork_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $subnetwork), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($subnetwork);
     }
 
     public function update(UpdateSubnetworkRequest $request, Subnetwork $subnetwork)
     {
-        abort_if(Gate::denies('subnetwork_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $subnetwork), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $subnetwork->update($request->all());
 

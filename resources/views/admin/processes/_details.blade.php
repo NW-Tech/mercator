@@ -11,7 +11,11 @@
             </th>
             <td colspan="1">
                 @if ($withLink)
+                @canShow($process)
                 <a href="{{ route('admin.processes.show', $process->id) }}">{{ $process->name }}</a>
+                @elsecanShow
+                {{ $process->name }}
+                @endcanShow
                 @else
                 {{ $process->name }}
                 @endif
@@ -21,9 +25,13 @@
             </th>
             <td colspan="2">
                 @if($process->macroProcess!=null)
-                    <a href="{{ route('admin.macro-processuses.show', $process->macroProcess->id) }}">
+                    @canShow($process->macroProcess)
+                        <a href="{{ route('admin.macro-processuses.show', $process->macroProcess->id) }}">
+                            {{ $process->macroProcess->name }}
+                        </a>
+                    @elsecanShow
                         {{ $process->macroProcess->name }}
-                    </a>
+                    @endcanShow
                 @endif
             </td>
         </tr>
@@ -100,68 +108,92 @@
             </td>
         </tr>
 
+        @canAccess(App\Models\Activity::class)
         <tr>
             <th>
                 {{ trans('cruds.process.fields.activities') }}
             </th>
             <td colspan="5">
                 @foreach($process->activities as $activity)
-                    <a href="{{ route('admin.activities.show', $activity->id) }}">
-                    {{ $activity->name }}
-                    </a>
+                    @canShow($activity)
+                        <a href="{{ route('admin.activities.show', $activity->id) }}">
+                        {{ $activity->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $activity->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
 
+        @canAccess(App\Models\Entity::class)
         <tr>
             <th>
                 {{ trans('cruds.process.fields.entities') }}
             </th>
             <td colspan="5">
                 @foreach($process->entities as $entity)
-                    <a href="{{ route('admin.entities.show', $entity->id) }}">
-                    {{ $entity->name }}
-                    </a>
+                    @canShow($entity)
+                        <a href="{{ route('admin.entities.show', $entity->id) }}">
+                        {{ $entity->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $entity->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Information::class)
         <tr>
             <th>
                 {{ trans('cruds.process.fields.informations') }}
             </th>
             <td colspan="5">
                 @foreach($process->information as $info)
-                    <a href="{{ route('admin.information.show', $info->id) }}">
-                    {{ $info->name }}
-                    </a>
+                    @canShow($info)
+                        <a href="{{ route('admin.information.show', $info->id) }}">
+                        {{ $info->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $info->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
 
+        @canAccess(App\Models\Application::class)
         <tr>
             <th>
                 {{ trans('cruds.process.fields.applications') }}
             </th>
             <td colspan="5">
                 @foreach($process->applications as $application)
-                    <a href="{{ route('admin.applications.show', $application->id) }}">
-                    {{ $application->name }}
-                    </a>
+                    @canShow($application)
+                        <a href="{{ route('admin.applications.show', $application->id) }}">
+                        {{ $application->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $application->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
         @if($process->graphs()->count()>0)
         <tr>
             <th>
@@ -182,9 +214,13 @@
             </th>
             <td colspan="5" style="vertical-align: middle;">
                 @foreach($process->graphs() as $graph)
-                    <a href="{{ route('admin.bpmn.show', $graph->id) }}">
-                    {{ $graph->name }}
-                    </a>
+                    @canShow($graph)
+                        <a href="{{ route('admin.bpmn.show', $graph->id) }}">
+                            {{ $graph->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $graph->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif

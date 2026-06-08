@@ -32,6 +32,8 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\LicenseWarning::class,
             \App\Http\Middleware\SecurityHeaders::class,
             \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class, // ✅
+            \App\Http\Middleware\RefreshCartographerPermissions::class,
+            \App\Http\Middleware\RefreshRolePermissions::class,
         ]);
 
 

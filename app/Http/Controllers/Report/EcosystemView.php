@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Gate;
 use Illuminate\Http\Request;
 use App\Models\Entity;
@@ -20,13 +21,14 @@ class EcosystemView extends Controller
     */
     public function generate(Request $request)
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([Entity::class, Relation::class]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $perimeter = in_array($request->perimeter, $this::ALLOWED_PERIMETERS) ?
                    $request->perimeter : $this::SANITIZED_PERIMETER;
         $typeFilter = $request->entity_type ??= 'All';
 
-        $entitiesGroups = Entity::All()->groupBy('entity_type');
+        $entitiesGroups = Cartographer::scopedQuery(Entity::query())->get()->groupBy('entity_type');
         $entities = collect([]);
         $entityTypes = collect([]);
         $isTypeExists = false; /* sanitize entity_type: si type inconnu pas d'entités */
@@ -53,7 +55,7 @@ class EcosystemView extends Controller
                 });
         }
 
-        $relations = Relation::All()->sortBy('name');
+        $relations = Cartographer::scopedQuery(Relation::query())->orderBy('name')->get();
         if ($has_filter) {
             /**
              * Le "group by" semble résoudre les entités on doit travailler avec les ids ..

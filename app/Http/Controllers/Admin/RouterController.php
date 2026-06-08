@@ -16,7 +16,11 @@ class RouterController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('router_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('router_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Router::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $routers = Router::query()
             ->when(request('search'), function ($q, $search) {
@@ -27,7 +31,8 @@ class RouterController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.routers.index', compact('routers'));
     }
@@ -57,7 +62,7 @@ class RouterController extends Controller
 
     public function edit(Router $router)
     {
-        abort_if(Gate::denies('router_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $router), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $network_switches = NetworkSwitch::orderBy('name')->pluck('name', 'id');
         $physical_routers = PhysicalRouter::all()->sortBy('name')->pluck('name', 'id');
@@ -72,6 +77,8 @@ class RouterController extends Controller
 
     public function update(UpdateRouterRequest $request, Router $router)
     {
+        abort_if(Gate::denies('edit-object', $router), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $router->update($request->all());
 
         $router->physicalRouters()->sync($request->input('physicalRouters', []));
@@ -81,7 +88,7 @@ class RouterController extends Controller
 
     public function show(Router $router)
     {
-        abort_if(Gate::denies('router_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $router), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.routers.show', compact('router'));
     }

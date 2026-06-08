@@ -36,14 +36,14 @@ class TaskController extends APIController
 
     public function show(Task $task)
     {
-        abort_if(Gate::denies('task_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $task), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($task);
     }
 
     public function update(UpdateTaskRequest $request, Task $task)
     {
-        abort_if(Gate::denies('task_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $task), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $task->update($request->all());
 

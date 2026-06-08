@@ -2,8 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Gate;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateRelationRequest extends BaseFormRequest
 {
@@ -11,9 +9,7 @@ class UpdateRelationRequest extends BaseFormRequest
 
     public function authorize() : bool
     {
-        abort_if(Gate::denies('relation_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array

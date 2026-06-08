@@ -47,3 +47,9 @@ Schedule::command('license:check')
     ->withoutOverlapping(60)
     ->runInBackground();
 
+Schedule::command('mercator:remind-cartographers')
+    ->name('remind-cartographers-daily')
+    ->daily()
+    ->withoutOverlapping()
+    ->runInBackground();
+

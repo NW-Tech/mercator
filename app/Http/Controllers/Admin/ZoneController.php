@@ -16,7 +16,11 @@ class ZoneController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('zone_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('zone_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Zone::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $zones = Zone::with('parentZones', 'childZones')
             ->when(request('search'), function ($q, $search) {
@@ -27,7 +31,8 @@ class ZoneController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.zones.index', compact('zones'));
     }
@@ -59,7 +64,7 @@ class ZoneController extends Controller
 
     public function edit(Zone $zone)
     {
-        abort_if(Gate::denies('zone_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $zone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $zones           = Zone::orderBy('name')->pluck('name', 'id');
         $buildings       = Building::orderBy('name')->pluck('name', 'id');
@@ -73,6 +78,8 @@ class ZoneController extends Controller
 
     public function update(UpdateZoneRequest $request, Zone $zone)
     {
+        abort_if(Gate::denies('edit-object', $zone), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $request['attributes'] = implode(' ', $request->input('attributes') ?? []);
         $zone->update($request->only(['name', 'type', 'attributes', 'description']));
         $zone->parentZones()->sync($request->input('parentZones', []));
@@ -85,7 +92,7 @@ class ZoneController extends Controller
 
     public function show(Zone $zone)
     {
-        abort_if(Gate::denies('zone_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $zone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $zone->load('parentZones', 'childZones', 'buildings', 'adminUsers');
 

@@ -79,9 +79,7 @@
                             </td>
             			    <td>
 
-                				<a href="{{ route('admin.relations.show', $relation->id) }}">
-                				{{ $relation->name ?? '' }}
-                				</a>
+                				<x-show-link :model="$relation" />
                             </td>
                             <td>
                                 {{ $relation->type ?? '' }}
@@ -110,16 +108,12 @@
                             </td>
                             <td>
                                 @if ($relation->source!=null)
-                                <a href="{{ route('admin.entities.show', $relation->source->id) }}">
-                                    {{ $relation->source->name }}
-                                </a>
+                                <x-show-link :model="$relation->source" />
                                 @endif
                             </td>
                             <td>
                                 @if ($relation->destination!=null)
-                                <a href="{{ route('admin.entities.show', $relation->destination->id) }}">
-                                    {{ $relation->destination->name }}
-                                </a>
+                                <x-show-link :model="$relation->destination" />
                                 @endif
                             </td>
                             <td>
@@ -149,11 +143,11 @@
                                     </a>
                                 @endcan
 
-                                @can('relation_edit')
+                                @canEdit($relation)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.relations.edit', $relation->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('relation_delete')
                                     <form action="{{ route('admin.relations.destroy', $relation->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

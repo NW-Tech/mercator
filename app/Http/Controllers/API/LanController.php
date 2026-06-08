@@ -44,7 +44,7 @@ class LanController extends APIController
 
     public function show(Lan $lan)
     {
-        abort_if(Gate::denies('lan_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $lan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $lan['mans'] = $lan->mans()->pluck('id');
         $lan['wans'] = $lan->wans()->pluck('id');
@@ -54,7 +54,7 @@ class LanController extends APIController
 
     public function update(UpdateLanRequest $request, Lan $lan)
     {
-        abort_if(Gate::denies('lan_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $lan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $lan->update($request->all());
 

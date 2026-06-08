@@ -42,17 +42,15 @@
                             data-type="{{ e($graph->type) }}">
                             <td></td>
                             <td>
-                            <a href="{{ route('admin.graphs.show', $graph->id) }}">
-                                {{ $graph->name ?? '' }}
-                                </a>
+                            <x-show-link :model="$graph" />
                             </td>
                             <td>{{ $graph->type ?? '' }}</td>
                             <td class="text-end" nowrap>
-                                @can('graph_edit')
+                                @canEdit($graph)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.graphs.edit', $graph->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('graph_delete')
                                     <form action="{{ route('admin.graphs.destroy', $graph->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

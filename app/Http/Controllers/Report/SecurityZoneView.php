@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use App\Models\Zone;
 use Gate;
 use Illuminate\Http\Request;
@@ -12,7 +13,8 @@ class SecurityZoneView extends Controller
 {
     public function generate(Request $request)
     {
-        abort_if(Gate::denies('zone_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('zone_access') || Cartographer::canAccess(\App\Models\Zone::class);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->has('filter')) {
             $selectedIds = array_values(array_filter(array_map('intval', (array) $request->input('zones', []))));
@@ -22,9 +24,9 @@ class SecurityZoneView extends Controller
             $selectedIds = is_array($raw) ? $raw : [];
         }
 
-        $allZones = Zone::orderBy('name')->pluck('name', 'id');
+        $allZones = Cartographer::scopedQuery(Zone::query())->orderBy('name')->pluck('name', 'id');
 
-        $query = Zone::with('parentZones', 'childZones', 'buildings', 'adminUsers')->orderBy('name');
+        $query = Cartographer::scopedQuery(Zone::with('parentZones', 'childZones', 'buildings', 'adminUsers')->orderBy('name'));
         if (!empty($selectedIds)) {
             $query->whereIn('id', $selectedIds);
         }

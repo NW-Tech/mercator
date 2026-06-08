@@ -36,14 +36,14 @@ class PhoneController extends APIController
 
     public function show(Phone $phone)
     {
-        abort_if(Gate::denies('phone_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $phone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($phone);
     }
 
     public function update(UpdatePhoneRequest $request, Phone $phone)
     {
-        abort_if(Gate::denies('phone_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $phone), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $phone->update($request->all());
 

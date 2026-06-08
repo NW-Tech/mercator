@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AuditLog;
+use App\Models\Cartographer;
 use Gate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -75,16 +76,42 @@ class AuditLogsController extends Controller
 
     public function show(AuditLog $auditLog)
     {
-        abort_if(Gate::denies('audit_log_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        if (Gate::denies('audit_log_show')) {
+            $user    = auth()->user();
+            $roleIds = $user->roles()->pluck('roles.id');
+
+            $isCartographer = Cartographer::where('cartographiable_type', $auditLog->subject_type)
+                ->where('cartographiable_id', $auditLog->subject_id)
+                ->where(function ($q) use ($user, $roleIds) {
+                    $q->where('user_id', $user->id)
+                      ->orWhereIn('role_id', $roleIds);
+                })
+                ->exists();
+
+            abort_if(! $isCartographer, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         return view('admin.auditLogs.show', compact('auditLog'));
     }
 
     public function history(Request $request)
     {
-        abort_if(Gate::denies('audit_log_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
         abort_if(($request->id === null) || ($request->type === null), 500, '500 missing parameters');
+
+        if (Gate::denies('audit_log_show')) {
+            $user    = auth()->user();
+            $roleIds = $user->roles()->pluck('roles.id');
+
+            $isCartographer = Cartographer::where('cartographiable_type', $request->type)
+                ->where('cartographiable_id', $request->id)
+                ->where(function ($q) use ($user, $roleIds) {
+                    $q->where('user_id', $user->id)
+                      ->orWhereIn('role_id', $roleIds);
+                })
+                ->exists();
+
+            abort_if(! $isCartographer, Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         // Get the list
         $auditLogs =

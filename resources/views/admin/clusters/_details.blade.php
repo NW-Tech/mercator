@@ -11,7 +11,11 @@
         </th>
         <td colspan="2">
         @if($withLink)
+            @canShow($cluster)
             <a href="{{ route('admin.clusters.show', $cluster->id) }}">{{ $cluster->name }}</a>
+            @elsecanShow
+            {{ $cluster->name }}
+            @endcanShow
         @else
             {{ $cluster->name }}
         @endif
@@ -58,41 +62,57 @@
             {{ $cluster->address_ip }}
         </td>
     </tr>
+    @canAccessAny(App\Models\LogicalServer::class, App\Models\Router::class)
     <tr>
         <th>
             {{ trans('cruds.cluster.fields.logical_servers') }} / {{ 'Routers' }}
         </th>
         <td colspan="2">
             @foreach($cluster->logicalServers as $server)
-                <a href="{{ route('admin.logical-servers.show', $server->id) }}">
+                @canShow($server)
+                    <a href="{{ route('admin.logical-servers.show', $server->id) }}">
+                        {{ $server->name }}
+                    </a>
+                @elsecanShow
                     {{ $server->name }}
-                </a>
+                @endcanShow
                 <br>
             @endforeach
             @foreach($cluster->routers as $router)
-                <a href="{{ route('admin.routers.show', $router->id) }}">
+                @canShow($router)
+                    <a href="{{ route('admin.routers.show', $router->id) }}">
+                        {{ $router->name }}
+                    </a>
+                @elsecanShow
                     {{ $router->name }}
-                </a>
+                @endcanShow
                 @if(!$loop->last)
                     <br>
                 @endif
             @endforeach
         </td>
     </tr>
+    @endcanAccessAny
+    @canAccess(App\Models\PhysicalServer::class)
     <tr>
         <th>
             {{ trans('cruds.cluster.fields.physical_servers') }}
         </th>
         <td colspan="2">
             @foreach($cluster->physicalServers as $server)
-                <a href="{{ route('admin.physical-servers.show', $server->id) }}">
+                @canShow($server)
+                    <a href="{{ route('admin.physical-servers.show', $server->id) }}">
+                        {{ $server->name }}
+                    </a>
+                @elsecanShow
                     {{ $server->name }}
-                </a>
+                @endcanShow
                 @if(!$loop->last)
                     <br>
                 @endif
             @endforeach
         </td>
     </tr>
+    @endcanAccess
     </tbody>
 </table>

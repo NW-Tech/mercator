@@ -10,9 +10,11 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\MacroProcessus
@@ -20,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class MacroProcessus extends Model implements HasPrefix, HasIconContract
 {
     use Auditable, HasIcon, HasFactory, HasUniqueIdentifier, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'macro_processuses';
 
@@ -64,5 +67,23 @@ class MacroProcessus extends Model implements HasPrefix, HasIconContract
     public function processes(): HasMany
     {
         return $this->hasMany(Process::class, 'macroprocess_id', 'id')->orderBy('name');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel2(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereNotNull('io_elements')
+            ->whereNotNull('security_need_c')
+            ->whereNotNull('security_need_i')
+            ->whereNotNull('security_need_a')
+            ->whereNotNull('security_need_t');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel3(Builder $query): Builder
+    {
+        return $query->maturityLevel2()->whereNotNull('owner');
     }
 }

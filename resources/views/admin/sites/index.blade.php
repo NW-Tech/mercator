@@ -53,18 +53,14 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.sites.show', $site->id) }}">
-                                    {{ $site->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$site" />
                             </td>
                             <td>
                                 {!! $site->description ?? '' !!}
                             </td>
                             <td>
                                 @foreach($site->buildings as $building)
-                                    <a href="{{ route('admin.buildings.show', $building->id) }}">
-                                        {{ $building->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$building" />
                                     @if ($site->buildings->last()!=$building)
                                         ,
                                     @endif
@@ -77,11 +73,11 @@
                                     </a>
                                 @endcan
 
-                                @can('site_edit')
+                                @canEdit($site)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.sites.edit', $site->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('site_delete')
                                     <form action="{{ route('admin.sites.destroy', $site->id) }}" method="POST"

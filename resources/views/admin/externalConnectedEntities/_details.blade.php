@@ -11,7 +11,11 @@
         </th>
         <td>
         @if($withLink)
-        <a href="{{ route('admin.external-connected-entities.show', $externalConnectedEntity) }}">{{ $externalConnectedEntity->name }}</a>
+            @canShow($externalConnectedEntity)
+                <a href="{{ route('admin.external-connected-entities.show', $externalConnectedEntity) }}">{{ $externalConnectedEntity->name }}</a>
+            @elsecanShow
+                {{ $externalConnectedEntity->name }}
+            @endcanShow
         @else
             {{ $externalConnectedEntity->name }}
         @endif

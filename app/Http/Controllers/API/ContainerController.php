@@ -40,7 +40,7 @@ class ContainerController extends APIController
 
     public function show(Container $container)
     {
-        abort_if(Gate::denies('container_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $container), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $container['logical_servers'] = $container->logicalServers()->pluck('id');
         $container['applications'] = $container->applications()->pluck('id');
@@ -51,7 +51,7 @@ class ContainerController extends APIController
 
     public function update(UpdateContainerRequest $request, Container $container)
     {
-        abort_if(Gate::denies('container_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $container), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $container->update($request->all());
 

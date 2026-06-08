@@ -10,7 +10,11 @@
             </th>
             <td colspan="3">
             @if ($withLink)
+                @canShow($adminUser)
                 <a href="{{ route('admin.admin-users.show', $adminUser->id) }}">{{ $adminUser->user_id }}</a>
+                @elsecanShow
+                {{ $adminUser->user_id }}
+                @endcanShow
             @else
                 {{ $adminUser->user_id }}
             @endif
@@ -47,18 +51,22 @@
                 @endphp
             </td>
         </tr>
+        @canAccess(App\Models\Domain::class)
         <tr>
             <th>
                 {{ trans('cruds.adminUser.fields.domain') }}
             </th>
             <td>
                 @if ($adminUser->domain_id !== null)
-                    <a href="{{ route('admin.domains.show', $adminUser->domain_id) }}">
+                    @canShow($adminUser->domain)
+                        <a href="{{ route('admin.domains.show', $adminUser->domain_id) }}">{{ $adminUser->domain->name }}</a>
+                    @elsecanShow
                         {{ $adminUser->domain->name }}
-                    </a>
+                    @endcanShow
                 @endif
             </td>
         </tr>
+        @endcanAccess
         <tr>
             <th>
                 <dt>{{ trans('cruds.adminUser.fields.description') }}</dt>

@@ -17,37 +17,46 @@
     <hr>
 
     <?php
-    // Activer l'affichage des erreurs pour le débogage
-    ini_set('display_errors', 1);
-    ini_set('display_startup_errors', 1);
-    error_reporting(E_ALL);
+    // --- Environnement applicatif ---
+    $memoryUsed  = round(memory_get_usage(true) / 1048576, 1);
+    $memoryPeak  = round(memory_get_peak_usage(true) / 1048576, 1);
+    $memoryLimit = ini_get('memory_limit');
 
-    use Carbon\Carbon;
+    $diskFreeBytes  = disk_free_space(base_path());
+    $diskTotalBytes = disk_total_space(base_path());
+    $diskFreeGb     = $diskFreeBytes  !== false ? round($diskFreeBytes  / 1073741824, 1) : null;
+    $diskTotalGb    = $diskTotalBytes !== false ? round($diskTotalBytes / 1073741824, 1) : null;
 
-    // Fonction pour tester le parsing de date
-    function testDateParsing($dateString) {
-        try {
-            $date = Carbon::createFromFormat('Y/m/d', $dateString);
-            echo "Date parsée avec succès : " . $date->toDateTimeString() . "<br>";
-        } catch (Exception $e) {
-            echo "Erreur lors du parsing de la date : " . $e->getMessage() . "<br>";
-        }
-    }
-
-    // Exemple de chaînes de date à tester
-    $dateStrings = [
-        '2023/10/05 11:23:00',
-        '2025/02/28 02:12:11',
-        '2021/02/01',
-    ];
-
-    foreach ($dateStrings as $dateString) {
-        echo "Test de la chaîne de date : " . htmlspecialchars($dateString) . "<br>";
-        testDateParsing($dateString);
-        echo "<hr>";
-    }
-
+    $appVersion = trim(file_exists(base_path('version.txt')) ? file_get_contents(base_path('version.txt')) : 'N/A');
     ?>
+
+    <strong>Application</strong><br>
+    Version : {{ $appVersion }}<br>
+    Environnement : {{ config('app.env') }}<br>
+    Mode debug : {{ config('app.debug') ? 'activé' : 'désactivé' }}<br>
+
+    <hr>
+
+    <strong>Mémoire PHP</strong><br>
+    Utilisée : {{ $memoryUsed }} Mo<br>
+    Pic d'utilisation : {{ $memoryPeak }} Mo<br>
+    Limite : {{ $memoryLimit }}<br>
+
+    <hr>
+
+    @if($diskFreeGb !== null)
+    <strong>Espace disque</strong><br>
+    Libre : {{ $diskFreeGb }} Go / {{ $diskTotalGb }} Go
+    ({{ $diskTotalGb > 0 ? round(($diskFreeGb / $diskTotalGb) * 100) : '?' }} % disponible)<br>
+    <hr>
+    @endif
+
+    <strong>Drivers configurés</strong><br>
+    Cache : {{ config('cache.default') }}<br>
+    Session : {{ config('session.driver') }}<br>
+    Queue : {{ config('queue.default') }}<br>
+    Base de données : {{ config('database.default') }}<br>
+    Mail : {{ config('mail.default') }}<br>
 
     </div>
 </div>

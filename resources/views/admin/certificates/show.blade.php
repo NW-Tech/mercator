@@ -10,15 +10,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$certificate->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('certificate_edit')
+
+        @endcan
+
+        @canEdit($certificate)
             <a class="btn btn-info" href="{{ route('admin.certificates.edit', $certificate->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('audit_log_show')
             <a class="btn btn-secondary" href="{{ route('admin.audit-logs.history',

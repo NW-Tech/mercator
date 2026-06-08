@@ -80,9 +80,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.information.show', $info->id) }}">
-                                {{ $info->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$info" />
                             </td>
                             <td>
                                 {!! $info->description ?? '' !!}
@@ -165,13 +163,13 @@
                             </td>
                             <td>
                             @foreach($info->parents as $parent)
-                                <a href="{{ route('admin.information.show', $parent->id) }}">{{$parent->name}}</a>
+                                <x-show-link :model="$parent" />
                                 @if(!$loop->last), @endif
                             @endforeach
                             </td>
                             <td>
                             @foreach($info->children as $child)
-                                <a href="{{ route('admin.information.show', $child->id) }}">{{$child->name}}</a>
+                                <x-show-link :model="$child" />
                                 @if(!$loop->last), @endif
                             @endforeach
                             </td>
@@ -182,11 +180,11 @@
                                     </a>
                                 @endcan
 
-                                @can('information_edit')
+                                @canEdit($info)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.information.edit', $info->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('information_delete')
                                     <form action="{{ route('admin.information.destroy', $info->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

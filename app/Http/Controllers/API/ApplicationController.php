@@ -43,7 +43,7 @@ class ApplicationController extends APIController
 
     public function show(Application $application)
     {
-        abort_if(Gate::denies('application_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $application), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $application['entities']       = $application->entities()->pluck('id');
         $application['processes']      = $application->processes()->pluck('id');
@@ -58,7 +58,7 @@ class ApplicationController extends APIController
 
     public function update(UpdateApplicationRequest $request, Application $application)
     {
-        abort_if(Gate::denies('application_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $application), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $application->update($request->all());
 

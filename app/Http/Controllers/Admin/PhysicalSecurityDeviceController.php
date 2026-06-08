@@ -21,7 +21,11 @@ class PhysicalSecurityDeviceController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('physical_security_device_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('physical_security_device_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\PhysicalSecurityDevice::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $physicalSecurityDevices = PhysicalSecurityDevice::query()
             ->when(request('search'), function ($q, $search) {
@@ -32,7 +36,8 @@ class PhysicalSecurityDeviceController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.physicalSecurityDevices.index', compact('physicalSecurityDevices'));
     }
@@ -88,7 +93,7 @@ class PhysicalSecurityDeviceController extends Controller
 
     public function edit(PhysicalSecurityDevice $physicalSecurityDevice)
     {
-        abort_if(Gate::denies('physical_security_device_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalSecurityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = Site::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
         $buildings = Building::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
@@ -121,6 +126,8 @@ class PhysicalSecurityDeviceController extends Controller
 
     public function update(UpdatePhysicalSecurityDeviceRequest $request, PhysicalSecurityDevice $physicalSecurityDevice)
     {
+        abort_if(Gate::denies('edit-object', $physicalSecurityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
 
         // Save icon
@@ -137,7 +144,7 @@ class PhysicalSecurityDeviceController extends Controller
 
     public function show(PhysicalSecurityDevice $physicalSecurityDevice)
     {
-        abort_if(Gate::denies('physical_security_device_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalSecurityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSecurityDevice->load('site', 'building', 'bay');
 

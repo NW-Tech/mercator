@@ -10,15 +10,17 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+    @can('explore_access')
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$link->sourceId()}},{{$link->destinationId()}}">
         {{ trans('global.explore') }}
     </a>
+    @endcan
 
-    @can('physical_link_edit')
+    @canEdit($link)
         <a class="btn btn-info" href="{{ route('admin.links.edit', $link->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('physical_link_delete')
         <form action="{{ route('admin.links.destroy', $link->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

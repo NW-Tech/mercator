@@ -10,10 +10,12 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\ApplicationService
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ApplicationService extends Model implements HasPrefix, HasIconContract
 {
     use Auditable, HasIcon, HasFactory, HasUniqueIdentifier, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'application_services';
 
@@ -83,5 +86,15 @@ class ApplicationService extends Model implements HasPrefix, HasIconContract
     public function applications(): BelongsToMany
     {
         return $this->belongsToMany(Application::class)->orderBy('name');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel2(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereExists(fn ($q) => $q
+                ->from('application_application_service')
+                ->whereColumn('application_application_service.application_service_id', 'application_services.id'));
     }
 }

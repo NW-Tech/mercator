@@ -10,10 +10,12 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\LogicalServer
@@ -21,6 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class LogicalServer extends Model implements HasIconContract, HasPrefix
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'logical_servers';
 
@@ -138,5 +141,26 @@ class LogicalServer extends Model implements HasIconContract, HasPrefix
     public function backups(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Backup::class, 'backup_logical_server');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->where('active', 1)
+            ->whereNotNull('operating_system')
+            ->whereNotNull('environment')
+            ->whereNotNull('address_ip')
+            ->whereExists(fn ($q) => $q
+                ->from('application_logical_server')
+                ->whereColumn('application_logical_server.logical_server_id', 'logical_servers.id'))
+            ->where(fn ($q) => $q
+                ->whereExists(fn ($q1) => $q1
+                    ->from('logical_server_physical_server')
+                    ->whereColumn('logical_server_physical_server.logical_server_id', 'logical_servers.id'))
+                ->orWhereExists(fn ($q2) => $q2
+                    ->from('cluster_logical_server')
+                    ->whereColumn('cluster_logical_server.logical_server_id', 'logical_servers.id')));
     }
 }

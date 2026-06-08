@@ -16,7 +16,11 @@ class WanController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('wan_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('wan_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Wan::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $wans = Wan::query()
             ->when(request('search'), function ($q, $search) {
@@ -27,7 +31,8 @@ class WanController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.wans.index', compact('wans'));
     }
@@ -54,7 +59,7 @@ class WanController extends Controller
 
     public function edit(Wan $wan)
     {
-        abort_if(Gate::denies('wan_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $wan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $mans = Man::all()->sortBy('name')->pluck('name', 'id');
         $lans = Lan::all()->sortBy('name')->pluck('name', 'id');
@@ -65,6 +70,8 @@ class WanController extends Controller
 
     public function update(UpdateWanRequest $request, Wan $wan)
     {
+        abort_if(Gate::denies('edit-object', $wan), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $wan->update($request->all());
         $wan->mans()->sync($request->input('mans', []));
         $wan->lans()->sync($request->input('lans', []));
@@ -74,7 +81,7 @@ class WanController extends Controller
 
     public function show(Wan $wan)
     {
-        abort_if(Gate::denies('wan_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $wan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $wan->load('mans', 'lans');
 

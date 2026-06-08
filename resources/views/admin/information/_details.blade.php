@@ -11,9 +11,13 @@
             </th>
             <td>
             @if ($withLink)
-            <a href="{{ route('admin.information.show', $information->id) }}">{{ $information->name }}</a>
+                @canShow($information)
+                    <a href="{{ route('admin.information.show', $information->id) }}">{{ $information->name }}</a>
+                @elsecanShow
+                    {{ $information->name }}
+                @endcanShow
             @else
-            {{ $information->name }}
+                {{ $information->name }}
             @endif
             </td>
         </tr>
@@ -44,9 +48,13 @@
             </th>
             <td colspan="5" style="vertical-align: middle;">
                 @foreach($information->graphs() as $graph)
-                    <a href="{{ route('admin.bpmn.show', $graph->id) }}">
-                    {{ $graph->name }}
-                    </a>
+                    @canShow($graph)
+                        <a href="{{ route('admin.bpmn.show', $graph->id) }}">
+                            {{ $graph->name }}
+                        </a>
+                    @elsecanShow
+                        {{ $graph->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif

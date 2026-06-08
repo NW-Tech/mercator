@@ -16,7 +16,11 @@ class ApplicationModuleController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('application_module_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('application_module_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\ApplicationModule::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $applicationModules = ApplicationModule::query()
             ->with('entities', 'applicationServices')
@@ -28,7 +32,8 @@ class ApplicationModuleController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.applicationModules.index', compact('applicationModules'));
     }
@@ -56,7 +61,7 @@ class ApplicationModuleController extends Controller
 
     public function edit(ApplicationModule $applicationModule)
     {
-        abort_if(Gate::denies('application_module_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $applicationModule), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $services = ApplicationService::query()->pluck('name', 'id');
         $entities = Entity::query()->pluck('name', 'id');
@@ -67,6 +72,8 @@ class ApplicationModuleController extends Controller
 
     public function update(UpdateApplicationModuleRequest $request, ApplicationModule $applicationModule)
     {
+        abort_if(Gate::denies('edit-object', $applicationModule), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $applicationModule->update($request->all());
 
         $applicationModule->applicationServices()->sync($request->input('services', []));
@@ -77,7 +84,7 @@ class ApplicationModuleController extends Controller
 
     public function show(ApplicationModule $applicationModule)
     {
-        abort_if(Gate::denies('application_module_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $applicationModule), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $applicationModule->load('moduleSourceFluxes', 'moduleDestFluxes', 'applicationServices', 'entities');
 

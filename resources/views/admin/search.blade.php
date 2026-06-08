@@ -52,7 +52,11 @@
             @foreach ($item['fields'] as $field)
                 <td>
                     @if ($loop->first)
-                        <a href="{{ $item['url'] }}">{!! $item['data'][$field] !!}</a>
+                        @canShow($item['instance'])
+                            <a href="{{ $item['url'] }}">{!! $item['data'][$field] !!}</a>
+                        @else
+                            {!! $item['data'][$field] !!}
+                        @endcanShow
                     @else
                         {!! $item['data'][$field] !!}
                     @endif

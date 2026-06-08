@@ -46,7 +46,7 @@ class VlanController extends APIController
 
     public function update(UpdateVlanRequest $request, Vlan $vlan)
     {
-        abort_if(Gate::denies('vlan_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $vlan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $vlan->update($request->all());
 
@@ -65,7 +65,7 @@ class VlanController extends APIController
 
     public function show(Vlan $vlan)
     {
-        abort_if(Gate::denies('vlan_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $vlan), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($vlan);
     }

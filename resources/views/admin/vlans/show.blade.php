@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$vlan->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('vlan_edit')
+
+    @endcan
+
+    @canEdit($vlan)
         <a class="btn btn-info" href="{{ route('admin.vlans.edit', $vlan->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('vlan_create')
         <a class="btn btn-warning" href="{{ route('admin.vlans.clone', $vlan->id) }}">

@@ -11,9 +11,13 @@
             </th>
             <td>
             @if($withLink)
-            <a href="{{ route('admin.dhcp-servers.show', $dhcpServer) }}">{{ $dhcpServer->name }}</a>
+                @canShow($dhcpServer)
+                    <a href="{{ route('admin.dhcp-servers.show', $dhcpServer) }}">{{ $dhcpServer->name }}</a>
+                @elsecanShow
+                    {{ $dhcpServer->name }}
+                @endcanShow
             @else
-            {{ $dhcpServer->name }}
+                {{ $dhcpServer->name }}
             @endif
             </td>
         </tr>

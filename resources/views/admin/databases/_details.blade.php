@@ -10,9 +10,13 @@
             </th>
             <td style="width: 50%;" colspan=3>
             @if ($withLink)
+                @canShow($database)
                 <a href="{{ route('admin.databases.show', $database) }}">
                 {{ $database->name }}
                 </a>
+                @elsecanShow
+                {{ $database->name }}
+                @endcanShow
             @else
                 {{ $database->name }}
             @endif
@@ -64,45 +68,56 @@
                 {{ $database->responsible }}
             </td>
         </tr>
+        @canAccess(App\Models\Information::class)
         <tr>
             <th>
                 {{ trans('cruds.database.fields.informations') }}
             </th>
             <td colspan=6>
                 @foreach($database->informations as $information)
-                    <a href="{{ route('admin.information.show', $information->id) }}">
+                    @canShow($information)
+                        <a href="{{ route('admin.information.show', $information->id) }}">{{ $information->name }}</a>
+                    @elsecanShow
                         {{ $information->name }}
-                    </a>
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Application::class)
         <tr>
             <th>
                 {{ trans('cruds.database.fields.applications') }}
             </th>
             <td colspan=6>
                 @foreach($database->applications as $application)
-                    <a href="{{ route('admin.applications.show', $application->id) }}">
+                    @canShow($application)
+                        <a href="{{ route('admin.applications.show', $application->id) }}">{{ $application->name }}</a>
+                    @elsecanShow
                         {{ $application->name }}
-                    </a>
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\LogicalServer::class)
         <tr>
             <th>
                 {{ trans('cruds.database.fields.logical_servers') }}
             </th>
             <td colspan="3">
                 @foreach($database->logicalServers as $logicalServer)
-                    <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">
+                    @canShow($logicalServer)
+                        <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">{{ $logicalServer->name }}</a>
+                    @elsecanShow
                         {{ $logicalServer->name }}
-                    </a>
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
@@ -115,21 +130,26 @@
                 {{ $database->external }}
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Container::class)
         <tr>
             <th>
                 {{ trans('cruds.database.fields.containers') }}
             </th>
             <td colspan="6">
                 @foreach($database->containers as $container)
-                    <a href="{{ route('admin.containers.show', $container->id) }}">
+                    @canShow($container)
+                        <a href="{{ route('admin.containers.show', $container->id) }}">{{ $container->name }}</a>
+                    @elsecanShow
                         {{ $container->name }}
-                    </a>
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
         <tr>
             <th>
                 {{ trans('cruds.database.fields.security_need') }}

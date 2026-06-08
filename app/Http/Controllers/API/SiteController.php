@@ -36,14 +36,14 @@ class SiteController extends APIController
 
     public function show(Site $site)
     {
-        abort_if(Gate::denies('site_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $site), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($site);
     }
 
     public function update(UpdateSiteRequest $request, Site $site)
     {
-        abort_if(Gate::denies('site_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $site), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $site->update($request->all());
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Gate;
 use Illuminate\Http\Request;
 use App\Models\Bay;
@@ -23,7 +24,13 @@ class PhysicalInfrastructureView extends Controller
 {
     public function generate(Request $request)
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([
+            Site::class, Building::class, Bay::class, PhysicalServer::class,
+            PhysicalSwitch::class, PhysicalRouter::class, Workstation::class,
+            StorageDevice::class, Peripheral::class, Phone::class,
+            WifiTerminal::class, PhysicalSecurityDevice::class,
+        ]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->site == null) {
             $request->session()->put('site', null);
@@ -49,13 +56,12 @@ class PhysicalInfrastructureView extends Controller
             }
         }
 
-        $all_sites = Site::All()->sortBy('name')->pluck('name', 'id');
+        $all_sites = Cartographer::scopedQuery(Site::query())->orderBy('name')->pluck('name', 'id');
 
         if ($site !== null) {
-            $sites = Site::All()->sortBy('name')->where('id', '=', $site);
+            $sites = Cartographer::scopedQuery(Site::query()->where('id', '=', $site))->orderBy('name')->get();
 
-            $all_buildings = Building::All()->sortBy('name')
-                ->where('site_id', '=', $site)->pluck('name', 'id');
+            $all_buildings = Cartographer::scopedQuery(Building::query()->where('site_id', '=', $site))->orderBy('name')->pluck('name', 'id');
             if ($buildingId === null) {
                 $buildings = Building::query()->where('site_id', '=', $site)->orderBy('name')->get();
             } else {
@@ -83,7 +89,7 @@ class PhysicalInfrastructureView extends Controller
             }
 
             // Get all bays
-            $bays = Bay::All()->sortBy('name')
+            $bays = Cartographer::scopedQuery(Bay::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($buildings) {
                     foreach ($buildings as $building) {
                         if ($item->room_id === $building->id) {
@@ -94,7 +100,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $physicalServers = PhysicalServer::All()->sortBy('name')
+            $physicalServers = Cartographer::scopedQuery(PhysicalServer::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings, $bays) {
                     if (($buildings == null) && ($item->site_id == $site)) {
                         return true;
@@ -116,7 +122,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $workstations = Workstation::All()->sortBy('name')
+            $workstations = Cartographer::scopedQuery(Workstation::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings) {
                     if (($item->building_id === null) && ($item->site_id === $site)) {
                         return true;
@@ -130,7 +136,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $storageDevices = StorageDevice::All()->sortBy('name')
+            $storageDevices = Cartographer::scopedQuery(StorageDevice::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings, $bays) {
                     if (($item->bay_id === null) &&
                         ($item->building_id === null) &&
@@ -154,7 +160,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $peripherals = Peripheral::All()->sortBy('name')
+            $peripherals = Cartographer::scopedQuery(Peripheral::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings, $bays) {
                     if (($item->bay_id === null) &&
                         ($item->building_id === null) &&
@@ -178,7 +184,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $phones = Phone::All()->sortBy('name')
+            $phones = Cartographer::scopedQuery(Phone::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings) {
                     if (($item->building_id === null) && ($item->site_id === $site)) {
                         return true;
@@ -192,7 +198,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $physicalSwitches = PhysicalSwitch::All()->sortBy('name')
+            $physicalSwitches = Cartographer::scopedQuery(PhysicalSwitch::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings, $bays) {
                     if (($item->bay_id === null) &&
                         ($item->building_id === null) &&
@@ -216,7 +222,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $physicalRouters = PhysicalRouter::All()->sortBy('name')
+            $physicalRouters = Cartographer::scopedQuery(PhysicalRouter::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings, $bays) {
                     if (($item->bay_id === null) &&
                         ($item->building_id === null) &&
@@ -240,7 +246,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $wifiTerminals = WifiTerminal::All()->sortBy('name')
+            $wifiTerminals = Cartographer::scopedQuery(WifiTerminal::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings) {
                     if (($item->building_id === null) && ($item->site_id === $site)) {
                         return true;
@@ -254,7 +260,7 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
 
-            $physicalSecurityDevices = PhysicalSecurityDevice::All()->sortBy('name')
+            $physicalSecurityDevices = Cartographer::scopedQuery(PhysicalSecurityDevice::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($site, $buildings, $bays) {
                     if (($item->bay_id === null) &&
                         ($item->building_id === null) &&
@@ -278,19 +284,19 @@ class PhysicalInfrastructureView extends Controller
                     return false;
                 });
         } else {
-            $sites = Site::All()->sortBy('name');
-            $buildings = Building::All()->sortBy('name');
+            $sites = Cartographer::scopedQuery(Site::query())->orderBy('name')->get();
+            $buildings = Cartographer::scopedQuery(Building::query())->orderBy('name')->get();
             $all_buildings = null;
-            $bays = Bay::All()->sortBy('name');
-            $physicalServers = PhysicalServer::All()->sortBy('name');
-            $workstations = Workstation::All()->sortBy('name');
-            $storageDevices = StorageDevice::All()->sortBy('name');
-            $peripherals = Peripheral::All()->sortBy('name');
-            $phones = Phone::All()->sortBy('name');
-            $physicalSwitches = PhysicalSwitch::All()->sortBy('name');
-            $physicalRouters = PhysicalRouter::All()->sortBy('name');
-            $wifiTerminals = WifiTerminal::All()->sortBy('name');
-            $physicalSecurityDevices = PhysicalSecurityDevice::All()->sortBy('name');
+            $bays = Cartographer::scopedQuery(Bay::query())->orderBy('name')->get();
+            $physicalServers = Cartographer::scopedQuery(PhysicalServer::query())->orderBy('name')->get();
+            $workstations = Cartographer::scopedQuery(Workstation::query())->orderBy('name')->get();
+            $storageDevices = Cartographer::scopedQuery(StorageDevice::query())->orderBy('name')->get();
+            $peripherals = Cartographer::scopedQuery(Peripheral::query())->orderBy('name')->get();
+            $phones = Cartographer::scopedQuery(Phone::query())->orderBy('name')->get();
+            $physicalSwitches = Cartographer::scopedQuery(PhysicalSwitch::query())->orderBy('name')->get();
+            $physicalRouters = Cartographer::scopedQuery(PhysicalRouter::query())->orderBy('name')->get();
+            $wifiTerminals = Cartographer::scopedQuery(WifiTerminal::query())->orderBy('name')->get();
+            $physicalSecurityDevices = Cartographer::scopedQuery(PhysicalSecurityDevice::query())->orderBy('name')->get();
         }
 
         return view('admin/reports/physical_infrastructure')

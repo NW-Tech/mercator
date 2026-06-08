@@ -68,9 +68,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.physical-servers.show', $physicalServer->id) }}">
-                                    {{ $physicalServer->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$physicalServer" />
                             </td>
                             <td>
                                 {{ $physicalServer->type ?? '' }}
@@ -80,23 +78,17 @@
                             </td>
                             <td>
                                 @if ($physicalServer->site!=null)
-                                    <a href="{{ route('admin.sites.show', $physicalServer->site->id) }}">
-                                        {{ $physicalServer->site->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalServer->site" />
                                 @endif
                             </td>
                             <td>
                                 @if ($physicalServer->building!=null)
-                                    <a href="{{ route('admin.buildings.show', $physicalServer->building->id) }}">
-                                        {{ $physicalServer->building->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalServer->building" />
                                 @endif
                             </td>
                             <td>
                                 @if ($physicalServer->bay!=null)
-                                    <a href="{{ route('admin.bays.show', $physicalServer->bay->id) }}">
-                                        {{ $physicalServer->bay->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalServer->bay" />
                                 @endif
                             </td>
                             <td nowrap>
@@ -107,12 +99,12 @@
                                     </a>
                                 @endcan
 
-                                @can('physical_server_edit')
+                                @canEdit($physicalServer)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.physical-servers.edit', $physicalServer->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('physical_server_delete')
                                     <form action="{{ route('admin.physical-servers.destroy', $physicalServer->id) }}"

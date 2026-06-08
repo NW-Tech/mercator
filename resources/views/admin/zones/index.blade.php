@@ -41,9 +41,7 @@
                             @if($zone->description === null) class="table-warning" @endif>
                             <td></td>
                             <td>
-                                <a href="{{ route('admin.zones.show', $zone->id) }}">
-                                    {{ $zone->name }}
-                                </a>
+                                <x-show-link :model="$zone" />
                             </td>
                             <td>{{ $zone->type ?? '' }}</td>
                             <td>
@@ -54,17 +52,17 @@
                             <td>{!! $zone->description ?? '' !!}</td>
                             <td>
                             @foreach($zone->buildings as $building)
-                                <a href="{{ route('admin.buildings.show', $building->id) }}">{{ $building->name }}</a>{{ !$loop->last ? ', ' : '' }}
+                                <x-show-link :model="$building" />{{ !$loop->last ? ', ' : '' }}
                             @endforeach
                             </td>
                             <td>
                             @foreach($zone->parentZones as $parentZone)
-                                <a href="{{ route('admin.zones.show', $parentZone->id) }}">{{ $parentZone->name }}</a>{{ !$loop->last ? ', ' : '' }}
+                                <x-show-link :model="$parentZone" />{{ !$loop->last ? ', ' : '' }}
                             @endforeach
                             </td>
                             <td>
                             @foreach($zone->childZones as $childZone)
-                                <a href="{{ route('admin.zones.show', $childZone->id) }}">{{ $childZone->name }}</a>{{ !$loop->last ? ', ' : '' }}
+                                <x-show-link :model="$childZone" />{{ !$loop->last ? ', ' : '' }}
                             @endforeach
                             </td>
                             <td nowrap>
@@ -73,11 +71,11 @@
                                         {{ trans('global.view') }}
                                     </a>
                                 @endcan
-                                @can('zone_edit')
+                                @canEdit($zone)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.zones.edit', $zone->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
                                 @can('zone_delete')
                                     <form action="{{ route('admin.zones.destroy', $zone->id) }}" method="POST"
                                           onsubmit="return confirm('{{ trans('global.areYouSure') }}');"

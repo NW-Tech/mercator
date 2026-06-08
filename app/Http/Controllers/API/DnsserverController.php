@@ -37,14 +37,14 @@ class DnsserverController extends APIController
 
     public function show(Dnsserver $dnsserver)
     {
-        abort_if(Gate::denies('dnsserver_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $dnsserver), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($dnsserver);
     }
 
     public function update(UpdateDnsserverRequest $request, Dnsserver $dnsserver)
     {
-        abort_if(Gate::denies('dnsserver_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $dnsserver), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $dnsserver->update($request->all());
         // $dnsserver->roles()->sync($request->input('roles', []));

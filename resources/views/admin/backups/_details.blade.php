@@ -8,7 +8,11 @@
         <th width="10%">{{ trans('cruds.backup.fields.name') }}</th>
         <td width="30%">
             @if($withLink)
+                @canShow($backup)
                 <a href="{{ route('admin.backups.show', $backup->id) }}">{{ $backup->name }}</a>
+                @elsecanShow
+                {{ $backup->name }}
+                @endcanShow
             @else
                 {{ $backup->name }}
             @endif
@@ -30,21 +34,33 @@
         <th>{{ trans('cruds.backup.retention') }}</th>
         <td>{{ $backup->backup_retention ? $backup->backup_retention . ' ' . trans('cruds.backup.retention_unit') : '' }}</td>
     </tr>
+    @canAccess(App\Models\LogicalServer::class)
     <tr>
         <th>{{ trans('cruds.backup.fields.logical_servers') }}</th>
         <td colspan="5">
             @foreach($backup->logicalServers as $server)
-                <a href="{{ route('admin.logical-servers.show', $server->id) }}">{{ $server->name }}</a>@if(!$loop->last), @endif
+                @canShow($server)
+                    <a href="{{ route('admin.logical-servers.show', $server->id) }}">{{ $server->name }}</a>@if(!$loop->last), @endif
+                @elsecanShow
+                    {{ $server->name }}@if(!$loop->last), @endif
+                @endcanShow
             @endforeach
         </td>
     </tr>
+    @endcanAccess
+    @canAccess(App\Models\StorageDevice::class)
     <tr>
         <th>{{ trans('cruds.backup.fields.storage_devices') }}</th>
         <td colspan="5">
             @foreach($backup->storageDevices as $device)
-                <a href="{{ route('admin.storage-devices.show', $device->id) }}">{{ $device->name }}</a>@if(!$loop->last), @endif
+                @canShow($device)
+                    <a href="{{ route('admin.storage-devices.show', $device->id) }}">{{ $device->name }}</a>@if(!$loop->last), @endif
+                @elsecanShow
+                    {{ $device->name }}@if(!$loop->last), @endif
+                @endcanShow
             @endforeach
         </td>
     </tr>
+    @endcanAccess
     </tbody>
 </table>

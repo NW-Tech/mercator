@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$applicationBlock->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('application_block_edit')
+
+    @endcan
+
+    @canEdit($applicationBlock)
         <a class="btn btn-info" href="{{ route('admin.application-blocks.edit', $applicationBlock->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('application_block_delete')
         <form action="{{ route('admin.application-blocks.destroy', $applicationBlock->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

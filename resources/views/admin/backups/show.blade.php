@@ -8,13 +8,19 @@
     <div class="form-group">
         <a class="btn btn-default" href="{{ route('admin.backups.index') }}">{{ trans('global.back_to_list') }}</a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$backup->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('backup_edit')
-            <a class="btn btn-info" href="{{ route('admin.backups.edit', $backup->id) }}">{{ trans('global.edit') }}</a>
+
         @endcan
+
+        @canEdit($backup)
+            <a class="btn btn-info" href="{{ route('admin.backups.edit', $backup->id) }}">{{ trans('global.edit') }}</a>
+        @endcanEdit
 
         @can('backup_delete')
             <form action="{{ route('admin.backups.destroy', $backup->id) }}" method="POST"

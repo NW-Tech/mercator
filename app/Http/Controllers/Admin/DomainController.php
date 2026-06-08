@@ -16,7 +16,11 @@ class DomainController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('domaine_ad_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('domain_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Domain::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $domains = Domain::query()
             ->when(request('search'), function ($q, $search) {
@@ -27,7 +31,8 @@ class DomainController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view(
             'admin.domains.index',
@@ -37,7 +42,7 @@ class DomainController extends Controller
 
     public function create()
     {
-        abort_if(Gate::denies('domaine_ad_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('domain_create'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $forestAds = ForestAd::all()->sortBy('name')->pluck('name', 'id');
         $logicalServers = LogicalServer::all()->sortBy('name')->pluck('name', 'id');
@@ -61,7 +66,7 @@ class DomainController extends Controller
 
     public function edit(Domain $domain)
     {
-        abort_if(Gate::denies('domaine_ad_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $domain), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $forestAds = ForestAd::all()->sortBy('name')->pluck('name', 'id');
         $logicalServers = LogicalServer::all()->sortBy('name')->pluck('name', 'id');
@@ -75,6 +80,8 @@ class DomainController extends Controller
 
     public function update(UpdateDomainRequest $request, Domain $domain)
     {
+        abort_if(Gate::denies('edit-object', $domain), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $domain->update($request->all());
         $domain->forestAds()->sync($request->input('forestAds', []));
 
@@ -89,7 +96,7 @@ class DomainController extends Controller
 
     public function show(Domain $domain)
     {
-        abort_if(Gate::denies('domaine_ad_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $domain), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $domain->load('forestAds');
 
@@ -98,7 +105,7 @@ class DomainController extends Controller
 
     public function destroy(Domain $domain)
     {
-        abort_if(Gate::denies('domaine_ad_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('domain_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $domain->delete();
 

@@ -40,7 +40,7 @@ class OperationController extends APIController
 
     public function show(Operation $operation)
     {
-        abort_if(Gate::denies('operation_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $operation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $operation['actors'] = $operation->actors()->pluck('id');
         $operation['tasks'] = $operation->tasks()->pluck('id');
@@ -51,7 +51,7 @@ class OperationController extends APIController
 
     public function update(UpdateOperationRequest $request, Operation $operation)
     {
-        abort_if(Gate::denies('operation_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $operation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $operation->update($request->all());
 

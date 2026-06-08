@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Report;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cartographer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\View\View;
@@ -40,7 +41,8 @@ class InformationSystemView extends Controller
      */
     public function generate(Request $request): View
     {
-        abort_if(Gate::denies('explore_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $allowed = Gate::allows('explore_access') || Cartographer::canAccessAny([MacroProcessus::class, Process::class, Activity::class, Operation::class, Task::class, Actor::class, Information::class]);
+        abort_if(!$allowed, Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->macroprocess == null) {
             $request->session()->put('macroprocess', null);
@@ -66,13 +68,13 @@ class InformationSystemView extends Controller
             }
         }
 
-        $all_macroprocess = MacroProcessus::All()->sortBy('name');
+        $all_macroprocess = Cartographer::scopedQuery(MacroProcessus::query())->orderBy('name')->get();
 
         if ($macroprocess !== null) {
             $macroProcessuses = MacroProcessus::where('macro_processuses.id', $macroprocess)->get();
 
             // TODO : improve me
-            $processes = Process::All()->sortBy('name')
+            $processes = Cartographer::scopedQuery(Process::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($macroProcessuses, $process) {
                     if ($process !== null) {
                         return $item->id === $process;
@@ -89,7 +91,7 @@ class InformationSystemView extends Controller
                 });
 
             // TODO : improve me
-            $all_process = Process::All()->sortBy('name')
+            $all_process = Cartographer::scopedQuery(Process::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($macroProcessuses, $process) {
                     foreach ($macroProcessuses as $macroprocess) {
                         foreach ($macroprocess->processes as $process) {
@@ -103,7 +105,7 @@ class InformationSystemView extends Controller
                 });
 
             // TODO : improve me
-            $activities = Activity::All()->sortBy('name')
+            $activities = Cartographer::scopedQuery(Activity::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($processes) {
                     foreach ($item->processes as $p) {
                         foreach ($processes as $process) {
@@ -117,7 +119,7 @@ class InformationSystemView extends Controller
                 });
 
             // TODO : improve me
-            $operations = Operation::All()->sortBy('name')
+            $operations = Cartographer::scopedQuery(Operation::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($activities) {
                     foreach ($item->activities as $o) {
                         foreach ($activities as $activity) {
@@ -131,7 +133,7 @@ class InformationSystemView extends Controller
                 });
 
             // TODO : improve me
-            $tasks = Task::All()->sortBy('name')
+            $tasks = Cartographer::scopedQuery(Task::query())->get()->sortBy('name')
                 ->filter(function ($item) use ($operations) {
                     foreach ($operations as $operation) {
                         foreach ($operation->tasks as $task) {
@@ -145,7 +147,7 @@ class InformationSystemView extends Controller
                 });
 
             // TODO : improve me
-            $actors = Actor::query()->orderBy('name')->get()
+            $actors = Cartographer::scopedQuery(Actor::query()->orderBy('name'))->get()
                 ->filter(function ($item) use ($operations) {
                     foreach ($operations as $operation) {
                         foreach ($operation->actors as $actor) {
@@ -185,13 +187,13 @@ class InformationSystemView extends Controller
                 ->get();
 
         } else {
-            $macroProcessuses = MacroProcessus::All()->sortBy('name');
-            $processes = Process::All()->sortBy('name');
-            $activities = Activity::All()->sortBy('name');
-            $operations = Operation::All()->sortBy('name');
-            $tasks = Task::All()->sortBy('name');
-            $actors = Actor::All()->sortBy('name');
-            $informations = Information::query()->orderBy('name')->with('children')->get();
+            $macroProcessuses = Cartographer::scopedQuery(MacroProcessus::query())->orderBy('name')->get();
+            $processes = Cartographer::scopedQuery(Process::query())->orderBy('name')->get();
+            $activities = Cartographer::scopedQuery(Activity::query())->orderBy('name')->get();
+            $operations = Cartographer::scopedQuery(Operation::query())->orderBy('name')->get();
+            $tasks = Cartographer::scopedQuery(Task::query())->orderBy('name')->get();
+            $actors = Cartographer::scopedQuery(Actor::query())->orderBy('name')->get();
+            $informations = Cartographer::scopedQuery(Information::query()->orderBy('name')->with('children'))->get();
             $all_process = null;
         }
 

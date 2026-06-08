@@ -10,15 +10,21 @@
         {{ trans('global.back_to_list') }}
     </a>
 
+
+    @can('explore_access')
+
     <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$adminUser->getUID()}}">
         {{ trans('global.explore') }}
     </a>
 
-    @can('admin_user_edit')
+
+    @endcan
+
+    @canEdit($adminUser)
         <a id="btn-cancel" class="btn btn-info" href="{{ route('admin.admin-users.edit', $adminUser->id) }}">
             {{ trans('global.edit') }}
         </a>
-    @endcan
+    @endcanEdit
 
     @can('admin_user_delete')
         <form action="{{ route('admin.admin-users.destroy', $adminUser->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

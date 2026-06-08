@@ -55,18 +55,14 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.application-modules.show', $applicationModule->id) }}">
-                                    {{ $applicationModule->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$applicationModule" />
                             </td>
                             <td>
                                 {!! $applicationModule->description !!}
                             </td>
                             <td>
                                 @foreach($applicationModule->entities as $entity)
-                                    <a href="{{ route('admin.entities.show', $entity->id) }}">
-                                    {{ $entity->name }}
-                                    </a>
+                                    <x-show-link :model="$entity" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -74,9 +70,7 @@
                             </td>
                             <td>
                                 @foreach($applicationModule->applicationServices as $service)
-                                    <a href="{{ route('admin.application-services.show', $service->id) }}">
-                                    {{ $service->name }}
-                                    </a>
+                                    <x-show-link :model="$service" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -90,12 +84,12 @@
                                     </a>
                                 @endcan
 
-                                @can('application_module_edit')
+                                @canEdit($applicationModule)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.application-modules.edit', $applicationModule->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('application_module_delete')
                                     <form action="{{ route('admin.application-modules.destroy', $applicationModule->id) }}"

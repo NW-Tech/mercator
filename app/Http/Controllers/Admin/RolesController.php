@@ -10,6 +10,7 @@ use Gate;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use App\Models\Cartographer;
 use App\Models\Permission;
 use App\Models\Role;
 use Symfony\Component\HttpFoundation\Response;
@@ -50,14 +51,14 @@ class RolesController extends Controller
     {
         abort_if(Gate::denies('role_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
-        $roles = DB::table('roles')
-            ->leftJoin('role_user', 'role_user.role_id', '=', 'roles.id')
-            ->select('roles.id', 'roles.title', DB::raw('count(role_user.user_id) as count'))
-            ->groupBy('roles.id', 'roles.title')
-            ->whereNull('deleted_at')
+        $roles  = Role::withCount('users')
+            ->with('cartographerEntries.cartographiable')
+            ->orderBy('id')
             ->get();
+        $routes = Cartographer::cartographiableRoutesMap();
+        $models = Cartographer::cartographiableModelsList();
 
-        return view('admin.roles.index', compact('roles'));
+        return view('admin.roles.index', compact('roles', 'routes', 'models'));
     }
 
     public function create()
@@ -78,43 +79,38 @@ class RolesController extends Controller
         $role = Role::query()->create($request->all());
         $role->permissions()->sync($request->input('permissions', []));
 
-        // Clean role permissions cache
         Cache::forget('permissions_roles_map');
+        Cache::put('roles_last_update', now()->timestamp);
 
         return redirect()->route('admin.roles.index');
     }
 
     public function edit(Role $role)
     {
-        abort_if(Gate::denies('role_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $role), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         // Chargement de toutes les permissions et triage
         $permissions = Permission::all()->sortBy('title')->pluck('title', 'id');
         $permissions_sorted = $this->getSortedPerms($permissions);
 
-        // Chargement des permissions du rôle
         $role->load('permissions');
+        $cartographers       = $role->cartographerEntries()->with('cartographiable')->orderBy('cartographiable_type')->get();
+        $cartographiableModels = Cartographer::cartographiableModelsList();
 
-        return view('admin.roles.edit', compact('permissions_sorted', 'role'));
+        return view('admin.roles.edit', compact('permissions_sorted', 'role', 'cartographers', 'cartographiableModels'));
     }
 
     public function update(UpdateRoleRequest $request, Role $role)
     {
-        abort_if(Gate::denies('role_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $role), Response::HTTP_FORBIDDEN, '403 Forbidden');
         // Update DB
 
         $role->update($request->all());
         $role->permissions()->sync($request->input('permissions', []));
 
-        // Clean role permissions cache
         Cache::forget('permissions_roles_map');
+        Cache::put('roles_last_update', now()->timestamp);
 
-        // Update utilisateur courrant
-        $user = auth()->user();
-        $user->refresh();
-        auth()->setUser($user);
-
-        // Return
         return redirect()->route('admin.roles.index');
     }
 
@@ -124,10 +120,11 @@ class RolesController extends Controller
 
         $permissions = Permission::all()->sortBy('title')->pluck('title', 'id');
         $permissions_sorted = $this->getSortedPerms($permissions);
-        // Chargement des permissions du rôle
         $role->load('permissions');
+        $cartographers       = $role->cartographerEntries()->with('cartographiable')->orderBy('cartographiable_type')->get();
+        $cartographiableModels = Cartographer::cartographiableModelsList();
 
-        return view('admin.roles.show', compact('permissions_sorted', 'role'));
+        return view('admin.roles.show', compact('permissions_sorted', 'role', 'cartographers', 'cartographiableModels'));
     }
 
     public function destroy(Role $role)

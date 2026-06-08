@@ -10,7 +10,11 @@
             </th>
             <td width="20%">
             @if($withLink)
+            @canShow($securityDevice)
             <a href="{{ route('admin.security-devices.show', $securityDevice->id) }}">{{ $securityDevice->name }}</a>
+            @elsecanShow
+            {{ $securityDevice->name }}
+            @endcanShow
             @else
             {{ $securityDevice->name }}
             @endif
@@ -54,31 +58,43 @@
                 {{ $securityDevice->address_ip}}
             </td>
         </tr>
+        @canAccess(App\Models\Application::class)
         <tr>
             <th>
                 {{ trans('cruds.securityDevice.fields.applications') }}
             </th>
             <td colspan="5">
                 @foreach($securityDevice->applications as $application)
+                    @canShow($application)
                     <a href="{{ route('admin.applications.show', $application->id) }}">{{ $application->name }}</a>
+                    @elsecanShow
+                        {{ $application->name }}
+                    @endcanShow
                     @if(!$loop->last)
                         ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\PhysicalSecurityDevice::class)
         <tr>
             <th>
                 {{ trans('cruds.securityDevice.fields.physical_security_devices') }}
             </th>
             <td colspan="5">
                 @foreach($securityDevice->physicalSecurityDevices as $device)
+                    @canShow($device)
                     <a href="{{ route('admin.physical-security-devices.show', $device->id) }}">{{ $device->name }}</a>
+                    @elsecanShow
+                        {{ $device->name }}
+                    @endcanShow
                     @if(!$loop->last)
                         ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

@@ -54,18 +54,14 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.bays.show', $bay->id) }}">
-                                    {{ $bay->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$bay" />
                             </td>
                             <td>
                                 {!! $bay->description ?? '' !!}
                             </td>
                             <td>
                                 @if ($bay->room!=null)
-                                    <a href="{{ route('admin.buildings.show', $bay->room->id) }}">
-                                        {{ $bay->room->name }}
-                                    </a>
+                                    <x-show-link :model="$bay->room" />
                                 @endif
                             </td>
                             <td nowrap>
@@ -75,11 +71,11 @@
                                     </a>
                                 @endcan
 
-                                @can('bay_edit')
+                                @canEdit($bay)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.bays.edit', $bay->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('bay_delete')
                                     <form action="{{ route('admin.bays.destroy', $bay->id) }}" method="POST"

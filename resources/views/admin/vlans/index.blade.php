@@ -51,9 +51,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.vlans.show', $vlan->id) }}">
-                                {{ $vlan->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$vlan" />
                             </td>
                             <td>
                                 {{ $vlan->vlan_id }}
@@ -63,9 +61,7 @@
                             </td>
                             <td>
                                 @foreach($vlan->subnetworks as $subnetwork)
-                                    <a href="{{ route('admin.subnetworks.show', $subnetwork->id) }}">
-                                    {{$subnetwork->name}}
-                                    </a>
+                                    <x-show-link :model="$subnetwork" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -78,11 +74,11 @@
                                     </a>
                                 @endcan
 
-                                @can('vlan_edit')
+                                @canEdit($vlan)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.vlans.edit', $vlan->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('vlan_delete')
                                     <form action="{{ route('admin.vlans.destroy', $vlan->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

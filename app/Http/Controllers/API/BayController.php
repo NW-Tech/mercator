@@ -35,14 +35,14 @@ class BayController extends APIController
 
     public function show(Bay $bay)
     {
-        abort_if(Gate::denies('bay_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $bay), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($bay);
     }
 
     public function update(UpdateBayRequest $request, Bay $bay)
     {
-        abort_if(Gate::denies('bay_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $bay), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $bay->update($request->all());
 

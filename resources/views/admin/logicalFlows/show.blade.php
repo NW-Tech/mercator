@@ -10,16 +10,18 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+        @can('explore_access')
         <a class="btn btn-success"
            href="{{ route('admin.report.explore') }}?node={{$logicalFlow->sourceId()}},{{$logicalFlow->destinationId()}}">
             {{ trans('global.explore') }}
         </a>
+        @endcan
 
-        @can('lan_edit')
+        @canEdit($logicalFlow)
             <a class="btn btn-info" href="{{ route('admin.logical-flows.edit', $logicalFlow->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('lan_delete')
             <form action="{{ route('admin.logical-flows.destroy', $logicalFlow->id) }}" method="POST"

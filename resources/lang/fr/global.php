@@ -71,7 +71,7 @@ return [
     'strong' => 'Fort',
     'test' => 'Test',
     'time' => 'Temps',
-    'timestamp' => 'd/m/y - H:i',
+    'timestamp' => 'Y/m/d - H:i',
     'update' => 'Mettre à jour',
     'updated_at' => 'Modifié le',
     'very_strong' => 'Très fort',

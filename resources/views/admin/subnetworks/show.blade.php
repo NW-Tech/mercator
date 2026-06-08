@@ -10,15 +10,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$subnetwork->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('subnetwork_edit')
+
+        @endcan
+
+        @canEdit($subnetwork)
             <a class="btn btn-info" href="{{ route('admin.subnetworks.edit', $subnetwork->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('subnetwork_delete')
             <form action="{{ route('admin.subnetworks.destroy', $subnetwork->id) }}" method="POST"
@@ -53,20 +59,28 @@
                         {{ trans('cruds.subnetwork.fields.network') }}
                     </th>
                     <td width="40%">
-                        @if ($subnetwork->network!=null)
+                    @if ($subnetwork->network!=null)
+                        @canShow($subnetwork->network)
                             <a href="{{ route('admin.networks.show', $subnetwork->network->id) }}">
                                 {{ $subnetwork->network->name ?? '' }}
                             </a>
-                        @endif
+                        @elsecanShow
+                            {{ $subnetwork->network->name ?? '' }}
+                        @endcanShow
+                    @endif
                     </td>
                     <th width='10%'>
                         {{ trans('cruds.subnetwork.fields.subnetwork') }}
                     </th>
                     <td width="40%">
                         @if ($subnetwork->subnetwork!=null)
-                            <a href="{{ route('admin.subnetworks.show', $subnetwork->subnetwork->id) }}">
+                            @canShow($subnetwork->subnetwork)
+                                <a href="{{ route('admin.subnetworks.show', $subnetwork->subnetwork->id) }}">
+                                    {{ $subnetwork->subnetwork->name ?? '' }}
+                                </a>
+                            @elsecanShow
                                 {{ $subnetwork->subnetwork->name ?? '' }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                 </tr>
@@ -97,9 +111,13 @@
                     </th>
                     <td>
                         @if ($subnetwork->gateway!=null)
-                            <a href="{{ route('admin.gateways.show', $subnetwork->gateway->id) }}">
+                            @canShow($subnetwork->gateway)
+                                <a href="{{ route('admin.gateways.show', $subnetwork->gateway->id) }}">
+                                    {{ $subnetwork->gateway->name ?? '' }}
+                                </a>
+                            @elsecanShow
                                 {{ $subnetwork->gateway->name ?? '' }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                     <th width="10%">
@@ -107,9 +125,13 @@
                     </th>
                     <td>
                         @if ($subnetwork->vlan!=null)
-                            <a href="{{ route('admin.vlans.show', $subnetwork->vlan->id) }}">
+                            @canShow($subnetwork->vlan)
+                                <a href="{{ route('admin.vlans.show', $subnetwork->vlan->id) }}">
+                                    {{ $subnetwork->vlan->name ?? '' }}
+                                </a>
+                            @elsecanShow
                                 {{ $subnetwork->vlan->name ?? '' }}
-                            </a>
+                            @endcanShow
                         @endif
                     </td>
                     <th width="10%">

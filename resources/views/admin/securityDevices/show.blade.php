@@ -10,15 +10,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$securityDevice->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('entity_edit')
+
+        @endcan
+
+        @canEdit($securityDevice)
             <a class="btn btn-info" href="{{ route('admin.security-devices.edit', $securityDevice->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('entity_delete')
             <form action="{{ route('admin.security-devices.destroy', $securityDevice->id) }}" method="POST"

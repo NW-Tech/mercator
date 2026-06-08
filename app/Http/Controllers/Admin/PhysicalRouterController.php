@@ -20,7 +20,11 @@ class PhysicalRouterController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('physical_router_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('physical_router_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\PhysicalRouter::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $physicalRouters = PhysicalRouter::query()
             ->when(request('search'), function ($q, $search) {
@@ -31,7 +35,8 @@ class PhysicalRouterController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.physicalRouters.index', compact('physicalRouters'));
     }
@@ -96,7 +101,7 @@ class PhysicalRouterController extends Controller
 
     public function edit(PhysicalRouter $physicalRouter)
     {
-        abort_if(Gate::denies('physical_router_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalRouter), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sites = Site::all()->sortBy('name')->pluck('name', 'id');
         $buildings = Building::all()->sortBy('name')->pluck('name', 'id');
@@ -116,6 +121,8 @@ class PhysicalRouterController extends Controller
 
     public function update(UpdatePhysicalRouterRequest $request, PhysicalRouter $physicalRouter)
     {
+        abort_if(Gate::denies('edit-object', $physicalRouter), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $physicalRouter->update($request->all());
         $physicalRouter->vlans()->sync($request->input('vlans', []));
         $physicalRouter->routers()->sync($request->input('routers', []));
@@ -125,7 +132,7 @@ class PhysicalRouterController extends Controller
 
     public function show(PhysicalRouter $physicalRouter)
     {
-        abort_if(Gate::denies('physical_router_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalRouter), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalRouter->load('site', 'building', 'bay', 'vlans');
 

@@ -36,14 +36,14 @@ class StorageDeviceController extends APIController
 
     public function show(StorageDevice $storageDevice)
     {
-        abort_if(Gate::denies('storage_device_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $storageDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($storageDevice);
     }
 
     public function update(UpdateStorageDeviceRequest $request, StorageDevice $storageDevice)
     {
-        abort_if(Gate::denies('storage_device_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $storageDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $storageDevice->update($request->all());
 

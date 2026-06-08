@@ -17,7 +17,11 @@ class ExternalConnectedEntityController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('external_connected_entity_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('external_connected_entity_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\ExternalConnectedEntity::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $externalConnectedEntities = ExternalConnectedEntity::query()
             ->when(request('search'), function ($q, $search) {
@@ -28,7 +32,8 @@ class ExternalConnectedEntityController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.externalConnectedEntities.index', compact('externalConnectedEntities'));
     }
@@ -66,7 +71,7 @@ class ExternalConnectedEntityController extends Controller
 
     public function edit(ExternalConnectedEntity $externalConnectedEntity)
     {
-        abort_if(Gate::denies('external_connected_entity_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $externalConnectedEntity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $networks = Network::all()->sortBy('name')->pluck('name', 'id');
         $subnetworks = Subnetwork::all()->sortBy('name')->pluck('name', 'id');
@@ -89,6 +94,8 @@ class ExternalConnectedEntityController extends Controller
 
     public function update(UpdateExternalConnectedEntityRequest $request, ExternalConnectedEntity $externalConnectedEntity)
     {
+        abort_if(Gate::denies('edit-object', $externalConnectedEntity), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $externalConnectedEntity->update($request->all());
         $externalConnectedEntity->subnetworks()->sync($request->input('subnetworks', []));
 
@@ -100,7 +107,7 @@ class ExternalConnectedEntityController extends Controller
 
     public function show(ExternalConnectedEntity $externalConnectedEntity)
     {
-        abort_if(Gate::denies('external_connected_entity_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $externalConnectedEntity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.externalConnectedEntities.show', compact('externalConnectedEntity'));
     }

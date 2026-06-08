@@ -49,7 +49,7 @@ class QueryController extends APIController
 
     public function update(UpdateSavedQueryRequest $request, SavedQuery $query)
     {
-        abort_if(Gate::denies('query_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $query), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $query->update($request->all());
 

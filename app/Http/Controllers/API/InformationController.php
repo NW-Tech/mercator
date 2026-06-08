@@ -40,7 +40,7 @@ class InformationController extends APIController
 
     public function show(Information $information)
     {
-        abort_if(Gate::denies('information_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $information), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $information['processes'] = $information->processes()->pluck('id');
         $information['parents'] =$information->parents()->pluck('id');
@@ -51,7 +51,7 @@ class InformationController extends APIController
 
     public function update(UpdateInformationRequest $request, Information $information)
     {
-        abort_if(Gate::denies('information_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $information), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $information->update($request->all());
 

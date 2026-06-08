@@ -88,7 +88,7 @@ class GraphController extends Controller
 
     public function edit(Graph $graph)
     {
-        abort_if(Gate::denies('graph_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $graph), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         // Get types
         $type_list = Graph::query()->select('type')
@@ -114,15 +114,15 @@ class GraphController extends Controller
 
     public function update(Request $request)
     {
-        abort_if(Gate::denies('graph_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
         if ($request->id == '-1') {
+            abort_if(Gate::denies('graph_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $graph = Graph::query()->create($request->all());
         } else {
-            $graph = Graph::query()->find($request->id);
+            $graph = Graph::query()->findOrFail($request->id);
+            abort_if(Gate::denies('edit-object', $graph), Response::HTTP_FORBIDDEN, '403 Forbidden');
             $graph->update($request->all());
         }
-        $graph->class=1;
+        $graph->class = 1;
         $graph->save();
 
         return redirect()->route('admin.graphs.index');

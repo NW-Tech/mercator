@@ -23,7 +23,11 @@ class DatabaseController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('database_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('database_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Database::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $databases = Database::query()
             ->when(request('search'), function ($q, $search) {
@@ -34,7 +38,8 @@ class DatabaseController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.databases.index', compact('databases'));
     }
@@ -98,7 +103,7 @@ class DatabaseController extends Controller
 
     public function edit(Database $database)
     {
-        abort_if(Gate::denies('database_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $database), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $entities = Entity::query()->orderBy('name')->pluck('name', 'id');
         $entity_resps = Entity::query()->orderBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
@@ -140,6 +145,8 @@ class DatabaseController extends Controller
 
     public function update(UpdateDatabaseRequest $request, Database $database)
     {
+        abort_if(Gate::denies('edit-object', $database), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save request
         $database->update($request->all());
 
@@ -159,7 +166,7 @@ class DatabaseController extends Controller
 
     public function show(Database $database)
     {
-        abort_if(Gate::denies('database_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $database), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $database->load('entities', 'entityResp', 'informations', 'databaseSourceFluxes', 'databaseDestFluxes', 'applications');
 

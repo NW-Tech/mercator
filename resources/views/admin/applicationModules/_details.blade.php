@@ -16,35 +16,43 @@
                 {!! $applicationModule->description !!}
             </td>
         </tr>
+        @canAccess(App\Models\Entity::class)
         <tr>
             <th>
                 {{ trans('cruds.applicationModule.fields.entities') }}
             </th>
             <td>
                 @foreach($applicationModule->entities as $entity)
-                    <a href="{{ route('admin.entities.show', $entity->id) }}">
-                    {{ $entity->name }}
-                    </a>
+                    @canShow($entity)
+                        <a href="{{ route('admin.entities.show', $entity->id) }}">{{ $entity->name }}</a>
+                    @elsecanShow
+                        {{ $entity->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\ApplicationService::class)
         <tr>
             <th>
                 {{ trans('cruds.applicationModule.fields.services') }}
             </th>
             <td>
                 @foreach($applicationModule->applicationServices as $service)
-                    <a href="{{ route('admin.application-services.show', $service->id) }}">
-                    {{ $service->name }}
-                    </a>
+                    @canShow($service)
+                        <a href="{{ route('admin.application-services.show', $service->id) }}">{{ $service->name }}</a>
+                    @elsecanShow
+                        {{ $service->name }}
+                    @endcanShow
                     @if (!$loop->last)
                     ,
                     @endif
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

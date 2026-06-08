@@ -11,9 +11,13 @@
             </th>
             <td width="40%">
             @if($withLink)
-            <a href="{{ route('admin.peripherals.show', $peripheral) }}">{{ $peripheral->name }}</a>
+                @canShow($peripheral)
+                    <a href="{{ route('admin.peripherals.show', $peripheral) }}">{{ $peripheral->name }}</a>
+                @elsecanShow
+                    {{ $peripheral->name }}
+                @endcanShow
             @else
-            {{ $peripheral->name }}
+                {{ $peripheral->name }}
             @endif
             </td>
             <th width="10%">

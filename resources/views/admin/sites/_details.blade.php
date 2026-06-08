@@ -10,7 +10,11 @@
             </th>
             <td colspan="2">
             @if($withLink)
+            @canShow($site)
             <a href="{{ route('admin.sites.show', $site->id) }}">{{ $site->name }}</a>
+            @elsecanShow
+            {{ $site->name }}
+            @endcanShow
             @else
             {{ $site->name }}
             @endif
@@ -31,20 +35,29 @@
                 @endif
             </td>
         </tr>
+        @canAccess(App\Models\Building::class)
         <tr>
             <th>
                 {{ trans('cruds.site.fields.buildings') }}
             </th>
             <td colspan="2">
                 @foreach($site->buildings as $building)
-                    <a href="{{ route('admin.buildings.show', $building->id) }}">
-                    {{ $building->name ?? '' }}
-                    </a>
-                    @if ($site->buildings->last()!=$building)
-                    ,
-                    @endif
+                    @canShow($building)
+                        <a href="{{ route('admin.buildings.show', $building->id) }}">
+                        {{ $building->name ?? '' }}
+                        </a>
+                        @if (!$loop->last)
+                        ,
+                        @endif
+                    @elsecanShow
+                        {{ $building->name ?? '' }}
+                        @if (!$loop->last)
+                        ,
+                        @endif
+                    @endcanShow
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

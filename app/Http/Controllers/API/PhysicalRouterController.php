@@ -39,7 +39,7 @@ class PhysicalRouterController extends APIController
 
     public function show(PhysicalRouter $physicalRouter)
     {
-        abort_if(Gate::denies('physical_router_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalRouter), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalRouter['vlans'] = $physicalRouter->vlans()->pluck('id');
         $physicalRouter['routers'] = $physicalRouter->routers()->pluck('id');
@@ -49,7 +49,7 @@ class PhysicalRouterController extends APIController
 
     public function update(UpdatePhysicalRouterRequest $request, PhysicalRouter $physicalRouter)
     {
-        abort_if(Gate::denies('physical_router_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalRouter), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalRouter->update($request->all());
 

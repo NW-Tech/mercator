@@ -10,11 +10,13 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\HasCartographers;
 
 /**
  * App\Entity
@@ -22,6 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Entity extends Model implements HasIconContract, HasPrefix
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'entities';
 
@@ -105,5 +108,17 @@ class Entity extends Model implements HasIconContract, HasPrefix
     public function entities(): HasMany
     {
         return $this->hasMany(Entity::class, 'parent_entity_id', 'id')->orderBy('name');
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel1(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereNotNull('security_level')
+            ->whereNotNull('contact_point')
+            ->whereExists(fn ($q) => $q
+                ->from('entity_process')
+                ->whereColumn('entity_process.entity_id', 'entities.id'));
     }
 }

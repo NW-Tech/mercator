@@ -44,14 +44,14 @@ class ApplicationBlockController extends APIController
 
     public function show(ApplicationBlock $applicationBlock)
     {
-        abort_if(Gate::denies('application_block_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $applicationBlock), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($applicationBlock);
     }
 
     public function update(UpdateApplicationBlockRequest $request, ApplicationBlock $applicationBlock)
     {
-        abort_if(Gate::denies('application_block_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $applicationBlock), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $applicationBlock->update($request->all());
 

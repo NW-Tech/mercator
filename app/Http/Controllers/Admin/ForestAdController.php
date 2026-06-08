@@ -16,7 +16,11 @@ class ForestAdController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('forest_ad_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('forest_ad_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\ForestAd::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $forestAds = ForestAd::query()
             ->when(request('search'), function ($q, $search) {
@@ -27,7 +31,8 @@ class ForestAdController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.forestAds.index', compact('forestAds'));
     }
@@ -53,7 +58,7 @@ class ForestAdController extends Controller
 
     public function edit(ForestAd $forestAd)
     {
-        abort_if(Gate::denies('forest_ad_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $forestAd), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $zone_admins = ZoneAdmin::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
@@ -66,6 +71,8 @@ class ForestAdController extends Controller
 
     public function update(UpdateForestAdRequest $request, ForestAd $forestAd)
     {
+        abort_if(Gate::denies('edit-object', $forestAd), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $forestAd->update($request->all());
         $forestAd->domains()->sync($request->input('domains', []));
 
@@ -74,7 +81,7 @@ class ForestAdController extends Controller
 
     public function show(ForestAd $forestAd)
     {
-        abort_if(Gate::denies('forest_ad_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $forestAd), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $forestAd->load('zoneAdmin', 'domains');
 

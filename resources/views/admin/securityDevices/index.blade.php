@@ -60,9 +60,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.security-devices.show', $securityDevice->id) }}">
-                                    {{ $securityDevice->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$securityDevice" />
                             </td>
                             <td>
                                 {!! $securityDevice->type ?? '' !!}
@@ -75,7 +73,7 @@
                             </td>
                             <td>
                                 @foreach($securityDevice->applications as $application)
-                                    <a href="{{ route('admin.applications.show', $application->id) }}">{{ $application->name }}</a>
+                                    <x-show-link :model="$application" />
                                     @if(!$loop->last)
                                         ,
                                     @endif
@@ -84,7 +82,7 @@
 
                             <td>
                                 @foreach($securityDevice->physicalSecurityDevices as $device)
-                                    <a href="{{ route('admin.physical-security-devices.show', $device->id) }}">{{ $device->name }}</a>
+                                    <x-show-link :model="$device" />
                                     @if(!$loop->last)
                                         ,
                                     @endif
@@ -99,12 +97,12 @@
                                     </a>
                                 @endcan
 
-                                @can('security_device_edit')
+                                @canEdit($securityDevice)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.security-devices.edit', $securityDevice->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('security_device_delete')
                                     <form action="{{ route('admin.security-devices.destroy', $securityDevice->id) }}"

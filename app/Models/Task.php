@@ -10,10 +10,12 @@ use App\Traits\HasIcon;
 use App\Traits\HasUniqueIdentifier;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
+use App\Traits\HasCartographers;
 
 /**
  * App\Task
@@ -21,6 +23,7 @@ use Illuminate\Support\Collection;
 class Task extends Model implements HasIconContract, HasPrefix
 {
     use Auditable, HasIcon, HasUniqueIdentifier, HasFactory, SoftDeletes;
+    use HasCartographers;
 
     public $table = 'tasks';
 
@@ -66,6 +69,16 @@ class Task extends Model implements HasIconContract, HasPrefix
             ->whereLike('content', '%"#'.$this->getUID().'"%')
             ->get()
         );
+    }
+
+    /** @param Builder<static> $query */
+    public function scopeMaturityLevel3(Builder $query): Builder
+    {
+        return $query
+            ->whereNotNull('description')
+            ->whereExists(fn ($q) => $q
+                ->from('operation_task')
+                ->whereColumn('operation_task.task_id', 'tasks.id'));
     }
 
 }

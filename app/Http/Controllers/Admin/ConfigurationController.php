@@ -42,6 +42,18 @@ class ConfigurationController extends Controller
             'cve_check_frequency'      => $cfg['cve']['check-frequency']                ?? '0',
             'cve_provider'             => $cfg['cve']['provider']                       ?? '',
             'cpe_guesser'              => $cfg['cpe']['guesser']                        ?? '',
+            // Notifications
+            'notif_reminders_enabled'    => $cfg['cartography']['reminders_enabled']    ?? false,
+            'notif_reminder_from'        => $cfg['cartography']['reminder_from']        ?? 'mercator@localhost',
+            'notif_reminder_subject'     => $cfg['cartography']['reminder_subject']     ?? '[Mercator] Rappel de mise à jour',
+            'notif_reminder_body'        => $cfg['cartography']['reminder_body']        ?? '',
+            'notif_reminder_months'      => $cfg['cartography']['reminder_months']      ?? 6,
+            'notif_reminder_every_days'  => $cfg['cartography']['reminder_every_days']  ?? 30,
+            'notif_reminder_last_sent'   => $cfg['cartography']['reminder_last_sent']   ?? null,
+            'notif_modification_enabled' => $cfg['cartography']['notifier_enabled'] ?? false,
+            'notif_modification_to'      => $cfg['cartography']['notifier_to']      ?? '',
+            'notif_modification_subject' => $cfg['cartography']['notifier_subject'] ?? '[Mercator] Un objet a été mis à jour',
+            'notif_modification_body'    => $cfg['cartography']['notifier_body']    ?? '',
             // Documents
             'count' => Document::query()->count(),
             'sum'        => Document::query()->sum('size'),
@@ -66,9 +78,10 @@ class ConfigurationController extends Controller
         $action = $request->input('action', 'save');
 
         [$msg, $ok] = match ($tab) {
-            'cert' => $this->handleCert($action, $request),
-            'cve'  => $this->handleCve($action, $request),
-            default=> $this->handleGeneral($request),
+            'cert'          => $this->handleCert($action, $request),
+            'cve'           => $this->handleCve($action, $request),
+            'notifications' => $this->handleNotifications($action, $request),
+            default         => $this->handleGeneral($request),
         };
 
         // Fragment #tab-xxx : repris par location.hash dans le JS de la blade.
@@ -170,6 +183,52 @@ class ConfigurationController extends Controller
             $request->input('mail_subject'),
         );
     }
+    private function handleNotifications(string $action, Request $request): array
+    {
+        if ($action === 'test_reminder') {
+            return $this->sendTestMail(
+                $request->input('reminder_from'),
+                $request->input('reminder_from'),
+                $request->input('reminder_subject'),
+            );
+        }
+
+        if ($action === 'test_modification') {
+            return $this->sendTestMail(
+                $request->input('modification_to'),
+                $request->input('modification_to'),
+                $request->input('modification_subject'),
+            );
+        }
+
+        $cfg = $this->readConfigFile();
+
+        $remindersEnabled    = $request->boolean('reminders_enabled');
+        $modificationEnabled = $request->boolean('modification_enabled');
+
+        $cfg['cartography']['reminders_enabled'] = $remindersEnabled;
+        $cfg['cartography']['notifier_enabled']  = $modificationEnabled;
+
+        // Disabled fieldsets are not submitted — only overwrite sub-fields when the section is enabled.
+        if ($remindersEnabled) {
+            $cfg['cartography']['reminder_from']       = $request->input('reminder_from');
+            $cfg['cartography']['reminder_subject']    = $request->input('reminder_subject');
+            $cfg['cartography']['reminder_body']       = $request->input('reminder_body');
+            $cfg['cartography']['reminder_months']     = (int) $request->input('reminder_months', 6);
+            $cfg['cartography']['reminder_every_days'] = (int) $request->input('reminder_every_days', 30);
+        }
+
+        if ($modificationEnabled) {
+            $cfg['cartography']['notifier_to']      = $request->input('modification_to');
+            $cfg['cartography']['notifier_subject'] = $request->input('modification_subject');
+            $cfg['cartography']['notifier_body']    = $request->input('modification_body');
+        }
+
+        $this->writeConfigFile($cfg);
+
+        return [trans('cruds.configuration.saved'), true];
+    }
+
     // ─────────────────────────────────────────────────────────────────────────
     // Lecture / écriture du fichier de config
     // ─────────────────────────────────────────────────────────────────────────
@@ -225,6 +284,8 @@ class ConfigurationController extends Controller
             $mail->SMTPAutoTLS = config('mail.mailers.smtp.auto_tls');
             $mail->Port        = (int) config('mail.mailers.smtp.port');
 
+            $mail->CharSet  = PHPMailer::CHARSET_UTF8;
+            $mail->Encoding = PHPMailer::ENCODING_BASE64;
             $mail->setFrom($from);
             foreach (explode(',', $to) as $email) {
                 $mail->addAddress(trim($email));

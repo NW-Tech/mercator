@@ -37,7 +37,7 @@ class PhysicalSwitchController extends APIController
 
     public function show(PhysicalSwitch $physicalSwitch)
     {
-        abort_if(Gate::denies('physical_switch_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSwitch['network_switches'] = $physicalSwitch->networkSwitches()->pluck('id');
 
@@ -46,7 +46,7 @@ class PhysicalSwitchController extends APIController
 
     public function update(UpdatePhysicalSwitchRequest $request, PhysicalSwitch $physicalSwitch)
     {
-        abort_if(Gate::denies('physical_switch_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSwitch->update($request->all());
 

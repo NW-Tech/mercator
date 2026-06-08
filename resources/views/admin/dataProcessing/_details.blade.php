@@ -10,7 +10,11 @@
         </th>
         <td width="50%">
         @if($withLink)
-        <a href="{{ route('admin.data-processings.show', $dataProcessing->id) }}">{{ $dataProcessing->name }}</a>
+            @canShow($dataProcessing)
+                <a href="{{ route('admin.data-processings.show', $dataProcessing->id) }}">{{ $dataProcessing->name }}</a>
+            @elsecanShow
+                {{ $dataProcessing->name }}
+            @endcanShow
         @else
             {{ $dataProcessing->name }}
         @endif

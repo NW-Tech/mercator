@@ -11,7 +11,11 @@
         </th>
         <td width="20%">
         @if($withLink)
+            @canShow($certificate)
             <a href="{{ route('admin.certificates.show', $certificate->id) }}">{{ $certificate->name }}</a>
+            @elsecanShow
+            {{ $certificate->name }}
+            @endcanShow
         @else
             {{ $certificate->name }}
         @endif
@@ -53,35 +57,47 @@
             {{ trans('cruds.certificate.fields.last_notification_helper') }}
         </td>
     </tr>
+    @canAccess(App\Models\LogicalServer::class)
     <tr>
         <th>
             {{ trans('cruds.certificate.fields.logical_servers') }}
         </th>
         <td colspan="5">
             @foreach($certificate->logicalServers as $server)
-                <a href="{{ route('admin.logical-servers.show', $server->id) }}">
+                @canShow($server)
+                    <a href="{{ route('admin.logical-servers.show', $server->id) }}">
+                        {{ $server->name }}
+                    </a>
+                @elsecanShow
                     {{ $server->name }}
-                </a>
+                @endcanShow
                 @if(!$loop->last)
                     ,
                 @endif
             @endforeach
         </td>
     </tr>
+    @endcanAccess
+    @canAccess(App\Models\Application::class)
     <tr>
         <th>
             {{ trans('cruds.certificate.fields.applications') }}
         </th>
         <td colspan="5">
             @foreach($certificate->applications as $application)
-                <a href="{{ route('admin.applications.show', $application->id) }}">
+                @canShow($application)
+                    <a href="{{ route('admin.applications.show', $application->id) }}">
+                        {{ $application->name }}
+                    </a>
+                @elsecanShow
                     {{ $application->name }}
-                </a>
+                @endcanShow
                 @if(!$loop->last)
                     ,
                 @endif
             @endforeach
         </td>
     </tr>
+    @endcanAccess
     </tbody>
 </table>

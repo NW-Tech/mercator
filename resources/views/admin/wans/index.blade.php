@@ -48,9 +48,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.wans.show', $wan->id) }}">
-                                {{ $wan->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$wan" />
                             </td>
                             <td>
                                 @foreach($wan->mans as $key => $item)
@@ -69,11 +67,11 @@
                                     </a>
                                 @endcan
 
-                                @can('wan_edit')
+                                @canEdit($wan)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.wans.edit', $wan->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('wan_delete')
                                     <form action="{{ route('admin.wans.destroy', $wan->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

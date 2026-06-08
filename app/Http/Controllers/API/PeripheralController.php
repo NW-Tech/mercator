@@ -38,14 +38,14 @@ class PeripheralController extends APIController
 
     public function show(Peripheral $peripheral)
     {
-        abort_if(Gate::denies('peripheral_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $peripheral), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($peripheral);
     }
 
     public function update(UpdatePeripheralRequest $request, Peripheral $peripheral)
     {
-        abort_if(Gate::denies('peripheral_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $peripheral), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $peripheral->update($request->all());
 

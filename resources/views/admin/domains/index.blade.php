@@ -5,7 +5,7 @@
 @endsection
 
 @section('content')
-    @can('domaine_ad_create')
+    @can('domain_create')
         <div style="margin-bottom: 10px;" class="row">
             <div class="col-lg-12">
                 <a id="btn-new" class="btn btn-success" href="{{ route("admin.domains.create") }}">
@@ -67,15 +67,11 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.domains.show', $domain->id) }}">
-                                    {{ $domain->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$domain" />
                             </td>
                             <td>
                                 @foreach($domain->forestAds as $forestAd)
-                                    <a href="{{ route('admin.forest-ads.show', $forestAd->id) }}">
-                                        {{ $forestAd->name }}
-                                    </a>{{ !$loop->last ? ',' : '' }}
+                                    <x-show-link :model="$forestAd" />{{ !$loop->last ? ',' : '' }}
                                 @endforeach
                             </td>
                             <td>
@@ -91,21 +87,21 @@
                                 {{ $domain->relation_inter_domaine ?? '' }}
                             </td>
                             <td nowrap>
-                                @can('domaine_ad_show')
+                                @can('domain_show')
                                     <a class="btn btn-xs btn-primary"
                                        href="{{ route('admin.domains.show', $domain->id) }}">
                                         {{ trans('global.view') }}
                                     </a>
                                 @endcan
 
-                                @can('domaine_ad_edit')
+                                @canEdit($domain)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.domains.edit', $domain->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
-                                @can('domaine_ad_delete')
+                                @can('domain_delete')
                                     <form action="{{ route('admin.domains.destroy', $domain->id) }}"
                                           method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');"
                                           style="display: inline-block;">
@@ -133,7 +129,7 @@
             'id' => '#dataTable',
             'title' => trans("cruds.domaine.title_singular"),
             'URL' => route('admin.domains.massDestroy'),
-            'canDelete' => auth()->user()->can('domaine_ad_delete') ? true : false,
+            'canDelete' => auth()->user()->can('domain_delete') ? true : false,
     'serverSidePagination' => true
 ));
     </script>

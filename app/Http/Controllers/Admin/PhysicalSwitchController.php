@@ -23,7 +23,11 @@ class PhysicalSwitchController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('physical_switch_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('physical_switch_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\PhysicalSwitch::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $physicalSwitches = PhysicalSwitch::query()
             ->when(request('search'), function ($q, $search) {
@@ -34,7 +38,8 @@ class PhysicalSwitchController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.physicalSwitches.index', compact('physicalSwitches'));
     }
@@ -112,7 +117,7 @@ class PhysicalSwitchController extends Controller
 
     public function edit(PhysicalSwitch $physicalSwitch)
     {
-        abort_if(Gate::denies('physical_switch_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $physicalSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         // Select icons
         $icons = PhysicalSwitch::query()->select('icon_id')->whereNotNull('icon_id')->orderBy('icon_id')->distinct()->pluck('icon_id');
@@ -138,6 +143,8 @@ class PhysicalSwitchController extends Controller
 
     public function update(UpdatePhysicalSwitchRequest $request, PhysicalSwitch $physicalSwitch)
     {
+        abort_if(Gate::denies('edit-object', $physicalSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $physicalSwitch->update($request->all());
 
         $physicalSwitch->networkSwitches()->sync($request->input('networkSwitches', []));
@@ -151,7 +158,7 @@ class PhysicalSwitchController extends Controller
 
     public function show(PhysicalSwitch $physicalSwitch)
     {
-        abort_if(Gate::denies('physical_switch_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $physicalSwitch), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $physicalSwitch->load('site', 'building', 'bay');
 

@@ -34,6 +34,7 @@ return [
         'logical_infrastructure' => 'Infrastructure logique',
         'network_infrastructure' => 'Infrastructure réseau',
         'security_zones'         => 'Zones de sécurité',
+        'cartographer' => 'Cartographe',
         'options' => 'Options',
         'password' => 'Mot de passe',
         'physical_infrastructure' => 'Infrastructure physique',

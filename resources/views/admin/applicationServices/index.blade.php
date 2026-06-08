@@ -63,9 +63,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.application-services.show', $applicationService->id) }}">
-                                {{ $applicationService->name }}
-                                </a>
+                                <x-show-link :model="$applicationService" />
                             </td>
                             <td>
                                 {!! $applicationService->description !!}
@@ -75,9 +73,7 @@
                             </td>
                             <td>
                                 @foreach($applicationService->servicesApplications as $application)
-                                    <a href="{{ route('admin.applications.show', $application->id) }}">
-                                    {{ $application->name }}
-                                    </a>
+                                    <x-show-link :model="$application" />
                                     @if (!$loop->last)
                                         ,
                                     @endif
@@ -85,9 +81,7 @@
                             </td>
                             <td>
                                 @foreach($applicationService->modules as $module)
-                                    <a href="{{ route('admin.application-modules.show', $module->id) }}">
-                                    {{ $module->name }}
-                                    </a>
+                                    <x-show-link :model="$module" />
                                     @if (!$loop->last)
                                         ,
                                     @endif
@@ -100,11 +94,11 @@
                                     </a>
                                 @endcan
 
-                                @can('application_service_edit')
+                                @canEdit($applicationService)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.application-services.edit', $applicationService->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('application_service_delete')
                                     <form action="{{ route('admin.application-services.destroy', $applicationService->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

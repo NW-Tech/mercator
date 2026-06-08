@@ -14,7 +14,11 @@ class ZoneAdminController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('zone_admin_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('zone_admin_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\ZoneAdmin::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $zoneAdmins = ZoneAdmin::query()
             ->when(request('search'), function ($q, $search) {
@@ -25,7 +29,8 @@ class ZoneAdminController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.zoneAdmins.index', compact('zoneAdmins'));
     }
@@ -46,13 +51,15 @@ class ZoneAdminController extends Controller
 
     public function edit(ZoneAdmin $zoneAdmin)
     {
-        abort_if(Gate::denies('zone_admin_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $zoneAdmin), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.zoneAdmins.edit', compact('zoneAdmin'));
     }
 
     public function update(UpdateZoneAdminRequest $request, ZoneAdmin $zoneAdmin)
     {
+        abort_if(Gate::denies('edit-object', $zoneAdmin), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $zoneAdmin->update($request->all());
 
         return redirect()->route('admin.zone-admins.index');
@@ -60,7 +67,7 @@ class ZoneAdminController extends Controller
 
     public function show(ZoneAdmin $zoneAdmin)
     {
-        abort_if(Gate::denies('zone_admin_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $zoneAdmin), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $zoneAdmin->load('annuaires', 'forestAds');
 

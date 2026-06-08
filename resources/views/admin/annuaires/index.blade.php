@@ -56,18 +56,14 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.annuaires.show', $annuaire->id) }}">
-                                    {{ $annuaire->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$annuaire" />
                             </td>
                             <td>
                                 {{ $annuaire->solution ?? '' }}
                             </td>
                             <td>
                                 @if ($annuaire->zoneAdmin!=null)
-                                    <a href="{{ route('admin.zone-admins.show', $annuaire->zoneAdmin->id) }}">
-                                        {{ $annuaire->zoneAdmin->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$annuaire->zoneAdmin" />
                                 @endif
                             </td>
 
@@ -79,12 +75,12 @@
                                     </a>
                                 @endcan
 
-                                @can('annuaire_edit')
+                                @canEdit($annuaire)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.annuaires.edit', $annuaire->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('annuaire_delete')
                                     <form action="{{ route('admin.annuaires.destroy', $annuaire->id) }}" method="POST"

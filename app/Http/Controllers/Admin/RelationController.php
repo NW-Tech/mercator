@@ -96,7 +96,7 @@ class RelationController extends Controller
 
     public function edit(Relation $relation)
     {
-        abort_if(Gate::denies('relation_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $relation), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $sources = DB::table('entities')->select(['id', 'name'])->whereNull('deleted_at')->orderBy('name')->get();
         $destinations = $sources;
@@ -132,6 +132,8 @@ class RelationController extends Controller
 
     public function update(UpdateRelationRequest $request, Relation $relation)
     {
+        abort_if(Gate::denies('edit-object', $relation), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $request['responsible'] = implode(', ', $request->responsibles !== null ? $request->responsibles : []);
         $request['attributes'] = implode(' ', $request->get('attributes') !== null ? $request->get('attributes') : []);
         $request['active'] = $request->has('active');

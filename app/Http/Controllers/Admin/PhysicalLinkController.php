@@ -29,7 +29,11 @@ class PhysicalLinkController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('physical_link_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('physical_link_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\PhysicalLink::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         // TODO: optimise loading of related objects
         $physicalLinks = PhysicalLink::query()
@@ -41,7 +45,8 @@ class PhysicalLinkController extends Controller
             });
         })
         ->orderBy('id')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.links.index',
             compact('physicalLinks'));
@@ -281,7 +286,7 @@ class PhysicalLinkController extends Controller
      */
     public function edit(PhysicalLink $link)
     {
-        abort_if(Gate::denies('physical_link_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $link), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         // Types
         $types = PhysicalLink::query()->distinct('type')->orderBy('type')->pluck('type');
@@ -356,6 +361,8 @@ class PhysicalLinkController extends Controller
      */
     public function update(UpdatePhysicalLinkRequest $request, PhysicalLink $link)
     {
+        abort_if(Gate::denies('edit-object', $link), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Update type and color
         $link->color = $request->color;
         $link->type = $request->type;
@@ -607,7 +614,7 @@ class PhysicalLinkController extends Controller
 
     public function show(PhysicalLink $link)
     {
-        abort_if(Gate::denies('physical_link_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $link), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return view('admin.links.show', compact('link'));
     }

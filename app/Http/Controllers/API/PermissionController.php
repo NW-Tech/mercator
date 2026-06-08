@@ -35,7 +35,7 @@ class PermissionController extends APIController
 
     public function show(Permission $permission)
     {
-        abort_if(Gate::denies('permission_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $permission), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $permission['users'] = $permission->users()->pluck('id');
 
@@ -44,7 +44,7 @@ class PermissionController extends APIController
 
     public function update(UpdatePermissionRequest $request, Permission $permission)
     {
-        abort_if(Gate::denies('permission_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $permission), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $permission->update($request->all());
 

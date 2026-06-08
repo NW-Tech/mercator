@@ -10,7 +10,11 @@
             </th>
             <td colspan="3">
             @if($withLink)
+            @canShow($physicalRouter)
             <a href="{{ route('admin.physical-routers.show', $physicalRouter->id) }}">{{ $physicalRouter->name }}</a>
+            @elsecanShow
+            {{ $physicalRouter->name }}
+            @endcanShow
             @else
             {{ $physicalRouter->name }}
             @endif
@@ -30,15 +34,20 @@
                 {!! $physicalRouter->description !!}
             </td>
         </tr>
+        @canAccessAny(App\Models\Site::class, App\Models\Building::class, App\Models\Bay::class)
         <tr>
             <th width="10%">
                 {{ trans('cruds.physicalRouter.fields.site') }}
             </th>
             <td width="20%">
                 @if ($physicalRouter->site!=null)
-                    <a href="{{ route('admin.sites.show', $physicalRouter->site->id) }}">
-                    {{ $physicalRouter->site->name ?? '' }}
-                    </a>
+                    @canShow($physicalRouter->site)
+                        <a href="{{ route('admin.sites.show', $physicalRouter->site->id) }}">
+                        {{ $physicalRouter->site->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $physicalRouter->site->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
             <th width="10%">
@@ -46,9 +55,13 @@
             </th>
             <td width="20%">
                 @if ($physicalRouter->building!=null)
-                    <a href="{{ route('admin.buildings.show', $physicalRouter->building->id) }}">
-                    {{ $physicalRouter->building->name ?? '' }}
-                    </a>
+                    @canShow($physicalRouter->building)
+                        <a href="{{ route('admin.buildings.show', $physicalRouter->building->id) }}">
+                        {{ $physicalRouter->building->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $physicalRouter->building->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
             <th width="10%">
@@ -56,41 +69,54 @@
             </th>
             <td>
                 @if ($physicalRouter->bay!=null)
-                    <a href="{{ route('admin.bays.show', $physicalRouter->bay->id) }}">
-                    {{ $physicalRouter->bay->name ?? '' }}
-                    </a>
+                    @canShow($physicalRouter->bay)
+                        <a href="{{ route('admin.bays.show', $physicalRouter->bay->id) }}">
+                        {{ $physicalRouter->bay->name ?? '' }}
+                        </a>
+                    @elsecanShow
+                        {{ $physicalRouter->bay->name ?? '' }}
+                    @endcanShow
                 @endif
             </td>
         </tr>
+        @endcanAccessAny
+        @canAccess(App\Models\Router::class)
         <tr>
             <th>
                 {{ trans('cruds.physicalRouter.fields.routers') }}
             </th>
             <td colspan="5">
                 @foreach($physicalRouter->routers as $router)
-                    <a href="{{ route('admin.routers.show', $router->id) }}">
-                    {{ $router->name }}
+                    @canShow($router)
+                        <a href="{{ route('admin.routers.show', $router->id) }}">{{ $router->name }}</a>
+                    @elsecanShow
+                        {{ $router->name }}
+                    @endcanShow
                     @if(!$loop->last)
                     ,
                     @endif
-                    </a>
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Vlan::class)
         <tr>
             <th>
                 {{ trans('cruds.physicalRouter.fields.vlan') }}
             </th>
             <td colspan="5">
                 @foreach($physicalRouter->vlans as $vlan)
-                    <a href="{{ route('admin.vlans.show', $vlan->id) }}">
-                    {{ $vlan->name }}
+                    @canShow($vlan)
+                        <a href="{{ route('admin.vlans.show', $vlan->id) }}">{{ $vlan->name }}</a>
+                    @elsecanShow
+                        {{ $vlan->name }}
+                    @endcanShow
                     @if(!$loop->last)
                     ,
                     @endif
-                    </a>
                 @endforeach
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

@@ -9,6 +9,7 @@ use App\Models\AdminUser;
 use App\Models\Annuaire;
 use App\Models\Application;
 use App\Models\ApplicationBlock;
+use App\Models\ApplicationFlow;
 use App\Models\ApplicationModule;
 use App\Models\ApplicationService;
 use App\Models\Backup;
@@ -53,6 +54,7 @@ use App\Models\WifiTerminal;
 use App\Models\Workstation;
 use App\Models\Zone;
 use App\Models\ZoneAdmin;
+use App\Models\Cartographer;
 use Gate;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
@@ -97,7 +99,7 @@ class ExplorerController extends Controller
 
         return response()->stream(function () {
             $this->edges = [];
-            $this->subnetworks = Subnetwork::select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
+            $this->subnetworks = Cartographer::scopedQuery(Subnetwork::query())->select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
 
             $first      = true;
             $count      = 0;
@@ -146,6 +148,9 @@ class ExplorerController extends Controller
                 ob_flush();
             }
             flush();
+
+            $mb = round(memory_get_peak_usage(true) / 1048576, 2);
+            logger("Memory peak [getGraphData]: {$mb} MB");
         }, 200, [
             'Content-Type'     => 'application/json',
             'X-Accel-Buffering' => 'no',
@@ -189,7 +194,7 @@ class ExplorerController extends Controller
     {
         $this->nodes = [];
         $this->edges = [];
-        $this->subnetworks = Subnetwork::select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
+        $this->subnetworks = Cartographer::scopedQuery(Subnetwork::query())->select(['id', 'name', 'address', 'subnetwork_id', 'network_id', 'vlan_id', 'gateway_id'])->get();
 
         $this->buildPhysicalView();
         $this->buildLogicalView();
@@ -231,9 +236,8 @@ class ExplorerController extends Controller
 
     private function buildSites(): void
     {
-        $sites = DB::table('sites')
+        $sites = Cartographer::scopedQuery(Site::query())
             ->select('id', 'name', 'icon_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($sites as $site) {
@@ -250,9 +254,8 @@ class ExplorerController extends Controller
 
     private function buildBuildings(): void
     {
-        $buildings = DB::table('buildings')
+        $buildings = Cartographer::scopedQuery(Building::query())
             ->select('id', 'name', 'building_id', 'site_id', 'icon_id', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($buildings as $building) {
@@ -283,9 +286,8 @@ class ExplorerController extends Controller
 
     private function buildBays(): void
     {
-        $bays = DB::table('bays')
+        $bays = Cartographer::scopedQuery(Bay::query())
             ->select('id', 'name', 'room_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($bays as $bay) {
@@ -307,9 +309,8 @@ class ExplorerController extends Controller
 
     private function buildSecurityZones(): void
     {
-        $zones = DB::table('zones')
+        $zones = Cartographer::scopedQuery(Zone::query())
             ->select('id', 'name', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($zones as $zone) {
@@ -352,9 +353,8 @@ class ExplorerController extends Controller
 
     private function buildPhysicalServers(): void
     {
-        $servers = DB::table('physical_servers')
+        $servers = Cartographer::scopedQuery(PhysicalServer::query())
             ->select('id', 'name', 'icon_id', 'bay_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($servers as $server) {
@@ -378,9 +378,8 @@ class ExplorerController extends Controller
 
     private function buildWorkstations(): void
     {
-        $this->workstations = DB::table('workstations')
+        $this->workstations = Cartographer::scopedQuery(Workstation::query())
             ->select('id', 'name', 'icon_id', 'address_ip', 'building_id', 'site_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($this->workstations as $workstation) {
@@ -413,9 +412,8 @@ class ExplorerController extends Controller
 
     private function buildPhones(): void
     {
-        $phones = DB::table('phones')
+        $phones = Cartographer::scopedQuery(Phone::query())
             ->select('id', 'name', 'address_ip', 'building_id', 'site_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($phones as $phone) {
@@ -442,9 +440,8 @@ class ExplorerController extends Controller
     }
 
     private function buildPeripherals(): void {
-        $this->peripherals = DB::table('peripherals')
+        $this->peripherals = Cartographer::scopedQuery(Peripheral::query())
             ->select('id', 'name', 'icon_id', 'address_ip', 'bay_id', 'site_id', 'building_id', 'provider_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($this->peripherals as $peripheral) {
@@ -498,9 +495,8 @@ class ExplorerController extends Controller
     }
     private function buildStorageDevices(): void {
         // Storage devices
-        $storageDevices = DB::table('storage_devices')
+        $storageDevices = Cartographer::scopedQuery(StorageDevice::query())
             ->select('id', 'name', 'bay_id', 'address_ip')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($storageDevices as $storageDevice) {
@@ -529,9 +525,8 @@ class ExplorerController extends Controller
 
     private function buildPhysicalSwitches(): void
     {
-        $switches = DB::table('physical_switches')
+        $switches = Cartographer::scopedQuery(PhysicalSwitch::query())
             ->select('id', 'name', 'icon_id', 'bay_id', 'building_id', 'site_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($switches as $switch) {
@@ -557,9 +552,8 @@ class ExplorerController extends Controller
 
     private function buildPhysicalRouters(): void
     {
-        $routers = DB::table('physical_routers')
+        $routers = Cartographer::scopedQuery(PhysicalRouter::query())
             ->select('id', 'name', 'bay_id', 'building_id', 'site_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($routers as $router) {
@@ -582,9 +576,8 @@ class ExplorerController extends Controller
     }
 
     private function buildWifiTerminals(): void {
-        $wifiTerminals = DB::table('wifi_terminals')
+        $wifiTerminals = Cartographer::scopedQuery(WifiTerminal::query())
             ->select('id', 'name', 'address_ip', 'site_id', 'building_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($wifiTerminals as $wifiTerminal) {
@@ -613,9 +606,8 @@ class ExplorerController extends Controller
 
     private function buildPhysicalSecurityDevices(): void
     {
-        $devices = DB::table('physical_security_devices')
+        $devices = Cartographer::scopedQuery(PhysicalSecurityDevice::query())
             ->select('id', 'name', 'icon_id', 'address_ip', 'bay_id', 'site_id', 'building_id', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($devices as $device) {
@@ -645,9 +637,8 @@ class ExplorerController extends Controller
 
     private function buildWANs(): void
     {
-        $wans = DB::table('wans')
+        $wans = Cartographer::scopedQuery(Wan::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($wans as $wan) {
@@ -665,9 +656,8 @@ class ExplorerController extends Controller
 
     private function buildMAN(): void
     {
-        $mans = DB::table('mans')
+        $mans = Cartographer::scopedQuery(Man::query())
             ->select('id', 'name', 'parent_man_id')
-            ->whereNull('deleted_at')
             ->get();
 
         $wanLinksByMan = DB::table('man_wan')
@@ -705,9 +695,8 @@ class ExplorerController extends Controller
 
     private function buildLAN(): void
     {
-        $lans = DB::table('lans')
+        $lans = Cartographer::scopedQuery(Lan::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($lans as $lan) {
@@ -728,9 +717,8 @@ class ExplorerController extends Controller
 
     private function buildVLAN(): void
     {
-        $vlans = DB::table('vlans')
+        $vlans = Cartographer::scopedQuery(Vlan::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($vlans as $vlan) {
@@ -747,7 +735,7 @@ class ExplorerController extends Controller
 
     private function buildPhysicalLinks(): void
     {
-        $links = PhysicalLink::all();
+        $links = Cartographer::scopedQuery(PhysicalLink::query())->get();
         
         foreach ($links as $link) {
             $src = $link->sourceId();
@@ -783,9 +771,8 @@ class ExplorerController extends Controller
     }
 
     private function buildNetworks(): void {
-        $networks = DB::table('networks')
+        $networks = Cartographer::scopedQuery(Network::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($networks as $network) {
@@ -845,9 +832,8 @@ class ExplorerController extends Controller
 
     private function buildNetworkSwitches(): void
     {
-        $switches = DB::table('network_switches')
+        $switches = Cartographer::scopedQuery(NetworkSwitch::query())
             ->select('id', 'name', 'ip')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($switches as $switch) {
@@ -874,9 +860,8 @@ class ExplorerController extends Controller
 
     private function buildGateways(): void
     {
-        $gateways = DB::table('gateways')
+        $gateways = Cartographer::scopedQuery(Gateway::query())
             ->select('id', 'name', 'ip')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($gateways as $gateway) {
@@ -893,9 +878,8 @@ class ExplorerController extends Controller
 
     private function buildExternalConnectedEntities(): void
     {
-        $entities = DB::table('external_connected_entities')
+        $entities = Cartographer::scopedQuery(ExternalConnectedEntity::query())
             ->select('id', 'name', 'network_id', 'entity_id')
-            ->whereNull('deleted_at')
             ->get();
 
         // Charge tous les pivots en une seule requête, groupés par entity ID → élimine le N+1
@@ -924,9 +908,8 @@ class ExplorerController extends Controller
     }
     private function buildContainers(): void
     {
-        $containers = DB::table('containers')
+        $containers = Cartographer::scopedQuery(Container::query())
             ->select('id', 'name', 'icon_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($containers as $container) {
@@ -972,9 +955,9 @@ class ExplorerController extends Controller
 
     private function buildClusters(): void {
         // Clusters
-        $clusters = DB::table('clusters')
+        $clusters = Cartographer::scopedQuery(Cluster::query())
             ->select('id', 'name', 'icon_id', 'address_ip', 'attributes')
-            ->whereNull('deleted_at')->get();
+            ->get();
         foreach ($clusters as $cluster) {
             $this->addNode(
                 5,
@@ -1016,9 +999,8 @@ class ExplorerController extends Controller
 
     private function buildLogicalServers(): void
     {
-        $this->logicalServers = DB::table('logical_servers')
+        $this->logicalServers = Cartographer::scopedQuery(LogicalServer::query())
             ->select('id', 'name', 'icon_id', 'address_ip', 'domain_id', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($this->logicalServers as $server) {
@@ -1054,13 +1036,8 @@ class ExplorerController extends Controller
 
     private function buildBackups(): void
     {
-        if (! Auth::user()->can('backup_access')) {
-            return;
-        }
-
-        $backups = DB::table('backups')
+        $backups = Cartographer::scopedQuery(Backup::query())
             ->select('id', 'name', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($backups as $backup) {
@@ -1097,9 +1074,8 @@ class ExplorerController extends Controller
 
     private function buildLogicalSecurityDevices(): void
     {
-        $securityDevices = DB::table('security_devices')
+        $securityDevices = Cartographer::scopedQuery(SecurityDevice::query())
             ->select('id', 'name', 'attributes', 'icon_id','address_ip')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($securityDevices as $securityDevice) {
@@ -1132,9 +1108,8 @@ class ExplorerController extends Controller
 
     private function buildRouters(): void
     {
-        $routers = DB::table('routers')
+        $routers = Cartographer::scopedQuery(Router::query())
             ->select('id', 'name', 'ip_addresses')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($routers as $router) {
@@ -1166,9 +1141,8 @@ class ExplorerController extends Controller
 
     private function buildCertificates(): void
     {
-        $certificates = DB::table('certificates')
+        $certificates = Cartographer::scopedQuery(Certificate::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($certificates as $certificate) {
@@ -1193,7 +1167,7 @@ class ExplorerController extends Controller
 
     private function buildLogicalFlows(): void
     {
-        $flows = LogicalFlow::all();
+        $flows = Cartographer::scopedQuery(LogicalFlow::query())->get();
 
         foreach ($flows as $flow) {
             // \Log::Debug('flow: '.$flow->name);
@@ -1272,7 +1246,7 @@ class ExplorerController extends Controller
 
     private function buildApplicationFlows() : void {
         // Fluxes
-        $flows = DB::table('application_flows')->whereNull('deleted_at')->get();
+        $flows = Cartographer::scopedQuery(ApplicationFlow::query())->get();
         foreach ($flows as $flow) {
             if ($flow->application_source_id !== null) {
                 $src_id = $this->formatId(Application::$prefix, $flow->application_source_id);
@@ -1304,9 +1278,8 @@ class ExplorerController extends Controller
 
     private function buildApplicationBlocks(): void
     {
-        $blocks = DB::table('application_blocks')
+        $blocks = Cartographer::scopedQuery(ApplicationBlock::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($blocks as $block) {
@@ -1322,9 +1295,8 @@ class ExplorerController extends Controller
 
     private function buildApplications(): void
     {
-        $applications = DB::table('applications')
+        $applications = Cartographer::scopedQuery(Application::query())
             ->select('id', 'name', 'icon_id', 'application_block_id', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($applications as $app) {
@@ -1357,9 +1329,8 @@ class ExplorerController extends Controller
 
     private function buildApplicationServices(): void
     {
-        $services = DB::table('application_services')
+        $services = Cartographer::scopedQuery(ApplicationService::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($services as $service) {
@@ -1380,9 +1351,8 @@ class ExplorerController extends Controller
 
     private function buildApplicationModules(): void
     {
-        $modules = DB::table('application_modules')
+        $modules = Cartographer::scopedQuery(ApplicationModule::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($modules as $module) {
@@ -1403,9 +1373,8 @@ class ExplorerController extends Controller
 
     private function buildDatabases(): void
     {
-        $databases = DB::table('databases')
+        $databases = Cartographer::scopedQuery(Database::query())
             ->select('id', 'name', 'icon_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($databases as $database) {
@@ -1443,9 +1412,8 @@ class ExplorerController extends Controller
 
     private function buildZoneAdmins(): void
     {
-        $zones = DB::table('zone_admins')
+        $zones = Cartographer::scopedQuery(ZoneAdmin::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($zones as $zone) {
@@ -1461,9 +1429,8 @@ class ExplorerController extends Controller
 
     private function buildAnnuaires(): void
     {
-        $annuaires = DB::table('annuaires')
+        $annuaires = Cartographer::scopedQuery(Annuaire::query())
             ->select('id', 'name', 'zone_admin_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($annuaires as $annuaire) {
@@ -1487,9 +1454,8 @@ class ExplorerController extends Controller
 
     private function buildForests(): void
     {
-        $forests = DB::table('forest_ads')
+        $forests = Cartographer::scopedQuery(ForestAd::query())
             ->select('id', 'name', 'zone_admin_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($forests as $forest) {
@@ -1512,9 +1478,8 @@ class ExplorerController extends Controller
 
     private function buildDomains(): void
     {
-        $domains = DB::table('domains')
+        $domains = Cartographer::scopedQuery(Domain::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($domains as $domain) {
@@ -1534,9 +1499,8 @@ class ExplorerController extends Controller
 
     private function buildAdminUsers(): void
     {
-        $adminUsers = DB::table('admin_users')
+        $adminUsers = Cartographer::scopedQuery(AdminUser::query())
             ->select('id', 'user_id', 'icon_id', 'domain_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($adminUsers as $adminUser) {
@@ -1578,9 +1542,8 @@ class ExplorerController extends Controller
 
     private function buildInformation(): void
     {
-        $information = DB::table('information')
+        $information = Cartographer::scopedQuery(Information::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($information as $info) {
@@ -1613,9 +1576,8 @@ class ExplorerController extends Controller
 
     private function buildProcesses(): void
     {
-        $processes = DB::table('processes')
+        $processes = Cartographer::scopedQuery(Process::query())
             ->select('id', 'name', 'icon_id', 'macroprocess_id')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($processes as $process) {
@@ -1640,9 +1602,8 @@ class ExplorerController extends Controller
 
     private function buildMacroProcesses(): void
     {
-        $macroProcesses = DB::table('macro_processuses')
+        $macroProcesses = Cartographer::scopedQuery(MacroProcessus::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($macroProcesses as $macroProcess) {
@@ -1658,9 +1619,8 @@ class ExplorerController extends Controller
 
     private function buildActivities(): void
     {
-        $activities = DB::table('activities')
+        $activities = Cartographer::scopedQuery(Activity::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($activities as $activity) {
@@ -1684,9 +1644,8 @@ class ExplorerController extends Controller
 
     private function buildOperations(): void
     {
-        $operations = DB::table('operations')
+        $operations = Cartographer::scopedQuery(Operation::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($operations as $operation) {
@@ -1706,9 +1665,8 @@ class ExplorerController extends Controller
 
     private function buildTasks(): void
     {
-        $tasks = DB::table('tasks')
+        $tasks = Cartographer::scopedQuery(Task::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($tasks as $task) {
@@ -1728,9 +1686,8 @@ class ExplorerController extends Controller
 
     private function buildActors(): void
     {
-        $actors = DB::table('actors')
+        $actors = Cartographer::scopedQuery(Actor::query())
             ->select('id', 'name')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($actors as $actor) {
@@ -1757,9 +1714,8 @@ class ExplorerController extends Controller
 
     private function buildEntities(): void
     {
-        $entities = DB::table('entities')
+        $entities = Cartographer::scopedQuery(Entity::query())
             ->select('id', 'name', 'icon_id', 'parent_entity_id', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($entities as $entity) {
@@ -1793,9 +1749,8 @@ class ExplorerController extends Controller
 
     private function buildRelations(): void
     {
-        $relations = DB::table('relations')
+        $relations = Cartographer::scopedQuery(Relation::query())
             ->select('id', 'name', 'source_id', 'destination_id', 'attributes')
-            ->whereNull('deleted_at')
             ->get();
 
         foreach ($relations as $relation) {

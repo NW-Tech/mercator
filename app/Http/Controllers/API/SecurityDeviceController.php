@@ -38,14 +38,14 @@ class SecurityDeviceController extends APIController
 
     public function show(SecurityDevice $securityDevice)
     {
-        abort_if(Gate::denies('security_device_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $securityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($securityDevice);
     }
 
     public function update(UpdateSecurityDeviceRequest $request, SecurityDevice $securityDevice)
     {
-        abort_if(Gate::denies('security_device_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $securityDevice), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $securityDevice->update($request->all());
         // syncs

@@ -10,9 +10,13 @@
         </th>
         <td>
         @if($withLink)
-        <a href="{{ route('admin.wifi-terminals.show', $wifiTerminal) }}">{{ $wifiTerminal->name }}</a>
+            @canShow($wifiTerminal)
+                <a href="{{ route('admin.wifi-terminals.show', $wifiTerminal) }}">{{ $wifiTerminal->name }}</a>
+            @elsecanShow
+                {{ $wifiTerminal->name }}
+            @endcanShow
         @else
-        {{ $wifiTerminal->name }}
+            {{ $wifiTerminal->name }}
         @endif
         </td>
         <th width="10%">

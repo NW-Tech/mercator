@@ -11,5 +11,5 @@
         value="{{ $actionId }}"
         @disabled($disabled)
         @checked($isChecked)>
-    <label class="form-check-label" for="for_{{ $actionId }}">{{ $actionLabel }}</label>
+    <label class="form-check-label" for="for_{{ $actionId }}">{{ $actionLabel=='access' ? 'list' : $actionLabel  }}</label>
 </div>

@@ -35,14 +35,14 @@ class ZoneAdminController extends APIController
 
     public function show(ZoneAdmin $zoneAdmin)
     {
-        abort_if(Gate::denies('zone_admin_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $zoneAdmin), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($zoneAdmin);
     }
 
     public function update(UpdateZoneAdminRequest $request, ZoneAdmin $zoneAdmin)
     {
-        abort_if(Gate::denies('zone_admin_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $zoneAdmin), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $zoneAdmin->update($request->all());
 

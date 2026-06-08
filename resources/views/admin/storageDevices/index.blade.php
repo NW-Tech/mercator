@@ -65,9 +65,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.storage-devices.show', $storageDevice->id) }}">
-                                    {{ $storageDevice->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$storageDevice" />
                             </td>
                             <td>
                                 {!! $storageDevice->type ?? '' !!}
@@ -77,17 +75,17 @@
                             </td>
                             <td>
                                 @if ($storageDevice->site!==null)
-                                    <a href="{{ route('admin.sites.show', $storageDevice->site_id) }}">{{ $storageDevice->site->name }}</a>
+                                    <x-show-link :model="$storageDevice->site" />
                                 @endif
                             </td>
                             <td>
                                 @if ($storageDevice->building!==null)
-                                    <a href="{{ route('admin.buildings.show', $storageDevice->building_id) }}">{{ $storageDevice->building->name }}</a>
+                                    <x-show-link :model="$storageDevice->building" />
                                 @endif
                             </td>
                             <td>
                                 @if ($storageDevice->bay!==null)
-                                    <a href="{{ route('admin.bays.show', $storageDevice->bay_id) }}">{{ $storageDevice->bay->name }}</a>
+                                    <x-show-link :model="$storageDevice->bay" />
                                 @endif
                             </td>
                             <td nowrap>
@@ -98,12 +96,12 @@
                                     </a>
                                 @endcan
 
-                                @can('storage_device_edit')
+                                @canEdit($storageDevice)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.storage-devices.edit', $storageDevice->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('storage_device_delete')
                                     <form action="{{ route('admin.storage-devices.destroy', $storageDevice->id) }}"

@@ -10,15 +10,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$bay->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('bay_edit')
+
+        @endcan
+
+        @canEdit($bay)
             <a class="btn btn-info" href="{{ route('admin.bays.edit', $bay->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('bay_create')
             <a class="btn btn-warning" href="{{ route('admin.bays.clone', $bay->id) }}">

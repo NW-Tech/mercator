@@ -71,7 +71,7 @@
                         >
                             <td></td>
                             <td>
-                                <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">{{ $logicalServer->name }}</a>
+                                <x-show-link :model="$logicalServer" />
                             </td>
                             <td>{{ $logicalServer->type }}</td>
                             <td>@php
@@ -82,13 +82,13 @@
                             <td>{!! $logicalServer->description !!}</td>
                             <td>{!! $logicalServer->configuration !!}</td>
                             <td>@foreach($logicalServer->applications as $application)
-                                    <a href="{{ route('admin.applications.show', $application->id) }}">{{ $application->name }}</a>{{ $loop->last ? null : ',' }}
+                                    <x-show-link :model="$application" />{{ $loop->last ? null : ',' }}
                                 @endforeach
                             </td>
                             <td>
                                 @if(count($logicalServer->clusters)>0)
                                     @foreach($logicalServer->clusters as $cluster)
-                                        <a href="{{ route('admin.clusters.show', $cluster->id) }}">{{ $cluster->name }}</a>
+                                        <x-show-link :model="$cluster" />
                                         @if (!$loop->last)
                                             ,
                                         @endif
@@ -99,7 +99,7 @@
                                         /
                                     @endif
                                     @foreach($logicalServer->physicalServers as $server)
-                                        <a href="{{ route('admin.physical-servers.show', $server->id) }}">{{ $server->name }}</a>{{ $loop->last ? null : ',' }}
+                                        <x-show-link :model="$server" />{{ $loop->last ? null : ',' }}
                                     @endforeach
                                 @endif
                             </td>
@@ -108,10 +108,10 @@
                                     <a class="btn btn-xs btn-primary"
                                        href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">{{ trans('global.view') }}</a>
                                 @endcan
-                                @can('logical_server_edit')
+                                @canEdit($logicalServer)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.logical-servers.edit', $logicalServer->id) }}">{{ trans('global.edit') }}</a>
-                                @endcan
+                                @endcanEdit
                                 @can('logical_server_delete')
                                     <form action="{{ route('admin.logical-servers.destroy', $logicalServer->id) }}"
                                           method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');"

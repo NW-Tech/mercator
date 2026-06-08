@@ -11,15 +11,21 @@
             {{ trans('global.back_to_list') }}
         </a>
 
+
+        @can('explore_access')
+
         <a class="btn btn-success" href="{{ route('admin.report.explore') }}?node={{$task->getUID()}}">
             {{ trans('global.explore') }}
         </a>
 
-        @can('task_edit')
+
+        @endcan
+
+        @canEdit($task)
             <a class="btn btn-info" href="{{ route('admin.tasks.edit', $task->id) }}">
                 {{ trans('global.edit') }}
             </a>
-        @endcan
+        @endcanEdit
 
         @can('task_delete')
             <form action="{{ route('admin.tasks.destroy', $task->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

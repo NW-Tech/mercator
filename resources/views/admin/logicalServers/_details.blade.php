@@ -6,9 +6,14 @@
         </th>
         <td>
             @if($withLink)
+            @canShow($logicalServer)
             <a href="{{ route('admin.logical-servers.show', $logicalServer->id) }}">
                 {{ $logicalServer->name }}
             </a>
+            @elsecanShow
+            id) }}">
+                {{ $logicalServer->name }}
+            @endcanShow
             @else
                 {{ $logicalServer->name }}
             @endif
@@ -65,15 +70,20 @@
             {{ $logicalServer->update_date }}
         </td>
     </tr>
+    @canAccess(App\Models\Cluster::class)
     <tr>
         <th>
             {{ trans('cruds.logicalServer.fields.cluster') }}
         </th>
         <td>
             @foreach($logicalServer->clusters as $cluster)
-                <a href="{{ route('admin.clusters.show', $cluster->id) }}">
+                @canShow($cluster)
+                    <a href="{{ route('admin.clusters.show', $cluster->id) }}">
+                        {{ $cluster->name ?? "" }}
+                    </a>
+                @elsecanShow
                     {{ $cluster->name ?? "" }}
-                </a>
+                @endcanShow
                 @if (!$loop->last)
                     ,
                 @endif
@@ -92,6 +102,7 @@
             {{ $logicalServer->address_ip }}
         </td>
     </tr>
+    @endcanAccess
     <tr>
         <th>
             {{ trans('cruds.logicalServer.fields.net_services') }}

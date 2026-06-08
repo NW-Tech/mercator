@@ -66,16 +66,14 @@
 
                             </td>
                             <td nowrap>
-                                <a href="{{ route('admin.data-processings.show', $processing->id) }}">
-                                {{ $processing->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$processing" />
                             </td>
                             <td>
                                 {!! $processing->description !!}
                             </td>
                             <td>
                                 @foreach($processing->processes as $p)
-                                    <a href="{{ route('admin.processes.show', $p->id) }}">{{ $p->name }}</a>
+                                    <x-show-link :model="$p" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -83,7 +81,7 @@
                             </td>
                             <td>
                                 @foreach($processing->applications as $app)
-                                    <a href="{{ route('admin.applications.show', $app->id) }}">{{ $app->name }}</a>
+                                    <x-show-link :model="$app" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -91,7 +89,7 @@
                             </td>
                             <td>
                                 @foreach($processing->informations as $info)
-                                    <a href="{{ route('admin.information.show', $info->id) }}">{{ $info->name }}</a>
+                                    <x-show-link :model="$info" />
                                     @if (!$loop->last)
                                     ,
                                     @endif
@@ -104,11 +102,11 @@
                                     </a>
                                 @endcan
 
-                                @can('data_processing_edit')
+                                @canEdit($processing)
                                     <a class="btn btn-xs btn-info" href="{{ route('admin.data-processings.edit', $processing->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('data_processing_delete')
                                     <form action="{{ route('admin.data-processings.destroy', $processing->id) }}" method="POST" onsubmit="return confirm('{{ trans('global.areYouSure') }}');" style="display: inline-block;">

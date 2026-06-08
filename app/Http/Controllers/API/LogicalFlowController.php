@@ -41,14 +41,14 @@ class LogicalFlowController extends APIController
 
     public function show(LogicalFlow $logicalFlow)
     {
-        abort_if(Gate::denies('logical_flow_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $logicalFlow), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($logicalFlow);
     }
 
     public function update(UpdateLogicalFlowRequest $request, LogicalFlow $logicalFlow)
     {
-        abort_if(Gate::denies('logical_flow_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $logicalFlow), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $logicalFlow->update($request->all());
 

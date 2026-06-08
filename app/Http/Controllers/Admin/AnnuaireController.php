@@ -15,7 +15,11 @@ class AnnuaireController extends Controller
 {
     public function index()
     {
-        abort_if(Gate::denies('annuaire_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('annuaire_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Annuaire::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $annuaires = Annuaire::query()
             ->when(request('search'), function ($q, $search) {
@@ -26,7 +30,8 @@ class AnnuaireController extends Controller
             });
         })
         ->orderBy('name')
-        ->paginate(min(max((int) request('per_page', 50), 10), 500));
+        
+        ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.annuaires.index', compact('annuaires'));
     }
@@ -49,7 +54,7 @@ class AnnuaireController extends Controller
 
     public function edit(Annuaire $annuaire)
     {
-        abort_if(Gate::denies('annuaire_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $annuaire), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $zone_admins = ZoneAdmin::all()->sortBy('name')->pluck('name', 'id')->prepend(trans('global.pleaseSelect'), '');
 
@@ -60,6 +65,8 @@ class AnnuaireController extends Controller
 
     public function update(UpdateAnnuaireRequest $request, Annuaire $annuaire)
     {
+        abort_if(Gate::denies('edit-object', $annuaire), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $annuaire->update($request->all());
 
         return redirect()->route('admin.annuaires.index');
@@ -67,7 +74,7 @@ class AnnuaireController extends Controller
 
     public function show(Annuaire $annuaire)
     {
-        abort_if(Gate::denies('annuaire_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $annuaire), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $annuaire->load('zoneAdmin');
 

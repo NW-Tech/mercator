@@ -92,7 +92,7 @@
 </div>
 <div class="report-scroll-area">
 
-    @can('network_access')
+    @canAccess(App\Models\Network::class)
         @if ($networks->count()>0)
             <div class="card">
                 <div class="card-header">
@@ -117,7 +117,7 @@
         @endif
     @endcan
 
-    @can('subnetwork_access')
+    @canAccess(App\Models\Subnetwork::class)
         @if ($subnetworks->count()>0)
             <br>
             <div class="card">
@@ -166,7 +166,7 @@
         @endif
     @endcan
 
-    @can('external_connected_entity_access')
+    @canAccess(App\Models\ExternalConnectedEntity::class)
         @if ($externalConnectedEntities->count()>0)
             <br>
             <div class="card">
@@ -238,7 +238,7 @@
         @endif
     @endcan
 
-    @can('cluster_access')
+    @canAccess(App\Models\Cluster::class)
         @if ($clusters->count()>0)
             <br>
             <div class="card">
@@ -262,7 +262,7 @@
         @endif
     @endcan
 
-    @can('logical_server_access')
+    @canAccess(App\Models\LogicalServer::class)
         @if ($logicalServers->count()>0)
             <br>
             <div class="card">
@@ -286,7 +286,7 @@
         @endif
     @endcan
 
-    @can('container_access')
+    @canAccess(App\Models\Container::class)
         @if ($containers->count()>0)
             <br>
             <div class="card">
@@ -310,7 +310,7 @@
         @endif
     @endcan
 
-    @can('workstation_access')
+    @canAccess(App\Models\Workstation::class)
         @if ($workstations->count()>0)
             <br>
             <div class="card">
@@ -334,7 +334,7 @@
         @endif
     @endcan
 
-    @can('phone_access')
+    @canAccess(App\Models\Phone::class)
         @if ($phones->count()>0)
             <br>
             <div class="card">
@@ -358,7 +358,7 @@
         @endif
     @endcan
 
-    @can('physical_security_device_access')
+    @canAccess(App\Models\PhysicalSecurityDevice::class)
         @if ($physicalSecurityDevices->count()>0)
             <br>
             <div class="card">
@@ -384,7 +384,7 @@
         @endif
     @endcan
 
-    @can('security_device_access')
+    @canAccess(App\Models\SecurityDevice::class)
         @if ($securityDevices->count()>0)
             <br>
             <div class="card">
@@ -408,7 +408,7 @@
         @endif
     @endcan
 
-    @can('storage_device_access')
+    @canAccess(App\Models\StorageDevice::class)
         @if ($storageDevices->count()>0)
             <br>
             <div class="card">
@@ -432,7 +432,7 @@
         @endif
     @endcan
 
-    @can('wifi_terminal_access')
+    @canAccess(App\Models\WifiTerminal::class)
         @if ($wifiTerminals->count()>0)
             <br>
             <div class="card">
@@ -456,7 +456,7 @@
         @endif
     @endcan
 
-    @can('peripheral_access')
+    @canAccess(App\Models\Peripheral::class)
         @if ($peripherals->count()>0)
             <br>
             <div class="card">
@@ -480,7 +480,7 @@
         @endif
     @endcan
 
-    @can('dhcp_server_access')
+    @canAccess(App\Models\DhcpServer::class)
         @if ($dhcpServers->count()>0)
             <br>
             <div class="card">
@@ -504,7 +504,7 @@
         @endif
     @endcan
 
-    @can('dnsserver_access')
+    @canAccess(App\Models\Dnsserver::class)
         @if ($dnsservers->count()>0)
             <br>
             <div class="card">
@@ -528,7 +528,7 @@
         @endif
     @endcan
 
-    @can('certificate_access')
+    @canAccess(App\Models\Certificate::class)
         @if ($certificates->count()>0)
             <br>
             <div class="card">
@@ -552,7 +552,7 @@
         @endif
     @endcan
 
-    @can('vlan_access')
+    @canAccess(App\Models\Vlan::class)
         @if ($vlans->count()>0)
             <br>
             <div class="card">
@@ -583,22 +583,22 @@
     <script>
         let dotSrc = `
 digraph  {
-@can('network_access')
+@canAccess(App\Models\Network::class)
     @foreach($networks as $network)
     NET{{ $network->id }} [label="{{ $network->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/cloud.png" href="#{{$network->getUID()}}"]
     @endforeach
 @endcan
 
-@can('gateway_access')
+@canAccess(App\Models\Gateway::class)
     @foreach($gateways as $gateway)
     GATEWAY{{ $gateway->id }} [label="{{ $gateway->name }} {{ Session::get('show_ip') ? chr(13) . $gateway->ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip')&&($gateway->ip!=null) ? '1.5' :'1.1' }} image="/images/gateway.png" href="#{{$gateway->getUID()}}"]
     @endforeach
 @endcan
 
-@can('subnetwork_access')
+@canAccess(App\Models\Subnetwork::class)
     @foreach($subnetworks as $subnetwork)
         SUBNET{{ $subnetwork->id }} [label="{{ $subnetwork->name }} {{ Session::get('show_ip') ? chr(13) . $subnetwork->address : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip')&&($subnetwork->address!=null) ? '1.7' :'1.1' }} image="/images/network.png" href="#{{$subnetwork->getUID()}}"]
-        @if ($subnetwork->vlan_id!==null)
+        @if ($subnetwork->vlan_id!==null && $vlans->contains('id', $subnetwork->vlan_id))
             SUBNET{{ $subnetwork->id }} -> VLAN{{ $subnetwork->vlan_id }}
         @endif
         @if ($subnetwork->subnetwork_id!==null)
@@ -612,22 +612,22 @@ digraph  {
             NET{{ $subnetwork->network_id }} -> SUBNET{{ $subnetwork->id }}
             @endif
         @endif
-        @if ($subnetwork->gateway_id!==null)
+        @if ($subnetwork->gateway_id!==null && $gateways->contains('id', $subnetwork->gateway_id))
             SUBNET{{ $subnetwork->id }} -> GATEWAY{{ $subnetwork->gateway_id }}
         @endif
     @endforeach
 @endcan
 
-@can('external_connected_entity_access')
+@canAccess(App\Models\ExternalConnectedEntity::class)
     @foreach($externalConnectedEntities as $entity)
         E{{ $entity->id }} [label="{{ $entity->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/entity.png" href="#{{$entity->getUID()}}"]
-        @if($entity->network_id!==null)
+        @if($entity->network_id!==null && $networks->contains('id', $entity->network_id))
             E{{ $entity->id }} -> NET{{ $entity->network_id }}
         @endif
     @endforeach
 @endcan
 
-@can('cluster_access')
+@canAccess(App\Models\Cluster::class)
     @php
         $usedClusterIds = collect($logicalServers)
             ->flatMap(fn($logicalServer) => $logicalServer->clusters->pluck('id'))
@@ -638,16 +638,18 @@ digraph  {
     @foreach($clusters as $cluster)
         @if (in_array($cluster->id, $usedClusterIds))
             CLUSTER{{ $cluster->id}} [label="{{ $cluster->name }} {{ Session::get('show_ip') ? chr(13) . $cluster->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($cluster->address_ip!==null) ? '1.7' :'1.1' }} image="/images/cluster.png" href="#{{$cluster->getUID()}}"]
-            @can('logical_server_access')
+            @canAccess(App\Models\LogicalServer::class)
                 @foreach($cluster->logicalServers as $logicalServer)
+                    @if($logicalServers->contains('id', $logicalServer->id))
                     LOGICAL_SERVER{{ $logicalServer->id }} -> CLUSTER{{ $cluster->id }}
+                    @endif
                 @endforeach
             @endcan
         @endif
     @endforeach
 @endcan
 
-@can('logical_server_access')
+@canAccess(App\Models\LogicalServer::class)
     @foreach($logicalServers as $logicalServer)
         LOGICAL_SERVER{{ $logicalServer->id }} [label="{{ $logicalServer->name }} {{ Session::get('show_ip') ? chr(13) . $logicalServer->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($logicalServer->address_ip!=null) ? '1.5' :'1.1' }} image="{{ $logicalServer->icon_id === null ? '/images/lserver.png' : route('admin.documents.show', $logicalServer->icon_id) }}" href="#{{$logicalServer->getUID()}}"]
         @if ($logicalServer->address_ip!==null)
@@ -660,19 +662,23 @@ digraph  {
                 @endforeach
             @endforeach
         @endif
-        @can('cluster_access')
-            @if ($logicalServer->cluster_id!==null)
+        @canAccess(App\Models\Cluster::class)
+            @if ($logicalServer->cluster_id!==null && $clusters->contains('id', $logicalServer->cluster_id))
             LOGICAL_SERVER{{ $logicalServer->id }} -> CLUSTER{{ $logicalServer->cluster_id }}
             @endif
         @endcan
 
+        @canAccess(App\Models\Certificate::class)
         @foreach($logicalServer->certificates as $certificate)
+            @if($certificates->contains('id', $certificate->id))
             LOGICAL_SERVER{{ $logicalServer->id }} -> CERT{{ $certificate->id }}
+            @endif
         @endforeach
+        @endcan
     @endforeach
 @endcan
 
-@can('dhcp_server_access')
+@canAccess(App\Models\DhcpServer::class)
     @foreach($dhcpServers as $dhcpServer)
     DHCP_SERVER{{ $dhcpServer->id }} [label="{{ $dhcpServer->name }} {{ Session::get('show_ip') ? chr(13) . $dhcpServer->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($dhcpServer->address_ip!=null) ? '1.5' :'1.1' }} image="/images/lserver.png" href="#{{$dhcpServer->getUID()}}"]
     @if ($dhcpServer->address_ip!==null)
@@ -686,7 +692,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('dnsserver_access')
+@canAccess(App\Models\Dnsserver::class)
     @foreach($dnsservers as $dnsserver)
     DNS_SERVER{{ $dnsserver->id }} [label="{{ $dnsserver->name }} {{ Session::get('show_ip') ? chr(13) . $dnsserver->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($dnsserver->address_ip!=null) ? '1.5' :'1.1' }} image="/images/lserver.png" href="#{{$dnsserver->getUID()}}"]
         @if ($dnsserver->address_ip!==null)
@@ -700,7 +706,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('certificate_access')
+@canAccess(App\Models\Certificate::class)
     @foreach($certificates as $certificate)
     @if ($certificate->logicalServers->count()>0)
     CERT{{ $certificate->id }} [label="{{ $certificate->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/certificate.png" href="#{{$certificate->getUID()}}"]
@@ -708,18 +714,20 @@ digraph  {
     @endforeach
 @endcan
 
-@can('container_access')
+@canAccess(App\Models\Container::class)
     @foreach($containers as $container)
         @if ($container->logicalServers->count()>0)
             CONT{{ $container->id }} [label="{{ $container->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $container->icon_id === null ? '/images/container.png' : route('admin.documents.show', $container->icon_id) }}" href="#{{$container->getUID()}}"]
             @foreach($container->logicalServers as $logicalServer)
+                @if($logicalServers->contains('id', $logicalServer->id))
                 LOGICAL_SERVER{{ $logicalServer->id }} -> CONT{{ $container->id }}
+                @endif
             @endforeach
         @endif
     @endforeach
 @endcan
 
-    @can('workstation_access')
+    @canAccess(App\Models\Workstation::class)
         @foreach($workstations as $workstation)
             WS{{ $workstation->id }} [label="{{ $workstation->name }} {{ Session::get('show_ip') ? chr(13) . $workstation->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($workstation->address_ip!==null) ? '1.5' :'1.1' }} image="{{ $workstation->icon_id === null ? '/images/workstation.png' : route('admin.documents.show', $workstation->icon_id) }}" href="#{{$workstation->getUID()}}"]
             @foreach(explode(',',$workstation->address_ip) as $address)
@@ -733,7 +741,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('wifi_terminal_access')
+@canAccess(App\Models\WifiTerminal::class)
     @foreach($wifiTerminals as $wifiTerminal)
         WIFI{{ $wifiTerminal->id }} [label="{{ $wifiTerminal->name }} {{ Session::get('show_ip') ? chr(13) . $wifiTerminal->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($wifiTerminal->address_ip!==null) ? '1.5' :'1.1' }} image="/images/wifi.png" href="#{{$wifiTerminal->getUID()}}"]
         @foreach(explode(',',$wifiTerminal->address_ip) as $address)
@@ -747,7 +755,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('phone_access')
+@canAccess(App\Models\Phone::class)
     @foreach($phones as $phone)
     PHONE{{ $phone->id }} [label="{{ $phone->name }} {{ Session::get('show_ip') ? chr(13) . $phone->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($phone->address_ip!==null) ? '1.5' :'1.1' }} image="/images/phone.png" href="#{{$phone->getUID()}}"]
     @foreach(explode(',',$phone->address_ip) as $address)
@@ -761,7 +769,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('physical_security_device_access')
+@canAccess(App\Models\PhysicalSecurityDevice::class)
     @foreach($physicalSecurityDevices as $physicalSecurityDevice)
     @if ($physicalSecurityDevice->address_ip!==null)
         PSECURITY{{ $physicalSecurityDevice->id }} [label="{{ $physicalSecurityDevice->name }} {{ Session::get('show_ip') ? chr(13) . $physicalSecurityDevice->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($physicalSecurityDevice->address_ip!=null) ? '1.5' :'1.1' }} image="{{ $physicalSecurityDevice->icon_id === null ? '/images/securitydevice.png' : route('admin.documents.show', $physicalSecurityDevice->icon_id) }}" href="#{{$physicalSecurityDevice->getUID()}}"]
@@ -777,7 +785,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('security_device_access')
+@canAccess(App\Models\SecurityDevice::class)
     @foreach($securityDevices as $securityDevice)
         SECURITY{{ $securityDevice->id }} [label="{{ $securityDevice->name }} {{ Session::get('show_ip') ? chr(13) . $securityDevice->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($securityDevice->address_ip!=null) ? '1.5' :'1.1' }} image="{{ $securityDevice->icon_id === null ? '/images/securitydevice.png' : route('admin.documents.show', $securityDevice->icon_id) }}" href="#{{$securityDevice->getUID()}}"]
         @foreach(explode(',',$securityDevice->address_ip) as $address)
@@ -791,7 +799,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('peripheral_access')
+@canAccess(App\Models\Peripheral::class)
     @foreach($peripherals as $peripheral)
         PER{{ $peripheral->id }} [label="{{ $peripheral->name }} {{ Session::get('show_ip') ? chr(13) . $peripheral->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($peripheral->address_ip!==null) ? '1.5' :'1.1' }} image="{{ $peripheral->icon_id === null ? '/images/peripheral.png' : route('admin.documents.show', $peripheral->icon_id) }}" href="#{{$peripheral->getUID()}}"]
         @foreach(explode(',',$peripheral->address_ip) as $address)
@@ -805,7 +813,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('storage_device_access')
+@canAccess(App\Models\StorageDevice::class)
     @foreach($storageDevices as $storageDevice)
         STOR{{ $storageDevice->id }} [label="{{ $storageDevice->name }} {{ Session::get('show_ip') ? chr(13) . $storageDevice->address_ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($storageDevice->address_ip!==null) ? '1.5' :'1.1' }} image="/images/storagedev.png" href="#{{$storageDevice->getUID()}}"]
         @foreach(explode(',',$storageDevice->address_ip) as $address)
@@ -819,7 +827,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('router_access')
+@canAccess(App\Models\Router::class)
     @foreach($routers as $router)
         R{{ $router->id }} [label="{{ $router->name }} {{ Session::get('show_ip') ? chr(13) . $router->ip_addresses : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($router->ip_addresses!==null) ? '1.5' :'1.1' }} image="/images/router.png" href="#{{$router->getUID()}}"]
         @foreach(explode(',',$router->ip_addresses) as $address)
@@ -833,7 +841,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('network_switch_access')
+@canAccess(App\Models\NetworkSwitch::class)
     @foreach($networkSwitches as $networkSwitch)
         SW{{ $networkSwitch->id }} [label="{{ $networkSwitch->name }} {{ Session::get('show_ip') ? chr(13) . $networkSwitch->ip : '' }}" shape=none labelloc="b"  width=1 height={{ Session::get('show_ip') && ($networkSwitch->ip!==null) ? '1.5' :'1.1' }} image="/images/switch.png" href="#{{$networkSwitch->getUID()}}"]
         @if ($networkSwitch->vlans->count()>0)
@@ -853,7 +861,7 @@ digraph  {
     @endforeach
 @endcan
 
-@can('vlan_access')
+@canAccess(App\Models\Vlan::class)
     @foreach($vlans as $vlan)
     VLAN{{ $vlan->id }} [label="{{ $vlan->name }}" shape=none labelloc="b" width=1 height=1.1 image="/images/vlan.png" href="#{{$vlan->getUID()}}"]
     @endforeach

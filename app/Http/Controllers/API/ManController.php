@@ -36,14 +36,14 @@ class ManController extends APIController
 
     public function show(Man $man)
     {
-        abort_if(Gate::denies('man_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $man), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return new JsonResource($man);
     }
 
     public function update(UpdateManRequest $request, Man $man)
     {
-        abort_if(Gate::denies('man_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $man), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $man->update($request->all());
 

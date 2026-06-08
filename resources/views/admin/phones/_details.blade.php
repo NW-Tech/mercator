@@ -10,7 +10,11 @@
             </th>
             <td>
             @if($withLink)
+            @canShow($phone)
             <a href="{{ route('admin.phones.show', $phone) }}">{{ $phone->name }}</a>
+            @elsecanShow
+            {{ $phone->name }}
+            @endcanShow
             @else
             {{ $phone->name }}
             @endif
@@ -40,25 +44,37 @@
                 {{ $phone->address_ip }}
             </td>
         </tr>
+        @canAccess(App\Models\Site::class)
         <tr>
             <th>
                 {{ trans('cruds.phone.fields.site') }}
             </th>
             <td>
                 @if ($phone->site!==null)
-                    <a href="{{ route('admin.sites.show', $phone->site_id) }}">{{ $phone->site->name }}</a>
+                    @canShow($phone->site)
+                        <a href="{{ route('admin.sites.show', $phone->site_id) }}">{{ $phone->site->name }}</a>
+                    @elsecanShow
+                        {{ $phone->site->name }}
+                    @endcanShow
                 @endif
             </td>
         </tr>
+        @endcanAccess
+        @canAccess(App\Models\Building::class)
         <tr>
             <th>
                 {{ trans('cruds.phone.fields.building') }}
             </th>
             <td>
                 @if ($phone->building!==null)
-                    <a href="{{ route('admin.buildings.show', $phone->building_id) }}">{{ $phone->building->name }}</a>
+                    @canShow($phone->building)
+                        <a href="{{ route('admin.buildings.show', $phone->building_id) }}">{{ $phone->building->name }}</a>
+                    @elsecanShow
+                        {{ $phone->building->name }}
+                    @endcanShow
                 @endif
             </td>
         </tr>
+        @endcanAccess
     </tbody>
 </table>

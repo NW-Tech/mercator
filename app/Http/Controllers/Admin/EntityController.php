@@ -20,7 +20,11 @@ class EntityController extends Controller
 
     public function index()
     {
-        abort_if(Gate::denies('entity_access'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        $user = auth()->user();
+        $allowedIds = Gate::allows('entity_access') ? null : \App\Models\Cartographer::allowedIdsFor($user, \App\Models\Entity::class);
+        if ($allowedIds !== null && empty($allowedIds)) {
+            abort(Response::HTTP_FORBIDDEN, '403 Forbidden');
+        }
 
         $entities = Entity::query()
             ->with('processes')
@@ -33,7 +37,8 @@ class EntityController extends Controller
                 });
             })
             ->orderBy('name')
-            ->paginate(min(max((int) request('per_page', 50), 10), 500));
+            
+            ->when($allowedIds !== null, fn ($q) => $q->whereIn('id', $allowedIds))->paginate(min(max((int) request('per_page', 50), 10), 500));
 
         return view('admin.entities.index', compact('entities'));
     }
@@ -83,7 +88,7 @@ class EntityController extends Controller
 
     public function edit(Entity $entity)
     {
-        abort_if(Gate::denies('entity_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('edit-object', $entity), Response::HTTP_FORBIDDEN, '403 Forbidden');
         $processes = Process::query()->orderBy('name')->pluck('name', 'id');
         $applications = Application::query()->orderBy('name')->pluck('name', 'id');
         $databases = Database::query()->orderBy('name')->pluck('name', 'id');
@@ -102,6 +107,8 @@ class EntityController extends Controller
 
     public function update(UpdateEntityRequest $request, Entity $entity)
     {
+        abort_if(Gate::denies('edit-object', $entity), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         // Save icon
         $this->iconUploadService->handle($request, $entity);
 
@@ -133,7 +140,7 @@ class EntityController extends Controller
 
     public function show(Entity $entity)
     {
-        abort_if(Gate::denies('entity_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(Gate::denies('show-object', $entity), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $entity->load('databases', 'applications', 'sourceRelations', 'destinationRelations', 'respApplications', 'processes');
 

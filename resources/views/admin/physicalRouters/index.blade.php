@@ -69,9 +69,7 @@
 
                             </td>
                             <td>
-                                <a href="{{ route('admin.physical-routers.show', $physicalRouter->id) }}">
-                                    {{ $physicalRouter->name ?? '' }}
-                                </a>
+                                <x-show-link :model="$physicalRouter" />
                             </td>
                             <td>
                                 {{ $physicalRouter->type ?? '' }}
@@ -81,33 +79,22 @@
                             </td>
                             <td>
                                 @if($physicalRouter->site!=null)
-                                    <a href="{{ route('admin.sites.show', $physicalRouter->site->id) }}">
-                                        {{ $physicalRouter->site->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalRouter->site" />
                                 @endif
                             </td>
                             <td>
                                 @if($physicalRouter->building!=null)
-                                    <a href="{{ route('admin.buildings.show', $physicalRouter->building->id) }}">
-                                        {{ $physicalRouter->building->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalRouter->building" />
                                 @endif
                             </td>
                             <td>
                                 @if($physicalRouter->bay!=null)
-                                    <a href="{{ route('admin.bays.show', $physicalRouter->bay->id) }}">
-                                        {{ $physicalRouter->bay->name ?? '' }}
-                                    </a>
+                                    <x-show-link :model="$physicalRouter->bay" />
                                 @endif
                             </td>
                             <td>
                                 @foreach($physicalRouter->routers as $router)
-                                    <a href="{{ route('admin.routers.show', $router->id) }}">
-                                        {{ $router->name }}
-                                        @if(!$loop->last)
-                                            ,
-                                        @endif
-                                    </a>
+                                    <x-show-link :model="$router" />@if(!$loop->last), @endif
                                 @endforeach
                             </td>
                             <td nowrap>
@@ -118,12 +105,12 @@
                                     </a>
                                 @endcan
 
-                                @can('physical_router_edit')
+                                @canEdit($physicalRouter)
                                     <a class="btn btn-xs btn-info"
                                        href="{{ route('admin.physical-routers.edit', $physicalRouter->id) }}">
                                         {{ trans('global.edit') }}
                                     </a>
-                                @endcan
+                                @endcanEdit
 
                                 @can('physical_router_delete')
                                     <form action="{{ route('admin.physical-routers.destroy', $physicalRouter->id) }}"

@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests;
 
-use Gate;
 use Illuminate\Validation\Rule;
-use Symfony\Component\HttpFoundation\Response;
 
 class UpdateActivityRequest extends BaseFormRequest
 {
@@ -13,9 +11,7 @@ class UpdateActivityRequest extends BaseFormRequest
 
     public function authorize() : bool
     {
-        abort_if(Gate::denies('activity_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
-
-        return true;
+        return $this->authorizeEdit();
     }
 
     public function rules() : array
