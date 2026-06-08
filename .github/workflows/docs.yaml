@@ -33,7 +33,31 @@ jobs:
       - name: Add Helm index to site
         run: |
           git fetch origin gh-pages
-          git show origin/gh-pages:index.yaml > site/index.yaml 2>/dev/null || true
+          git show origin/gh-pages:index.yaml > /tmp/ghpages-index.yaml 2>/dev/null || true
+          python3 - <<'EOF'
+import yaml, os
+
+def load(path):
+    if not os.path.exists(path) or os.path.getsize(path) == 0: return {}
+    with open(path) as f: return yaml.safe_load(f) or {}
+
+ghpages = load('/tmp/ghpages-index.yaml')
+local   = load('docs/_helm_chart/index/index.yaml')
+
+entries = {}
+for e in (ghpages.get('entries', {}).get('mercator') or []):
+    entries[e['version']] = e
+for e in (local.get('entries', {}).get('mercator') or []):
+    entries[e['version']] = e
+
+result = {
+    'apiVersion': 'v1',
+    'entries': {'mercator': sorted(entries.values(), key=lambda x: x['version'], reverse=True)},
+    'generated': max(ghpages.get('generated', ''), local.get('generated', ''))
+}
+with open('site/index.yaml', 'w') as f:
+    yaml.dump(result, f, default_flow_style=False, allow_unicode=True)
+EOF
 
       - name: Deploy to GitHub Pages
         run: |
