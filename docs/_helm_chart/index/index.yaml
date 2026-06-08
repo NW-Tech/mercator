@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   mercator:
   - apiVersion: v2
+    appVersion: 9999.99.99
+    created: "2099-01-01T00:00:00Z"
+    description: TEST ENTRY - merge index validation
+    digest: 0000000000000000000000000000000000000000000000000000000000000000
+    name: mercator
+    type: application
+    urls:
+    - https://example.com/mercator-9999.99.99.tgz
+    version: 9999.99.99
+  - apiVersion: v2
     appVersion: 2026.06.05
     created: "2026-06-05T08:19:44.33628295+02:00"
     dependencies:
