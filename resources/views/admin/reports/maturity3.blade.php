@@ -521,7 +521,8 @@
                 <td><center>{{ $vlans>0 ? number_format($vlans_lvl1*100/$vlans,0):0 }}%</center></td>
             </tr>
             @endcanAccess
-            <tbody>
+        </tbody>
+        @endcanAccessAny
         </table>
         </div>
       </div>
@@ -532,7 +533,7 @@
 @section('scripts')
 <script type="text/javascript">
 window.chartData = {
-    maturity: {{ $maturity1  }},
+    maturity: {{ $maturity3  }},
 };
 </script>
 
@@ -540,4 +541,3 @@ window.chartData = {
 
 @endsection
 
-            @endcanAccessAny

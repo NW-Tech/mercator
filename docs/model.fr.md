@@ -280,7 +280,7 @@ Ce bouton est présent dans la vue du RGDP et visible dans la liste des objets M
 
 ### Activités
 
-Une activité est une étape nécessaire à la réalisation d’un processus. Elle correspond à un savoir-faire spéciﬁque et
+Une activité est une étape nécessaire à la réalisation d’un processus. Elle correspond à un savoir-faire spécifique et
 pas forcément à une structure organisationnelle de l’entreprise.
 
 | Table                                          | api               |
@@ -1780,7 +1780,7 @@ Un VLAN peut être rattaché à un routeur physique depuis un objet routeur phys
 
 ### Bornes WiFi
 
-Les bornes WiFi sont des équipements matériel permettant l’accès au réseau sans fil wifi.
+Les bornes WiFi sont des équipements matériel permettant l’accès au réseau sans fil WiFi.
 
 | Table                                              | api                   |
 |:---------------------------------------------------|:----------------------|
@@ -1988,7 +1988,7 @@ Cette partie permet de voir les documents attachés, mais aussi les icônes pers
 
 ### utilisateurs
 
-Cette partie permet de voir la liste des utilisateurs de mercator avec le lien sur leur rôle associé.
+Cette partie permet de voir la liste des utilisateurs de Mercator avec le lien sur leur rôle associé.
 
 | Table                                         | api              |
 |:----------------------------------------------|:-----------------|
@@ -2027,9 +2027,29 @@ Cette partie permet de voir la liste des roles des users dans mercator.
 | updated_at | timestamp        | Date de mise à jour  |
 | deleted_at | timestamp        | Date de suppression  |
 
+
+### Cartographie
+
+Cette section permet de définir des règles d’accès sur des objets, applicables à des rôles ou à des utilisateurs.
+
+| Table                                         | api              |
+|:----------------------------------------------|:-----------------|
+| <span style="color: blue;">*cartographers*</span> | `/api/cartographers` |
+
+| Champ      | Type             | Description          |
+|------------|------------------|----------------------|
+| id         | int(10) unsigned | auto_increment       |
+| cartographiable_type     | varchar(255)     | Type d'objet        |
+| cartographiable_id | int(10)        | id de l'objet sélectionné     |
+| user_id | int(10)        | id de l'utilisateur affecté (peut-être null si on a un role alloué)  |
+| role_id | int(10)        | id du role affecté (peut-être null si on a un user alloué)  |
+| created_at | timestamp        | Date de création     |
+| updated_at | timestamp        | Date de mise à jour  |
+| deleted_at | timestamp        | Date de suppression  |
+
 ### Permissions
 
-Cette partie permet de voir la liste des permissions qui peuvent être affectées aux roles.
+Cette partie permet de voir la liste des permissions qui peuvent être affectées aux rôles.
 
 | Table                                         | api              |
 |:----------------------------------------------|:-----------------|
