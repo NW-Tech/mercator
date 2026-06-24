@@ -172,7 +172,12 @@ class NetworkInfrastructureView extends Controller
             $buildingIds = $buildings->pluck('id');
 
             $bays = Bay::query()
-                ->whereIn('room_id', $buildingIds)
+                ->where(function ($q) use ($buildingIds, $siteId) {
+                    $q->whereIn('building_id', $buildingIds)
+                        ->orWhere(function ($q) use ($siteId) {
+                            $q->whereNull('building_id')->where('site_id', $siteId);
+                        });
+                })
                 ->orderBy('name')
                 ->get();
             $bayIds = $bays->pluck('id');
@@ -181,7 +186,7 @@ class NetworkInfrastructureView extends Controller
             $bays = Bay::All()->sortBy('name')
             ->filter(function ($item) use ($buildings) {
                 foreach ($buildings as $building) {
-                    if ($item->room_id === $building->id) {
+                    if ($item->building_id === $building->id) {
                         return true;
                     }
                 }
@@ -189,22 +194,11 @@ class NetworkInfrastructureView extends Controller
                 return false;
             });
             */
-            $physicalServers = Cartographer::scopedQuery(PhysicalServer::query()
-                ->where(function ($q) use ($buildingIds, $bayIds): void {
-                    $q->where(function ($q) use ($buildingIds): void {
-                        $q->whereNull('bay_id')
-                            ->whereIn('building_id', $buildingIds);
-                    });
-                    if ($bayIds->isNotEmpty()) {
-                        $q->orWhereIn('bay_id', $bayIds);
-                    }
-                })
-                ->orderBy('name'))
-                ->get();
-            /*
-            $physicalServers = PhysicalServer::All()->sortBy('name')
-                ->filter(function ($item) use ($site, $buildings, $bays) {
-                    if (($buildings === null) && ($item->site_id === $site)) {
+            $physicalServers = Cartographer::scopedQuery(PhysicalServer::query())->orderBy('name')->get()
+                ->filter(function ($item) use ($siteId, $buildings, $bays) {
+                    if (($item->bay_id === null) &&
+                        ($item->building_id === null) &&
+                        ($item->site_id === $siteId)) {
                         return true;
                     }
                     if ($item->bay_id === null) {
@@ -223,7 +217,6 @@ class NetworkInfrastructureView extends Controller
 
                     return false;
                 });
-            */
             $workstations = Cartographer::scopedQuery(Workstation::query())->orderBy('name')->get()
                 ->filter(function ($item) use ($siteId, $buildings) {
                     if (($item->building_id === null) && ($item->site_id === $siteId)) {

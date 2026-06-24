@@ -45,7 +45,10 @@ class Information extends Model implements HasPrefix, HasIconContract
     ];
 
     protected $fillable = [
+        'ext_refs',
         'name',
+        'type',
+        'attributes',
         'description',
         'owner',
         'administrator',

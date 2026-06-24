@@ -44,6 +44,7 @@ class Building extends Model implements HasIconContract, HasPrefix
     ];
 
     protected $fillable = [
+        'ext_refs',
         'name',
         'icon_id',
         'description',
@@ -59,9 +60,9 @@ class Building extends Model implements HasIconContract, HasPrefix
     }
 
     /** @return HasMany<Bay, $this> */
-    public function roomBays(): HasMany
+    public function bays(): HasMany
     {
-        return $this->hasMany(Bay::class, 'room_id', 'id')->orderBy('name');
+        return $this->hasMany(Bay::class, 'building_id', 'id')->orderBy('name');
     }
 
     /** @return HasMany<PhysicalServer, $this> */

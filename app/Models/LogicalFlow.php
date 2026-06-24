@@ -37,7 +37,10 @@ class LogicalFlow extends Model implements HasPrefix
     ];
 
     protected $fillable = [
+        'ext_refs',
         'name',
+        'type',
+        'attributes',
         'description',
         'chain',
         'interface',

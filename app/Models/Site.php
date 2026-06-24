@@ -31,7 +31,10 @@ class Site extends Model implements HasIconContract, HasPrefix
     public static string $icon = '/images/site.png';
 
     protected $fillable = [
+        'ext_refs',
         'name',
+        'type',
+        'attributes',
         'icon_id',
         'description',
         'created_at',
@@ -60,6 +63,12 @@ class Site extends Model implements HasIconContract, HasPrefix
     public function buildings(): HasMany
     {
         return $this->hasMany(Building::class, 'site_id', 'id')->orderBy('name');
+    }
+
+    /** @return HasMany<Bay, $this> */
+    public function bays(): HasMany
+    {
+        return $this->hasMany(Bay::class, 'site_id', 'id')->orderBy('name');
     }
 
     /** @return HasMany<PhysicalServer, $this> */

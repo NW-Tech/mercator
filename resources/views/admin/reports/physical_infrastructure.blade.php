@@ -403,7 +403,7 @@ B{{ $building->building_id }} -> B{{ $building->id }}
 @elseif ((!Session::get('building')) && ($building->site_id!==null) && $sites->contains('id', $building->site_id))
 S{{ $building->site_id }} -> B{{ $building->id }}
 @endif
-@foreach($building->roomBays as $bay)
+@foreach($building->bays as $bay)
 @if($bays->contains('id', $bay->id))
 B{{ $building->id }} -> BAY{{ $bay->id }}
 @endif
@@ -423,9 +423,20 @@ B{{ $building->id }} -> W{{ $workstation->id }}
 @endcan
 @endforEach
 @endcan
+@canAccess(App\Models\Workstation::class)
+@foreach($workstations as $workstation)
+@if ($workstation->building_id === null && $workstation->site_id!==null && $sites->contains('id', $workstation->site_id))
+W{{ $workstation->id }} [label="{{ $workstation->name }}" shape=none labelloc="b"  width=1 height=1.1 image="{{ $workstation->icon_id === null ? '/images/workstation.png' : route('admin.documents.show', $workstation->icon_id) }}" href="#{{$workstation->getUID()}}"]
+S{{ $workstation->site_id }} -> W{{ $workstation->id }}
+@endif
+@endforeach
+@endcan
 @canAccess(App\Models\Bay::class)
 @foreach($bays as $bay)
 BAY{{ $bay->id }} [label="{{ $bay->name }}" shape=none labelloc="b"  width=1 height=1.1 image="/images/bay.png" href="#{{$bay->getUID()}}"]
+@if ($bay->building_id === null && $bay->site_id!==null && $sites->contains('id', $bay->site_id))
+S{{ $bay->site_id }} -> BAY{{ $bay->id }}
+@endif
 @endforeach
 @endcan
 @canAccess(App\Models\PhysicalServer::class)

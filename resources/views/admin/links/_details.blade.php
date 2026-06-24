@@ -1,14 +1,24 @@
 <table class="table table-bordered table-striped">
     <tbody>
         <tr>
-            <th width="10%" valign="middle">
+            <th width="10%">
             {{ trans('cruds.physicalLink.fields.type') }}
             </th>
             <td valign="middle" width="20%">
             {{ $link->type }}
             </td>
-            <td valign="middle">
+            <td>
                 <div style="width: 40px; height: 40px; background-color: {{ $link->color }}; border: 1px solid #ccc; border-radius: 4px;"></div>
+            </td>
+            <th width="10%">
+                {{ trans('cruds.physicalLink.fields.attributes') }}
+            </th>
+            <td colspan="4">
+                @foreach(explode(' ', $link->attributes ?? '') as $attribute)
+                    @if(strlen(trim($attribute)) > 0)
+                        <span class="badge badge-info">{{ $attribute }}</span>
+                    @endif
+                @endforeach
             </td>
         </tr>
         @canAccessAny(App\Models\Peripheral::class, App\Models\Phone::class, App\Models\PhysicalRouter::class, App\Models\PhysicalSecurityDevice::class, App\Models\PhysicalServer::class, App\Models\PhysicalSwitch::class, App\Models\StorageDevice::class, App\Models\WifiTerminal::class, App\Models\Workstation::class, App\Models\Router::class, App\Models\NetworkSwitch::class)
@@ -16,7 +26,7 @@
             <th width="10%">
                 {{ trans('cruds.physicalLink.fields.src') }}
             </th>
-            <td colspan="2">
+            <td width="20%">
                 @if ($link->peripheralSrc!=null)
                 @canShow($link->peripheralSrc)
                 <a href="{{ route('admin.peripherals.show', $link->peripheral_src_id) }}">
@@ -107,20 +117,16 @@
                 @endcanShow
                 @endif
             </td>
-        </tr>
-        <tr>
             <th width="10%">
                 {{ trans('cruds.physicalLink.fields.src_port') }}
             </th>
-            <td colspan="2">
+            <td width="10%">
                 {{ $link->src_port }}
             </td>
-        </tr>
-        <tr>
-            <th>
+            <th width="10%">
                 {{ trans('cruds.physicalLink.fields.dest') }}
             </th>
-            <td colspan="2">
+            <td width="20%">
                 @if ($link->peripheralDest!=null)
                 @canShow($link->peripheralDest)
                 <a href="{{ route('admin.peripherals.show', $link->peripheral_dest_id) }}">
@@ -211,14 +217,20 @@
                 @endcanShow
                 @endif
             </td>
-        </tr>
         @endcanAccessAny
+            <th width="10%">
+                {{ trans('cruds.physicalLink.fields.dest_port') }}
+            </th>
+            <td width="10%">
+                {{ $link->dest_port }}
+            </td>
+        </tr>
         <tr>
             <th>
-                {{ trans('cruds.physicalLink.fields.src_port') }}
+                {{ trans('cruds.physicalLink.fields.description') }}
             </th>
-            <td colspan="2">
-                {{ $link->dest_port }}
+            <td colspan="7">
+                {!! $link->description !!}
             </td>
         </tr>
     </tbody>

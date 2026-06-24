@@ -65,6 +65,20 @@ class QueryController extends APIController
     {
         abort_if(Gate::denies('query_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
+        return $this->exportCsv($query);
+    }
+
+    /**
+     * Export CSV via URL signée (signature = autorisation).
+     * Pas de Gate ici : aucun utilisateur authentifié.
+     */
+    public function exportSigned(SavedQuery $query): StreamedResponse|JsonResponse
+    {
+        return $this->exportCsv($query);
+    }
+
+    private function exportCsv(SavedQuery $query): StreamedResponse|JsonResponse
+    {
         $dsl = $query->query;
 
         if (empty($dsl) || empty($dsl['from'])) {
@@ -157,8 +171,7 @@ class QueryController extends APIController
 
     public function massStore(MassStoreSavedQueryRequest $request)
     {
-        $data       = $request->validated();
-        $createdIds = $this->massStoreItems($data['items']);
+        $createdIds = $this->massStoreItems($request->input('items', []));
 
         return response()->json([
             'status' => 'ok',
@@ -169,9 +182,7 @@ class QueryController extends APIController
 
     public function massUpdate(MassUpdateSavedQueryRequest $request)
     {
-        $data = $request->validated();
-
-        $this->massUpdateItems($data['items']);
+        $this->massUpdateItems($request->input('items', []));
 
         return response()->json([
             'status' => 'ok',
