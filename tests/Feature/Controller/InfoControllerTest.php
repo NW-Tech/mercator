@@ -57,3 +57,37 @@ test('shows the user perimeters when the feature is enabled', function () {
     });
     $response->assertSee('Site B');
 });
+
+test('shows mapped objects and per-perimeter rights', function () {
+    PerimeterSettings::setEnabled(true);
+    $perimeter = Perimeter::factory()->create(['name' => 'Site C']);
+    $role = Role::factory()->create(['title' => 'Lecteur C', 'perimeter_id' => $perimeter->id]);
+    $this->user->roles()->attach($role);
+
+    $response = $this->get(route('admin.doc.info'));
+
+    $response->assertOk();
+    $response->assertViewHas('objectGroups', fn (array $groups) => collect($groups)->pluck('key')->contains('ecosystem'));
+    $response->assertViewHas('perimeterSummary', function (array $summary) {
+        $row = collect($summary)->firstWhere('name', 'Site C');
+
+        return $row !== null && in_array('Lecteur C', $row['roles'], true);
+    });
+    $response->assertSee('id="info-perimeter-summary"', false);
+    $response->assertSee('id="info-rights"', false);
+});
+
+test('renders for a non-admin user restricted to one perimeter', function () {
+    PerimeterSettings::setEnabled(true);
+    $perimeter = Perimeter::factory()->create(['name' => 'Site D']);
+    $role = Role::factory()->create(['perimeter_id' => $perimeter->id]);
+    $user = User::factory()->create();
+    $user->roles()->attach($role);
+    $this->actingAs($user);
+
+    $response = $this->get(route('admin.doc.info'));
+
+    $response->assertOk();
+    $response->assertViewHas('isAdmin', false);
+    $response->assertSee('Site D');
+});
