@@ -22,12 +22,16 @@ beforeEach(function () {
     ]);
     $this->user = User::query()->where('login', 'admin@admin.com')->first();
     Passport::actingAs($this->user);
+
+    // Stockage temporaire : ne jamais écrire dans le vrai storage/docs
+    $this->storage = sys_get_temp_dir().'/mercator-docs-test-'.uniqid();
+    $this->app->useStoragePath($this->storage);
 });
 
 afterEach(function () {
-    if (isset($this->path) && file_exists($this->path)) {
-        unlink($this->path);
-    }
+    array_map('unlink', glob($this->storage.'/docs/*'));
+    @rmdir($this->storage.'/docs');
+    @rmdir($this->storage);
 });
 
 function storeDocumentFile(Document $document, string $binary): string

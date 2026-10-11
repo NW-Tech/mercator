@@ -4,12 +4,15 @@ namespace App\Models;
 
 use App\Factories\DocumentFactory;
 use App\Traits\Auditable;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Number;
+use Illuminate\Support\Str;
 
 class Document extends Model
 {
@@ -79,6 +82,79 @@ class Document extends Model
     public function externalConnectedEntities(): BelongsToMany
     {
         return $this->belongsToMany(ExternalConnectedEntity::class);
+    }
+
+    /**
+     * Relations to the objects a document can be attached to.
+     */
+    public const OWNER_RELATIONS = [
+        'activities',
+        'entities',
+        'applications',
+        'entityRelations',
+        'dataProcessings',
+        'logicalServers',
+        'externalConnectedEntities',
+    ];
+
+    /**
+     * Is this document attached to at least one object, whatever the user's perimeter?
+     */
+    public function hasOwners(): bool
+    {
+        foreach (self::OWNER_RELATIONS as $relation) {
+            if ($this->{$relation}()->withoutGlobalScopes()->exists()) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Can the user see one of the objects this document is attached to
+     * (role permission in the object's perimeter, or cartographer)?
+     */
+    public function isVisibleBy(User $user): bool
+    {
+        foreach (self::OWNER_RELATIONS as $relation) {
+            foreach ($this->{$relation} as $owner) {
+                if (Gate::forUser($user)->allows('show-object', $owner)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Restricts the query to the documents the user may list: documents attached to no
+     * object, or attached to at least one object the user sees in the lists (`<type>_access`,
+     * perimeters and cartographers through the owners' global scopes).
+     *
+     * @param  Builder<Document>  $query
+     */
+    public function scopeVisibleTo(Builder $query, User $user): void
+    {
+        if (Gate::forUser($user)->allows('configure')) {
+            return;
+        }
+
+        $query->where(function (Builder $query) use ($user) {
+            $query->where(function (Builder $orphan) {
+                foreach (self::OWNER_RELATIONS as $relation) {
+                    $orphan->whereDoesntHave($relation, fn (Builder $owner) => $owner->withoutGlobalScopes());
+                }
+            });
+
+            foreach (self::OWNER_RELATIONS as $relation) {
+                $ability = Str::snake(class_basename($this->{$relation}()->getRelated())).'_access';
+                if (Gate::forUser($user)->allows($ability)) {
+                    $query->orWhereHas($relation);
+                }
+            }
+        });
     }
 
     public function humanSize(): string

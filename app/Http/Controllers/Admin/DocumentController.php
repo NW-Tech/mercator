@@ -11,19 +11,6 @@ use Illuminate\Support\Facades\Log;
 
 class DocumentController extends Controller
 {
-    /**
-     * Relations of Document to the objects a document can be attached to.
-     */
-    private const OWNER_RELATIONS = [
-        'activities',
-        'entities',
-        'applications',
-        'entityRelations',
-        'dataProcessings',
-        'logicalServers',
-        'externalConnectedEntities',
-    ];
-
     public function get(int $id)
     {
         // Find the document
@@ -170,18 +157,8 @@ class DocumentController extends Controller
      */
     private function canAccess(Document $document): bool
     {
-        if (in_array($document->id, session('documents', [])) || Gate::allows('configure')) {
-            return true;
-        }
-
-        foreach (self::OWNER_RELATIONS as $relation) {
-            foreach ($document->{$relation} as $owner) {
-                if (Gate::allows('show-object', $owner)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+        return in_array($document->id, session('documents', []))
+            || Gate::allows('configure')
+            || $document->isVisibleBy(auth()->user());
     }
 }

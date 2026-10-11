@@ -7,8 +7,10 @@ use App\Http\Requests\MassStoreDocumentRequest;
 use App\Http\Requests\MassUpdateDocumentRequest;
 use App\Http\Requests\StoreDocumentRequest;
 use App\Http\Requests\UpdateDocumentRequest;
+use App\Models\Cartographer;
 use App\Models\Document;
 use Gate;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,6 +21,17 @@ use Symfony\Component\HttpFoundation\Response;
 class DocumentController extends APIController
 {
     protected string $modelClass = Document::class;
+
+    /**
+     * Only the documents the user may see (see Document::scopeVisibleTo()), for the
+     * list as well as the mass operations.
+     *
+     * @return Builder<Document>
+     */
+    protected function newQuery(): Builder
+    {
+        return Cartographer::scopedQuery(Document::query())->visibleTo(auth()->user());
+    }
 
     /**
      * Liste les documents (métadonnées uniquement).
@@ -38,6 +51,7 @@ class DocumentController extends APIController
     public function show(Document $document): JsonResource
     {
         abort_if(Gate::denies('document_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(! $this->canAccess($document), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         return $this->asJsonResource($document);
     }
@@ -49,6 +63,7 @@ class DocumentController extends APIController
     public function download(Document $document): BinaryFileResponse
     {
         abort_if(Gate::denies('document_show'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(! $this->canAccess($document), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $path = storage_path('docs/'.$document->id);
         abort_if(! file_exists($path), Response::HTTP_NOT_FOUND, '404 Not Found');
@@ -106,6 +121,7 @@ class DocumentController extends APIController
     public function update(UpdateDocumentRequest $request, Document $document): JsonResponse
     {
         abort_if(Gate::denies('document_edit'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(! $this->canAccess($document), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
@@ -139,6 +155,7 @@ class DocumentController extends APIController
     public function destroy(Document $document): Response
     {
         abort_if(Gate::denies('document_delete'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+        abort_if(! $this->canAccess($document), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         $path = storage_path('docs/'.$document->id);
         if (file_exists($path)) {
@@ -163,7 +180,7 @@ class DocumentController extends APIController
         $ids = $request->input('ids', []);
 
         // Supprimer les fichiers physiques avant de supprimer les enregistrements
-        Document::whereIn('id', $ids)->get()->each(function (Document $document) {
+        $this->newQuery()->whereIn('id', $ids)->get()->each(function (Document $document) {
             $path = storage_path('docs/'.$document->id);
             if (file_exists($path)) {
                 unlink($path);
@@ -252,6 +269,18 @@ class DocumentController extends APIController
     // -------------------------------------------------------------------------
     // Helpers
     // -------------------------------------------------------------------------
+
+    /**
+     * A document attached to objects is only accessible if the user may see one of
+     * them (perimeters, cartographers). A document attached to nothing (just uploaded
+     * through the API) belongs to no perimeter: document_show is enough.
+     */
+    private function canAccess(Document $document): bool
+    {
+        return Gate::allows('configure')
+            || $document->isVisibleBy(auth()->user())
+            || ! $document->hasOwners();
+    }
 
     /**
      * Retourne un MIME type sûr : si le type enregistré n'est pas dans la liste
