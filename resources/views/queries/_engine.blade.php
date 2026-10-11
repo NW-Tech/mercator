@@ -12,8 +12,8 @@
 }
 </style>
 
-{{-- ── Barre d'outils ─────────────────────────────────────────────── --}}
-<div class="card-header py-2 d-flex gap-2 align-items-center flex-wrap">
+{{-- ── Barre d'outils (conservée dans le DOM si masquée : le JS lit ses champs) --}}
+<div class="card-header py-2 d-flex gap-2 align-items-center flex-wrap{{ ($hideEditor ?? false) ? ' d-none' : '' }}">
 
     {{-- Mode sortie --}}
     <div class="btn-group btn-group-sm" role="group">
@@ -53,7 +53,7 @@
 {{-- ── Éditeur DSL ─────────────────────────────────────────────────── --}}
 <div id="editor-panel" class="border-bottom d-none">
     <textarea id="query-editor"
-              class="form-control font-monospace border-0 rounded-0"
+              class="form-control font-monospace border-0 rounded-0{{ ($hideEditor ?? false) ? ' d-none' : '' }}"
               rows="8"
               style="font-size:0.85rem; resize:vertical;"
               spellcheck="false"
@@ -75,7 +75,11 @@ LIMIT 100"></textarea>
          style="position:absolute; inset:0;">
         <div class="text-center">
             <i class="fas fa-search fa-3x mb-3 opacity-25"></i>
-            <p>@lang('Écrivez une requête et cliquez sur Exécuter.')</p>
+            @if($hideEditor ?? false)
+                <p>@lang('Sélectionnez une requête dans la liste.')</p>
+            @else
+                <p>@lang('Écrivez une requête et cliquez sur Exécuter.')</p>
+            @endif
         </div>
     </div>
 
