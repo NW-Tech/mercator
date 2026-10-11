@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 
 class DocumentController extends Controller
@@ -15,6 +16,9 @@ class DocumentController extends Controller
         // Find the document
         $document = Document::Find($id);
         abort_if($document === null, Response::HTTP_NOT_FOUND, '404 Not Found');
+
+        // Check the user may see this document
+        abort_if(! $this->canAccess($document), Response::HTTP_FORBIDDEN, '403 Forbidden');
 
         // Get the path to the file
         $path = storage_path('docs/'.$id);
@@ -87,6 +91,13 @@ class DocumentController extends Controller
 
     public function delete(int $id)
     {
+        // Only documents of the object being created/edited (put in session by its controller)
+        abort_if(
+            ! in_array($id, session('documents', [])) && Gate::denies('configure'),
+            Response::HTTP_FORBIDDEN,
+            '403 Forbidden'
+        );
+
         // Find the document
         $document = Document::Find($id);
         if ($document === null) {
@@ -120,6 +131,8 @@ class DocumentController extends Controller
 
     public function stats()
     {
+        abort_if(Gate::denies('configure'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $count = Document::count();
         $sum = Document::sum('size');
 
@@ -130,9 +143,22 @@ class DocumentController extends Controller
 
     public function check()
     {
+        abort_if(Gate::denies('configure'), Response::HTTP_FORBIDDEN, '403 Forbidden');
+
         $documents = Document::All();
 
         return view('admin.config.check')
             ->with('documents', $documents);
+    }
+
+    /**
+     * A document is accessible when it has just been uploaded or is being edited
+     * in this session, or when the user may see one of the objects it is attached to.
+     */
+    private function canAccess(Document $document): bool
+    {
+        return in_array($document->id, session('documents', []))
+            || Gate::allows('configure')
+            || $document->isVisibleBy(auth()->user());
     }
 }
