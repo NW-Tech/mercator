@@ -136,7 +136,7 @@
             </div>
 
             {{-- Moteur --}}
-            @include('queries._engine')
+            @include('queries._engine', ['hideEditor' => true])
 
         </div>
     </div>
@@ -244,9 +244,6 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         panelActions.classList.remove('d-none');
         panelActions.classList.add('show');
-
-        // Forcer l'éditeur visible
-        editorPanel?.classList.remove('d-none');
 
         // 5. Appel load
         // console.log('→ Appel QueryEngine.load(dsl)');
