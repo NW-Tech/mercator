@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Number;
 
 class Document extends Model
 {
@@ -30,7 +31,7 @@ class Document extends Model
         'filename',
         'mimetype',
         'size',
-        'hash'
+        'hash',
     ];
 
     protected static function newFactory(): Factory
@@ -47,12 +48,42 @@ class Document extends Model
     /** @return BelongsToMany<Entity, $this> */
     public function entities(): BelongsToMany
     {
-        return $this->belongsToMany(Entity::class);
+        return $this->belongsToMany(Entity::class, 'entity_document');
+    }
+
+    /** @return BelongsToMany<Application, $this> */
+    public function applications(): BelongsToMany
+    {
+        return $this->belongsToMany(Application::class);
+    }
+
+    /** @return BelongsToMany<Relation, $this> */
+    public function entityRelations(): BelongsToMany
+    {
+        return $this->belongsToMany(Relation::class);
+    }
+
+    /** @return BelongsToMany<DataProcessing, $this> */
+    public function dataProcessings(): BelongsToMany
+    {
+        return $this->belongsToMany(DataProcessing::class);
+    }
+
+    /** @return BelongsToMany<LogicalServer, $this> */
+    public function logicalServers(): BelongsToMany
+    {
+        return $this->belongsToMany(LogicalServer::class);
+    }
+
+    /** @return BelongsToMany<ExternalConnectedEntity, $this> */
+    public function externalConnectedEntities(): BelongsToMany
+    {
+        return $this->belongsToMany(ExternalConnectedEntity::class);
     }
 
     public function humanSize(): string
     {
-        return \Illuminate\Support\Number::fileSize($this->size);
+        return Number::fileSize($this->size);
         /*
         $units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
         $bytes = $this->size;
