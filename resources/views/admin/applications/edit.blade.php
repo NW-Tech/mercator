@@ -199,7 +199,7 @@
                             <select class="form-control select2-free {{ $errors->has('responsible') ? 'is-invalid' : '' }}"
                                     name="responsibles[]" id="responsibles" multiple>
                                 @foreach($responsible_list as $resp)
-                                    <option {{ str_contains($application->responsible ,$resp) ? 'selected' : '' }}>{{$resp}}</option>
+                                    <option {{ in_array($resp, old('responsibles', array_map('trim', explode(',', $application->responsible ?? ''))), true) ? 'selected' : '' }}>{{$resp}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('responsible'))
@@ -345,7 +345,7 @@
                             <select class="form-control select2-free {{ $errors->has('technology') ? 'is-invalid' : '' }}"
                                     name="technologies[]" id="technologies" multiple>
                                 @foreach($technology_list as $t)
-                                    <option {{ str_contains($application->technology, $t) ? 'selected' : '' }}>{{$t}}</option>
+                                    <option {{ in_array($t, old('technologies', array_map('trim', explode(',', $application->technology ?? ''))), true) ? 'selected' : '' }}>{{$t}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('technology'))
@@ -362,7 +362,7 @@
                             <select class="form-control select2-free {{ $errors->has('external') ? 'is-invalid' : '' }}"
                                     name="externals[]" id="externals" multiple>
                                 @foreach($external_list as $t)
-                                    <option {{ str_contains($application->external, $t) ? 'selected' : '' }}>{{$t}}</option>
+                                    <option {{ in_array($t, old('externals', array_map('trim', explode(',', $application->external ?? ''))), true) ? 'selected' : '' }}>{{$t}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('external'))

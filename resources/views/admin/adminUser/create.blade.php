@@ -100,7 +100,7 @@
                         <label for="type">{{ trans('cruds.adminUser.fields.attributes') }}</label>
                         <select class="form-control select2-free {{ $errors->has('attributes') ? 'is-invalid' : '' }}" name="attributes[]" id="attributes" multiple>
                             @foreach($attributes_list as $a)
-                                <option {{ str_contains(old('attributes'), $a) ? 'selected' : '' }}>{{$a}}</option>
+                                <option {{ in_array($a, old('attributes', []), true) ? 'selected' : '' }}>{{$a}}</option>
                             @endforeach
                         </select>
                         <span class="help-block">{{ trans('cruds.adminUser.fields.attributes_helper') }}</span>

@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", function () {
             foreach($active_attributes_list as $attribute) {
                 $count = 0;
                 foreach($patches as $patch) {
-                    if (str_contains($patch->attributes, $attribute)) {
+                    if (in_array($attribute, explode(' ', $patch->attributes ?? ''), true)) {
                         if (
                             ($patch->next_update!==null) &&
                             (!Carbon\Carbon::parse($patch->next_update)->lt(today()))
@@ -258,7 +258,7 @@ document.addEventListener("DOMContentLoaded", function () {
             foreach($active_attributes_list as $attribute) {
                 $count = 0;
                 foreach($patches as $patch) {
-                    if (str_contains($patch->attributes, $attribute)) {
+                    if (in_array($attribute, explode(' ', $patch->attributes ?? ''), true)) {
                         if (
                         ($patch->next_update!==null) &&
                         (Carbon\Carbon::parse($patch->next_update)->lt(today()))
@@ -283,7 +283,7 @@ document.addEventListener("DOMContentLoaded", function () {
             foreach($active_attributes_list as $attribute) {
                 $count = 0;
                 foreach($patches as $patch) {
-                    if (str_contains($patch->attributes, $attribute)) {
+                    if (in_array($attribute, explode(' ', $patch->attributes ?? ''), true)) {
                         if (
                             ($patch->next_update===null)
                         )

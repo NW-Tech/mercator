@@ -127,6 +127,17 @@ describe('edit', function () {
         $response->assertSee($name);
     });
 
+    test('does not select technologies whose name is a prefix of a selected one', function () {
+        Application::factory()->create(['technology' => 'Angular']);
+        $container = Application::factory()->create(['technology' => 'AngularJS']);
+
+        $response = $this->get(route('admin.applications.edit', $container));
+
+        $response->assertOk();
+        $response->assertSee('<option selected>AngularJS</option>', false);
+        $response->assertDontSee('<option selected>Angular</option>', false);
+    });
+
     test('denies access without permission', function () {
         $user = User::factory()->create();
         $this->actingAs($user);
