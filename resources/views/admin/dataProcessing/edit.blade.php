@@ -74,7 +74,7 @@
                             <select class="form-control select2-free {{ $errors->has('responsible') ? 'is-invalid' : '' }}"
                                     name="legal_bases[]" id="legal_bases" multiple>
                                 @foreach($legal_basis_list as $lb)
-                                    <option {{ str_contains($dataProcessing->legal_basis ,$lb) ? 'selected' : '' }}>{{$lb}}</option>
+                                    <option {{ in_array($lb, old('legal_bases', array_map('trim', explode(',', $dataProcessing->legal_basis ?? ''))), true) ? 'selected' : '' }}>{{$lb}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('legal_basis'))

@@ -56,7 +56,7 @@
                             <select class="form-control select2-free-tags {{ $errors->has('patching_group') ? 'is-invalid' : '' }}"
                                     name="attributes[]" id="attributes" multiple>
                                 @foreach($attributes_list as $a)
-                                    <option {{ ( (old('attributes')!=null) && in_array($a,old('attributes'))) || str_contains($relation->attributes, $a) ? 'selected' : '' }}>{{$a}}</option>
+                                    <option {{ in_array($a, old('attributes', explode(' ', $relation->attributes ?? '')), true) ? 'selected' : '' }}>{{$a}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('attributes'))
@@ -102,7 +102,7 @@
                             <select class="form-control select2-free {{ $errors->has('responsible') ? 'is-invalid' : '' }}"
                                     name="responsibles[]" id="responsibles" multiple>
                                 @foreach($responsibles_list as $resp)
-                                    <option {{ ( (old('responsibles')!=null) && in_array($resp,old('responsibles'))) || str_contains($relation->responsible, $resp) ? 'selected' : '' }}>{{$resp}}</option>
+                                    <option {{ in_array($resp, old('responsibles', array_map('trim', explode(',', $relation->responsible ?? ''))), true) ? 'selected' : '' }}>{{$resp}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('responsible'))

@@ -94,7 +94,7 @@
                             <select class="form-control select2-free-tags {{ $errors->has('patching_group') ? 'is-invalid' : '' }}"
                                     name="attributes[]" id="attributes" multiple>
                                 @foreach($attributes_list as $a)
-                                    <option {{ ( (old('attributes')!=null) && in_array($a,old('attributes'))) || str_contains($flow->attributes, $a) ? 'selected' : '' }}>{{$a}}</option>
+                                    <option {{ in_array($a, old('attributes', explode(' ', $flow->attributes ?? '')), true) ? 'selected' : '' }}>{{$a}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('attributes'))

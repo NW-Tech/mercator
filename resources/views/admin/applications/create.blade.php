@@ -75,7 +75,7 @@
                             <select class="form-control select2-free-tags {{ $errors->has('attributes') ? 'is-invalid' : '' }}"
                                     name="attributes[]" id="attributes" multiple>
                                 @foreach($attributes_list as $a)
-                                    <option {{ str_contains(old('attributes'), $a) ? 'selected' : '' }}>{{$a}}</option>
+                                    <option {{ in_array($a, old('attributes', []), true) ? 'selected' : '' }}>{{$a}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('attributes'))
@@ -196,7 +196,7 @@
                             <select class="form-control select2-free {{ $errors->has('responsible') ? 'is-invalid' : '' }}"
                                     name="responsibles[]" id="responsibles" multiple>
                                 @foreach($responsible_list as $resp)
-                                    <option {{ str_contains(old('responsible') ,$resp) ? 'selected' : '' }}>{{$resp}}</option>
+                                    <option {{ in_array($resp, old('responsibles', []), true) ? 'selected' : '' }}>{{$resp}}</option>
                                 @endforeach
                             </select>
                             @if($errors->has('responsible'))
@@ -340,7 +340,7 @@
                             <select class="form-control select2-free {{ $errors->has('technology') ? 'is-invalid' : '' }}"
                                     name="technologies[]" id="technologies" multiple>
                                 @foreach($technology_list as $t)
-                                    <option {{ str_contains(old('technology') ,$t) ? 'selected' : '' }}>{{$t}}</option>
+                                    <option {{ in_array($t, old('technologies', []), true) ? 'selected' : '' }}>{{$t}}</option>
                                 @endforeach
                             </select>
 
@@ -359,7 +359,7 @@
                             <select class="form-control select2-free {{ $errors->has('external') ? 'is-invalid' : '' }}"
                                     name="externals[]" id="externals" multiple>
                                 @foreach($external_list as $t)
-                                    <option {{ str_contains(old('external') ,$t) ? 'selected' : '' }}>{{$t}}</option>
+                                    <option {{ in_array($t, old('externals', []), true) ? 'selected' : '' }}>{{$t}}</option>
                                 @endforeach
                             </select>
                             <span class="help-block">{{ trans('cruds.application.fields.external_helper') }}</span>
