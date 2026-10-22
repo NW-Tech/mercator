@@ -40,6 +40,7 @@ jobs:
           context: .
           platforms: linux/amd64  # linux/arm64 peut être rajouté plus tard
           push: true
+          pull: true
           build-args: |
             APP_VERSION=${{ steps.version.outputs.version }}
           tags: |
