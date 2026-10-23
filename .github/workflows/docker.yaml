@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - "master"
+  workflow_dispatch:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
@@ -40,7 +41,6 @@ jobs:
           context: .
           platforms: linux/amd64  # linux/arm64 peut être rajouté plus tard
           push: true
-          pull: true
           build-args: |
             APP_VERSION=${{ steps.version.outputs.version }}
           tags: |
