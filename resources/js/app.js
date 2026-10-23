@@ -30,7 +30,6 @@ import moment from "moment";
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 // DropZone
 import Dropzone from 'dropzone';
-import "dropzone/dist/dropzone.css";
 // Import fonts for pdfMake
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 
