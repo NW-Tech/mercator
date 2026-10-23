@@ -55,9 +55,12 @@ jobs:
           local   = load('docs/_helm_chart/index/index.yaml')
 
           entries = {}
-          for e in (ghpages.get('entries', {}).get('mercator') or []):
-              entries[e['version']] = e
+          # NW fork: entries already published on gh-pages (pointing at this
+          # fork's own releases) win over the upstream local index, so the
+          # fork stays usable when the upstream releases are unavailable.
           for e in (local.get('entries', {}).get('mercator') or []):
+              entries[e['version']] = e
+          for e in (ghpages.get('entries', {}).get('mercator') or []):
               entries[e['version']] = e
 
           result = {
